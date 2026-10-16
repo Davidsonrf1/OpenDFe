@@ -1,0 +1,14 @@
+bin/
+obj/
+*.user
+TestResults/
+artifacts/
+
+# certificados e segredos nunca entram (os testes geram o próprio certificado)
+*.pfx
+*.p12
+.env
+
+.vs/
+.vscode/
+.idea/
