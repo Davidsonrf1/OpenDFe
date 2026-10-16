@@ -111,7 +111,7 @@ Três camadas, todas antes da transmissão, todas com o mesmo resultado (`Proble
 
 ## 10. DANFE e DANFCE
 
-10.1. **Modelo de impressão neutro:** a lib monta o DANFCE como blocos de texto com alinhamento, destaque e o QR Code, e o DANFE como seções. Um renderizador transforma o modelo em saída.
+10.1. **Modelo de impressão neutro:** a lib monta o DANFCE como blocos de texto com alinhamento, destaque e o QR Code, e o DANFE como seções. Um renderizador transforma o modelo em saída. O modelo aceita também **imagem de 1 bit** (o logo do emitente no topo e a assinatura do software emissor no rodapé, como o PDV do ErpCore pede): a térmica só imprime preto, e o renderizador ESC/POS a manda como raster.
 
 10.2. **Renderizador PDF no pacote.** A biblioteca de PDF precisa ter licença compatível com a da OpenDFe (seção 14). **A decidir** (PdfSharp/MigraDoc, MIT; o QuestPDF tem licença comunitária com limite de receita, o que complica uma lib aberta).
 
