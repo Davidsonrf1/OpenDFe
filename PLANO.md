@@ -124,7 +124,7 @@ As fases 1 a 5 e a 7 atendem o PDV (fase 5 dele); a 8, a caixa de entrada do Erp
 
 ### Trilha paralela: SEFAZ emulada
 
-*Proposta de 2026-10-19, aguardando aprovação* (`PROJETO.md` 13.5). Corre ao lado das fases, numa **worktree com a branch `sefaz-emulada`** e sessões próprias, uma etapa por sessão, como o resto. Os arquivos que as duas trilhas tocam são o `OpenDFe.slnx`, o `Directory.Packages.props` e este plano. A situação da trilha fica numa seção só dela, no fim, para não conflitar com a das fases.
+*Aprovada em 2026-10-19* (`PROJETO.md` 13.5). **Próxima: E.1.** Corre ao lado das fases, numa **worktree com a branch `sefaz-emulada`** e sessões próprias, uma etapa por sessão, como o resto. Os arquivos que as duas trilhas tocam são o `OpenDFe.slnx`, o `Directory.Packages.props` e este plano. A situação da trilha fica numa seção só dela, no fim, para não conflitar com a das fases.
 
 Cada etapa se testa sozinha, com mensagens SOAP montadas a partir dos exemplos dos manuais e um `HttpClient` sem a lib. A lib contra o emulador só entra depois da 4.1 (ver "Encontros").
 

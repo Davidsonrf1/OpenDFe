@@ -227,7 +227,7 @@ Cancelamento (110111), cancelamento por substituição (110112, NFC-e), carta de
 
 13.4. **CI em Linux e Windows**, porque o TLS e o certificado se comportam diferente nos dois.
 
-13.5. **SEFAZ emulada** (proposta de 2026-10-19, aguardando aprovação). Um servidor local que responde como os autorizadores, **só para testes**, porque a homologação real recusa o certificado autoassinado no TLS mútuo (só aceita ICP-Brasil) e não reproduz falhas.
+13.5. **SEFAZ emulada** (aprovada em 2026-10-19). Um servidor local que responde como os autorizadores, **só para testes**, porque a homologação real recusa o certificado autoassinado no TLS mútuo (só aceita ICP-Brasil) e não reproduz falhas.
 
 - **Para que serve:** desenvolver e testar as fases 4 a 8 sem o PFX real; provocar o que a homologação real não deixa (serviço paralisado, tempo esgotado, autorizar e derrubar a conexão antes da resposta, que é o caso da `RecuperacaoAutorizacao` e do `PodeTerSidoProcessado`, 8.6; contingência SVC com o autorizador normal fora); e servir de ambiente de desenvolvimento ao PDV e ao módulo fiscal do ErpCore.
 - **Forma:** aplicação ASP.NET Core (Kestrel, sem pacote novo) em `tests/OpenDFe.SefazEmulada`, fora dos pacotes publicados. Roda sozinha (`dotnet run`, e uma imagem Docker depois) ou dentro dos testes, numa porta livre.
