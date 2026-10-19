@@ -18,7 +18,7 @@ Projeto pessoal de Davidson Faria, open source. O ErpCore (módulo fiscal) e o P
 | NFC-e | 65 | primeira versão (mesmo leiaute da NF-e) |
 | CT-e, CT-e OS | 57, 67 | depois |
 | MDF-e | 58 | depois |
-| NFS-e (padrão nacional) | — | a avaliar: é API REST com JSON/XML próprio, outro mundo |
+| NFS-e (padrão nacional) | — | v2: é API REST com JSON/XML próprio, outro mundo |
 
 ## 2. Princípios
 
@@ -92,7 +92,7 @@ O modelo e os leiautes de um documento são projetos separados que saem **no mes
 
 ## 5. Leitura e escrita do XML
 
-5.1. **O leiaute escreve e lê o XML à mão, com `XmlWriter` e `XmlReader`**, um método por grupo. O XML assinado precisa sair exatamente como o leiaute pede: ordem das tags, tag vazia omitida, decimais com as casas do campo, sem prefixo de namespace, sem espaços. O `XmlSerializer` exigiria propriedades-sombra de texto em cada valor formatado e não garante a forma. **A aprovar** (alternativa: um gerador de código a partir do XSD, mais tarde).
+5.1. **O leiaute escreve e lê o XML à mão, com `XmlWriter` e `XmlReader`**, um método por grupo. O XML assinado precisa sair exatamente como o leiaute pede: ordem das tags, tag vazia omitida, decimais com as casas do campo, sem prefixo de namespace, sem espaços. O `XmlSerializer` exigiria propriedades-sombra de texto em cada valor formatado e não garante a forma. Decidido em 2026-10-19 (alternativas descartadas: `XmlSerializer` e um gerador de código a partir do XSD).
 
 5.2. **A leitura aceita o que a SEFAZ aceita:** `NFe`, `nfeProc` (com o protocolo), versões de NT anteriores, e devolve problemas do que não reconhece, sem perder o XML original. O ErpCore já tem um leitor (`ErpCore.Fiscal`, `Nfe/LeitorDeNfe.cs`), que migra para cá.
 
@@ -188,7 +188,7 @@ Serviços SOAP por trás: `NFeAutorizacao4` (síncrona, `indSinc=1`, e por lote)
 
 10.1. **O leiaute monta o modelo de impressão**, porque ele depende do leiaute (grupos, QR Code): o DANFCE como blocos de texto com alinhamento, destaque e o QR Code, e o DANFE como seções. O modelo é neutro, definido no núcleo, e aceita também **imagem de 1 bit** (o logo do emitente no topo e a assinatura do software emissor no rodapé, como o PDV do ErpCore pede): a térmica só imprime preto, e o renderizador ESC/POS a manda como raster.
 
-10.2. **Renderizador PDF em pacote à parte** (`OpenDFe.Impressao.Pdf`), para que nem o núcleo nem o leiaute carreguem a biblioteca de PDF. Ela precisa ter licença compatível com a da OpenDFe (seção 14). **A decidir** (PdfSharp/MigraDoc, MIT; o QuestPDF tem licença comunitária com limite de receita, o que complica uma lib aberta).
+10.2. **Renderizador PDF em pacote à parte** (`OpenDFe.Impressao.Pdf`), para que nem o núcleo nem o leiaute carreguem a biblioteca de PDF. Ela precisa ter licença compatível com a da OpenDFe (seção 14). **Escolhida na fase 7** (candidatas: PdfSharp/MigraDoc, MIT; o QuestPDF tem licença comunitária com limite de receita, o que complica uma lib aberta).
 
 10.3. **ESC/POS fica com o aplicativo** (o PDV), a partir do mesmo modelo. Pode virar pacote depois, se houver demanda.
 
@@ -218,7 +218,7 @@ Cancelamento (110111), cancelamento por substituição (110112, NFC-e), carta de
 
 14.1. **GitHub público** e **NuGet.org**, com a reserva do prefixo `OpenDFe.*` antes da primeira publicação.
 
-14.2. **Licença MIT** (a confirmar; a Apache-2.0 acrescenta a concessão de patentes). Permissiva para que produtos fechados, como o ErpCore e o PDV, usem a lib distribuída dentro do executável; LGPL atrapalharia o pacote único e assinado do PDV.
+14.2. **Licença MIT** (decidido em 2026-10-19; descartada a Apache-2.0, que acrescentaria a concessão de patentes). Permissiva para que produtos fechados, como o ErpCore e o PDV, usem a lib distribuída dentro do executável; LGPL atrapalharia o pacote único e assinado do PDV.
 
 14.3. **Propriedade:** o projeto é pessoal desde o primeiro commit, e o ErpCore o usa sob a licença. Vale deixar isso escrito (README e o `CLAUDE.md` do ErpCore) para não haver dúvida se o ErpCore ganhar sócios ou for vendido.
 
@@ -242,13 +242,11 @@ Cancelamento (110111), cancelamento por substituição (110112, NFC-e), carta de
 | 6 | Eventos: cancelamento, substituição, CC-e, inutilização | os quatro em homologação |
 | 7 | Modelo do DANFCE e do DANFE no leiaute, `OpenDFe.Impressao.Pdf` | PDFs conferidos contra o manual |
 | 8 | Distribuição DF-e e manifestação | notas destinadas baixadas em homologação |
-| depois | CT-e, MDF-e, A3 no Linux, carregamento de leiaute por DLL (3.2), NFS-e nacional (a avaliar) | — |
+| depois | CT-e, MDF-e, A3 no Linux, carregamento de leiaute por DLL (3.2) | — |
+| v2 | NFS-e nacional | — |
 
 As fases 1 a 5 atendem o PDV; a 8, a caixa de entrada do ErpCore.
 
 ## 17. Em aberto
 
-1. Escrita do XML à mão (5.1, recomendado) ou gerador de código a partir do XSD.
-2. Licença: MIT ou Apache-2.0 (14.2).
-3. Biblioteca de PDF (10.2).
-4. NFS-e nacional no roteiro ou fora.
+1. Biblioteca de PDF (10.2), decidida na fase 7.
