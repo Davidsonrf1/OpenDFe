@@ -352,4 +352,37 @@ Pré-lançamentos (`0.x`) no NuGet.org a partir do fim da fase 5, quando o PDV p
   - A AC em `%LOCALAPPDATA%/OpenDFe.SefazEmulada`, fora do repositório; o nome padrão `127.0.0.1`; só HTTP/1.1.
 - Conferido: build sem aviso (Debug e Release); `dotnet test --solution OpenDFe.slnx` com código 0 (525 testes, 9 pulados, os de homologação); os 86 do emulador estáveis em quatro execuções no Windows e aprovados no Linux (WSL Ubuntu 26.04, OpenSSL 3.5.5, .NET 10.0.112); `dotnet pack -c Release` com os mesmos três pacotes, e o `eng/ConferirPacotes.ps1` aprovando; o `dotnet run`, que sobe e grava a AC. A regra de nomes não acusa nada fora dos métodos de teste e dos membros do .NET (`NoCheck`, `NoContent`). Sem dependência nova; a API pública da lib não mudou.
 
-**Próxima: E.2. Autorização**, que depende da 2.1 (os XSDs da NF-e no leiaute): começa quando a 2.1 estiver feita e trazida para esta branch.
+**E.2. Autorização. Feita (2026-10-19).**
+- **A 2.1 trazida para esta branch** por merge da `fase-2-modelo-leiaute` (o conflito no fim deste plano resolvido com as duas situações, a da fase 2 antes da trilha). O emulador passa a referenciar o `OpenDFe.Leiaute.NFe.v400` (e, por ele, o núcleo), só para o que é neutro (13.5): o `SchemaXml` com o `enviNFe_v4.00.xsd` e o `consReciNFe_v4.00.xsd`, achados pelo nome do arquivo entre os recursos do leiaute, sem API pública nova; a `AssinaturaDigital.Verificar`; e o `CertificadoDigital.LerTitular`, para o transmissor.
+- **No emulador:**
+  - `Autorizacao` (`NFeAutorizacao4`): o lote, as regras de cada nota, o `protNFe` e a resposta síncrona (104) ou assíncrona (103 com o recibo);
+  - `RetAutorizacao` (`NFeRetAutorizacao4`): a consulta do recibo, com 106, 223, 248, 553 e o 105 comandado;
+  - `Repositorio`: as notas autorizadas e os lotes, em memória, com uma trava por lote; o recibo e o protocolo na formação da Visão Geral (4.3.4 e 4.3.5);
+  - `Documentos`: o CNPJ (também o alfanumérico), o CPF e a chave com o DV, em código próprio;
+  - `Marca`: a marca no `infCpl`;
+  - `SchemasLeiaute`, os códigos novos em `Motivos` e, no `Autorizador`, o tipo de autorizador e o tipo de emissão da SVC.
+  - Mudanças na E.1: o atendimento lê o corpo antes das falhas (para a marca) e passa o transmissor e o repositório ao serviço; o envelope guarda o espaço em branco; o controle ganha a falha `loteProcessando`, com o `Consumir` em três grupos; e a rota de controle ganha o `/_controle/notas` (`GET` e `DELETE`).
+- **Testes:** 179 no emulador (93 novos), com uma NF-e mínima escrita em texto que passa no XSD do `PL_010f_v1.04` e assinada pelo `SignedXml` do .NET, sem a lib (`NotaTeste`), para a verificação do emulador ser conferida contra uma assinatura independente.
+  - A autorização síncrona: o 100 com os campos na ordem das Tabelas 5-2 e 5-6, o `nProt` e o `digVal`; a SVRS, a SVAN e SP; a NFC-e, o emitente CPF e o CNPJ alfanumérico; a nota com espaço entre as tags; a filial assinada pela matriz.
+  - A duplicidade: 204, 539 com a chave, outra série e outro modelo, a NFC-e separada pelo tipo de emissão, entre autorizadores e a nota rejeitada que não registra.
+  - Cada regra da nota: 207, 401, 297, 213, 227, 502, 253, 252, 226, 570, 713, 783, 703, 228 e 704, e a SVC autorizando com o tipo de emissão dela.
+  - O lote: 764, 765, 225 (inclusive a nota sem assinatura e a nota repetida), 565, 568, 239, 404, 476 e a paralisação.
+  - A assíncrona: o recibo de cada autorizador, o 104 com os protocolos na ordem, a consulta repetida, o 204 com o `nRec`, a duplicidade dentro do lote, 106 (inclusive o recibo da SVRS na SVC-RS), 248, 553, 252, 215, 517, 239, 516, 223 e o transmissor que não é o emitente.
+  - O 105 pelo controle e pela marca, e o 106 na frente dele.
+  - A queda: depois de autorizar, pelo controle e pela marca, com o reenvio em 204; antes de processar, sem autorizar.
+  - A marca: a paralisação só no próprio pedido, a precedência sobre o controle, a falha SOAP e sete marcas recusadas.
+  - O `/_controle/notas`, e no controle o `loteProcessando` (o grupo, a recusa em outro serviço, o grupo deixado para o próximo).
+  - Os testes da E.1 ajustados: o 404 com um serviço ainda não implementado, a lista das URLs com os três serviços (42) e o `Consumir` em três grupos.
+- **`docs/SEFAZ_EMULADA.md`:** a autorização e o recibo com as regras na ordem e os códigos, a formação do recibo e do protocolo, o que o emulador guarda, o `/_controle/notas`, o `loteProcessando` e a marca. Corrigido, também no `PROJETO.md` 13.5: o certificado do TLS identifica o **transmissor**, que não precisa ser o emitente (Visão Geral, 4.3.3); o comparado ao emitente (213) é o da assinatura.
+- **Conferido na fonte (2026-10-19), no MOC 7.0 baixado na E.1:** a Visão Geral, 4.3.1 a 4.3.5, 5.1 e 5.2; o Anexo I, 4.1 (grupos A, B, D, DA, E e F), 4.2.1 (grupos A, B e C e o 2B08) e as tabelas 4.4.1 e 4.4.2; a ordem dos retornos nos XSDs do pacote. **A resposta síncrona com mais de uma nota é 764** (regra GAP03a-1), e não o 452 que eu lembrava; o 764 e o 452 não aparecem na tabela 4.4.2 do PDF. O PDF desalinha a coluna "Campo-Seq" no grupo B do 4.2.1; o documento cita o grupo, e não a sequência, onde ela não é clara.
+- **Decisões tomadas sem perguntar** (o desenho não cobria; escolhi o conservador):
+  - Os números: o tipo de autorizador é 1 nas UFs, 2 na SVC-AN (a Receita, que tinha o SCAN), 3 na SVRS e na SVC-RS (o mesmo órgão) e 4 na SVAN. O recibo leva a casa do autorizador; o protocolo, o cUF da nota. A sequência é uma só no emulador. O `cUF` do `retEnviNFe` e do `retConsReciNFe` é o da casa do autorizador.
+  - O processamento: o lote assíncrono é processado na hora, e o 105 só sai comandado. A base de notas é uma só, para todos os autorizadores. O 204 não devolve o protocolo da nota igual (a observação 2 do 2B08-20, a critério da UF). O `protNFe` sai sem o `Id` e sem a assinatura, e o `digVal` vai também na rejeição, quando a nota tem a assinatura.
+  - A ordem das regras da nota: o documento do emitente vem antes da assinatura, porque a verificação precisa dele; depois, a assinatura, a chave, o ambiente, a UF, o tipo de emissão, a data e a duplicidade.
+  - O transmissor é o CNPJ ou o CPF do certificado do TLS ou, sem eles, a impressão digital.
+  - A marca: a forma `EMULADA:<tipo>[:<valor>]`; a marca que não serve responde com a falha SOAP `Sender` (HTTP 400), sem processar; a do controle da mesma espécie fica para o pedido seguinte.
+  - Os nomes, pela regra sem preposição: a falha é `loteProcessando` (no JSON e na marca), e não `loteEmProcessamento`.
+  - Ficam para depois: o 150 da NFC-e offline depois de 24 horas (E.3); a denegação e o 218 e o 205 da duplicidade (E.4).
+- Conferido: build sem aviso (Debug e Release); `dotnet test --solution OpenDFe.slnx` com código 0 (672 testes, 9 pulados, os de homologação); os 179 do emulador estáveis em três execuções no Windows e aprovados no Linux (WSL Ubuntu 26.04, OpenSSL 3.5.5, .NET 10.0.112); `dotnet pack -c Release` com os mesmos três pacotes, e o `eng/ConferirPacotes.ps1` aprovando. O aviso do NuGet de que o `OpenDFe.SefazEmulada` não é empacotável já saía na E.1 (conferido no commit dela) e não muda nada. A regra de nomes não acusa nada fora dos métodos de teste e do `NoContent` do .NET. Sem dependência nova; a API pública da lib não mudou. **Não rodei o `dotnet run`** nesta etapa: os testes sobem o mesmo `Emulador` que o `Program` usa.
+
+**Próxima: E.3. Consulta e NFC-e** (o `NFeConsultaProtocolo4`, o QR Code e o CSC da NFC-e, a nota offline transmitida depois, com o 150, e a SVC atendendo com o normal paralisado).

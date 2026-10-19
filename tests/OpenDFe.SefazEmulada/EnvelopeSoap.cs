@@ -20,7 +20,8 @@ internal static class EnvelopeSoap
         XmlResolver = null,
     };
 
-    // A área de dados do pedido. Envelope que não serve vira FalhaSoapException (o cliente errou).
+    // A área de dados do pedido, com o espaço em branco como veio (ele faz parte do que a nota assina).
+    // Envelope que não serve vira FalhaSoapException (o cliente errou).
     public static XElement LerDados(byte[] corpo, XNamespace namespaceWsdl)
     {
         XDocument documento;
@@ -28,7 +29,7 @@ internal static class EnvelopeSoap
         {
             using var fluxo = new MemoryStream(corpo);
             using var leitor = XmlReader.Create(fluxo, Leitura);
-            documento = XDocument.Load(leitor);
+            documento = XDocument.Load(leitor, LoadOptions.PreserveWhitespace);
         }
         catch (XmlException erro)
         {

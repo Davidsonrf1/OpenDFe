@@ -1,16 +1,17 @@
 using System.Net.Http.Headers;
+using System.Security.Cryptography.X509Certificates;
 using System.Xml.Linq;
 
 namespace OpenDFe.SefazEmulada;
 
 // O atendimento de POST /<destino>/<serviço>: as falhas de transporte comandadas, o envelope SOAP 1.2, o
 // limite de tamanho (Anexo I, B01, 214) e o serviço.
-internal sealed partial class Atendimento(Controle controle, OpcoesEmulador opcoes, IHostApplicationLifetime vida, ILogger<Atendimento> registro)
+internal sealed partial class Atendimento(Controle controle, Repositorio repositorio, OpcoesEmulador opcoes, IHostApplicationLifetime vida, ILogger<Atendimento> registro)
 {
     // B01: o XML de dados até 500 KB. Medido no corpo inteiro do pedido, com o envelope.
     public const int LimiteDados = 500 * 1024;
 
-    public static IReadOnlyList<Servico> Servicos { get; } = [new StatusServico()];
+    public static IReadOnlyList<Servico> Servicos { get; } = [new StatusServico(), new Autorizacao(), new RetAutorizacao()];
 
     public static Servico? Procurar(Autorizador autorizador, string nome) =>
         Servicos.FirstOrDefault(s => string.Equals(s.Nome, nome, StringComparison.OrdinalIgnoreCase)
@@ -32,9 +33,29 @@ internal sealed partial class Atendimento(Controle controle, OpcoesEmulador opco
             return;
         }
 
-        var (transporte, paralisacao) = controle.Consumir(autorizador.Sigla, servico.Nome);
         using var cancelamento = CancellationTokenSource.CreateLinkedTokenSource(contexto.RequestAborted, vida.ApplicationStopping);
         var ct = cancelamento.Token;
+        using var memoria = new MemoryStream();
+        await contexto.Request.Body.CopyToAsync(memoria, ct);
+        var corpo = memoria.ToArray();
+
+        // A marca no infCpl passa na frente da falha do controle da mesma espécie (Marca).
+        MarcaFalha? marca;
+        try
+        {
+            marca = servico.Nome == Servico.NomeAutorizacao && corpo.Length <= LimiteDados ? Marca.Ler(corpo) : null;
+        }
+        catch (FalhaSoapException falha)
+        {
+            Registrar(autorizador.Sigla, servico.Nome, "falha SOAP: " + falha.Message);
+            await ResponderAsync(contexto, StatusCodes.Status400BadRequest, EnvelopeSoap.Falha(falha.Codigo, falha.Message), ct);
+            return;
+        }
+        var (transporte, paralisacao, processamento) = controle.Consumir(autorizador.Sigla, servico.Nome,
+            transporte: marca?.Transporte is null, paralisacao: marca?.Paralisacao is null);
+        transporte = marca?.Transporte ?? transporte;
+        paralisacao = marca?.Paralisacao ?? paralisacao;
+
         switch (transporte)
         {
             case { Tipo: TipoFalha.Atraso, Milissegundos: { } milissegundos }:
@@ -55,9 +76,13 @@ internal sealed partial class Atendimento(Controle controle, OpcoesEmulador opco
                 return;
         }
 
-        using var memoria = new MemoryStream();
-        await contexto.Request.Body.CopyToAsync(memoria, ct);
-        var (status, resposta, situacao) = Responder(memoria.ToArray(), autorizador, servico, paralisacao);
+        var pedido = new Pedido(autorizador, opcoes.Relogio.GetUtcNow(),
+            paralisacao is null ? null : new Paralisacao(paralisacao.Codigo!, paralisacao.Observacao),
+            Transmissor: Transmissor(contexto.Connection.ClientCertificate),
+            Repositorio: repositorio,
+            Processando: processamento is not null,
+            Pendentes: marca?.Pendentes ?? 0);
+        var (status, resposta, situacao) = Responder(corpo, servico, pedido);
         switch (transporte?.Tipo)
         {
             case TipoFalha.ConexaoDerrubada:
@@ -76,15 +101,28 @@ internal sealed partial class Atendimento(Controle controle, OpcoesEmulador opco
         }
 
         Registrar(autorizador.Sigla, servico.Nome, situacao);
+        await ResponderAsync(contexto, status, resposta, ct);
+    }
+
+    private static async Task ResponderAsync(HttpContext contexto, int status, byte[] resposta, CancellationToken ct)
+    {
         contexto.Response.StatusCode = status;
         contexto.Response.ContentType = EnvelopeSoap.TipoConteudo + "; charset=utf-8";
         await contexto.Response.Body.WriteAsync(resposta, ct);
     }
 
-    private (int Status, byte[] Resposta, string Situacao) Responder(byte[] corpo, Autorizador autorizador, Servico servico, FalhaComandada? paralisacao)
+    // Quem transmitiu (Visão Geral, 4.3.3): o CNPJ ou o CPF do certificado do TLS, pela leitura da lib (13.5:
+    // o que é neutro); sem os campos da ICP-Brasil, a impressão digital, para o recibo continuar sendo só dele.
+    private static string Transmissor(X509Certificate2? certificado)
     {
-        var pedido = new Pedido(autorizador, opcoes.Relogio.GetUtcNow(),
-            paralisacao is null ? null : new Paralisacao(paralisacao.Codigo!, paralisacao.Observacao));
+        if (certificado is null)
+            return "";
+        var titular = CertificadoDigital.LerTitular(certificado);
+        return titular?.Cnpj ?? titular?.Cpf ?? certificado.Thumbprint;
+    }
+
+    private static (int Status, byte[] Resposta, string Situacao) Responder(byte[] corpo, Servico servico, Pedido pedido)
+    {
         try
         {
             XElement retorno;
@@ -96,7 +134,7 @@ internal sealed partial class Atendimento(Controle controle, OpcoesEmulador opco
             {
                 var dados = EnvelopeSoap.LerDados(corpo, servico.NamespaceWsdl).Elements().FirstOrDefault();
                 pedido = pedido with { Prefixo = EnvelopeSoap.UsaPrefixo(corpo, servico.NamespaceWsdl) };
-                retorno = dados is null ? servico.Rejeitar(Motivos.RaizInexistente, pedido) : servico.Processar(dados, pedido);
+                retorno = dados is null ? servico.Rejeitar(servico.RaizAusente, pedido) : servico.Processar(dados, pedido);
             }
             var codigo = retorno.Element(Servico.NamespaceNFe + "cStat")?.Value;
             return (StatusCodes.Status200OK, EnvelopeSoap.Resultado(servico.NamespaceWsdl, retorno), "cStat " + codigo);

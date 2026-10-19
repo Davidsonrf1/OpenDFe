@@ -20,6 +20,9 @@ internal enum TipoFalha
 
     // O serviço paralisado: 108 (o padrão) ou 109 no cStat (Anexo I, B03 e B04).
     Paralisacao = 6,
+
+    // A consulta do recibo responde 105, como se o lote ainda estivesse na fila (NFeRetAutorizacao4, E04).
+    LoteProcessando = 7,
 }
 
 // O pedido de falha, como chega em JSON no POST /_controle/falhas. Destino e serviço nulos valem para
@@ -69,6 +72,9 @@ internal sealed class Controle
             throw new ArgumentException("Milissegundos só vale para o atraso.", nameof(pedido));
         if (pedido.Depois && pedido.Tipo != TipoFalha.ConexaoDerrubada)
             throw new ArgumentException("Depois só vale para a conexão derrubada.", nameof(pedido));
+        if (pedido.Tipo == TipoFalha.LoteProcessando && pedido.Servico is not null
+            && !string.Equals(pedido.Servico, Servico.NomeRetAutorizacao, StringComparison.OrdinalIgnoreCase))
+            throw new ArgumentException($"O lote em processamento só vale para o {Servico.NomeRetAutorizacao}.", nameof(pedido));
         var codigo = pedido.Codigo;
         if (pedido.Tipo == TipoFalha.Paralisacao)
         {
@@ -108,15 +114,18 @@ internal sealed class Controle
             _falhas.Clear();
     }
 
-    // As falhas que valem para o pedido, já descontadas: a primeira de transporte e a primeira
-    // paralisação, na ordem em que foram comandadas.
-    public (FalhaComandada? Transporte, FalhaComandada? Paralisacao) Consumir(string destino, string servico)
+    // As falhas que valem para o pedido, já descontadas: a primeira de transporte, a primeira paralisação e,
+    // na consulta do recibo, o primeiro lote em processamento, na ordem em que foram comandadas. Transporte ou
+    // paralisação falsos: o pedido já tem a sua (a marca no infCpl), e a do controle fica para o próximo.
+    public (FalhaComandada? Transporte, FalhaComandada? Paralisacao, FalhaComandada? Processamento) Consumir(
+        string destino, string servico, bool transporte = true, bool paralisacao = true)
     {
         lock (_trava)
         {
-            var transporte = Tirar(f => f.Tipo != TipoFalha.Paralisacao && f.Vale(destino, servico));
-            var paralisacao = Tirar(f => f.Tipo == TipoFalha.Paralisacao && f.Vale(destino, servico));
-            return (transporte, paralisacao);
+            return (
+                transporte ? Tirar(f => f.Tipo is not (TipoFalha.Paralisacao or TipoFalha.LoteProcessando) && f.Vale(destino, servico)) : null,
+                paralisacao ? Tirar(f => f.Tipo == TipoFalha.Paralisacao && f.Vale(destino, servico)) : null,
+                servico == Servico.NomeRetAutorizacao ? Tirar(f => f.Tipo == TipoFalha.LoteProcessando && f.Vale(destino, servico)) : null);
         }
     }
 

@@ -11,4 +11,9 @@
     <InternalsVisibleTo Include="OpenDFe.SefazEmulada.Testes" />
   </ItemGroup>
 
+  <!-- Da lib, só o que é neutro (13.5): o SchemaXml com os XSDs do leiaute e a verificação da assinatura. -->
+  <ItemGroup>
+    <ProjectReference Include="../../src/OpenDFe.Leiaute.NFe.v400/OpenDFe.Leiaute.NFe.v400.csproj" />
+  </ItemGroup>
+
 </Project>

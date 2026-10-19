@@ -7,6 +7,8 @@ namespace OpenDFe.SefazEmulada;
 //   POST   /_controle/falhas        acrescenta uma (PedidoFalha em JSON); 201 com a falha, 400 com o motivo
 //   DELETE /_controle/falhas/{id}   remove uma; 404 se não existe
 //   DELETE /_controle/falhas        remove todas
+//   GET    /_controle/notas         as notas autorizadas, na ordem
+//   DELETE /_controle/notas         esquece as notas e os lotes
 internal static class RotasControle
 {
     public static void Mapear(WebApplication app)
@@ -34,6 +36,12 @@ internal static class RotasControle
         grupo.MapDelete("/falhas", (Controle controle) =>
         {
             controle.Limpar();
+            return Results.NoContent();
+        });
+        grupo.MapGet("/notas", (Repositorio repositorio) => repositorio.Notas());
+        grupo.MapDelete("/notas", (Repositorio repositorio) =>
+        {
+            repositorio.Limpar();
             return Results.NoContent();
         });
     }

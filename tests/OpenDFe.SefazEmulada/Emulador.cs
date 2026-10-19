@@ -26,6 +26,7 @@ internal sealed class Emulador : IAsyncDisposable
         ArquivoAutoridade = arquivoAutoridade;
         Autoridade = X509CertificateLoader.LoadCertificate(autoridade.RawData);
         Controle = app.Services.GetRequiredService<Controle>();
+        Repositorio = app.Services.GetRequiredService<Repositorio>();
         Urls = [.. Listar(endereco)];
     }
 
@@ -39,6 +40,9 @@ internal sealed class Emulador : IAsyncDisposable
     public string ArquivoAutoridade { get; }
 
     public Controle Controle { get; }
+
+    // As notas e os lotes recebidos.
+    public Repositorio Repositorio { get; }
 
     public IReadOnlyList<UrlServico> Urls { get; }
 
@@ -60,6 +64,7 @@ internal sealed class Emulador : IAsyncDisposable
         construtor.Services.Configure<HostOptions>(o => o.ShutdownTimeout = TimeSpan.FromSeconds(2));
         construtor.Services.AddSingleton(opcoes);
         construtor.Services.AddSingleton<Controle>();
+        construtor.Services.AddSingleton<Repositorio>();
         construtor.Services.AddSingleton<Atendimento>();
         construtor.Services.ConfigureHttpJsonOptions(o =>
         {

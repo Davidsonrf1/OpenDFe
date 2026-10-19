@@ -10,7 +10,8 @@ public class AtendimentoTestes(EmuladorFixture fixture) : IClassFixture<Emulador
 
     [Theory]
     [InlineData("XX", Servico.NomeStatus)]
-    [InlineData("MG", "NFeAutorizacao4")]
+    [InlineData("MG", "NFeConsultaProtocolo4")]
+    [InlineData("AN", Servico.NomeAutorizacao)]
     [InlineData("AN", Servico.NomeStatus)]
     [InlineData("MG", "NFeServicoInexistente")]
     public async Task Responde404AoDestinoOuServicoQueNaoAtende(string destino, string servico)
@@ -68,7 +69,7 @@ public class AtendimentoTestes(EmuladorFixture fixture) : IClassFixture<Emulador
     }
 
     [Fact]
-    public async Task ListaAsUrlsDeCadaAutorizadorComOStatus()
+    public async Task ListaAsUrlsDeCadaServicoImplementadoEmCadaAutorizador()
     {
         using var resposta = await fixture.Http.GetAsync(fixture.Emulador.Endereco, Ct);
 
@@ -78,11 +79,13 @@ public class AtendimentoTestes(EmuladorFixture fixture) : IClassFixture<Emulador
         var urls = json.RootElement.GetProperty("urls").EnumerateArray()
             .Select(u => (Destino: u.GetProperty("destino").GetString(), Servico: u.GetProperty("servico").GetString(), Url: u.GetProperty("url").GetString()))
             .ToList();
-        Assert.Equal(14, urls.Count);
-        Assert.All(urls, u => Assert.Equal(Servico.NomeStatus, u.Servico));
+        // O status, a autorização e o recibo nos 14 autorizadores que os têm; o AN não tem nenhum dos três.
+        Assert.Equal(42, urls.Count);
+        foreach (var servico in (string[])[Servico.NomeStatus, Servico.NomeAutorizacao, Servico.NomeRetAutorizacao])
+            Assert.Equal(14, urls.Count(u => u.Servico == servico));
         Assert.DoesNotContain(urls, u => u.Destino == "AN");
         Assert.Contains(urls, u => u.Destino == "MG" && u.Url == new Uri(fixture.Emulador.Endereco, "MG/NFeStatusServico4").ToString());
-        Assert.Contains(urls, u => u.Destino == "SVC-RS");
+        Assert.Contains(urls, u => u.Destino == "SVC-RS" && u.Servico == Servico.NomeRetAutorizacao);
         Assert.Equal(urls.Count, fixture.Emulador.Urls.Count);
     }
 }

@@ -114,7 +114,7 @@ public class StatusServicoTestes(EmuladorFixture fixture) : IClassFixture<Emulad
     [Fact]
     public async Task RejeitaAMensagemAcimaDe500KB()
     {
-        var envelope = Mensagens.Envelope("<!--" + new string('x', Atendimento.LimiteDados) + "-->" + Mensagens.Status());
+        var envelope = Mensagens.Envelope("<!--" + new string('x', SefazEmulada.Atendimento.LimiteDados) + "-->" + Mensagens.Status());
 
         using var resposta = await fixture.Http.EnviarAsync(fixture.Url("MG"), envelope, Ct);
 

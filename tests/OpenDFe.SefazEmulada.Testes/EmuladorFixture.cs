@@ -49,6 +49,10 @@ internal static class Clientes
     public static X509Certificate2 CertificadoCliente { get; } =
         X509CertificateLoader.LoadPkcs12(new CertificadoTeste { Cnpj = "11222333000181" }.GerarPfx("teste"), "teste");
 
+    // O e-CNPJ de outra empresa: o transmissor que não enviou o lote (223) e o assinante que não é o emitente (213).
+    public static X509Certificate2 OutroCertificado { get; } =
+        X509CertificateLoader.LoadPkcs12(new CertificadoTeste { Cnpj = "12345678000195", Nome = "OUTRA EMPRESA LTDA" }.GerarPfx("teste"), "teste");
+
     // Autoridade nula: a confiança do sistema (que não conhece a AC de teste).
     public static HttpClient Criar(X509Certificate2? autoridade, X509Certificate2? certificado)
     {
@@ -81,6 +85,24 @@ internal static class Clientes
         return await http.PostAsync(url, conteudo, cancellationToken);
     }
 
+    // A autorização: o enviNFe com as notas, HTTP 200 e o retEnviNFe.
+    public static async Task<XElement> AutorizarAsync(
+        this HttpClient http, Uri url, bool sincrono, IEnumerable<string> notas, CancellationToken cancellationToken)
+    {
+        using var resposta = await http.EnviarAsync(url, Mensagens.Envelope(Mensagens.Lote(sincrono, [.. notas]), Servico.NomeAutorizacao), cancellationToken);
+        Assert.Equal(System.Net.HttpStatusCode.OK, resposta.StatusCode);
+        return Mensagens.Retorno(await resposta.Content.ReadAsStringAsync(cancellationToken));
+    }
+
+    // A consulta do recibo: o consReciNFe, HTTP 200 e o retConsReciNFe.
+    public static async Task<XElement> ConsultarReciboAsync(
+        this HttpClient http, Uri url, string recibo, CancellationToken cancellationToken, string ambiente = "2")
+    {
+        using var resposta = await http.EnviarAsync(url, Mensagens.Envelope(Mensagens.Recibo(recibo, ambiente), Servico.NomeRetAutorizacao), cancellationToken);
+        Assert.Equal(System.Net.HttpStatusCode.OK, resposta.StatusCode);
+        return Mensagens.Retorno(await resposta.Content.ReadAsStringAsync(cancellationToken));
+    }
+
     // O status: POST, HTTP 200 e o retConsStatServ.
     public static async Task<XElement> ConsultarStatusAsync(
         this HttpClient http, Uri url, CancellationToken cancellationToken, string ambiente = "2", string uf = "31")
@@ -103,6 +125,14 @@ internal static class Mensagens
 
     public static string Status(string ambiente = "2", string uf = "31", string versao = "4.00", string servico = "STATUS") =>
         $"<consStatServ xmlns=\"{NamespaceNFe}\" versao=\"{versao}\"><tpAmb>{ambiente}</tpAmb><cUF>{uf}</cUF><xServ>{servico}</xServ></consStatServ>";
+
+    // O lote da autorização (Visão Geral, Tabela 5-1), com as notas já assinadas.
+    public static string Lote(bool sincrono, params string[] notas) =>
+        $"<enviNFe xmlns=\"{NamespaceNFe}\" versao=\"4.00\"><idLote>1</idLote><indSinc>{(sincrono ? 1 : 0)}</indSinc>{string.Concat(notas)}</enviNFe>";
+
+    // A consulta do recibo (Tabela 5-5).
+    public static string Recibo(string recibo, string ambiente = "2") =>
+        $"<consReciNFe xmlns=\"{NamespaceNFe}\" versao=\"4.00\"><tpAmb>{ambiente}</tpAmb><nRec>{recibo}</nRec></consReciNFe>";
 
     public static string Envelope(string dados, string servico = Servico.NomeStatus) =>
         "<?xml version=\"1.0\" encoding=\"utf-8\"?>"
@@ -128,4 +158,7 @@ internal static class Mensagens
     }
 
     public static string Campo(this XElement retorno, string nome) => retorno.Element(NFe + nome)?.Value!;
+
+    // O infProt do protNFe.
+    public static XElement Protocolo(this XElement protocolo) => protocolo.Element(NFe + "infProt")!;
 }
