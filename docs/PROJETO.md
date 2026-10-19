@@ -36,6 +36,8 @@ Projeto pessoal de Davidson Faria, open source. O ErpCore (módulo fiscal) e o P
 
 2.7. **Nomes do domínio em português.** README e documentação em português.
 
+2.8. **Plataforma:** Windows e Linux. No Linux, o **OpenSSL 3 é requisito** (decidido em 2026-10-19), com a política de criptografia da máquina permitindo a assinatura RSA-SHA1 que a NF-e exige; a distribuição que a bloqueia por padrão pede a liberação, documentada no README. A lib não traz criptografia própria.
+
 ## 3. Arquitetura
 
 3.1. **Núcleo e leiaute.** O **núcleo** não conhece nenhum documento: tem os contratos, a assinatura, o SOAP, o TLS, a validação pelo schema e a escolha da URL. O **leiaute** implementa um documento numa versão do leiaute (`ILeiaute`): o mapeamento do modelo para as tags, os schemas, as regras do MOC, as operações, as URLs padrão e o modelo de impressão. NF-e e NFC-e são documentos distintos no mesmo leiaute, com o mesmo modelo de dados.
