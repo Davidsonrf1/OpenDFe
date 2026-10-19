@@ -1,6 +1,6 @@
 # OpenDFe
 
-Biblioteca .NET aberta para documentos fiscais eletrônicos brasileiros: NF-e e NFC-e primeiro, CT-e e MDF-e depois. Gera o XML, valida pelas regras da SEFAZ, assina, transmite, lê e trata os eventos. **Proposta de 2026-10-16, aguardando aprovação.** Nada implementado.
+Biblioteca .NET aberta para documentos fiscais eletrônicos brasileiros: NF-e e NFC-e primeiro, CT-e e MDF-e depois. Gera o XML, valida pelas regras da SEFAZ, assina, transmite, lê e trata os eventos. **Proposta de 2026-10-16, com a arquitetura revisada em 2026-10-19 (seção 3), aguardando aprovação.** Nada implementado.
 
 Projeto pessoal de Davidson Faria, open source. O ErpCore (módulo fiscal) e o PDV do ErpCore são consumidores como qualquer outro: nada do ErpCore entra aqui, nem dependência, nem convenção.
 
@@ -32,37 +32,67 @@ Projeto pessoal de Davidson Faria, open source. O ErpCore (módulo fiscal) e o P
 
 2.5. **Determinística e invariável à cultura.** Valores em `decimal`, formatados pelas casas que o leiaute define para cada campo; datas em `DateTimeOffset` com o fuso; nada depende de `CultureInfo.CurrentCulture`.
 
-2.6. **Tabelas oficiais versionadas com a lib.** Schemas XSD, URLs dos autorizadores, URLs de consulta da NFC-e, códigos da reforma (CST do IBS/CBS, `cClassTrib`): tudo embutido, com a versão de origem, e substituível por quem usa (o autorizador que muda de URL não pode esperar uma versão nova da lib).
+2.6. **Tabelas oficiais versionadas com a lib.** Schemas XSD, URLs dos autorizadores, URLs de consulta da NFC-e, códigos da reforma (CST do IBS/CBS, `cClassTrib`): tudo embutido no leiaute, com a versão de origem, e substituível por quem usa (o autorizador que muda de URL não pode esperar uma versão nova da lib). As URLs: seção 8.2.
 
-2.7. **Nomes do domínio em português**, como o leiaute. README e documentação em português.
+2.7. **Nomes do domínio em português.** README e documentação em português.
 
-## 3. Pacotes
+## 3. Arquitetura
+
+3.1. **Núcleo e leiaute.** O **núcleo** não conhece nenhum documento: tem os contratos, a assinatura, o SOAP, o TLS, a validação pelo schema e a escolha da URL. O **leiaute** implementa um documento numa versão do leiaute (`ILeiaute`): o mapeamento do modelo para as tags, os schemas, as regras do MOC, as operações, as URLs padrão e o modelo de impressão. NF-e e NFC-e são documentos distintos no mesmo leiaute, com o mesmo modelo de dados.
+
+3.2. **Um núcleo, um leiaute.** O núcleo é criado com um leiaute, um documento e uma configuração; a versão fica implícita no leiaute. Outro documento, outra versão ou outra configuração é outro núcleo:
+
+```csharp
+var nucleo = Nucleo.Criar(new LeiauteNFe400(), Documento.NFCe, new ConfiguracaoNucleo
+{
+    Ambiente    = Ambiente.Homologacao,
+    Emissao     = TipoEmissao.Normal,
+    UF          = UF.MG,
+    Certificado = certificado,
+    Urls        = urlsTrocadas,                    // só as que mudam; o resto vem do padrão do leiaute
+    Documento   = new ConfiguracaoNFCe { IdCsc = "1", Csc = csc }   // a parte que o leiaute declara
+});
+```
+
+- **A configuração é imutável.** Entrar em contingência é criar outro núcleo, o que é barato: o leiaute não tem estado e é compartilhado entre núcleos (no ERP multi-tenant, um núcleo por emitente e documento).
+- **O leiaute é entregue pelo tipo, não pela DLL.** Quem usa referencia o pacote e passa a instância; o núcleo só enxerga `ILeiaute`. Carregar por caminho de DLL (`Nucleo.CarregarDe(caminho)`) fica como extra, para leiautes de terceiros, porque custa identidade de tipo entre `AssemblyLoadContext`s, quebra com single-file, trimming e AOT (o PDV é um pacote único e assinado) e abre um caminho para executar código vindo de configuração.
+- **O leiaute declara** os destinos que atende (UFs, SVRS, SVAN, AN, SVC-AN, SVC-RS), os serviços e as URLs padrão de cada um, e a parte da configuração que é do documento (o CSC da NFC-e). Quem usa pode listar tudo, por exemplo para uma tela de configuração.
+
+3.3. **Detector.** `Nucleo.Detectar(xml)` lê a raiz, o modelo e a versão de um XML recebido (`NFe`, `nfeProc`, evento) e diz qual leiaute, entre os registrados por quem usa, sabe lê-lo. É o caminho da caixa de entrada do ErpCore, onde a versão só aparece dentro do XML.
+
+3.4. **Pacotes:**
 
 ```
-OpenDFe.Core     certificado, assinatura e verificação (XMLDSig), C14N, cliente SOAP 1.2,
-                 TLS com a cadeia ICP-Brasil, UF e ambiente, documentos (CPF, CNPJ alfanumérico)
-OpenDFe.NFe      leiaute 4.00 (55 e 65), leitura e escrita, XSD, regras, chave de acesso,
-                 serviços (autorização, consulta, status, inutilização, eventos, distribuição DF-e)
-OpenDFe.NFCe     QR Code e CSC, URLs de consulta por UF, contingência offline
-OpenDFe.Danfe    modelo de impressão do DANFE e do DANFCE, e o PDF
+OpenDFe.Nucleo           contratos (ILeiaute, ParametroWS<T>, ResultadoWS<T>, Problema), certificado,
+                         assinatura e verificação (XMLDSig), C14N, cliente SOAP 1.2, TLS com a cadeia
+                         ICP-Brasil, validação pelo XSD, detector, UF, ambiente, tipo de emissão,
+                         documentos (CPF, CNPJ alfanumérico), chave de acesso, operações comuns
+OpenDFe.NFe              o modelo NF-e/NFC-e (seção 4), os parâmetros e retornos próprios da NF-e e
+                         o leiaute 4.00 (projeto OpenDFe.Leiaute.NFe.v400): mapeamento, XSD, regras
+                         do MOC, operações, URLs, QR Code e CSC, modelo do DANFE e do DANFCE
+OpenDFe.Impressao.Pdf    renderizador PDF do modelo de impressão
 OpenDFe.CTe, OpenDFe.MDFe   depois
 ```
 
-`OpenDFe.NFCe` e `OpenDFe.Danfe` dependem de `OpenDFe.NFe`; tudo depende de `OpenDFe.Core`. Quem só emite NF-e não carrega o PDF.
+O modelo e os leiautes de um documento são projetos separados que saem **no mesmo pacote e na mesma versão**: o leiaute nunca roda contra um modelo de outra versão. Tudo depende de `OpenDFe.Nucleo`; quem só emite NF-e não carrega o PDF, e o PDV (ESC/POS) também não.
 
 ## 4. Modelo do documento
 
-4.1. **Classes que espelham o leiaute**, um grupo por classe (`Ide`, `Emit`, `Dest`, `Det`, `Prod`, `Imposto`, `ICMSTot`...), com os **nomes das tags** em PascalCase (`Ide.NatOp`, `Prod.VProd`, `ICMSTot.VNF`) e, no comentário XML, o identificador do campo no MOC (B04, I11...) e a descrição. Quem usa a lib conhece a nota pelos nomes do MOC; traduzir para nomes "amigáveis" criaria um segundo vocabulário. **A aprovar** (alternativa descartada: `NaturezaDaOperacao`, `ValorDoProduto`).
+4.1. **Um modelo por documento, válido para todas as versões do leiaute**, com **nomes descritivos** (`Destinatario.Nome`, `Produto.Valor`), um grupo por classe. Cada propriedade leva o atributo com a tag e o identificador do campo no MOC (`[Tag("xNome", "E04")]`), que serve à documentação (o IntelliSense mostra a tag), ao problema (que aponta a tag e a propriedade, 6.4) e ao aviso de campo não suportado (4.4). Decidido em 2026-10-19 (alternativa descartada: os nomes das tags).
 
-4.2. **Escolhas do leiaute viram tipos.** Os grupos de ICMS por CST/CSOSN são subclasses de um tipo base (o leiaute permite um só); as enumerações levam o valor do XML (`TipoEmissao.ContingenciaOffline` ↔ `9`).
+4.2. **Um campo nunca quebra o de uma versão anterior.** O nome não leva versão; o sufixo com a versão do leiaute (`NomeDestinatarioV5`) só aparece quando uma versão nova for incompatível com a anterior no mesmo campo. Na 4.00 não há sufixo.
 
-4.3. **Uma versão de leiaute por modelo (4.00).** As Notas Técnicas acrescentam campos opcionais ao mesmo modelo; o campo de uma NT ainda não vigente só é escrito se preenchido. Versão nova de leiaute (5.00, se vier) é outro namespace de classes.
+4.3. **Escolhas do leiaute viram tipos.** Os grupos de ICMS por CST/CSOSN são subclasses de um tipo base (o leiaute permite um só); as enumerações levam o valor do XML (`TipoEmissao.ContingenciaOffline` ↔ `9`).
 
-4.4. **Reforma tributária desde o início:** os grupos de IBS, CBS e IS entram no modelo da primeira versão, porque 2026 já é ano de teste e o leiaute os tem.
+4.4. **Campo que o leiaute não suporta** (preenchido no modelo, de uma versão que o leiaute carregado não conhece) fica fora do XML e vira um problema de severidade aviso. Nunca some calado: a nota autorizada sem o campo seria um erro fiscal que ninguém vê.
+
+4.5. **Uma versão de leiaute por leiaute.** As Notas Técnicas acrescentam campos opcionais ao mesmo leiaute; o campo de uma NT ainda não vigente só é escrito se preenchido. Versão nova (5.00, se vier) é outro leiaute, sobre o mesmo modelo.
+
+4.6. **Reforma tributária desde o início:** os grupos de IBS, CBS e IS entram no modelo da primeira versão, porque 2026 já é ano de teste e o leiaute os tem.
 
 ## 5. Leitura e escrita do XML
 
-5.1. **Escrita e leitura à mão, com `XmlWriter` e `XmlReader`**, um método por grupo. O XML assinado precisa sair exatamente como o leiaute pede: ordem das tags, tag vazia omitida, decimais com as casas do campo, sem prefixo de namespace, sem espaços. O `XmlSerializer` exigiria propriedades-sombra de texto em cada valor formatado e não garante a forma. **A aprovar** (alternativa: `XmlSerializer`, mais rápido de escrever; ou um gerador de código a partir do XSD, mais tarde).
+5.1. **O leiaute escreve e lê o XML à mão, com `XmlWriter` e `XmlReader`**, um método por grupo. O XML assinado precisa sair exatamente como o leiaute pede: ordem das tags, tag vazia omitida, decimais com as casas do campo, sem prefixo de namespace, sem espaços. O `XmlSerializer` exigiria propriedades-sombra de texto em cada valor formatado e não garante a forma. **A aprovar** (alternativa: um gerador de código a partir do XSD, mais tarde).
 
 5.2. **A leitura aceita o que a SEFAZ aceita:** `NFe`, `nfeProc` (com o protocolo), versões de NT anteriores, e devolve problemas do que não reconhece, sem perder o XML original. O ErpCore já tem um leitor (`ErpCore.Fiscal`, `Nfe/LeitorDeNfe.cs`), que migra para cá.
 
@@ -70,13 +100,17 @@ OpenDFe.CTe, OpenDFe.MDFe   depois
 
 ## 6. Validação
 
-Três camadas, todas antes da transmissão, todas com o mesmo resultado (`Problema`: código, severidade, mensagem, caminho do campo):
+Três etapas, nesta ordem, todas antes da transmissão, todas com o mesmo resultado (`Problema`: código, severidade, mensagem, tag, propriedade do modelo):
 
-6.1. **Estrutural:** contra o XSD oficial do pacote de liberação vigente, embutido (`schemas/<pacote>/`).
+6.1. **Schema, sempre.** O núcleo valida o XML gerado com os schemas que o leiaute entrega: cada operação declara o `XmlSchemaSet` da própria mensagem (a nota, o lote, o pedido de evento, a inutilização), do pacote de liberação vigente, embutido (`schemas/<pacote>/`). Não é opcional.
 
-6.2. **Regras do MOC e das NTs que dá para conferir sem a SEFAZ:** dígito da chave, CPF e CNPJ (inclusive o alfanumérico), totais contra a soma dos itens, combinações (CST × grupo, CFOP × `idDest`, `indIEDest` × IE), datas, `cClassTrib` contra a tabela. Cada regra leva o **código da rejeição** que ela antecipa (ex.: 564, "Total do Produto / Serviço difere do somatório dos itens") e a mensagem do MOC. O repositório mantém o catálogo das rejeições, com as implementadas e as que só a SEFAZ confere (`docs/REGRAS.md`).
+6.2. **Regras do MOC e das NTs, no leiaute:** as que dá para conferir sem a SEFAZ: dígito da chave, CPF e CNPJ (inclusive o alfanumérico), totais contra a soma dos itens, combinações (CST × grupo, CFOP × `idDest`, `indIEDest` × IE), datas, `cClassTrib` contra a tabela. Cada regra leva o **código da rejeição** que ela antecipa (ex.: 564, "Total do Produto / Serviço difere do somatório dos itens") e a mensagem do MOC. O repositório mantém o catálogo das rejeições, com as implementadas e as que só a SEFAZ confere (`docs/REGRAS.md`).
 
-6.3. **Só na SEFAZ** (duplicidade, situação cadastral, numeração): fora da lib; o retorno da autorização traz o `cStat`.
+6.3. **Regras de negócio de quem usa, opcionais:** dois callbacks registrados no núcleo, um chamado **por campo** e um pelo **documento inteiro** (a nota e o XML), para as regras do sistema, não da SEFAZ. Devolvem `Problema` como as outras etapas.
+
+6.4. **O problema aponta a origem:** a tag e o caminho no XML, a propriedade do modelo (pelo atributo `[Tag]`, 4.1) e, no erro de schema, as restrições do schema para o campo (tipo, tamanho, padrão, valores aceitos), em português: as mensagens do `XmlSchemaSet` são traduzidas uma vez, no núcleo.
+
+6.5. **Só na SEFAZ** (duplicidade, situação cadastral, numeração): fora da lib; o retorno da autorização traz o `cStat`.
 
 ## 7. Chave de acesso, assinatura e certificado
 
@@ -86,40 +120,81 @@ Três camadas, todas antes da transmissão, todas com o mesmo resultado (`Proble
 
 7.3. **Certificado:** a lib recebe um `X509Certificate2` com a chave privada; carregá-lo é de quem usa (PFX em pasta protegida, repositório do Windows). Utilitário para abrir o PFX e checar validade e CNPJ. **A1 na primeira versão.** O A3 no Windows funciona pelo repositório do sistema (o mesmo `X509Certificate2`); no Linux pede PKCS#11, que fica para depois.
 
-## 8. Transmissão
+## 8. Operações e transmissão
 
-8.1. **SOAP 1.2 sobre HTTPS com TLS mútuo**, pelo `HttpClient`. Serviços da NF-e: `NFeAutorizacao4` (síncrona, `indSinc=1`, e por lote), `NFeRetAutorizacao4`, `NFeConsultaProtocolo4`, `NFeStatusServico4`, `NFeInutilizacao4`, `NFeRecepcaoEvento4`, `NFeDistribuicaoDFe` e `CadConsultaCadastro4`.
+8.1. **Uma porta só.** Toda operação é `nucleo.ExecutarAsync(parametro, ct)`. O parâmetro deriva de `ParametroWS<TRetorno>` e diz o tipo do retorno, que o C# deduz (`ExecutarAsync(new ConsultaStatus())` devolve `ResultadoWS<RetornoStatus>`). O leiaute registra um handler por operação (`IOperacao<TParametro, TRetorno>`); `nucleo.Suporta<T>()` e `nucleo.Operacoes` dizem o que ele implementa. Operação nova = parâmetro novo + handler, sem mexer no núcleo.
 
-8.2. **Tabela de autorizadores** (UF × modelo × ambiente × serviço → URL e versão), embutida, com as contingências SVC-AN e SVC-RS, e substituível (2.6).
+```csharp
+public abstract class ParametroWS<TRetorno> where TRetorno : class
+{
+    public Destino? Destino { get; init; }        // null = o destino natural (8.3)
+}
 
-8.3. **TLS no Linux, que é requisito do PDV:**
+public sealed class ResultadoWS<TRetorno> where TRetorno : class
+{
+    public SituacaoResultado Situacao { get; }    // Processado | RecusadoLocalmente
+    public int? CStat { get; }
+    public string? Motivo { get; }
+    public TRetorno? Retorno { get; }
+    public IReadOnlyList<Problema> Problemas { get; }
+    public string? XmlEnviado { get; }
+    public string? XmlRetorno { get; }
+    public Uri? Url { get; }
+    public TimeSpan Duracao { get; }
+}
+```
 
-- a cadeia ICP-Brasil não está nos repositórios das distribuições: a lib embute as ACs raiz e valida o servidor com `X509ChainTrustMode.CustomRootTrust`, sem depender da máquina;
-- autorizador que só negocia cifra antiga: `CipherSuitesPolicy` por autorizador (o .NET só a aplica no Linux), declarado na tabela, nunca rebaixando o padrão da máquina inteira.
+8.2. **O caminho de toda operação:** o leiaute monta o XML do pedido → o núcleo valida (seção 6; com problema bloqueante, `RecusadoLocalmente`, nada é enviado) → assina, se o serviço pede → envelope SOAP 1.2 (na base, escrito à mão, sem importar WSDL) → HTTPS com TLS mútuo → o leiaute lê o retorno. A rejeição da SEFAZ é `Processado` com o `cStat` (2.4).
 
-8.4. **Sem reenvio automático.** A lib não repete a autorização sozinha: quem chama decide. Para a queda no meio (a SEFAZ autorizou e a resposta se perdeu), a lib oferece a recuperação: consultar pela chave e montar o `nfeProc` com o protocolo encontrado; a duplicidade (rejeição 204 e afins) vem identificada no retorno, com a chave. O guia "o que fazer quando cai" faz parte da documentação.
+8.3. **As operações da NF-e e da NFC-e:**
 
-8.5. **Resultado da autorização:** o XML distribuível (`nfeProc`, nota e protocolo), o `cStat` e o motivo, e o XML de envio e de retorno, para quem quiser guardar o rastro.
+| Operação | Parâmetro | Retorno | Destino natural |
+|---|---|---|---|
+| Status do serviço | `ConsultaStatus` | `RetornoStatus` | UF do núcleo |
+| Autorização | `Autorizacao(documentos) { Sincrona }` | `RetornoAutorizacao`: protocolo e `nfeProc` por documento, ou o recibo | UF do núcleo |
+| Consulta do recibo | `ConsultaRecibo(recibo)` | `RetornoAutorizacao` | UF do núcleo |
+| Consulta do protocolo | `ConsultaProtocolo(chave)` | `RetornoProtocolo`, com os eventos | UF e tipo de emissão da chave |
+| Inutilização | `Inutilizacao(serie, inicio, fim, justificativa)` | `RetornoInutilizacao` | UF do núcleo |
+| Evento | `EnvioEvento(1 a 20 eventos)`, o detalhe é subclasse: `Cancelamento`, `CancelamentoPorSubstituicao`, `CartaCorrecao`, `Manifestacao`, `Epec`... | `RetornoEvento`, com o `procEventoNFe` por evento | o do documento; AN para manifestação e EPEC |
+| Distribuição DF-e | `DistribuicaoDFe(ultimoNsu / nsu / chave)` | `RetornoDistribuicao` | AN |
+| Consulta cadastro | `ConsultaCadastro(uf, documento)` | `RetornoCadastro` | UF consultada |
+| Recuperação | `RecuperacaoAutorizacao(xmlAssinado)` | `RetornoAutorizacao` | o do documento (8.6) |
+
+Serviços SOAP por trás: `NFeAutorizacao4` (síncrona, `indSinc=1`, e por lote), `NFeRetAutorizacao4`, `NFeConsultaProtocolo4`, `NFeStatusServico4`, `NFeInutilizacao4`, `NFeRecepcaoEvento4`, `NFeDistribuicaoDFe` e `CadConsultaCadastro4`.
+
+**Locais, sem web service:** `nucleo.Preparar(nota)` → `DocumentoPreparado { Xml assinado, Chave, Problemas }` (gera, valida e assina sem enviar: a NFC-e offline, 9.2), e a `Autorizacao` aceita o documento preparado ou o XML já assinado, para transmitir os mesmos bytes.
+
+8.4. **Escolha da URL:** destino × ambiente × tipo de emissão × serviço, a partir da tabela que o leiaute declara (3.2), com as URLs que quem usa trocou. São dois eixos independentes: o **ambiente** (homologação, produção) e o **tipo de emissão** (normal, SVC-AN, SVC-RS, EPEC, FS-DA, offline da NFC-e), porque a contingência também se testa em homologação, e cada tipo de emissão muda a URL ou o XML de um jeito. **Quando a operação tem um documento ou uma chave, o destino e o tipo de emissão saem dele**, não da configuração do núcleo: a NFC-e emitida offline é transmitida depois, com o núcleo já normal, e a consulta e os eventos de uma nota emitida em SVC seguem o `tpEmis` da chave. A configuração do núcleo vale para a nota nova. O `Destino` do parâmetro sobrepõe tudo.
+
+8.5. **TLS:**
+
+- a cadeia ICP-Brasil não está nos repositórios das distribuições Linux (requisito do PDV): o núcleo embute as ACs raiz e valida o servidor com `X509ChainTrustMode.CustomRootTrust`, sem depender da máquina;
+- autorizador que só negocia cifra antiga: `CipherSuitesPolicy` por destino (o .NET só a aplica no Linux), declarado na tabela do leiaute, nunca rebaixando o padrão da máquina inteira;
+- **um `HttpMessageHandler` por certificado**, num pool do núcleo compartilhado entre os núcleos do mesmo emitente: o certificado do TLS mútuo está no handler, e o ERP multi-tenant não pode abrir conexões novas a cada núcleo. Quem usa pode trocar a fábrica do handler (2.3).
+
+8.6. **Sem reenvio automático.** A lib não repete a autorização sozinha: quem chama decide. Para a queda no meio (a SEFAZ autorizou e a resposta se perdeu), a `RecuperacaoAutorizacao` consulta pela chave e monta o `nfeProc` com o protocolo encontrado; a duplicidade (rejeição 204 e afins) vem identificada no retorno, com a chave. O guia "o que fazer quando cai" faz parte da documentação.
+
+8.7. **Resultado da autorização:** o XML distribuível (`nfeProc`, nota e protocolo), o `cStat` e o motivo, e o XML de envio e de retorno, para quem quiser guardar o rastro.
 
 ## 9. NFC-e
 
-9.1. **QR Code** com o CSC (identificador e token, de quem usa), nas versões que a NT vigente aceita, e a URL de consulta por UF (tabela embutida, 2.6).
+9.1. **QR Code** com o CSC (identificador e token, na configuração do documento, 3.2), nas versões que a NT vigente aceita, e a URL de consulta por UF (tabela do leiaute, 2.6).
 
-9.2. **Contingência offline** (`tpEmis=9`): a nota é emitida e assinada sem a SEFAZ, com a justificativa e a data de entrada em contingência, e o QR Code do modo offline; a transmissão posterior é a autorização normal, dentro do prazo da legislação. A lib não guarda a fila: devolve o XML pronto, e o aplicativo transmite quando a rede volta.
+9.2. **Contingência offline** (`tpEmis=9`): num núcleo com esse tipo de emissão, `Preparar` emite e assina a nota sem a SEFAZ, com a justificativa e a data de entrada em contingência, e o QR Code do modo offline; a transmissão posterior é a autorização normal do XML preparado, dentro do prazo da legislação. A lib não guarda a fila: devolve o XML pronto, e o aplicativo transmite quando a rede volta.
 
 9.3. **Cancelamento por substituição** (evento 110112) e o cancelamento comum, como os outros eventos (seção 11).
 
 ## 10. DANFE e DANFCE
 
-10.1. **Modelo de impressão neutro:** a lib monta o DANFCE como blocos de texto com alinhamento, destaque e o QR Code, e o DANFE como seções. Um renderizador transforma o modelo em saída. O modelo aceita também **imagem de 1 bit** (o logo do emitente no topo e a assinatura do software emissor no rodapé, como o PDV do ErpCore pede): a térmica só imprime preto, e o renderizador ESC/POS a manda como raster.
+10.1. **O leiaute monta o modelo de impressão**, porque ele depende do leiaute (grupos, QR Code): o DANFCE como blocos de texto com alinhamento, destaque e o QR Code, e o DANFE como seções. O modelo é neutro, definido no núcleo, e aceita também **imagem de 1 bit** (o logo do emitente no topo e a assinatura do software emissor no rodapé, como o PDV do ErpCore pede): a térmica só imprime preto, e o renderizador ESC/POS a manda como raster.
 
-10.2. **Renderizador PDF no pacote.** A biblioteca de PDF precisa ter licença compatível com a da OpenDFe (seção 14). **A decidir** (PdfSharp/MigraDoc, MIT; o QuestPDF tem licença comunitária com limite de receita, o que complica uma lib aberta).
+10.2. **Renderizador PDF em pacote à parte** (`OpenDFe.Impressao.Pdf`), para que nem o núcleo nem o leiaute carreguem a biblioteca de PDF. Ela precisa ter licença compatível com a da OpenDFe (seção 14). **A decidir** (PdfSharp/MigraDoc, MIT; o QuestPDF tem licença comunitária com limite de receita, o que complica uma lib aberta).
 
 10.3. **ESC/POS fica com o aplicativo** (o PDV), a partir do mesmo modelo. Pode virar pacote depois, se houver demanda.
 
 ## 11. Eventos
 
-Cancelamento (110111), cancelamento por substituição (110112, NFC-e), carta de correção (110110), manifestação do destinatário (210200, 210210, 210220, 210240), EPEC (110140) e os eventos da reforma tributária conforme as NTs. Mesmo padrão da autorização: monta, valida, assina, transmite e devolve o `procEventoNFe`.
+Cancelamento (110111), cancelamento por substituição (110112, NFC-e), carta de correção (110110), manifestação do destinatário (210200, 210210, 210220, 210240), EPEC (110140) e os eventos da reforma tributária conforme as NTs. Mesmo caminho das outras operações (8.2), pela `EnvioEvento`: monta, valida, assina, transmite e devolve o `procEventoNFe`.
 
 ## 12. Manutenção pelas Notas Técnicas
 
@@ -151,30 +226,29 @@ Cancelamento (110111), cancelamento por substituição (110112, NFC-e), carta de
 
 ## 15. Consumidores conhecidos
 
-- **ErpCore, módulo fiscal:** o leitor da caixa de entrada (migra para a lib), a verificação da assinatura, o futuro aditivo de NF-e e a distribuição DF-e (as notas destinadas). A lib entra na lista de pacotes permitidos do backend (`PLANO.md` 1.2).
-- **PDV (ErpCore.FrenteCaixa):** NFC-e com contingência offline, cancelamento e DANFCE, no host CEF com o CoreCLR, em Windows e Linux.
+- **ErpCore, módulo fiscal:** o leitor da caixa de entrada (migra para a lib, pelo detector), a verificação da assinatura, o futuro aditivo de NF-e e a distribuição DF-e (as notas destinadas). Um núcleo por emitente e documento, com o pool de handlers por certificado (8.5). A lib entra na lista de pacotes permitidos do backend (`PLANO.md` 1.2).
+- **PDV (ErpCore.FrenteCaixa):** NFC-e com contingência offline, cancelamento e DANFCE, no host CEF com o CoreCLR, em Windows e Linux. Leiaute referenciado pelo tipo (3.2), compatível com o pacote único e assinado.
 
 ## 16. Fases
 
 | Fase | Conteúdo | Pronto quando |
 |---|---|---|
 | 0 | Repositório, licença, README, CI Linux e Windows, estrutura dos pacotes | a CI roda vazia nos dois |
-| 1 | Core: documentos (CPF, CNPJ alfanumérico), UF, chave de acesso, certificado, assinatura e verificação | um XML de exemplo assina e verifica |
-| 2 | Modelo NF-e/NFC-e 4.00 com IBS/CBS, escrita, leitura, XSD | gerar e ler de volta notas de teste válidas no XSD |
-| 3 | Regras de validação, primeiro lote (totais, chave, documentos, combinações principais) e `docs/REGRAS.md` | as rejeições mais comuns barradas antes |
-| 4 | Transmissão: status, autorização síncrona e por lote, consulta, `nfeProc`, autorizadores, TLS ICP-Brasil | NF-e autorizada em homologação, no Windows e no Linux |
-| 5 | NFC-e: QR Code, CSC, contingência offline | NFC-e online e em contingência autorizadas em homologação |
+| 1 | Núcleo: contratos (`ILeiaute`, `ParametroWS<T>`, `ResultadoWS<T>`, `Problema`), documentos (CPF, CNPJ alfanumérico), UF, chave de acesso, certificado, assinatura e verificação, validação pelo XSD com os problemas em português | um XML de exemplo assina, verifica e valida |
+| 2 | Modelo NF-e/NFC-e com IBS/CBS e o atributo `[Tag]`; leiaute 4.00: escrita, leitura, schemas, aviso de campo não suportado; detector | gerar e ler de volta notas de teste válidas no XSD |
+| 3 | Regras do MOC, primeiro lote (totais, chave, documentos, combinações principais), callbacks de quem usa e `docs/REGRAS.md` | as rejeições mais comuns barradas antes |
+| 4 | Operações: SOAP, tabela de destinos e URLs, escolha da URL, pool de handlers, TLS ICP-Brasil; status, autorização síncrona e por lote, recibo, protocolo, recuperação, `nfeProc` | NF-e autorizada em homologação, no Windows e no Linux |
+| 5 | NFC-e: QR Code, CSC, `Preparar` e contingência offline | NFC-e online e em contingência autorizadas em homologação |
 | 6 | Eventos: cancelamento, substituição, CC-e, inutilização | os quatro em homologação |
-| 7 | DANFCE e DANFE: modelo de impressão e PDF | PDFs conferidos contra o manual |
+| 7 | Modelo do DANFCE e do DANFE no leiaute, `OpenDFe.Impressao.Pdf` | PDFs conferidos contra o manual |
 | 8 | Distribuição DF-e e manifestação | notas destinadas baixadas em homologação |
-| depois | CT-e, MDF-e, A3 no Linux, NFS-e nacional (a avaliar) | — |
+| depois | CT-e, MDF-e, A3 no Linux, carregamento de leiaute por DLL (3.2), NFS-e nacional (a avaliar) | — |
 
 As fases 1 a 5 atendem o PDV; a 8, a caixa de entrada do ErpCore.
 
 ## 17. Em aberto
 
-1. Nomes das propriedades: as tags do leiaute (4.1, recomendado) ou nomes descritivos.
-2. Escrita do XML à mão (5.1, recomendado) ou `XmlSerializer`.
-3. Licença: MIT ou Apache-2.0 (14.2).
-4. Biblioteca de PDF (10.2).
-5. NFS-e nacional no roteiro ou fora.
+1. Escrita do XML à mão (5.1, recomendado) ou gerador de código a partir do XSD.
+2. Licença: MIT ou Apache-2.0 (14.2).
+3. Biblioteca de PDF (10.2).
+4. NFS-e nacional no roteiro ou fora.
