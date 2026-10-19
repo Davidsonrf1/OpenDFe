@@ -1,0 +1,10 @@
+<Project>
+
+  <!-- Código 8 = nenhum teste rodou. Aceito no projeto que ainda não tem testes (a propriedade sai
+       quando entrar o primeiro) e, nos de homologação, sempre: sem o PFX nas variáveis de ambiente,
+       nenhum roda (PROJETO.md 13.3). -->
+  <PropertyGroup Condition="'$(AceitaNenhumTeste)' == 'true'">
+    <TestingPlatformCommandLineArguments>$(TestingPlatformCommandLineArguments) --ignore-exit-code 8</TestingPlatformCommandLineArguments>
+  </PropertyGroup>
+
+</Project>

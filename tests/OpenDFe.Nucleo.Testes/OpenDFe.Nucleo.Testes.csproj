@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <AceitaNenhumTeste>true</AceitaNenhumTeste>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../../src/OpenDFe.Nucleo/OpenDFe.Nucleo.csproj" />
+  </ItemGroup>
+
+</Project>

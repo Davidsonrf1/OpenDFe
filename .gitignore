@@ -1,14 +1,16 @@
 bin/
 obj/
-*.user
-TestResults/
 artifacts/
-
-# certificados e segredos nunca entram (os testes geram o próprio certificado)
-*.pfx
-*.p12
-.env
-
 .vs/
 .vscode/
 .idea/
+*.user
+*.suo
+TestResults/
+*.nupkg
+*.snupkg
+
+# Certificados e segredos nunca entram (os testes geram o próprio certificado; PROJETO.md 13.1, 13.3).
+*.pfx
+*.p12
+.env

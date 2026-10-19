@@ -1,0 +1,11 @@
+# Texto com LF no repositório e na cópia de trabalho, em Windows e Linux.
+* text=auto eol=lf
+
+# XMLs de exemplo: os bytes são o que a assinatura cobre. Nunca converter fim de linha.
+tests/Exemplos/** -text
+
+*.pfx binary
+*.p12 binary
+*.cer binary
+*.png binary
+*.ico binary

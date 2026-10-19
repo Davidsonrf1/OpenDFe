@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>Renderizador PDF do modelo de impressão da OpenDFe (DANFE e DANFCE).</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../OpenDFe.Nucleo/OpenDFe.Nucleo.csproj" />
+  </ItemGroup>
+
+</Project>

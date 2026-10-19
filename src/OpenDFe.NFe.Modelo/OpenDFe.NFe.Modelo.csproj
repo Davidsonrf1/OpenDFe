@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>Modelo de dados da NF-e e da NFC-e da OpenDFe, com nomes descritivos e válido para todas as versões do leiaute.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../OpenDFe.Nucleo/OpenDFe.Nucleo.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/OpenDFe.Impressao.Pdf/OpenDFe.Impressao.Pdf.csproj" />
+    <Project Path="src/OpenDFe.Leiaute.NFe.v400/OpenDFe.Leiaute.NFe.v400.csproj" />
+    <Project Path="src/OpenDFe.NFe.Modelo/OpenDFe.NFe.Modelo.csproj" />
+    <Project Path="src/OpenDFe.Nucleo/OpenDFe.Nucleo.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/OpenDFe.Homologacao.Testes/OpenDFe.Homologacao.Testes.csproj" />
+    <Project Path="tests/OpenDFe.NFe.Testes/OpenDFe.NFe.Testes.csproj" />
+    <Project Path="tests/OpenDFe.Nucleo.Testes/OpenDFe.Nucleo.Testes.csproj" />
+  </Folder>
+</Solution>

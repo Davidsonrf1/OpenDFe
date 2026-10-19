@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>Leiaute 4.00 da NF-e (modelo 55) e da NFC-e (modelo 65) para a OpenDFe: XML, schemas, regras do MOC e web services da SEFAZ.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../OpenDFe.Nucleo/OpenDFe.Nucleo.csproj" />
+    <ProjectReference Include="../OpenDFe.NFe.Modelo/OpenDFe.NFe.Modelo.csproj" />
+  </ItemGroup>
+
+</Project>

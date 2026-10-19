@@ -124,4 +124,15 @@ Pré-lançamentos (`0.x`) no NuGet.org a partir do fim da fase 5, quando o PDV p
 
 ## Situação
 
-Nenhuma etapa começou.
+### Fase 0 (branch `fase-0-repositorio`)
+
+**0.1. Solução. Feita (2026-10-19).**
+- `OpenDFe.slnx` com os quatro projetos de `src/` e os três de `tests/`, vazios; referências: o modelo, o leiaute e o PDF dependem do núcleo; o leiaute, do modelo; `NFe.Testes` e `Homologacao.Testes`, do leiaute.
+- `global.json`: SDK 10.0.100 com `latestFeature` (nesta máquina, 10.0.401) e o runner de testes `Microsoft.Testing.Platform`.
+- `Directory.Build.props` (raiz): `net10.0`, nullable, avisos como erro, `AnalysisLevel` `latest-recommended` com o estilo no build, determinístico, metadados do pacote (MIT, autor). `src/Directory.Build.props`: documentação XML (sem comentário, não compila), `PublicApiAnalyzers` com `PublicAPI.Shipped.txt`/`Unshipped.txt` por projeto (conferido: tipo público não declarado é erro RS0016), validação de pacote, símbolos `.snupkg`, o README no pacote. SourceLink vem do SDK.
+- Testes: xUnit v3 4.x na Microsoft Testing Platform; o projeto de teste é executável (`OutputType Exe`) e não leva `Microsoft.NET.Test.Sdk` nem `xunit.runner.visualstudio`. `AceitaNenhumTeste` (em `tests/Directory.Build.targets`) aceita o código 8 (nenhum teste rodou): hoje nos três projetos; **sai do `Nucleo.Testes` e do `NFe.Testes` quando entrar o primeiro teste** e fica para sempre no `Homologacao.Testes`.
+- `.gitattributes` com LF em tudo e `tests/Exemplos/** -text` (os bytes dos XMLs assinados não podem mudar); `.editorconfig`; `.gitignore` com certificados e pacotes; `LICENSE` (MIT); README com a primeira linha de 14.4, os pacotes, os requisitos (2.8) e a propriedade (14.3).
+- Conferido: `dotnet build` sem aviso e `dotnet test` com código 0 (build com `--artifacts-path` fora do repositório).
+- **Fica para a 0.2:** o `OpenDFe.NFe` com as duas DLLs (hoje o modelo e o leiaute empacotariam separados), `RepositoryUrl` e `PackageProjectUrl` (quando o repositório do GitHub existir) e a CI.
+
+**Próxima: 0.2** (depende do repositório público no GitHub, criado pelo usuário).
