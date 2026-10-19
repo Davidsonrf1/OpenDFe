@@ -1,11 +1,18 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <RootNamespace>OpenDFe.Testes</RootNamespace>
     <AceitaNenhumTeste>true</AceitaNenhumTeste>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="../../src/OpenDFe.Leiaute.NFe.v400/OpenDFe.Leiaute.NFe.v400.csproj" />
+  </ItemGroup>
+
+  <!-- Prova de risco (PLANO.md 1.7): as ACs raiz da ICP-Brasil vigentes, baixadas do ITI
+       (acraiz.icpbrasil.gov.br/credenciadas/RAIZ). Descartável: a etapa 4.1 as leva para o núcleo. -->
+  <ItemGroup>
+    <EmbeddedResource Include="Raizes/*.crt" LogicalName="Raizes/%(Filename)%(Extension)" />
   </ItemGroup>
 
 </Project>

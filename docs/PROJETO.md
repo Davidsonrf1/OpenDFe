@@ -177,6 +177,7 @@ Serviços SOAP por trás: `NFeAutorizacao4` (síncrona, `indSinc=1`, e por lote)
 8.5. **TLS:**
 
 - a cadeia ICP-Brasil não está nos repositórios das distribuições Linux (requisito do PDV): o núcleo embute as ACs raiz e valida o servidor com `X509ChainTrustMode.CustomRootTrust`, sem depender da máquina;
+  - **achado da prova (`PLANO.md` 1.7, 2026-10-19), a decidir na 4.1:** nem todo autorizador está na ICP-Brasil. MG (`hnfe`, `hnfce`) e o Ambiente Nacional e a SVAN (`hom1.nfe`, `hom.sefazvirtual`) usam ACs públicas (Sectigo/USERTrust, GlobalSign), que só o repositório da máquina tem; SVRS, SP, PR, GO, MS, MT e PE, a Raiz v10 da ICP-Brasil, que o Windows tem e o Linux não. Só as raízes ICP-Brasil recusariam MG. A prova aceita o que o sistema aceita e, quando a falha é só a cadeia, monta a cadeia de novo com as raízes ICP-Brasil embutidas (nome divergente nunca passa);
 - autorizador que só negocia cifra antiga: `CipherSuitesPolicy` por destino (o .NET só a aplica no Linux), declarado na tabela do leiaute, nunca rebaixando o padrão da máquina inteira;
 - **um `HttpMessageHandler` por certificado**, num pool compartilhado entre os núcleos do mesmo emitente: o certificado do TLS mútuo está no handler, e o ERP multi-tenant não pode abrir conexões novas a cada núcleo. O pool é do pacote do núcleo, mas a instância é de quem usa (`ConexoesSefaz`, `IDisposable`, uma por processo, obrigatória na configuração; `docs/CONTRATOS.md`, decisão 7), não estado global nem do núcleo. Quem usa pode trocar a fábrica do handler (2.3).
 
