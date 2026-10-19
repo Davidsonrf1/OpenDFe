@@ -42,6 +42,12 @@ public sealed class Problema
     /// <summary>A propriedade do modelo (<c>"Itens[2].Produto.Valor"</c>), quando conhecida.</summary>
     public string? Propriedade { get; init; }
 
+    /// <summary>
+    /// O detalhe do problema da validação pelo schema (<see cref="SchemaXml.Validar"/>): as regras aplicadas,
+    /// o valor encontrado e a posição; <see langword="null"/> nos outros problemas.
+    /// </summary>
+    public FalhaSchema? Schema { get; init; }
+
     /// <summary>O problema em uma linha: severidade, código, mensagem e, se houver, onde.</summary>
     /// <returns>O texto do problema.</returns>
     public override string ToString()

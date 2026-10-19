@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Schema de exemplo para os testes: uma assinatura mínima, em outro namespace, para o xs:import. -->
+<xs:schema xmlns="http://www.w3.org/2000/09/xmldsig#" xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.w3.org/2000/09/xmldsig#" elementFormDefault="qualified">
+  <xs:element name="Signature">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="SignatureValue" type="xs:base64Binary"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

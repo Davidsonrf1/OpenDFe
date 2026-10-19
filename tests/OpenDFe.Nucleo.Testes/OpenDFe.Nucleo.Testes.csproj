@@ -13,4 +13,10 @@
     <Compile Include="../Compartilhado/**/*.cs" LinkBase="Compartilhado" />
   </ItemGroup>
 
+  <!-- Os XSDs de exemplo da validação pelo schema (Schemas/), embutidos como o leiaute vai embutir os da
+       SEFAZ: o nome do recurso é o caminho (SchemaXml.Carregar). -->
+  <ItemGroup>
+    <EmbeddedResource Include="Schemas/**/*.xsd" LogicalName="Schemas/%(RecursiveDir)%(Filename)%(Extension)" />
+  </ItemGroup>
+
 </Project>

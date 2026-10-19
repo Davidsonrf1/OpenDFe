@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Schema de exemplo para os testes, no estilo do nfe_v4.00.xsd da SEFAZ: a raiz da mensagem. -->
+<xs:schema xmlns="http://www.portalfiscal.inf.br/nfe" xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.portalfiscal.inf.br/nfe" elementFormDefault="qualified" attributeFormDefault="unqualified">
+  <xs:include schemaLocation="leiauteNota_v1.00.xsd"/>
+  <xs:element name="NFe" type="TNFe"/>
+</xs:schema>

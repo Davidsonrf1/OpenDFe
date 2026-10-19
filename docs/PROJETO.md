@@ -104,13 +104,13 @@ O modelo e os leiautes de um documento são projetos separados que saem **no mes
 
 Três etapas, nesta ordem, todas antes da transmissão, todas com o mesmo resultado (`Problema`: código, severidade, mensagem, tag, propriedade do modelo):
 
-6.1. **Schema, sempre.** O núcleo valida o XML gerado com os schemas que o leiaute entrega: cada operação declara o `XmlSchemaSet` da própria mensagem (a nota, o lote, o pedido de evento, a inutilização), do pacote de liberação vigente, embutido (`schemas/<pacote>/`). Não é opcional.
+6.1. **Schema, sempre.** O núcleo valida o XML gerado com os schemas que o leiaute entrega: cada operação declara o schema da própria mensagem (a nota, o lote, o pedido de evento, a inutilização), do pacote de liberação vigente, embutido (`schemas/<pacote>/`): o `SchemaXml` do núcleo, que carrega o `XmlSchemaSet` dos recursos do leiaute (sem disco nem rede) e o compila uma vez. Não é opcional.
 
 6.2. **Regras do MOC e das NTs, no leiaute:** as que dá para conferir sem a SEFAZ: dígito da chave, CPF e CNPJ (inclusive o alfanumérico), totais contra a soma dos itens, combinações (CST × grupo, CFOP × `idDest`, `indIEDest` × IE), datas, `cClassTrib` contra a tabela. Cada regra leva o **código da rejeição** que ela antecipa (ex.: 564, "Total do Produto / Serviço difere do somatório dos itens") e a mensagem do MOC. O repositório mantém o catálogo das rejeições, com as implementadas e as que só a SEFAZ confere (`docs/REGRAS.md`).
 
 6.3. **Regras de negócio de quem usa, opcionais:** dois callbacks registrados no núcleo, um chamado **por campo** e um pelo **documento inteiro** (a nota e o XML), para as regras do sistema, não da SEFAZ. Devolvem `Problema` como as outras etapas.
 
-6.4. **O problema aponta a origem:** a tag e o caminho no XML, a propriedade do modelo (pelo atributo `[Tag]`, 4.1) e, no erro de schema, as restrições do schema para o campo (tipo, tamanho, padrão, valores aceitos), em português: as mensagens do `XmlSchemaSet` são traduzidas uma vez, no núcleo.
+6.4. **O problema aponta a origem:** a tag e o caminho no XML (com o índice a partir de 1 no elemento que se repete: `NFe/infNFe/det[3]/prod/vProd`), a propriedade do modelo (pelo atributo `[Tag]`, 4.1) e, no erro de schema, as restrições do schema para o campo (tipo, tamanho, padrão, valores aceitos), em português: a mensagem é montada pelo núcleo a partir da regra, não traduzida da do .NET. As regras vêm também estruturadas (`Problema.Schema`: o que falhou, o tipo do schema, as facetas violadas com o valor delas, os elementos esperados, o valor encontrado, a linha e a coluna), para quem quiser mostrar de outro jeito. O valor encontrado pode ser dado pessoal: fica no detalhe, nunca na mensagem.
 
 6.5. **Só na SEFAZ** (duplicidade, situação cadastral, numeração): fora da lib; o retorno da autorização traz o `cStat`.
 

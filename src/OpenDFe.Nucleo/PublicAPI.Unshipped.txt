@@ -115,3 +115,42 @@ static OpenDFe.CertificadoDigital.Validade(System.Security.Cryptography.X509Cert
 OpenDFe.AssinaturaDigital
 static OpenDFe.AssinaturaDigital.Assinar(string! xml, string! id, System.Security.Cryptography.X509Certificates.X509Certificate2! certificado) -> string!
 static OpenDFe.AssinaturaDigital.Verificar(string! xml, string! id, string! cnpjOuCpf) -> System.Collections.Generic.IReadOnlyList<OpenDFe.Problema!>!
+OpenDFe.FacetaSchema
+OpenDFe.FacetaSchema.CasasDecimais = 8 -> OpenDFe.FacetaSchema
+OpenDFe.FacetaSchema.Enumeracao = 6 -> OpenDFe.FacetaSchema
+OpenDFe.FacetaSchema.MaximoExclusivo = 12 -> OpenDFe.FacetaSchema
+OpenDFe.FacetaSchema.MaximoInclusivo = 10 -> OpenDFe.FacetaSchema
+OpenDFe.FacetaSchema.MinimoExclusivo = 11 -> OpenDFe.FacetaSchema
+OpenDFe.FacetaSchema.MinimoInclusivo = 9 -> OpenDFe.FacetaSchema
+OpenDFe.FacetaSchema.Padrao = 5 -> OpenDFe.FacetaSchema
+OpenDFe.FacetaSchema.Tamanho = 2 -> OpenDFe.FacetaSchema
+OpenDFe.FacetaSchema.TamanhoMaximo = 4 -> OpenDFe.FacetaSchema
+OpenDFe.FacetaSchema.TamanhoMinimo = 3 -> OpenDFe.FacetaSchema
+OpenDFe.FacetaSchema.TipoPrimitivo = 1 -> OpenDFe.FacetaSchema
+OpenDFe.FacetaSchema.TotalDigitos = 7 -> OpenDFe.FacetaSchema
+OpenDFe.FalhaSchema
+OpenDFe.FalhaSchema.Coluna.get -> int?
+OpenDFe.FalhaSchema.Esperados.get -> System.Collections.Generic.IReadOnlyList<string!>!
+OpenDFe.FalhaSchema.Linha.get -> int?
+OpenDFe.FalhaSchema.MensagemOriginal.get -> string!
+OpenDFe.FalhaSchema.Restricoes.get -> System.Collections.Generic.IReadOnlyList<OpenDFe.RestricaoSchema!>!
+OpenDFe.FalhaSchema.Tipo.get -> OpenDFe.TipoFalhaSchema
+OpenDFe.FalhaSchema.TipoSchema.get -> string?
+OpenDFe.FalhaSchema.Valor.get -> string?
+OpenDFe.Problema.Schema.get -> OpenDFe.FalhaSchema?
+OpenDFe.Problema.Schema.init -> void
+OpenDFe.RestricaoSchema
+OpenDFe.RestricaoSchema.Faceta.get -> OpenDFe.FacetaSchema
+OpenDFe.RestricaoSchema.Tipo.get -> string?
+OpenDFe.RestricaoSchema.Valores.get -> System.Collections.Generic.IReadOnlyList<string!>!
+OpenDFe.SchemaXml
+OpenDFe.SchemaXml.Validar(string! xml) -> System.Collections.Generic.IReadOnlyList<OpenDFe.Problema!>!
+OpenDFe.TipoFalhaSchema
+OpenDFe.TipoFalhaSchema.AtributoAusente = 4 -> OpenDFe.TipoFalhaSchema
+OpenDFe.TipoFalhaSchema.AtributoInesperado = 5 -> OpenDFe.TipoFalhaSchema
+OpenDFe.TipoFalhaSchema.ElementoAusente = 2 -> OpenDFe.TipoFalhaSchema
+OpenDFe.TipoFalhaSchema.ElementoInesperado = 3 -> OpenDFe.TipoFalhaSchema
+OpenDFe.TipoFalhaSchema.Outra = 7 -> OpenDFe.TipoFalhaSchema
+OpenDFe.TipoFalhaSchema.TextoInesperado = 6 -> OpenDFe.TipoFalhaSchema
+OpenDFe.TipoFalhaSchema.Valor = 1 -> OpenDFe.TipoFalhaSchema
+static OpenDFe.SchemaXml.Carregar(System.Reflection.Assembly! assembly, string! recurso, string! codigo) -> OpenDFe.SchemaXml!
