@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <AceitaNenhumTeste>true</AceitaNenhumTeste>
+    <RootNamespace>OpenDFe.Testes</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

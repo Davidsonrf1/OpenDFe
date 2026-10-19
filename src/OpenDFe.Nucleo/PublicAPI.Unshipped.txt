@@ -1,1 +1,79 @@
 #nullable enable
+OpenDFe.Ambiente
+OpenDFe.Ambiente.Homologacao = 2 -> OpenDFe.Ambiente
+OpenDFe.Ambiente.Producao = 1 -> OpenDFe.Ambiente
+OpenDFe.Cnpj
+OpenDFe.Cpf
+OpenDFe.Documento
+OpenDFe.Documento.NFCe = 65 -> OpenDFe.Documento
+OpenDFe.Documento.NFe = 55 -> OpenDFe.Documento
+OpenDFe.FormatadorInvariavel
+OpenDFe.Problema
+OpenDFe.Problema.Caminho.get -> string?
+OpenDFe.Problema.Caminho.init -> void
+OpenDFe.Problema.Codigo.get -> string!
+OpenDFe.Problema.Mensagem.get -> string!
+OpenDFe.Problema.Problema(string! codigo, OpenDFe.Severidade severidade, string! mensagem) -> void
+OpenDFe.Problema.Propriedade.get -> string?
+OpenDFe.Problema.Propriedade.init -> void
+OpenDFe.Problema.Severidade.get -> OpenDFe.Severidade
+OpenDFe.Problema.Tag.get -> string?
+OpenDFe.Problema.Tag.init -> void
+OpenDFe.Severidade
+OpenDFe.Severidade.Aviso = 1 -> OpenDFe.Severidade
+OpenDFe.Severidade.Erro = 2 -> OpenDFe.Severidade
+OpenDFe.TipoEmissao
+OpenDFe.TipoEmissao.ContingenciaEpec = 4 -> OpenDFe.TipoEmissao
+OpenDFe.TipoEmissao.ContingenciaFSDA = 5 -> OpenDFe.TipoEmissao
+OpenDFe.TipoEmissao.ContingenciaFSIA = 2 -> OpenDFe.TipoEmissao
+OpenDFe.TipoEmissao.ContingenciaOffline = 9 -> OpenDFe.TipoEmissao
+OpenDFe.TipoEmissao.ContingenciaSvcAN = 6 -> OpenDFe.TipoEmissao
+OpenDFe.TipoEmissao.ContingenciaSvcRS = 7 -> OpenDFe.TipoEmissao
+OpenDFe.TipoEmissao.Normal = 1 -> OpenDFe.TipoEmissao
+OpenDFe.UF
+OpenDFe.UF.AC = 12 -> OpenDFe.UF
+OpenDFe.UF.AL = 27 -> OpenDFe.UF
+OpenDFe.UF.AM = 13 -> OpenDFe.UF
+OpenDFe.UF.AP = 16 -> OpenDFe.UF
+OpenDFe.UF.BA = 29 -> OpenDFe.UF
+OpenDFe.UF.CE = 23 -> OpenDFe.UF
+OpenDFe.UF.DF = 53 -> OpenDFe.UF
+OpenDFe.UF.ES = 32 -> OpenDFe.UF
+OpenDFe.UF.GO = 52 -> OpenDFe.UF
+OpenDFe.UF.MA = 21 -> OpenDFe.UF
+OpenDFe.UF.MG = 31 -> OpenDFe.UF
+OpenDFe.UF.MS = 50 -> OpenDFe.UF
+OpenDFe.UF.MT = 51 -> OpenDFe.UF
+OpenDFe.UF.PA = 15 -> OpenDFe.UF
+OpenDFe.UF.PB = 25 -> OpenDFe.UF
+OpenDFe.UF.PE = 26 -> OpenDFe.UF
+OpenDFe.UF.PI = 22 -> OpenDFe.UF
+OpenDFe.UF.PR = 41 -> OpenDFe.UF
+OpenDFe.UF.RJ = 33 -> OpenDFe.UF
+OpenDFe.UF.RN = 24 -> OpenDFe.UF
+OpenDFe.UF.RO = 11 -> OpenDFe.UF
+OpenDFe.UF.RR = 14 -> OpenDFe.UF
+OpenDFe.UF.RS = 43 -> OpenDFe.UF
+OpenDFe.UF.SC = 42 -> OpenDFe.UF
+OpenDFe.UF.SE = 28 -> OpenDFe.UF
+OpenDFe.UF.SP = 35 -> OpenDFe.UF
+OpenDFe.UF.TO = 17 -> OpenDFe.UF
+OpenDFe.UnidadesFederativas
+const OpenDFe.Cnpj.Tamanho = 14 -> int
+const OpenDFe.Cpf.Tamanho = 11 -> int
+override OpenDFe.Problema.ToString() -> string!
+static OpenDFe.Cnpj.CalcularDigitos(string! base) -> string!
+static OpenDFe.Cnpj.Formatar(string! valor) -> string!
+static OpenDFe.Cnpj.SemMascara(string! valor) -> string!
+static OpenDFe.Cnpj.Valido(string? valor) -> bool
+static OpenDFe.Cpf.CalcularDigitos(string! base) -> string!
+static OpenDFe.Cpf.Formatar(string! valor) -> string!
+static OpenDFe.Cpf.SemMascara(string! valor) -> string!
+static OpenDFe.Cpf.Valido(string? valor) -> bool
+static OpenDFe.FormatadorInvariavel.Data(System.DateOnly valor) -> string!
+static OpenDFe.FormatadorInvariavel.DataHora(System.DateTimeOffset valor) -> string!
+static OpenDFe.FormatadorInvariavel.Numero(decimal valor, int casas) -> string!
+static OpenDFe.UnidadesFederativas.Codigo(this OpenDFe.UF uf) -> int
+static OpenDFe.UnidadesFederativas.Sigla(this OpenDFe.UF uf) -> string!
+static OpenDFe.UnidadesFederativas.TentarPelaSigla(string? sigla, out OpenDFe.UF uf) -> bool
+static OpenDFe.UnidadesFederativas.TentarPeloCodigo(int codigo, out OpenDFe.UF uf) -> bool

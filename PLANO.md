@@ -143,3 +143,26 @@ Pré-lançamentos (`0.x`) no NuGet.org a partir do fim da fase 5, quando o PDV p
 - **Do usuário, pendente:** o push e a reserva do prefixo `OpenDFe.*` no NuGet.org (14.1, antes da primeira publicação).
 
 **Próxima: 1.1. Tipos base** (fase 1, branch `fase-1-nucleo` a partir desta). Ao entrar o primeiro teste no `Nucleo.Testes`, tirar o `AceitaNenhumTeste` dele.
+
+### Fase 1 (branch `fase-1-nucleo`)
+
+**1.1. Tipos base. Feita (2026-10-19).**
+- No `OpenDFe.Nucleo`, todos no namespace `OpenDFe` (`RootNamespace`; o `Nucleo.Criar` de 3.2 pede a classe `Nucleo`, que colidiria com um namespace `OpenDFe.Nucleo`):
+  - `UF`: enumeração com o código IBGE como valor (`MG = 31`) e a sigla como nome, as 27; `UnidadesFederativas` com `Sigla(this UF)`, `Codigo(this UF)`, `TentarPelaSigla(string?, out UF)` (só maiúsculas) e `TentarPeloCodigo(int, out UF)`. AN, SVRS e afins não são UF: ficam para o `Destino` (1.6).
+  - `Ambiente` (`Producao = 1`, `Homologacao = 2`), `TipoEmissao` (`Normal = 1`, `ContingenciaFSIA = 2`, `ContingenciaEpec = 4`, `ContingenciaFSDA = 5`, `ContingenciaSvcAN = 6`, `ContingenciaSvcRS = 7`, `ContingenciaOffline = 9`) e `Documento` (`NFe = 55`, `NFCe = 65`): o valor de cada membro é o do XML (`tpAmb`, `tpEmis`, `mod`; 4.3).
+  - `Cpf` e `Cnpj`, classes estáticas: `Valido(string?)`, `SemMascara(string)`, `Formatar(string)`, `CalcularDigitos(string base)` e a constante `Tamanho`. O CNPJ aceita as 12 primeiras posições com dígitos ou letras maiúsculas e os DVs numéricos, por módulo 11 sobre o ASCII − 48 (conferido com o exemplo da Receita, `12.ABC.345/01DE-35`); o módulo 11 com pesos de 2 a 9 (`Modulo11`, interno) é o mesmo que a chave de acesso vai usar na 1.2.
+  - `Problema` (classe selada: `Codigo`, `Severidade` e `Mensagem` no construtor; `Tag`, `Caminho` e `Propriedade` opcionais, `init`) e `Severidade` (`Aviso = 1`, `Erro = 2`).
+  - `FormatadorInvariavel`: `Numero(decimal, casas)`, `DataHora(DateTimeOffset)` (`yyyy-MM-ddTHH:mm:ss±hh:mm`, o deslocamento do próprio valor) e `Data(DateOnly)`, sempre com a cultura invariável.
+- `Nucleo.Testes` com 168 testes (CPF e CNPJ válidos e inválidos, inclusive alfanuméricos e o exemplo da Receita; formatação; os códigos IBGE das 27 UFs; os valores do XML; o formatador em pt-BR, th-TH, ar-SA e de-CH). O `AceitaNenhumTeste` saiu dele.
+- **Decisões tomadas sem perguntar** (a etapa rodou sem o usuário; sempre a menor superfície pública, fácil de estender em versão menor). A conferir pelo usuário:
+  - UF, ambiente, tipo de emissão, documento e severidade como `enum` com o valor do XML, sem tipo próprio para "valor do XML" (o leiaute escreve o inteiro).
+  - `TipoEmissao` sem o `3` (Regime Especial da Nota Fiscal Fácil, NT 2021.002), que só algumas UFs adotam e é da NF-e gerada pelo aplicativo NFF; entra em versão menor se for preciso. A leitura de um XML com `tpEmis=3` fica para a 2.5.
+  - `Cpf` e `Cnpj` como funções estáticas sobre `string`, não como tipos de valor; o modelo guarda o documento como texto.
+  - Máscara aceita só inteira (`12.ABC.345/01DE-35`) ou nenhuma; letras minúsculas, espaços e máscara parcial são recusados (relaxar depois não quebra ninguém). Documento com todas as posições iguais (`111.111.111-11`, `00000000000000`) é inválido, embora passe no cálculo.
+  - `Formatar` e `SemMascara` lançam `ArgumentException` com documento inválido (erro de programação: quem chama confere antes com `Valido`).
+  - `Problema.Codigo` é texto (as regras do MOC usam o número da rejeição, mas o schema e os callbacks precisam de outros códigos). As restrições do schema (6.4) ainda não estão no `Problema`: entram na 1.5, como propriedade nova.
+  - Severidade só com `Aviso` e `Erro` (o "bloqueante" de 8.2 é o `Erro`).
+  - O formatador **nunca arredonda**: valor com mais casas significativas que o campo sai com todas, e o schema aponta o campo (2.4: o problema volta como resultado, e o valor não muda calado). Zeros à direita além das casas são descartados. Frações de segundo da data e hora são descartadas. O método é `Numero`, não `Decimal` (CA1720: identificador com nome de tipo).
+- Conferido: build sem aviso, `dotnet test --solution OpenDFe.slnx` com código 0 (168 testes), `dotnet pack -c Release` e `eng/ConferirPacotes.ps1` aprovando os três pacotes (com `--artifacts-path` fora do repositório).
+
+**Próxima: 1.2. Chave de acesso.**
