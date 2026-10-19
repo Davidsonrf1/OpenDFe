@@ -124,7 +124,7 @@ As fases 1 a 5 e a 7 atendem o PDV (fase 5 dele); a 8, a caixa de entrada do Erp
 
 ### Trilha paralela: SEFAZ emulada
 
-*Aprovada em 2026-10-19* (`PROJETO.md` 13.5). **Próxima: E.1.** Corre ao lado das fases, numa **worktree com a branch `sefaz-emulada`** e sessões próprias, uma etapa por sessão, como o resto. Os arquivos que as duas trilhas tocam são o `OpenDFe.slnx`, o `Directory.Packages.props` e este plano. A situação da trilha fica numa seção só dela, no fim, para não conflitar com a das fases.
+*Aprovada em 2026-10-19* (`PROJETO.md` 13.5). A próxima etapa fica na situação da trilha, no fim. Corre ao lado das fases, numa **worktree com a branch `sefaz-emulada`** e sessões próprias, uma etapa por sessão, como o resto. Os arquivos que as duas trilhas tocam são o `OpenDFe.slnx`, o `Directory.Packages.props` e este plano. A situação da trilha fica numa seção só dela, no fim, para não conflitar com a das fases.
 
 Cada etapa se testa sozinha, com mensagens SOAP montadas a partir dos exemplos dos manuais e um `HttpClient` sem a lib. A lib contra o emulador só entra depois da 4.1 (ver "Encontros").
 
@@ -303,3 +303,27 @@ Pré-lançamentos (`0.x`) no NuGet.org a partir do fim da fase 5, quando o PDV p
 - Conferido (Windows): build sem aviso, `dotnet test --solution OpenDFe.slnx` com código 0 (439 testes: 421 do núcleo e 18 da homologação, 9 pulados), `dotnet pack -c Release` e `eng/ConferirPacotes.ps1` aprovando os três pacotes e as dependências; com `OPENDFE_HOMOLOGACAO=1`, 12 aprovados e 6 pulados no Windows e no Linux. A regra de nomes sem nada fora dos métodos de teste (e o `NoCheck`, membro do .NET). Sem dependência nova; a API pública não mudou.
 
 **Próxima: 2.1. Esqueleto do leiaute** (a 1.7 fecha quando houver o PFX: rodar os testes com as variáveis nos dois sistemas e registrar aqui).
+
+### Trilha paralela: SEFAZ emulada (branch `sefaz-emulada`, worktree `../OpenDFe-sefaz-emulada`)
+
+**E.1. Servidor e status. Feita (2026-10-19).**
+- **`tests/OpenDFe.SefazEmulada`:** aplicação ASP.NET Core (`Microsoft.NET.Sdk.Web`, sem pacote novo) com `IsPackable` falso e `InternalsVisibleTo` para os testes. `Program` (o `dotnet run`, com `--porta`, `--pasta`, `--endereco` e `--nome`) e `Emulador` (o mesmo servidor para os testes, numa porta livre). As peças: `Emulador`, que monta o Kestrel com TLS mútuo e as rotas; `OpcoesEmulador`; `AutoridadeTeste`, com a AC gerada e guardada em `ac.pfx`/`ac.crt` e o certificado do servidor emitido a cada partida; `Autorizador` e `UnidadesFederativas`, tabelas próprias sem a lib; `EnvelopeSoap`, o SOAP 1.2 lido e escrito à mão, com as falhas; `Atendimento`, que atende o `POST /<destino>/<serviço>`; `Servico`, `StatusServico` e `Motivos`, com os `cStat` e os textos do Anexo I; `Controle` e `RotasControle`, para as falhas comandadas.
+- **`tests/Directory.Build.props`:** o xUnit, `IsTestProject` e `OutputType Exe` passam a valer só nos projetos `*.Testes`, porque o emulador mora em `tests/` mas é um servidor. Os projetos de teste anteriores não mudaram.
+- **`tests/OpenDFe.SefazEmulada.Testes`:** 86 testes, com mensagens montadas à mão a partir do exemplo do MOC, um `HttpClient` sem a lib e o certificado autoassinado do `Compartilhado` como certificado do cliente.
+  - O status: o 107 com os campos na ordem da Tabela 5-18, as UFs da SVRS, SVAN, SVC-AN e SVC-RS, o 252, o 289, o 215 em sete formas, 516, 404 (inclusive o prefixo que aponta para o namespace padrão), 517, 239 e 214, e o `nfeCabecMsg` ignorado.
+  - O envelope: 404, 415, `VersionMismatch`, `Sender` em cinco formas, inclusive com DTD, e o tipo da resposta.
+  - A lista das URLs.
+  - O TLS: a confiança pelo `ac.crt`, a recusa sem a AC, o certificado do cliente exigido, o autoassinado vencido aceito, e a AC gerada, reaproveitada e trocada quando vence, com o certificado do servidor e os seus nomes.
+  - Cada falha comandada, pela rota e no `Controle`, e o `/_controle` só do loopback.
+  - As opções da linha de comando.
+- **`docs/SEFAZ_EMULADA.md`:** como rodar, o TLS, as rotas, os autorizadores, o envelope, o status com os códigos e as falhas comandadas.
+- **Conferido na fonte (2026-10-19):** as regras do status no MOC 7.0 (Visão Geral 5.5; Anexo I, grupos A, B, D e K, e os textos em 4.4.1); os autorizadores e as UFs de cada um na "Relação de Serviços Web" do Portal Nacional.
+- **Decisões tomadas sem perguntar** (o desenho não cobria; escolhi o conservador):
+  - Formato do retorno: o `tMed` só no 107, com valor 1; o `verAplic` como `<destino>-EMULADA`; o `cUF` da casa do autorizador nas rejeições.
+  - Limites e rotas: o limite de 500 KB medido no corpo inteiro; 404 para o serviço que o emulador ainda não implementa; 415 fora do `application/soap+xml`; falha `Sender` com HTTP 400 e as outras com 500.
+  - O prefixo de namespace (404) conferido com o `XmlReader`, porque o LINQ to XML não guarda o prefixo.
+  - O `/_controle` em JSON, com `vezes` e com uma falha de transporte e uma paralisação consumidas por pedido.
+  - A AC em `%LOCALAPPDATA%/OpenDFe.SefazEmulada`, fora do repositório; o nome padrão `127.0.0.1`; só HTTP/1.1.
+- Conferido: build sem aviso (Debug e Release); `dotnet test --solution OpenDFe.slnx` com código 0 (525 testes, 9 pulados, os de homologação); os 86 do emulador estáveis em quatro execuções no Windows e aprovados no Linux (WSL Ubuntu 26.04, OpenSSL 3.5.5, .NET 10.0.112); `dotnet pack -c Release` com os mesmos três pacotes, e o `eng/ConferirPacotes.ps1` aprovando; o `dotnet run`, que sobe e grava a AC. A regra de nomes não acusa nada fora dos métodos de teste e dos membros do .NET (`NoCheck`, `NoContent`). Sem dependência nova; a API pública da lib não mudou.
+
+**Próxima: E.2. Autorização**, que depende da 2.1 (os XSDs da NF-e no leiaute): começa quando a 2.1 estiver feita e trazida para esta branch.
