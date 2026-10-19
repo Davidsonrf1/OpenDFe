@@ -7,14 +7,15 @@ using System.Text;
 
 namespace OpenDFe.Testes;
 
-// O HttpClient da prova: TLS mútuo com o certificado do titular, a confiança do sistema ou da ICP-Brasil
-// (ConfiancaServidor) e o POST SOAP 1.2. Um por certificado, como o pool da 4.1 (PROJETO.md 8.5).
+// O HttpClient da prova: TLS mútuo com o certificado do titular, a confiança do sistema, da ICP-Brasil ou
+// da AC do emulador (ConfiancaServidor) e o POST SOAP 1.2. Um por certificado, como o pool da 4.1
+// (PROJETO.md 8.5).
 internal sealed class ClienteSefaz : IDisposable
 {
     private readonly HttpClient _http;
     private volatile int _origem;
 
-    public ClienteSefaz(X509Certificate2 certificado, X509Certificate2Collection intermediarias)
+    public ClienteSefaz(X509Certificate2 certificado, X509Certificate2Collection intermediarias, X509Certificate2? raizEmulador = null)
     {
         var handler = new SocketsHttpHandler
         {
@@ -28,7 +29,7 @@ internal sealed class ClienteSefaz : IDisposable
                 CertificateRevocationCheckMode = X509RevocationMode.NoCheck,
                 RemoteCertificateValidationCallback = (_, servidor, cadeia, erros) =>
                 {
-                    var origem = ConfiancaServidor.Avaliar(servidor, cadeia, erros);
+                    var origem = ConfiancaServidor.Avaliar(servidor, cadeia, erros, raizEmulador);
                     _origem = (int)origem;
                     return origem != OrigemConfianca.Recusado;
                 },

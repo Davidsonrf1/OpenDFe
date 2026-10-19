@@ -212,6 +212,47 @@ public class ProvaRiscoTestes
         }
     }
 
+    // Com a SEFAZ emulada de pé (OPENDFE_EMULADOR; PROJETO.md 13.5): o lado do cliente do TLS mútuo, que a
+    // homologação real só aceita com o PFX ICP-Brasil. O autoassinado (13.1) aberto pelo AbrirPfx da 1.3
+    // (DefaultKeySet), no handshake, com o emulador exigindo o certificado como MG e PR.
+
+    [Theory]
+    [InlineData(UF.MG, "MG")]
+    [InlineData(UF.SC, "SVRS")]
+    [InlineData(UF.SP, "SP")]
+    public async Task ConsultaOStatusNaSefazEmuladaComOCertificadoAutoassinado(UF uf, string destino)
+    {
+        var url = new Uri(AmbienteHomologacao.Emulador(), destino + "/NFeStatusServico4");
+        using var raiz = AmbienteHomologacao.AbrirACEmulador();
+        using var certificado = CertificadoDigital.AbrirPfx(new CertificadoTeste { Cnpj = "11222333000181" }.GerarPfx("senha"), "senha");
+        using var cliente = new ClienteSefaz(certificado, [], raiz);
+        var envelope = EnvelopeSoap.Montar(StatusServico.NamespaceWsdl, StatusServico.Pedido(uf));
+
+        var relogio = Stopwatch.StartNew();
+        var resposta = await cliente.EnviarAsync(url, StatusServico.Acao, envelope, Ct);
+        relogio.Stop();
+
+        Registrar($"{uf} ({url}): HTTP {(int)resposta.Status} {resposta.VersaoHttp}, {relogio.ElapsedMilliseconds} ms, confiança {cliente.UltimaOrigem}");
+        Assert.True(resposta.Status == HttpStatusCode.OK, $"HTTP {(int)resposta.Status}: {resposta.Texto}");
+        var retorno = StatusServico.Ler(EnvelopeSoap.LerResultado(resposta.Texto));
+        Registrar($"cStat {retorno.Situacao} {retorno.Motivo}; verAplic {retorno.VersaoAplicativo}; cUF {retorno.CodigoUF}");
+        Assert.Equal("2", retorno.TipoAmbiente);
+        Assert.Equal("107", retorno.Situacao);
+        Assert.Equal(OrigemConfianca.Emulador, cliente.UltimaOrigem);
+    }
+
+    [Fact]
+    public async Task RecusaASefazEmuladaSemAACDela()
+    {
+        var url = new Uri(AmbienteHomologacao.Emulador(), "MG/NFeStatusServico4");
+        using var certificado = CertificadoDigital.AbrirPfx(new CertificadoTeste { Cnpj = "11222333000181" }.GerarPfx("senha"), "senha");
+        using var cliente = new ClienteSefaz(certificado, []);
+        var envelope = EnvelopeSoap.Montar(StatusServico.NamespaceWsdl, StatusServico.Pedido(UF.MG));
+
+        await Assert.ThrowsAsync<HttpRequestException>(() => cliente.EnviarAsync(url, StatusServico.Acao, envelope, Ct));
+        Assert.Equal(OrigemConfianca.Recusado, cliente.UltimaOrigem);
+    }
+
     // A esperada é a do Linux, cujo repositório (o do Mozilla) não traz a ICP-Brasil. O do Windows traz a
     // Raiz v10 (conferido em 2026-10-19): lá, a cadeia ICP-Brasil já passa pelo sistema.
     private static void ConferirOrigem(OrigemConfianca esperada, OrigemConfianca origem)

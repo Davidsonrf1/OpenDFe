@@ -9,6 +9,11 @@
     <ProjectReference Include="../../src/OpenDFe.Leiaute.NFe.v400/OpenDFe.Leiaute.NFe.v400.csproj" />
   </ItemGroup>
 
+  <!-- O gerador do certificado de teste (PROJETO.md 13.1): o cliente da prova contra a SEFAZ emulada. -->
+  <ItemGroup>
+    <Compile Include="../Compartilhado/**/*.cs" LinkBase="Compartilhado" />
+  </ItemGroup>
+
   <!-- Prova de risco (PLANO.md 1.7): as ACs raiz da ICP-Brasil vigentes, baixadas do ITI
        (acraiz.icpbrasil.gov.br/credenciadas/RAIZ). Descartável: a etapa 4.1 as leva para o núcleo. -->
   <ItemGroup>

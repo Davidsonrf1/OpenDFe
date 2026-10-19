@@ -13,6 +13,11 @@ internal static class AmbienteHomologacao
     public const string VariavelPfx = "OPENDFE_PFX_CAMINHO";
     public const string VariavelSenha = "OPENDFE_PFX_SENHA";
 
+    // A SEFAZ emulada (PROJETO.md 13.5) já de pé, pelo endereço base (https://127.0.0.1:5443), e o ac.crt
+    // dela; sem o caminho, o da pasta padrão do emulador (LocalApplicationData/OpenDFe.SefazEmulada).
+    public const string VariavelEmulador = "OPENDFE_EMULADOR";
+    public const string VariavelEmuladorAC = "OPENDFE_EMULADOR_AC";
+
     public static bool PfxInformado => !string.IsNullOrEmpty(Environment.GetEnvironmentVariable(VariavelPfx));
 
     public static bool RedeLigada => Environment.GetEnvironmentVariable(VariavelRede) == "1" || PfxInformado;
@@ -22,6 +27,21 @@ internal static class AmbienteHomologacao
 
     public static void ExigirPfx() =>
         Assert.SkipUnless(PfxInformado, $"Sem {VariavelPfx} (e {VariavelSenha}): o teste precisa do PFX A1 ICP-Brasil.");
+
+    public static Uri Emulador()
+    {
+        var endereco = Environment.GetEnvironmentVariable(VariavelEmulador);
+        Assert.SkipWhen(string.IsNullOrEmpty(endereco), $"Sem {VariavelEmulador}: o teste precisa da SEFAZ emulada de pé.");
+        return new Uri(endereco!.TrimEnd('/') + "/");
+    }
+
+    public static X509Certificate2 AbrirACEmulador()
+    {
+        var caminho = Environment.GetEnvironmentVariable(VariavelEmuladorAC);
+        if (string.IsNullOrEmpty(caminho))
+            caminho = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "OpenDFe.SefazEmulada", "ac.crt");
+        return X509Certificate2.CreateFromPem(File.ReadAllText(caminho));
+    }
 
     // O certificado do titular, com a chave privada (pela API da lib, 1.3).
     public static X509Certificate2 AbrirPfx()
