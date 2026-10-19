@@ -2,18 +2,16 @@
 
   <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
 
-  <!-- xUnit v3 na Microsoft Testing Platform (global.json): o projeto de teste é um executável. -->
-  <PropertyGroup>
+  <!-- xUnit v3 na Microsoft Testing Platform (global.json): o projeto de teste é um executável.
+       Só nos projetos de teste (*.Testes); a SEFAZ emulada mora aqui, mas é um servidor (PROJETO.md 13.5). -->
+  <PropertyGroup Condition="$(MSBuildProjectName.EndsWith('.Testes'))">
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
     <OutputType>Exe</OutputType>
   </PropertyGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition="$(MSBuildProjectName.EndsWith('.Testes'))">
     <PackageReference Include="xunit.v3" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Using Include="Xunit" />
   </ItemGroup>
 

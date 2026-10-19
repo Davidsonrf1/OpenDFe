@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- A SEFAZ emulada (PROJETO.md 13.5) testada sozinha: mensagens SOAP montadas à mão, a partir dos exemplos
+       dos manuais, e um HttpClient sem a lib (PLANO.md, "Trilha paralela"). -->
+  <PropertyGroup>
+    <RootNamespace>OpenDFe.Testes</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <ProjectReference Include="../OpenDFe.SefazEmulada/OpenDFe.SefazEmulada.csproj" />
+  </ItemGroup>
+
+  <!-- O gerador do certificado de teste (PROJETO.md 13.1): o certificado do cliente no TLS mútuo. -->
+  <ItemGroup>
+    <Compile Include="../Compartilhado/**/*.cs" LinkBase="Compartilhado" />
+    <Using Include="OpenDFe.SefazEmulada" />
+  </ItemGroup>
+
+</Project>

@@ -9,5 +9,7 @@
     <Project Path="tests/OpenDFe.Homologacao.Testes/OpenDFe.Homologacao.Testes.csproj" />
     <Project Path="tests/OpenDFe.NFe.Testes/OpenDFe.NFe.Testes.csproj" />
     <Project Path="tests/OpenDFe.Nucleo.Testes/OpenDFe.Nucleo.Testes.csproj" />
+    <Project Path="tests/OpenDFe.SefazEmulada/OpenDFe.SefazEmulada.csproj" />
+    <Project Path="tests/OpenDFe.SefazEmulada.Testes/OpenDFe.SefazEmulada.Testes.csproj" />
   </Folder>
 </Solution>
