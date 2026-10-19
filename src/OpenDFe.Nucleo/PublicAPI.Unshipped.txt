@@ -2,6 +2,18 @@
 OpenDFe.Ambiente
 OpenDFe.Ambiente.Homologacao = 2 -> OpenDFe.Ambiente
 OpenDFe.Ambiente.Producao = 1 -> OpenDFe.Ambiente
+OpenDFe.ChaveAcesso
+OpenDFe.ChaveAcesso.Ano.get -> int
+OpenDFe.ChaveAcesso.CodigoNumerico.get -> int
+OpenDFe.ChaveAcesso.DigitoVerificador.get -> int
+OpenDFe.ChaveAcesso.Emitente.get -> string!
+OpenDFe.ChaveAcesso.Equals(OpenDFe.ChaveAcesso? other) -> bool
+OpenDFe.ChaveAcesso.Mes.get -> int
+OpenDFe.ChaveAcesso.Modelo.get -> OpenDFe.Documento
+OpenDFe.ChaveAcesso.Numero.get -> int
+OpenDFe.ChaveAcesso.Serie.get -> int
+OpenDFe.ChaveAcesso.TipoEmissao.get -> OpenDFe.TipoEmissao
+OpenDFe.ChaveAcesso.UF.get -> OpenDFe.UF
 OpenDFe.Cnpj
 OpenDFe.Cpf
 OpenDFe.Documento
@@ -59,9 +71,19 @@ OpenDFe.UF.SE = 28 -> OpenDFe.UF
 OpenDFe.UF.SP = 35 -> OpenDFe.UF
 OpenDFe.UF.TO = 17 -> OpenDFe.UF
 OpenDFe.UnidadesFederativas
+const OpenDFe.ChaveAcesso.Tamanho = 44 -> int
 const OpenDFe.Cnpj.Tamanho = 14 -> int
 const OpenDFe.Cpf.Tamanho = 11 -> int
+override OpenDFe.ChaveAcesso.Equals(object? obj) -> bool
+override OpenDFe.ChaveAcesso.GetHashCode() -> int
+override OpenDFe.ChaveAcesso.ToString() -> string!
 override OpenDFe.Problema.ToString() -> string!
+static OpenDFe.ChaveAcesso.Gerar(OpenDFe.UF uf, System.DateTimeOffset emissao, string! emitente, OpenDFe.Documento modelo, int serie, int numero, OpenDFe.TipoEmissao tipoEmissao) -> OpenDFe.ChaveAcesso!
+static OpenDFe.ChaveAcesso.Ler(string! valor) -> OpenDFe.ChaveAcesso!
+static OpenDFe.ChaveAcesso.Montar(OpenDFe.UF uf, System.DateTimeOffset emissao, string! emitente, OpenDFe.Documento modelo, int serie, int numero, OpenDFe.TipoEmissao tipoEmissao, int codigoNumerico) -> OpenDFe.ChaveAcesso!
+static OpenDFe.ChaveAcesso.TentarLer(string? valor, out OpenDFe.ChaveAcesso? chave) -> bool
+static OpenDFe.ChaveAcesso.operator !=(OpenDFe.ChaveAcesso? esquerda, OpenDFe.ChaveAcesso? direita) -> bool
+static OpenDFe.ChaveAcesso.operator ==(OpenDFe.ChaveAcesso? esquerda, OpenDFe.ChaveAcesso? direita) -> bool
 static OpenDFe.Cnpj.CalcularDigitos(string! base) -> string!
 static OpenDFe.Cnpj.Formatar(string! valor) -> string!
 static OpenDFe.Cnpj.SemMascara(string! valor) -> string!
