@@ -80,7 +80,7 @@ OpenDFe.Impressao.Pdf    renderizador PDF do modelo de impressão
 OpenDFe.CTe, OpenDFe.MDFe   depois
 ```
 
-O modelo e os leiautes de um documento são projetos separados que saem **no mesmo pacote e na mesma versão**: o leiaute nunca roda contra um modelo de outra versão. Tudo depende de `OpenDFe.Nucleo`; quem só emite NF-e não carrega o PDF, e o PDV (ESC/POS) também não.
+O modelo e os leiautes de um documento são projetos separados que saem **no mesmo pacote e na mesma versão**, num namespace por pacote (`OpenDFe` no núcleo, `OpenDFe.NFe` no modelo e no leiaute): o leiaute nunca roda contra um modelo de outra versão. Tudo depende de `OpenDFe.Nucleo`; quem só emite NF-e não carrega o PDF, e o PDV (ESC/POS) também não.
 
 ## 4. Modelo do documento
 
@@ -108,7 +108,7 @@ O modelo e os leiautes de um documento são projetos separados que saem **no mes
 
 Três etapas, nesta ordem, todas antes da transmissão, todas com o mesmo resultado (`Problema`: código, severidade, mensagem, tag, propriedade do modelo):
 
-6.1. **Schema, sempre.** O núcleo valida o XML gerado com os schemas que o leiaute entrega: cada operação declara o schema da própria mensagem (a nota, o lote, o pedido de evento, a inutilização), do pacote de liberação vigente, embutido (`schemas/<pacote>/`): o `SchemaXml` do núcleo, que carrega o `XmlSchemaSet` dos recursos do leiaute (sem disco nem rede) e o compila uma vez. Não é opcional.
+6.1. **Schema, sempre.** O núcleo valida o XML gerado com os schemas que o leiaute entrega: cada operação declara o schema da própria mensagem (a nota, o lote, o pedido de evento, a inutilização), do pacote de liberação vigente, embutido (`Schemas/<pacote>/`; desde a série 010 o pacote traz só a nota, e a pasta o completa com as mensagens que ele não republica, arquivo a arquivo, registradas em `docs/NTS.md`): o `SchemaXml` do núcleo, que carrega o `XmlSchemaSet` dos recursos do leiaute (sem disco nem rede) e o compila uma vez. Não é opcional.
 
 6.2. **Regras do MOC e das NTs, no leiaute:** as que dá para conferir sem a SEFAZ: dígito da chave, CPF e CNPJ (inclusive o alfanumérico), totais contra a soma dos itens, combinações (CST × grupo, CFOP × `idDest`, `indIEDest` × IE), datas, `cClassTrib` contra a tabela. Cada regra leva o **código da rejeição** que ela antecipa (ex.: 564, "Total do Produto / Serviço difere do somatório dos itens") e a mensagem do MOC. O repositório mantém o catálogo das rejeições, com as implementadas e as que só a SEFAZ confere (`docs/REGRAS.md`).
 

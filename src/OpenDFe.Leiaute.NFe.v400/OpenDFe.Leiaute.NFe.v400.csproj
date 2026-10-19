@@ -3,6 +3,8 @@
   <!-- Sai no pacote OpenDFe.NFe, com o modelo dentro (PROJETO.md 3.4): o leiaute nunca roda
        contra um modelo de outra versão. O núcleo continua dependência de pacote. -->
   <PropertyGroup>
+    <!-- Um namespace por pacote, como o núcleo: o leiaute e o modelo ficam em OpenDFe.NFe. -->
+    <RootNamespace>OpenDFe.NFe</RootNamespace>
     <PackageId>OpenDFe.NFe</PackageId>
     <Description>NF-e (modelo 55) e NFC-e (modelo 65) para a OpenDFe: o modelo de dados e o leiaute 4.00, com XML, schemas, regras do MOC e web services da SEFAZ.</Description>
     <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);IncluirModeloPacote</TargetsForTfmSpecificBuildOutput>
@@ -13,6 +15,16 @@
   <ItemGroup>
     <ProjectReference Include="../OpenDFe.Nucleo/OpenDFe.Nucleo.csproj" />
     <ProjectReference Include="../OpenDFe.NFe.Modelo/OpenDFe.NFe.Modelo.csproj" PrivateAssets="all" />
+  </ItemGroup>
+
+  <!-- Os XSDs do pacote de liberação (docs/NTS.md), embutidos com o caminho como nome do recurso
+       (SchemaXml.Carregar): Schemas/<pacote>/<arquivo>. -->
+  <ItemGroup>
+    <EmbeddedResource Include="Schemas/**/*.xsd" LogicalName="Schemas/%(RecursiveDir)%(Filename)%(Extension)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="OpenDFe.NFe.Testes" />
   </ItemGroup>
 
   <!-- A DLL do modelo, com a documentação XML, em lib/; o PDB vai para o .snupkg. -->
