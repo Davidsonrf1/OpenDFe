@@ -29,9 +29,11 @@ tests/
   OpenDFe.Nucleo.Testes/
   OpenDFe.NFe.Testes/
   OpenDFe.Homologacao.Testes/        ligados por variável de ambiente (PROJETO.md 13.3)
+  OpenDFe.SefazEmulada/              servidor de teste, fora dos pacotes (PROJETO.md 13.5)
+  OpenDFe.SefazEmulada.Testes/
   Compartilhado/                     fonte comum aos testes (o gerador do certificado de teste, 13.1)
   Exemplos/                          XMLs públicos e reais com os dados trocados
-docs/  PROJETO.md, REGRAS.md, NTS.md, QUANDO_CAI.md
+docs/  PROJETO.md, REGRAS.md, NTS.md, QUANDO_CAI.md, SEFAZ_EMULADA.md
 ```
 
 Testes em xUnit v3. API pública rastreada pelo `Microsoft.CodeAnalysis.PublicApiAnalyzers` (`PublicAPI.Shipped.txt` / `Unshipped.txt`): toda mudança de superfície aparece no diff, e é o que decide entre versão menor e maior.
@@ -119,6 +121,22 @@ As fases 1 a 5 e a 7 atendem o PDV (fase 5 dele); a 8, a caixa de entrada do Erp
 
 - **8.1. Distribuição.** `DistribuicaoDFe` por último NSU, NSU e chave, destino AN, os documentos compactados (resumo, nota, evento) devolvidos como XML.
 - **8.2. Manifestação e cadastro.** Os eventos de manifestação (210200, 210210, 210220, 210240) com destino AN, e a `ConsultaCadastro`.
+
+### Trilha paralela: SEFAZ emulada
+
+*Proposta de 2026-10-19, aguardando aprovação* (`PROJETO.md` 13.5). Corre ao lado das fases, numa **worktree com a branch `sefaz-emulada`** e sessões próprias, uma etapa por sessão, como o resto. Os arquivos que as duas trilhas tocam são o `OpenDFe.slnx`, o `Directory.Packages.props` e este plano. A situação da trilha fica numa seção só dela, no fim, para não conflitar com a das fases.
+
+Cada etapa se testa sozinha, com mensagens SOAP montadas a partir dos exemplos dos manuais e um `HttpClient` sem a lib. A lib contra o emulador só entra depois da 4.1 (ver "Encontros").
+
+- **E.1. Servidor e status.** O projeto, o Kestrel com TLS mútuo (a AC de teste gerada e exportada, o certificado do servidor emitido por ela, o do cliente aceito sem cadeia), as rotas `/<destino>/<serviço>` com a lista das URLs, o envelope SOAP 1.2 lido e escrito à mão, o `NFeStatusServico4` (107; 252 com `tpAmb=1`) e a rota `/_controle` com as falhas de transporte (atraso, tempo esgotado, conexão derrubada, resposta ilegível, falha SOAP) e o código de paralisação (108, 109). `docs/SEFAZ_EMULADA.md` começa aqui. Sem dependência de outra etapa.
+- **E.2. Autorização.** Síncrona e por lote, o recibo e o `NFeRetAutorizacao4` (103, 104, 105 e o lote preso), o schema pelos XSDs do leiaute, a assinatura e o titular contra o emitente (213), o protocolo, a duplicidade (204, 539) e a queda depois de autorizar, por `/_controle` e pela marca no `infCpl`. **Depende da 2.1** (os XSDs da NF-e no leiaute).
+- **E.3. Consulta e NFC-e.** O `NFeConsultaProtocolo4` com o que foi autorizado; na NFC-e, o QR Code e o hash do CSC conferidos, e a nota offline (`tpEmis=9`) transmitida depois. A contingência SVC: os autorizadores SVC-AN e SVC-RS atendendo enquanto o normal está paralisado.
+- **E.4. Eventos e inutilização.** O `NFeRecepcaoEvento4` com o cancelamento (nota autorizada, prazo, já cancelada), o cancelamento por substituição, a CC-e (sequência) e o `NFeInutilizacao4` (faixa, número já usado).
+- **E.5. Distribuição e cadastro.** O AN: `NFeDistribuicaoDFe` com NSU sobre as notas emitidas contra um destinatário, os documentos compactados, a manifestação e o `CadConsultaCadastro4` com cadastros carregados pela rota de controle.
+
+Os códigos de retorno citados acima são conferidos no MOC vigente em cada etapa.
+
+**Encontros com as fases:** a 4.1 testa o transporte contra o emulador (o Kestrel local que ela já prevê pode ser o da E.1, se estiver pronto) e fecha o desenho de como a raiz dele entra pela fábrica do handler. Da 4.3 em diante, cada operação ganha o teste contra o emulador ao lado do de homologação real. Até haver o PFX, vale a decisão do `PROJETO.md` 17 sobre o "pronto quando".
 
 ## Publicação
 

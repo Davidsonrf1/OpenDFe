@@ -227,6 +227,18 @@ Cancelamento (110111), cancelamento por substituição (110112, NFC-e), carta de
 
 13.4. **CI em Linux e Windows**, porque o TLS e o certificado se comportam diferente nos dois.
 
+13.5. **SEFAZ emulada** (proposta de 2026-10-19, aguardando aprovação). Um servidor local que responde como os autorizadores, **só para testes**, porque a homologação real recusa o certificado autoassinado no TLS mútuo (só aceita ICP-Brasil) e não reproduz falhas.
+
+- **Para que serve:** desenvolver e testar as fases 4 a 8 sem o PFX real; provocar o que a homologação real não deixa (serviço paralisado, tempo esgotado, autorizar e derrubar a conexão antes da resposta, que é o caso da `RecuperacaoAutorizacao` e do `PodeTerSidoProcessado`, 8.6; contingência SVC com o autorizador normal fora); e servir de ambiente de desenvolvimento ao PDV e ao módulo fiscal do ErpCore.
+- **Forma:** aplicação ASP.NET Core (Kestrel, sem pacote novo) em `tests/OpenDFe.SefazEmulada`, fora dos pacotes publicados. Roda sozinha (`dotnet run`, e uma imagem Docker depois) ou dentro dos testes, numa porta livre.
+- **TLS:** o certificado do servidor é emitido por uma AC de teste que o emulador gera na primeira partida e exporta (`.crt`). O emulador exige o certificado do cliente e aceita qualquer um, inclusive o autoassinado da 13.1, sem conferir a cadeia. O titular do certificado é comparado ao emitente, como a SEFAZ faz (raiz do CNPJ ou CPF, 7.2).
+- **Só homologação:** pedido com `tpAmb=1` é rejeitado (252, ambiente divergente). Do lado de quem usa, a raiz do emulador entra pela fábrica do handler (8.5, 2.3), **sem API pública própria**: a fábrica de teste fica no código compartilhado dos testes, e o ErpCore e o PDV montam a sua só no build de teste. As URLs chegam pelas URLs trocadas (8.4). O emulador atende todos os destinos e serviços no mesmo servidor, com o caminho `/<destino>/<serviço>` (`/MG/NFeStatusServico4`), e lista as URLs prontas para trocar. A confirmar no desenho da 4.1.
+- **O que confere:** o envelope SOAP, o schema da mensagem, a assinatura e o titular, e um conjunto pequeno de regras que só a SEFAZ confere: duplicidade, numeração, situação da nota para o evento, prazo do cancelamento, sequência da CC-e e faixa da inutilização. O estado (chaves autorizadas, protocolos, eventos, faixas inutilizadas, NSU) fica em memória e volta vazio a cada partida. As regras do MOC que a lib já confere antes (6.2) não são repetidas, salvo as que o teste de uma rejeição precisar.
+- **Falhas comandadas:** por uma rota de controle aceita só do próprio computador (`/_controle`), usada pelos testes, e por uma marca no `infCpl` da nota, para provocar a falha manualmente a partir do PDV ou do ERP. As falhas: código de serviço paralisado (108, 109), atraso, tempo esgotado, conexão derrubada antes ou depois de processar, resposta ilegível, falha SOAP e lote preso em processamento (105).
+- **Independência da lib:** o emulador lê o pedido e monta o retorno à mão, a partir dos exemplos e dos leiautes dos manuais (MOC, NTs, WSDL), **sem o leitor nem as regras da lib**: se reaproveitasse o código, um erro da lib apareceria igual dos dois lados e passaria. Da lib usa só o que é neutro: o `SchemaXml` (1.5) com os XSDs do leiaute e a verificação da assinatura (1.4).
+- **Limite:** o emulador é a nossa leitura do MOC, não a SEFAZ. Não substitui a homologação real (13.3): as SEFAZes divergem entre si (cifras, mensagens, peculiaridades de cada UF), e só a real prova a cadeia ICP-Brasil e as cifras. `docs/SEFAZ_EMULADA.md` registra os serviços, as regras e as falhas que ele implementa, com os códigos do MOC.
+- **Em paralelo à lib:** é uma trilha própria do plano, com branch e sessão próprias (`PLANO.md`, "Trilha paralela").
+
 ## 14. Distribuição e governança
 
 14.1. **GitHub público** e **NuGet.org**, com a reserva do prefixo `OpenDFe.*` antes da primeira publicação.
@@ -255,6 +267,7 @@ Cancelamento (110111), cancelamento por substituição (110112, NFC-e), carta de
 | 6 | Eventos: cancelamento, substituição, CC-e, inutilização | os quatro em homologação |
 | 7 | Modelo do DANFCE e do DANFE no leiaute, `OpenDFe.Impressao.Pdf` | PDFs conferidos contra o manual |
 | 8 | Distribuição DF-e e manifestação | notas destinadas baixadas em homologação |
+| paralela | SEFAZ emulada (13.5): status, autorização, consulta e NFC-e, eventos, distribuição, com as falhas comandadas | cada serviço das fases 4 a 8 respondido pelo emulador |
 | depois | CT-e, MDF-e, A3 no Linux, carregamento de leiaute por DLL (3.2) | — |
 | v2 | NFS-e nacional | — |
 
@@ -262,4 +275,4 @@ As fases 1 a 5 atendem o PDV; a 8, a caixa de entrada do ErpCore.
 
 ## 17. Em aberto
 
-Nada.
+- **"Pronto quando" das fases 4 a 8 com a SEFAZ emulada (13.5):** até haver o PFX real, a etapa fecha contra o emulador e deixa a homologação real registrada como pendente, ou continua esperando a homologação real?
