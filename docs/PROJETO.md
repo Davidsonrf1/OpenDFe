@@ -45,7 +45,7 @@ Projeto pessoal de Davidson Faria, open source. O ErpCore (módulo fiscal) e o P
 3.2. **Um núcleo, um leiaute.** O núcleo é criado com um leiaute, um documento e uma configuração; a versão fica implícita no leiaute. Outro documento, outra versão ou outra configuração é outro núcleo:
 
 ```csharp
-var nucleo = Nucleo.Criar(new LeiauteNFe400(), Documento.NFCe, new ConfiguracaoNucleo
+var dfe = DFe.Criar(new LeiauteNFe400(), Documento.NFCe, new ConfiguracaoDFe
 {
     Ambiente    = Ambiente.Homologacao,
     Emissao     = TipoEmissao.Normal,
@@ -57,10 +57,10 @@ var nucleo = Nucleo.Criar(new LeiauteNFe400(), Documento.NFCe, new ConfiguracaoN
 ```
 
 - **A configuração é imutável.** Entrar em contingência é criar outro núcleo, o que é barato: o leiaute não tem estado e é compartilhado entre núcleos (no ERP multi-tenant, um núcleo por emitente e documento).
-- **O leiaute é entregue pelo tipo, não pela DLL.** Quem usa referencia o pacote e passa a instância; o núcleo só enxerga `ILeiaute`. Carregar por caminho de DLL (`Nucleo.CarregarDe(caminho)`) fica como extra, para leiautes de terceiros, porque custa identidade de tipo entre `AssemblyLoadContext`s, quebra com single-file, trimming e AOT (o PDV é um pacote único e assinado) e abre um caminho para executar código vindo de configuração.
+- **O leiaute é entregue pelo tipo, não pela DLL.** Quem usa referencia o pacote e passa a instância; o núcleo só enxerga `ILeiaute`. Carregar por caminho de DLL (`DFe.CarregarDe(caminho)`) fica como extra, para leiautes de terceiros, porque custa identidade de tipo entre `AssemblyLoadContext`s, quebra com single-file, trimming e AOT (o PDV é um pacote único e assinado) e abre um caminho para executar código vindo de configuração.
 - **O leiaute declara** os destinos que atende (UFs, SVRS, SVAN, AN, SVC-AN, SVC-RS), os serviços e as URLs padrão de cada um, e a parte da configuração que é do documento (o CSC da NFC-e). Quem usa pode listar tudo, por exemplo para uma tela de configuração.
 
-3.3. **Detector.** `Nucleo.Detectar(xml)` lê a raiz, o modelo e a versão de um XML recebido (`NFe`, `nfeProc`, evento) e diz qual leiaute, entre os registrados por quem usa, sabe lê-lo. É o caminho da caixa de entrada do ErpCore, onde a versão só aparece dentro do XML.
+3.3. **Detector.** `DFe.Detectar(xml)` lê a raiz, o modelo e a versão de um XML recebido (`NFe`, `nfeProc`, evento) e diz qual leiaute, entre os registrados por quem usa, sabe lê-lo. É o caminho da caixa de entrada do ErpCore, onde a versão só aparece dentro do XML.
 
 3.4. **Pacotes:**
 
@@ -124,7 +124,7 @@ Três etapas, nesta ordem, todas antes da transmissão, todas com o mesmo result
 
 ## 8. Operações e transmissão
 
-8.1. **Uma porta só.** Toda operação é `nucleo.ExecutarAsync(parametro, ct)`. O parâmetro deriva de `ParametroWS<TRetorno>` e diz o tipo do retorno, que o C# deduz (`ExecutarAsync(new ConsultaStatus())` devolve `ResultadoWS<RetornoStatus>`). O leiaute registra um handler por operação (`IOperacao<TParametro, TRetorno>`); `nucleo.Suporta<T>()` e `nucleo.Operacoes` dizem o que ele implementa. Operação nova = parâmetro novo + handler, sem mexer no núcleo.
+8.1. **Uma porta só.** Toda operação é `dfe.ExecutarAsync(parametro, ct)`. O parâmetro deriva de `ParametroWS<TRetorno>` e diz o tipo do retorno, que o C# deduz (`ExecutarAsync(new ConsultaStatus())` devolve `ResultadoWS<RetornoStatus>`). O leiaute registra um handler por operação (`IOperacao<TParametro, TRetorno>`); `dfe.Suporta<T>()` e `dfe.Operacoes` dizem o que ele implementa. Operação nova = parâmetro novo + handler, sem mexer no núcleo.
 
 ```csharp
 public abstract class ParametroWS<TRetorno> where TRetorno : class
@@ -164,7 +164,7 @@ public sealed class ResultadoWS<TRetorno> where TRetorno : class
 
 Serviços SOAP por trás: `NFeAutorizacao4` (síncrona, `indSinc=1`, e por lote), `NFeRetAutorizacao4`, `NFeConsultaProtocolo4`, `NFeStatusServico4`, `NFeInutilizacao4`, `NFeRecepcaoEvento4`, `NFeDistribuicaoDFe` e `CadConsultaCadastro4`.
 
-**Locais, sem web service:** `nucleo.Preparar(nota)` → `DocumentoPreparado { Xml assinado, Chave, Problemas }` (gera, valida e assina sem enviar: a NFC-e offline, 9.2), e a `Autorizacao` aceita o documento preparado ou o XML já assinado, para transmitir os mesmos bytes.
+**Locais, sem web service:** `dfe.Preparar(nota)` → `DocumentoPreparado { Xml assinado, Chave, Problemas }` (gera, valida e assina sem enviar: a NFC-e offline, 9.2), e a `Autorizacao` aceita o documento preparado ou o XML já assinado, para transmitir os mesmos bytes.
 
 8.4. **Escolha da URL:** destino × ambiente × tipo de emissão × serviço, a partir da tabela que o leiaute declara (3.2), com as URLs que quem usa trocou. São dois eixos independentes: o **ambiente** (homologação, produção) e o **tipo de emissão** (normal, SVC-AN, SVC-RS, EPEC, FS-DA, offline da NFC-e), porque a contingência também se testa em homologação, e cada tipo de emissão muda a URL ou o XML de um jeito. **Quando a operação tem um documento ou uma chave, o destino e o tipo de emissão saem dele**, não da configuração do núcleo: a NFC-e emitida offline é transmitida depois, com o núcleo já normal, e a consulta e os eventos de uma nota emitida em SVC seguem o `tpEmis` da chave. A configuração do núcleo vale para a nota nova. O `Destino` do parâmetro sobrepõe tudo.
 

@@ -1,6 +1,6 @@
 # Contratos do núcleo (etapa 1.6)
 
-Desenho dos tipos públicos que ligam quem usa, o núcleo e o leiaute: a criação do núcleo, a declaração do leiaute, as operações, o resultado e os callbacks de regras. **Proposta de 2026-10-19, aguardando aprovação.** Nada implementado. O modelo é o `PROJETO.md` (3, 6.3, 8); onde este desenho diverge dele, a divergência está apontada numa das decisões (seção 8) e o `PROJETO.md` não foi mudado.
+Desenho dos tipos públicos que ligam quem usa, o núcleo e o leiaute: a criação do núcleo, a declaração do leiaute, as operações, o resultado e os callbacks de regras. **Proposta de 2026-10-19, aguardando aprovação.** Nada implementado. A porta se chama `DFe` (`DFe.Criar`), não `Nucleo`, por decisão do usuário em 2026-10-19; "núcleo" continua sendo o pacote `OpenDFe.Nucleo`. O modelo é o `PROJETO.md` (3, 6.3, 8); onde este desenho diverge dele, a divergência está apontada numa das decisões (seção 8) e o `PROJETO.md` não foi mudado.
 
 Critério: a menor superfície pública que atende as fases 2 a 8, fácil de estender em versão menor (12.3). Tudo no namespace `OpenDFe`, no pacote `OpenDFe.Nucleo`, como os tipos das etapas 1.1 a 1.5.
 
@@ -9,10 +9,10 @@ Critério: a menor superfície pública que atende as fases 2 a 8, fácil de est
 ```
 quem usa                         núcleo                                   leiaute (OpenDFe.NFe)
 --------                         ------                                   ---------------------
-Nucleo.Criar(leiaute, doc, cfg) ─► DeclaracaoLeiaute.De(leiaute, doc) ──► ILeiaute.Declarar(declaracao)
+DFe.Criar(leiaute, doc, cfg) ─► DeclaracaoLeiaute.De(leiaute, doc) ──► ILeiaute.Declarar(declaracao)
                                    confere a configuração                   RegistrarOperacao, DeclararAtendimento,
                                                                             DeclararEndereco, DeclararConfiguracaoDocumento
-nucleo.ExecutarAsync(parametro) ─► acha o IOperacao pelo tipo ──────────► Montar(parametro, contexto) → PedidoWS
+dfe.ExecutarAsync(parametro) ─► acha o IOperacao pelo tipo ──────────► Montar(parametro, contexto) → PedidoWS
                                    recusa local? assina, valida (XSD)
                                    escolhe a URL, SOAP 1.2 (4.1)
                                    ◄──────────────────────────────────── Ler(parametro, xmlRetorno, contexto) → LeituraWS
@@ -21,8 +21,8 @@ ResultadoWS<TRetorno> ◄───────── junta problemas, rastro
 
 | Tipo | Papel |
 |---|---|
-| `Nucleo` | a porta: criado com um leiaute, um documento e uma configuração; executa operações e lista o que o leiaute declara |
-| `ConfiguracaoNucleo` | ambiente, UF, tipo de emissão, certificado, conexões, URLs trocadas, a parte do documento, regras, relógio |
+| `DFe` | a porta: criado com um leiaute, um documento e uma configuração; executa operações e lista o que o leiaute declara |
+| `ConfiguracaoDFe` | ambiente, UF, tipo de emissão, certificado, conexões, URLs trocadas, a parte do documento, regras, relógio |
 | `ConfiguracaoDocumento` | base abstrata da parte da configuração que é do documento (o CSC da NFC-e, `ConfiguracaoNFCe` no leiaute) |
 | `Contingencia` | início e justificativa da entrada em contingência (`dhCont`, `xJust`) |
 | `ConexoesSefaz` | o pool de `HttpMessageHandler` por certificado (8.5), de quem usa, compartilhado entre núcleos |
@@ -41,12 +41,12 @@ ResultadoWS<TRetorno> ◄───────── junta problemas, rastro
 
 Os blocos mostram só os membros públicos, sem corpo, com a documentação essencial. "Construtor interno" quer dizer que só o núcleo cria a instância.
 
-### 2.1. `Nucleo`
+### 2.1. `DFe`
 
 O núcleo de um leiaute, um documento e uma configuração (3.2). Imutável e seguro para uso concorrente.
 
 ```csharp
-public sealed class Nucleo
+public sealed class DFe
 {
     /// Cria o núcleo. Chama ILeiaute.Declarar e confere a configuração contra a declaração.
     /// ArgumentException: o leiaute não atende o documento; a configuração do documento falta (quando o leiaute a
@@ -54,11 +54,11 @@ public sealed class Nucleo
     ///   diferente de Normal sem Contingencia; URL trocada inválida.
     /// CryptographicException: o certificado não tem chave privada RSA (o ExigirChavePrivadaRsa da 1.3).
     /// Não confere a validade nem o titular do certificado (CertificadoDigital.Validade e LerTitular são de quem usa).
-    public static Nucleo Criar(ILeiaute leiaute, Documento documento, ConfiguracaoNucleo configuracao);
+    public static DFe Criar(ILeiaute leiaute, Documento documento, ConfiguracaoDFe configuracao);
 
     public ILeiaute Leiaute { get; }
     public Documento Documento { get; }
-    public ConfiguracaoNucleo Configuracao { get; }
+    public ConfiguracaoDFe Configuracao { get; }
 
     /// As operações que o leiaute registrou para o documento.
     public IReadOnlyList<OperacaoSuportada> Operacoes { get; }
@@ -85,11 +85,11 @@ public sealed class Nucleo
 
 Vêm depois, como membros novos (versão menor): `Detectar` (estático, 2.5), `Preparar` (4.4 e 5.2) e a impressão (7.2).
 
-### 2.2. `ConfiguracaoNucleo`, `ConfiguracaoDocumento`, `Contingencia`
+### 2.2. `ConfiguracaoDFe`, `ConfiguracaoDocumento`, `Contingencia`
 
 ```csharp
 /// A configuração de um núcleo. O Criar tira uma cópia das listas: mudar a lista depois não muda o núcleo.
-public sealed class ConfiguracaoNucleo
+public sealed class ConfiguracaoDFe
 {
     public required Ambiente Ambiente { get; init; }
     /// A UF do emitente: o destino natural das operações sem documento nem chave (8.4).
@@ -283,7 +283,7 @@ public interface IOperacao<TParametro, TRetorno>
 public sealed class ContextoOperacao
 {
     public Documento Documento { get; }
-    public ConfiguracaoNucleo Configuracao { get; }
+    public ConfiguracaoDFe Configuracao { get; }
 }
 
 /// O pedido montado. Construtor público: o leiaute cria.
@@ -432,7 +432,7 @@ Na 1.6 os passos 1 a 5 e 8 são implementados; o 6 é uma costura interna do `Co
 using var conexoes = new ConexoesSefaz();                         // um por processo
 using var certificado = CertificadoDigital.AbrirArquivoPfx(caminho, senha);
 
-var nucleo = Nucleo.Criar(new LeiauteNFe400(), Documento.NFCe, new ConfiguracaoNucleo
+var dfe = DFe.Criar(new LeiauteNFe400(), Documento.NFCe, new ConfiguracaoDFe
 {
     Ambiente    = Ambiente.Homologacao,
     UF          = UF.MG,
@@ -448,9 +448,9 @@ var nucleo = Nucleo.Criar(new LeiauteNFe400(), Documento.NFCe, new ConfiguracaoN
     },
 });
 
-if (nucleo.Suporta<ConsultaStatus>())
+if (dfe.Suporta<ConsultaStatus>())
 {
-    var r = await nucleo.ExecutarAsync(new ConsultaStatus(), ct);     // ResultadoWS<RetornoStatus>
+    var r = await dfe.ExecutarAsync(new ConsultaStatus(), ct);     // ResultadoWS<RetornoStatus>
     if (r.Processado)
         Console.WriteLine($"{r.CStat} {r.Motivo}");                     // 107 Servico em Operacao
     else
@@ -458,10 +458,10 @@ if (nucleo.Suporta<ConsultaStatus>())
     Console.WriteLine($"{r.Rastro.Url} em {r.Rastro.Duracao}");
 }
 
-foreach (var a in nucleo.Atendimentos) Console.WriteLine($"{a.UF} {a.Emissao} → {a.Autorizador.Sigla()}");
-foreach (var e in nucleo.Enderecos)    Console.WriteLine($"{e.Autorizador.Sigla()} {e.Ambiente} {e.Servico} {e.Url}");
+foreach (var a in dfe.Atendimentos) Console.WriteLine($"{a.UF} {a.Emissao} → {a.Autorizador.Sigla()}");
+foreach (var e in dfe.Enderecos)    Console.WriteLine($"{e.Autorizador.Sigla()} {e.Ambiente} {e.Servico} {e.Url}");
 
-try { var a = await nucleo.ExecutarAsync(new Autorizacao([nota]) { Sincrona = true }, ct); }
+try { var a = await dfe.ExecutarAsync(new Autorizacao([nota]) { Sincrona = true }, ct); }
 catch (FalhaTransmissaoException ex) when (ex.PodeTerSidoProcessado)
 {
     // guardar ex.Rastro.XmlPedido; depois, RecuperacaoAutorizacao (8.6)
@@ -520,16 +520,16 @@ internal sealed class OperacaoStatus : IOperacao<ConsultaStatus, RetornoStatus>
 
 ## 7. Concorrência, ciclo de vida, cancelamento e extensibilidade
 
-- **Imutável e concorrente:** `Nucleo`, `DeclaracaoLeiaute` (depois do `Declarar`), `ResultadoWS` e os tipos da listagem são imutáveis. Um núcleo atende chamadas em paralelo. `ILeiaute`, `IOperacao` e os callbacks precisam ser seguros para uso concorrente (documentado).
+- **Imutável e concorrente:** `DFe`, `DeclaracaoLeiaute` (depois do `Declarar`), `ResultadoWS` e os tipos da listagem são imutáveis. Um núcleo atende chamadas em paralelo. `ILeiaute`, `IOperacao` e os callbacks precisam ser seguros para uso concorrente (documentado).
 - **Posse:** o certificado e o `ConexoesSefaz` são de quem os cria; o núcleo só os referencia e **não é `IDisposable`**. Descartar o certificado ou as conexões com um núcleo em uso é erro de quem chama (`ObjectDisposedException` ou `CryptographicException` na chamada seguinte). O `HttpMessageHandler` é do `ConexoesSefaz`.
 - **Custo:** criar um núcleo é barato (o `Declarar` monta dicionários; os schemas são do leiaute, carregados uma vez). Trocar de contingência é criar outro núcleo com o mesmo `ConexoesSefaz`.
 - **Cancelamento:** o `CancellationToken` vai em cada `ExecutarAsync`, último parâmetro, opcional. `Montar` e `Ler` são síncronos e sem I/O, sem token. O cancelamento sai como `OperationCanceledException`; cancelar depois de o pedido sair é, para a SEFAZ, a mesma queda no meio (8.6), e quem cancela não recebe o rastro.
-- **Relógio:** `ConfiguracaoNucleo.Relogio`; nada lê `DateTimeOffset.Now`.
+- **Relógio:** `ConfiguracaoDFe.Relogio`; nada lê `DateTimeOffset.Now`.
 - **Extensibilidade sem versão maior:**
   - selados: todos os tipos concretos do núcleo; membros novos neles são versão menor;
   - abertos para o leiaute: as interfaces `ILeiaute` e `IOperacao` (mínimas: o que cresce, cresce na `DeclaracaoLeiaute`, no `ContextoOperacao` e no `PedidoWS`) e as bases abstratas `ParametroWS<TRetorno>` e `ConfiguracaoDocumento`;
   - construtor interno: `DeclaracaoLeiaute`, `ContextoOperacao`, `ResultadoWS`, `RastroWS`, `OperacaoSuportada`, `Atendimento`, `CampoVerificado`, `DocumentoVerificado`, `FalhaTransmissaoException`;
-  - construtor público: o que o leiaute ou quem usa cria (`PedidoWS`, `LeituraWS`, `EnderecoServico`, `ConfiguracaoNucleo`, `Contingencia`, `RegrasDeQuemUsa`, `ConexoesSefaz`);
+  - construtor público: o que o leiaute ou quem usa cria (`PedidoWS`, `LeituraWS`, `EnderecoServico`, `ConfiguracaoDFe`, `Contingencia`, `RegrasDeQuemUsa`, `ConexoesSefaz`);
   - `required` só nos quatro membros da configuração que todo núcleo precisa: acrescentar outro `required` depois seria versão maior.
 
 ## 8. Decisões para o usuário
@@ -538,10 +538,10 @@ internal sealed class OperacaoStatus : IOperacao<ConsultaStatus, RetornoStatus>
 2. **`IOperacao`: quem conduz o caminho.** (a) **interface com `Montar` e `Ler` síncronos, o núcleo dono do caminho** (assina, valida, transmite); (b) classe abstrata com os mesmos métodos; (c) o handler conduz tudo (`ExecutarAsync` próprio, com serviços do contexto). Recomendo (a): o schema e a assinatura não ficam a critério do handler (6.1, "não é opcional"), o leiaute não faz I/O nem precisa de token, e o que crescer vai no `ContextoOperacao` e no `PedidoWS`.
 3. **Registro das operações.** (a) **instância pela declaração** (`d.RegistrarOperacao(new OperacaoStatus())`, tipos deduzidos); (b) tipo genérico (`RegistrarOperacao<OperacaoStatus>()`, com `new()`); (c) dicionário `Type → object` no leiaute. Recomendo (a): tipado, sem reflexão (AOT e trimming, que o PDV usa), e o handler pode receber o que precisa no construtor.
 4. **Despacho pelo tipo do parâmetro.** (a) **tipo exato** (os parâmetros são selados); (b) o mais próximo na hierarquia. Recomendo (a): sem ambiguidade; o detalhe do evento é subclasse do detalhe (8.3), não do parâmetro.
-5. **`Operacoes` e `Suporta<T>()`.** (a) **propriedade `IReadOnlyList<OperacaoSuportada>`** e `Suporta<TParametro>() where TParametro : ParametroWS`; (b) método `ListarOperacoes()`; (c) acesso tipado (`nucleo.Operacoes.Status.ExecutarAsync()`). Recomendo (a): (c) obrigaria o núcleo a conhecer as operações da NF-e; o açúcar tipado, se fizer falta, vem como métodos de extensão no pacote do leiaute (`nucleo.ConsultarStatusAsync()`), sem mexer no núcleo. A base não genérica `ParametroWS` (construtor `private protected`) é acréscimo ao 8.1 do `PROJETO.md`, só para a restrição.
-6. **`CancellationToken` e `TimeProvider`.** Token: (a) **em cada `ExecutarAsync`**; (b) na configuração. Relógio: (a) **na `ConfiguracaoNucleo`, padrão `TimeProvider.System`**; (b) parâmetro do `Criar`; (c) por chamada. Recomendo os dois (a): o token é da chamada (padrão do .NET, CA2016); o relógio é dependência do núcleo (2.3) e a configuração já é o "construtor" dele.
+5. **`Operacoes` e `Suporta<T>()`.** (a) **propriedade `IReadOnlyList<OperacaoSuportada>`** e `Suporta<TParametro>() where TParametro : ParametroWS`; (b) método `ListarOperacoes()`; (c) acesso tipado (`dfe.Operacoes.Status.ExecutarAsync()`). Recomendo (a): (c) obrigaria o núcleo a conhecer as operações da NF-e; o açúcar tipado, se fizer falta, vem como métodos de extensão no pacote do leiaute (`dfe.ConsultarStatusAsync()`), sem mexer no núcleo. A base não genérica `ParametroWS` (construtor `private protected`) é acréscimo ao 8.1 do `PROJETO.md`, só para a restrição.
+6. **`CancellationToken` e `TimeProvider`.** Token: (a) **em cada `ExecutarAsync`**; (b) na configuração. Relógio: (a) **na `ConfiguracaoDFe`, padrão `TimeProvider.System`**; (b) parâmetro do `Criar`; (c) por chamada. Recomendo os dois (a): o token é da chamada (padrão do .NET, CA2016); o relógio é dependência do núcleo (2.3) e a configuração já é o "construtor" dele.
 7. **Conexões (o pool de handlers, 8.5).** (a) **objeto explícito `ConexoesSefaz`, `IDisposable`, de quem usa, obrigatório na configuração**; (b) pool estático interno, sem nada na configuração; (c) núcleo `IDisposable` dono do handler. Recomendo (a): (b) é estado global (2.3) e, no ERP com muitos certificados, cresce sem dono para descartar; (c) impede o compartilhamento entre núcleos que o 8.5 pede. **Diverge do exemplo do 3.2** (que não tem `Conexoes`) e do "pool do núcleo" do 8.5 (o pool continua do pacote do núcleo, mas a instância é de quem usa). Precisa ser decidido agora: tornar obrigatório depois é versão maior.
-8. **Configuração do documento sem o núcleo conhecer a NFC-e.** (a) **base abstrata `ConfiguracaoDocumento`, o leiaute declara o tipo e se é obrigatória, o `Criar` confere**; (b) `object?`, conferido pelo leiaute; (c) genérico (`ConfiguracaoNucleo<T>`, `Nucleo<T>`). Recomendo (a): tipado no uso (`Documento = new ConfiguracaoNFCe {...}`, como o 3.2), erro cedo no `Criar`, e (c) espalharia o genérico por todos os tipos.
+8. **Configuração do documento sem o núcleo conhecer a NFC-e.** (a) **base abstrata `ConfiguracaoDocumento`, o leiaute declara o tipo e se é obrigatória, o `Criar` confere**; (b) `object?`, conferido pelo leiaute; (c) genérico (`ConfiguracaoDFe<T>`, `DFe<T>`). Recomendo (a): tipado no uso (`Documento = new ConfiguracaoNFCe {...}`, como o 3.2), erro cedo no `Criar`, e (c) espalharia o genérico por todos os tipos.
 9. **Callbacks de regras.** Forma: (a) **dois delegados (`Func<CampoVerificado, IEnumerable<Problema>>` e `Func<DocumentoVerificado, IEnumerable<Problema>>`) numa `RegrasDeQuemUsa` selada, na configuração**; (b) interface `IRegrasDeQuemUsa` com dois métodos; (c) classe abstrata com dois virtuais vazios. Recomendo (a): lambda sem classe para quem usa; um callback novo (por evento, por item) é propriedade nova, sem quebrar. O modelo vai como `object?` (o núcleo não conhece a nota; quem usa faz o *cast*) e o campo como texto do XML, com a tag, o caminho e a propriedade. Registrados na configuração (o 6.3 diz "no núcleo", e a configuração é dele), não por chamada.
 10. **Como o `ResultadoWS` representa os quatro casos.** Sucesso e rejeição: `Processado` com `CStat` (2.4). Recusa local: `RecusadoLocalmente`, com os problemas e o XML montado no rastro. Infraestrutura: (a) **`FalhaTransmissaoException` própria, com o `Rastro` e `PodeTerSidoProcessado`**; (b) terceira situação no resultado (`FalhaInfraestrutura`), sem exceção; (c) as exceções do .NET como vêm (`HttpRequestException`). Recomendo (a): segue o 2.4, e a queda no meio (8.6) precisa saber se o pedido saiu e qual XML foi, o que (c) não dá. `Processado` também como `bool` com `MemberNotNullWhen`, para o `Retorno` sem `!`.
 11. **Forma do rastro.** (a) **objeto `RastroWS`** (`XmlPedido`, `XmlRetorno`, `Autorizador`, `Url`, `Inicio`, `Duracao`, `DuracaoTransmissao`), o mesmo no resultado e na exceção; (b) propriedades soltas no `ResultadoWS`, como no 8.1. Conteúdo: (a) **a mensagem (o conteúdo do `nfeDadosMsg` e do `nfeResultMsg`)**; (b) o envelope SOAP inteiro. Recomendo os dois (a): a exceção precisa do rastro, e a mensagem é o que se guarda e se reenvia; o envelope não tem nada que quem usa precise. **Diverge do 8.1** (as propriedades `XmlEnviado`, `XmlRetorno`, `Url`, `Duracao` passam para o `Rastro`).
@@ -566,7 +566,7 @@ Só declarado, ou nem isso, e vem depois:
 - **SOAP real, TLS ICP-Brasil, `CipherSuitesPolicy` por destino, fábrica do handler, tempo limite** (4.1): na 1.6, a transmissão é uma costura interna do `ConexoesSefaz`, usada pelos testes. A ação SOAP e o namespace do WSDL por serviço entram como membros novos do `PedidoWS` ou da declaração.
 - **As URLs e os atendimentos reais** (4.2), conferidos nos portais.
 - **Os parâmetros e retornos** (`ConsultaStatus`, `Autorizacao`, ..., 4.3 a 8.2), no pacote do leiaute; se o status vai para o núcleo como "operação comum" (3.4), decide-se na 4.3.
-- **`Preparar` e `DocumentoPreparado`** (4.4, 5.2), o **detector** `Nucleo.Detectar` (2.5), a **impressão** (7.2): membros novos no `Nucleo` e na `DeclaracaoLeiaute`.
+- **`Preparar` e `DocumentoPreparado`** (4.4, 5.2), o **detector** `DFe.Detectar` (2.5), a **impressão** (7.2): membros novos no `DFe` e na `DeclaracaoLeiaute`.
 - **O motor de regras e a chamada dos callbacks** (3.1).
 - **A troca dos schemas por quem usa** (2.6 do `PROJETO.md`): sobrecarga do `SchemaXml` e propriedade da configuração.
 - Fora por especulativo: interface `INucleo` para *mock* (quem usa testa com um leiaute falso e um transporte falso); carregar leiaute por DLL (3.2); exceção própria de certificado (1.3).
