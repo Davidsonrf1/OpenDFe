@@ -5,6 +5,11 @@
     <Description>Núcleo da OpenDFe: contratos, certificado, assinatura XMLDSig, SOAP, TLS ICP-Brasil e validação pelo XSD dos documentos fiscais eletrônicos brasileiros.</Description>
   </PropertyGroup>
 
+  <!-- XMLDSig (SignedXml, C14N): não faz parte do framework compartilhado. -->
+  <ItemGroup>
+    <PackageReference Include="System.Security.Cryptography.Xml" />
+  </ItemGroup>
+
   <ItemGroup>
     <InternalsVisibleTo Include="OpenDFe.Nucleo.Testes" />
   </ItemGroup>

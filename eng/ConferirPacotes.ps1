@@ -1,5 +1,6 @@
 # Abre cada .nupkg e .snupkg e confere os arquivos de lib/ contra o esperado (PLANO.md 0.2):
-# o OpenDFe.NFe leva as DLLs do modelo e do leiaute, e nenhum projeto vira pacote por engano.
+# o OpenDFe.NFe leva as DLLs do modelo e do leiaute, e nenhum projeto vira pacote por engano. Confere também
+# as dependências de pacote de cada um, no .nuspec (o núcleo depende do System.Security.Cryptography.Xml, 1.4).
 param([Parameter(Mandatory)][string] $Pasta)
 
 $ErrorActionPreference = 'Stop'
@@ -9,6 +10,23 @@ $esperado = @{
     'OpenDFe.Nucleo'        = @('OpenDFe.Nucleo')
     'OpenDFe.NFe'           = @('OpenDFe.Leiaute.NFe.v400', 'OpenDFe.NFe.Modelo')
     'OpenDFe.Impressao.Pdf' = @('OpenDFe.Impressao.Pdf')
+}
+
+$dependencias = @{
+    'OpenDFe.Nucleo'        = @('System.Security.Cryptography.Xml')
+    'OpenDFe.NFe'           = @('OpenDFe.Nucleo')
+    'OpenDFe.Impressao.Pdf' = @('OpenDFe.Nucleo')
+}
+
+function Ler-Dependencias([string] $arquivo) {
+    $zip = [System.IO.Compression.ZipFile]::OpenRead($arquivo)
+    try {
+        $entrada = $zip.Entries | Where-Object { $_.FullName -notlike '*/*' -and $_.Name -like '*.nuspec' } | Select-Object -First 1
+        $leitor = [IO.StreamReader]::new($entrada.Open())
+        try { [xml] $nuspec = $leitor.ReadToEnd() } finally { $leitor.Dispose() }
+        $nuspec.GetElementsByTagName('dependency') | ForEach-Object { $_.GetAttribute('id') } | Sort-Object -Unique
+    }
+    finally { $zip.Dispose() }
 }
 
 function Ler-Lib([string] $arquivo) {
@@ -22,6 +40,12 @@ $pacotes = Get-ChildItem $Pasta -Filter *.nupkg
 foreach ($nupkg in $pacotes) {
     $id = $nupkg.BaseName -replace '\.\d+\.\d+\.\d+(-[\w.]+)?$', ''
     if (-not $esperado.ContainsKey($id)) { $falhas += "pacote inesperado: $($nupkg.Name)"; continue }
+
+    $querDependencias = @($dependencias[$id] | Sort-Object)
+    $temDependencias = @(Ler-Dependencias $nupkg.FullName)
+    if (Compare-Object $querDependencias $temDependencias) {
+        $falhas += "$($nupkg.Name): dependencias esperadas [$($querDependencias -join ', ')], encontradas [$($temDependencias -join ', ')]"
+    }
 
     $dlls = $esperado[$id]
     $conferir = @(

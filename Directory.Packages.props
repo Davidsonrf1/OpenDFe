@@ -6,6 +6,7 @@
 
   <ItemGroup>
     <PackageVersion Include="Microsoft.CodeAnalysis.PublicApiAnalyzers" Version="5.6.0" />
+    <PackageVersion Include="System.Security.Cryptography.Xml" Version="10.0.13" />
     <PackageVersion Include="xunit.v3" Version="4.0.2" />
   </ItemGroup>
 

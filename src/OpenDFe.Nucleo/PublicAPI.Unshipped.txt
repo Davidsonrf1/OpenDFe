@@ -112,3 +112,6 @@ static OpenDFe.CertificadoDigital.AbrirArquivoPfx(string! caminho, string! senha
 static OpenDFe.CertificadoDigital.AbrirPfx(byte[]! conteudo, string! senha) -> System.Security.Cryptography.X509Certificates.X509Certificate2!
 static OpenDFe.CertificadoDigital.LerTitular(System.Security.Cryptography.X509Certificates.X509Certificate2! certificado) -> OpenDFe.TitularCertificado?
 static OpenDFe.CertificadoDigital.Validade(System.Security.Cryptography.X509Certificates.X509Certificate2! certificado, System.DateTimeOffset instante) -> OpenDFe.ValidadeCertificado
+OpenDFe.AssinaturaDigital
+static OpenDFe.AssinaturaDigital.Assinar(string! xml, string! id, System.Security.Cryptography.X509Certificates.X509Certificate2! certificado) -> string!
+static OpenDFe.AssinaturaDigital.Verificar(string! xml, string! id, string! cnpjOuCpf) -> System.Collections.Generic.IReadOnlyList<OpenDFe.Problema!>!

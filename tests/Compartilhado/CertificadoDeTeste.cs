@@ -68,6 +68,10 @@ public sealed class CertificadoDeTeste
     /// <summary>Fim da validade; o padrão é um ano depois de agora.</summary>
     public DateTimeOffset NaoDepois { get; init; } = DateTimeOffset.UtcNow.AddYears(1);
 
+    /// <summary>O uso da chave (extensão crítica); o padrão é o do certificado A1 de assinatura.</summary>
+    public X509KeyUsageFlags UsoDaChave { get; init; } =
+        X509KeyUsageFlags.DigitalSignature | X509KeyUsageFlags.NonRepudiation | X509KeyUsageFlags.KeyEncipherment;
+
     /// <summary>Chave ECDSA P-256 em vez de RSA 2048 (para o teste da recusa).</summary>
     public bool ChaveEcdsa { get; init; }
 
@@ -120,9 +124,7 @@ public sealed class CertificadoDeTeste
     private void AcrescentarExtensoes(CertificateRequest pedido)
     {
         pedido.CertificateExtensions.Add(new X509BasicConstraintsExtension(false, false, 0, true));
-        pedido.CertificateExtensions.Add(new X509KeyUsageExtension(
-            X509KeyUsageFlags.DigitalSignature | X509KeyUsageFlags.NonRepudiation | X509KeyUsageFlags.KeyEncipherment,
-            critical: true));
+        pedido.CertificateExtensions.Add(new X509KeyUsageExtension(UsoDaChave, critical: true));
         pedido.CertificateExtensions.Add(new X509EnhancedKeyUsageExtension(
             [new Oid("1.3.6.1.5.5.7.3.2"), new Oid("1.3.6.1.5.5.7.3.4")], critical: false));
         pedido.CertificateExtensions.Add(new X509SubjectKeyIdentifierExtension(pedido.PublicKey, critical: false));

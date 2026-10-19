@@ -118,7 +118,7 @@ Três etapas, nesta ordem, todas antes da transmissão, todas com o mesmo result
 
 7.1. **Chave:** geração (`cNF` aleatório, nunca igual ao número; DV módulo 11) e leitura das partes (UF, AAMM, CNPJ ou CPF, modelo, série, número, tipo de emissão).
 
-7.2. **Assinatura XMLDSig enveloped**, canonicalização C14N, referência `#NFe<chave>`, RSA com SHA-1 (o que a NF-e ainda exige; SHA-256 quando a NT mudar). **Verificação** também: confere a assinatura e o certificado do emitente num XML recebido (o ErpCore hoje não confere, `PLANO.md` 15, etapa 10).
+7.2. **Assinatura XMLDSig enveloped**, canonicalização C14N, referência `#NFe<chave>`, RSA com SHA-1 (o que a NF-e ainda exige; SHA-256 quando a NT mudar). **Verificação** também: confere a assinatura e o certificado do emitente num XML recebido (o ErpCore hoje não confere, `PLANO.md` 15, etapa 10). O titular do certificado é comparado como a SEFAZ compara (MOC 7.0, Anexo I, F03 e F03A): a raiz do CNPJ (o certificado de um estabelecimento assina pelos outros da empresa) ou o CPF inteiro. A cadeia ICP-Brasil, a revogação e a validade na data da emissão ainda não entram na verificação (`PLANO.md`, 1.4).
 
 7.3. **Certificado:** a lib recebe um `X509Certificate2` com a chave privada; carregá-lo é de quem usa (PFX em pasta protegida, repositório do Windows). Utilitário para abrir o PFX e checar validade e CNPJ. **A1 na primeira versão.** O A3 no Windows funciona pelo repositório do sistema (o mesmo `X509Certificate2`); no Linux pede PKCS#11, que fica para depois.
 
