@@ -4,6 +4,9 @@
 # XMLs de exemplo: os bytes são o que a assinatura cobre. Nunca converter fim de linha.
 tests/Exemplos/** -text
 
+# Schemas da SEFAZ: os bytes do pacote de liberação, conferíveis pelo SHA-256 registrado em docs/NTS.md.
+src/OpenDFe.Leiaute.NFe.v400/Schemas/** -text
+
 *.pfx binary
 *.p12 binary
 *.cer binary

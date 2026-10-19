@@ -1,1 +1,6 @@
 #nullable enable
+OpenDFe.NFe.LeiauteNFe400
+OpenDFe.NFe.LeiauteNFe400.Declarar(OpenDFe.DeclaracaoLeiaute! declaracao) -> void
+OpenDFe.NFe.LeiauteNFe400.Documentos.get -> System.Collections.Generic.IReadOnlyList<OpenDFe.Documento>!
+OpenDFe.NFe.LeiauteNFe400.LeiauteNFe400() -> void
+OpenDFe.NFe.LeiauteNFe400.Versao.get -> string!
