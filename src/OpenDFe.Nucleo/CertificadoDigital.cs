@@ -25,7 +25,7 @@ public static class CertificadoDigital
 {
     private const string OidNomeAlternativo = "2.5.29.17";
     private const string OidNomeComum = "2.5.4.3";
-    private const string OidNumeroDeSerie = "2.5.4.5";
+    private const string OidNumeroSerie = "2.5.4.5";
 
     // DOC-ICP-04, Anexo I e 7.1.2.2: os campos otherName do "Subject Alternative Name".
     private const string OidDadosPessoaFisica = "2.16.76.1.3.1";
@@ -33,7 +33,7 @@ public static class CertificadoDigital
 
     // No 2.16.76.1.3.1: a data de nascimento (8 posições), o CPF (11), o NIS (11), o RG (15) e o órgão
     // expedidor com a UF (até 10).
-    private const int InicioCpfNosDadosPessoaFisica = 8;
+    private const int InicioCpfDadosPessoaFisica = 8;
 
     /// <summary>Abre um certificado A1 a partir do conteúdo de um PFX (PKCS#12).</summary>
     /// <param name="conteudo">Os bytes do PFX.</param>
@@ -122,14 +122,14 @@ public static class CertificadoDigital
         ArgumentNullException.ThrowIfNull(certificado);
 
         LerNomeAlternativo(certificado, out var cnpj, out var cpf);
-        LerNomeDoTitular(certificado, out var nomeComum, out var numeroDeSerie);
+        LerNomeTitular(certificado, out var nomeComum, out var numeroSerie);
 
-        if (cnpj is null && cpf is null && numeroDeSerie is not null)
+        if (cnpj is null && cpf is null && numeroSerie is not null)
         {
-            if (numeroDeSerie.Length == Cnpj.Tamanho && Cnpj.Valido(numeroDeSerie))
-                cnpj = numeroDeSerie;
-            else if (numeroDeSerie.Length == Cpf.Tamanho && Cpf.Valido(numeroDeSerie))
-                cpf = numeroDeSerie;
+            if (numeroSerie.Length == Cnpj.Tamanho && Cnpj.Valido(numeroSerie))
+                cnpj = numeroSerie;
+            else if (numeroSerie.Length == Cpf.Tamanho && Cpf.Valido(numeroSerie))
+                cpf = numeroSerie;
         }
         if (cnpj is null && cpf is null)
             return null;
@@ -249,9 +249,9 @@ public static class CertificadoDigital
                 cnpj = valor;
             }
             else if (tipo == OidDadosPessoaFisica && cpf is null
-                && valor.Length >= InicioCpfNosDadosPessoaFisica + Cpf.Tamanho)
+                && valor.Length >= InicioCpfDadosPessoaFisica + Cpf.Tamanho)
             {
-                var numero = valor.Substring(InicioCpfNosDadosPessoaFisica, Cpf.Tamanho);
+                var numero = valor.Substring(InicioCpfDadosPessoaFisica, Cpf.Tamanho);
                 if (Cpf.Valido(numero))
                     cpf = numero;
             }
@@ -277,10 +277,10 @@ public static class CertificadoDigital
         };
     }
 
-    private static void LerNomeDoTitular(X509Certificate2 certificado, out string? nomeComum, out string? numeroDeSerie)
+    private static void LerNomeTitular(X509Certificate2 certificado, out string? nomeComum, out string? numeroSerie)
     {
         nomeComum = null;
-        numeroDeSerie = null;
+        numeroSerie = null;
         foreach (var rdn in certificado.SubjectName.EnumerateRelativeDistinguishedNames())
         {
             if (rdn.HasMultipleElements)
@@ -288,8 +288,8 @@ public static class CertificadoDigital
             var tipo = rdn.GetSingleElementType().Value;
             if (tipo == OidNomeComum)
                 nomeComum ??= rdn.GetSingleElementValue();
-            else if (tipo == OidNumeroDeSerie)
-                numeroDeSerie ??= rdn.GetSingleElementValue();
+            else if (tipo == OidNumeroSerie)
+                numeroSerie ??= rdn.GetSingleElementValue();
         }
     }
 

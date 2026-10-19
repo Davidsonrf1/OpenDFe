@@ -47,14 +47,18 @@ Projeto pessoal de Davidson Faria, open source. O ErpCore (módulo fiscal) e o P
 ```csharp
 var dfe = DFe.Criar(new LeiauteNFe400(), Documento.NFCe, new ConfiguracaoDFe
 {
-    Ambiente    = Ambiente.Homologacao,
-    Emissao     = TipoEmissao.Normal,
-    UF          = UF.MG,
-    Certificado = certificado,
-    Urls        = urlsTrocadas,                    // só as que mudam; o resto vem do padrão do leiaute
-    Documento   = new ConfiguracaoNFCe { IdCsc = "1", Csc = csc }   // a parte que o leiaute declara
+    Ambiente     = Ambiente.Homologacao,
+    UF           = UF.MG,
+    Certificado  = certificado,
+    Conexoes     = conexoes,                       // o pool de handlers, de quem usa, compartilhado (8.5)
+    Emissao      = TipoEmissao.ContingenciaOffline,
+    Contingencia = new Contingencia(inicio, justificativa),   // dhCont e xJust; obrigatória fora do Normal
+    Urls         = urlsTrocadas,                   // só as que mudam; o resto vem do padrão do leiaute
+    Documento    = new ConfiguracaoNFCe { IdCsc = "1", Csc = csc }   // a parte que o leiaute declara
 });
 ```
+
+A configuração leva as **conexões** (`ConexoesSefaz`, obrigatórias: o pool de 8.5, criado e descartado por quem usa) e, com o tipo de emissão diferente de `Normal`, a **contingência** (início e justificativa), conforme o desenho aprovado da etapa 1.6 (`docs/CONTRATOS.md`, decisões 7 e 15).
 
 - **A configuração é imutável.** Entrar em contingência é criar outro núcleo, o que é barato: o leiaute não tem estado e é compartilhado entre núcleos (no ERP multi-tenant, um núcleo por emitente e documento).
 - **O leiaute é entregue pelo tipo, não pela DLL.** Quem usa referencia o pacote e passa a instância; o núcleo só enxerga `ILeiaute`. Carregar por caminho de DLL (`DFe.CarregarDe(caminho)`) fica como extra, para leiautes de terceiros, porque custa identidade de tipo entre `AssemblyLoadContext`s, quebra com single-file, trimming e AOT (o PDV é um pacote único e assinado) e abre um caminho para executar código vindo de configuração.
@@ -108,7 +112,7 @@ Três etapas, nesta ordem, todas antes da transmissão, todas com o mesmo result
 
 6.2. **Regras do MOC e das NTs, no leiaute:** as que dá para conferir sem a SEFAZ: dígito da chave, CPF e CNPJ (inclusive o alfanumérico), totais contra a soma dos itens, combinações (CST × grupo, CFOP × `idDest`, `indIEDest` × IE), datas, `cClassTrib` contra a tabela. Cada regra leva o **código da rejeição** que ela antecipa (ex.: 564, "Total do Produto / Serviço difere do somatório dos itens") e a mensagem do MOC. O repositório mantém o catálogo das rejeições, com as implementadas e as que só a SEFAZ confere (`docs/REGRAS.md`).
 
-6.3. **Regras de negócio de quem usa, opcionais:** dois callbacks registrados no núcleo, um chamado **por campo** e um pelo **documento inteiro** (a nota e o XML), para as regras do sistema, não da SEFAZ. Devolvem `Problema` como as outras etapas.
+6.3. **Regras de negócio de quem usa, opcionais:** dois callbacks na configuração do núcleo (`ConfiguracaoDFe.Validacao`, um `ValidacaoCallback`), um chamado **por campo** (`Campo`) e um pelo **documento inteiro** (`Documento`: a nota e o XML), para as regras do sistema, não da SEFAZ. Devolvem `Problema` como as outras etapas. A chamada entra com o motor de regras (fase 3).
 
 6.4. **O problema aponta a origem:** a tag e o caminho no XML (com o índice a partir de 1 no elemento que se repete: `NFe/infNFe/det[3]/prod/vProd`), a propriedade do modelo (pelo atributo `[Tag]`, 4.1) e, no erro de schema, as restrições do schema para o campo (tipo, tamanho, padrão, valores aceitos), em português: a mensagem é montada pelo núcleo a partir da regra, não traduzida da do .NET. As regras vêm também estruturadas (`Problema.Schema`: o que falhou, o tipo do schema, as facetas violadas com o valor delas, os elementos esperados, o valor encontrado, a linha e a coluna), para quem quiser mostrar de outro jeito. O valor encontrado pode ser dado pessoal: fica no detalhe, nunca na mensagem.
 
@@ -127,26 +131,28 @@ Três etapas, nesta ordem, todas antes da transmissão, todas com o mesmo result
 8.1. **Uma porta só.** Toda operação é `dfe.ExecutarAsync(parametro, ct)`. O parâmetro deriva de `ParametroWS<TRetorno>` e diz o tipo do retorno, que o C# deduz (`ExecutarAsync(new ConsultaStatus())` devolve `ResultadoWS<RetornoStatus>`). O leiaute registra um handler por operação (`IOperacao<TParametro, TRetorno>`); `dfe.Suporta<T>()` e `dfe.Operacoes` dizem o que ele implementa. Operação nova = parâmetro novo + handler, sem mexer no núcleo.
 
 ```csharp
-public abstract class ParametroWS<TRetorno> where TRetorno : class
+public abstract class ParametroWS                 // a base não genérica, só para a restrição de Suporta<T>()
 {
     public Destino? Destino { get; init; }        // null = o destino natural (8.3)
 }
 
+public abstract class ParametroWS<TRetorno> : ParametroWS where TRetorno : class { }
+
 public sealed class ResultadoWS<TRetorno> where TRetorno : class
 {
     public SituacaoResultado Situacao { get; }    // Processado | RecusadoLocalmente
+    public bool Processado { get; }               // com ele, Retorno e Motivo não são nulos
     public int? CStat { get; }
     public string? Motivo { get; }
     public TRetorno? Retorno { get; }
     public IReadOnlyList<Problema> Problemas { get; }
-    public string? XmlEnviado { get; }
-    public string? XmlRetorno { get; }
-    public Uri? Url { get; }
-    public TimeSpan Duracao { get; }
-}
+    public RastroWS Rastro { get; }               // XmlPedido, XmlRetorno, Autorizador, Url, Inicio, Duracao,
+}                                                 // DuracaoTransmissao; o mesmo na FalhaTransmissaoException
 ```
 
-8.2. **O caminho de toda operação:** o leiaute monta o XML do pedido → o núcleo valida (seção 6; com problema bloqueante, `RecusadoLocalmente`, nada é enviado) → assina, se o serviço pede → envelope SOAP 1.2 (na base, escrito à mão, sem importar WSDL) → HTTPS com TLS mútuo → o leiaute lê o retorno. A rejeição da SEFAZ é `Processado` com o `cStat` (2.4).
+O rastro é um objeto (`RastroWS`), o mesmo no resultado e na `FalhaTransmissaoException` (a falha de infraestrutura, com `PodeTerSidoProcessado`), e guarda a mensagem (o conteúdo do `nfeDadosMsg` e do `nfeResultMsg`), não o envelope SOAP (`docs/CONTRATOS.md`, decisões 5, 10 e 11).
+
+8.2. **O caminho de toda operação:** o leiaute monta o XML do pedido (com problema bloqueante na montagem, `RecusadoLocalmente`) → o núcleo assina, se o serviço pede → valida pelo schema a mensagem assinada (seção 6; o XSD exige a `Signature`; com problema bloqueante, `RecusadoLocalmente`, nada é enviado) → envelope SOAP 1.2 (na base, escrito à mão, sem importar WSDL) → HTTPS com TLS mútuo → o leiaute lê o retorno. A rejeição da SEFAZ é `Processado` com o `cStat` (2.4).
 
 8.3. **As operações da NF-e e da NFC-e:**
 
@@ -172,7 +178,7 @@ Serviços SOAP por trás: `NFeAutorizacao4` (síncrona, `indSinc=1`, e por lote)
 
 - a cadeia ICP-Brasil não está nos repositórios das distribuições Linux (requisito do PDV): o núcleo embute as ACs raiz e valida o servidor com `X509ChainTrustMode.CustomRootTrust`, sem depender da máquina;
 - autorizador que só negocia cifra antiga: `CipherSuitesPolicy` por destino (o .NET só a aplica no Linux), declarado na tabela do leiaute, nunca rebaixando o padrão da máquina inteira;
-- **um `HttpMessageHandler` por certificado**, num pool do núcleo compartilhado entre os núcleos do mesmo emitente: o certificado do TLS mútuo está no handler, e o ERP multi-tenant não pode abrir conexões novas a cada núcleo. Quem usa pode trocar a fábrica do handler (2.3).
+- **um `HttpMessageHandler` por certificado**, num pool compartilhado entre os núcleos do mesmo emitente: o certificado do TLS mútuo está no handler, e o ERP multi-tenant não pode abrir conexões novas a cada núcleo. O pool é do pacote do núcleo, mas a instância é de quem usa (`ConexoesSefaz`, `IDisposable`, uma por processo, obrigatória na configuração; `docs/CONTRATOS.md`, decisão 7), não estado global nem do núcleo. Quem usa pode trocar a fábrica do handler (2.3).
 
 8.6. **Sem reenvio automático.** A lib não repete a autorização sozinha: quem chama decide. Para a queda no meio (a SEFAZ autorizou e a resposta se perdeu), a `RecuperacaoAutorizacao` consulta pela chave e monta o `nfeProc` com o protocolo encontrado; a duplicidade (rejeição 204 e afins) vem identificada no retorno, com a chave. O guia "o que fazer quando cai" faz parte da documentação.
 

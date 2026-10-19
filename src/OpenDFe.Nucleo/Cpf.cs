@@ -10,7 +10,7 @@ public static class Cpf
     /// <summary>Quantidade de dígitos do CPF sem máscara.</summary>
     public const int Tamanho = 11;
 
-    private const int TamanhoComMascara = 14;
+    private const int TamanhoMascarado = 14;
     private const int TamanhoBase = 9;
 
     /// <summary>Se o valor é um CPF válido, com ou sem máscara.</summary>
@@ -19,17 +19,17 @@ public static class Cpf
     public static bool Valido(string? valor)
     {
         Span<char> cpf = stackalloc char[Tamanho];
-        return TirarMascara(valor, cpf) && ValidoSemMascara(cpf);
+        return TirarMascara(valor, cpf) && ValidoDesmascarado(cpf);
     }
 
     /// <summary>O CPF sem máscara (<c>52998224725</c>), como vai no XML.</summary>
     /// <param name="valor">Um CPF válido, sem máscara ou com a máscara inteira.</param>
     /// <returns>Os 11 dígitos, sem máscara.</returns>
     /// <exception cref="ArgumentException">O valor não é um CPF válido.</exception>
-    public static string SemMascara(string valor)
+    public static string RemoverMascara(string valor)
     {
         Span<char> cpf = stackalloc char[Tamanho];
-        if (!TirarMascara(valor, cpf) || !ValidoSemMascara(cpf))
+        if (!TirarMascara(valor, cpf) || !ValidoDesmascarado(cpf))
             throw new ArgumentException("O valor não é um CPF válido.", nameof(valor));
         return new string(cpf);
     }
@@ -40,7 +40,7 @@ public static class Cpf
     /// <exception cref="ArgumentException">O valor não é um CPF válido.</exception>
     public static string Formatar(string valor)
     {
-        var c = SemMascara(valor);
+        var c = RemoverMascara(valor);
         return $"{c[..3]}.{c[3..6]}.{c[6..9]}-{c[9..]}";
     }
 
@@ -61,7 +61,7 @@ public static class Cpf
         return new string(cpf[9..]);
     }
 
-    private static bool ValidoSemMascara(ReadOnlySpan<char> cpf)
+    private static bool ValidoDesmascarado(ReadOnlySpan<char> cpf)
     {
         if (cpf.ContainsAnyExceptInRange('0', '9') || !cpf.ContainsAnyExcept(cpf[0]))
             return false;
@@ -88,7 +88,7 @@ public static class Cpf
             v.CopyTo(destino);
             return true;
         }
-        if (v.Length != TamanhoComMascara || v[3] != '.' || v[7] != '.' || v[11] != '-')
+        if (v.Length != TamanhoMascarado || v[3] != '.' || v[7] != '.' || v[11] != '-')
             return false;
         v[..3].CopyTo(destino);
         v[4..7].CopyTo(destino[3..]);

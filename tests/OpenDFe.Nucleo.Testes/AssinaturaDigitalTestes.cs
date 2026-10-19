@@ -6,7 +6,7 @@ using System.Xml;
 
 namespace OpenDFe.Testes;
 
-// Todos com o certificado autoassinado gerado na hora (CertificadoDeTeste): não há PFX real no repositório.
+// Todos com o certificado autoassinado gerado na hora (CertificadoTeste): não há PFX real no repositório.
 // Os XMLs são mínimos, só com a forma que a assinatura usa; não são notas válidas no XSD.
 public partial class AssinaturaDigitalTestes
 {
@@ -18,8 +18,8 @@ public partial class AssinaturaDigitalTestes
     private const string CpfOutro = "11144477735";
     private const string Ds = "http://www.w3.org/2000/09/xmldsig#";
 
-    private static readonly X509Certificate2 Certificado = new CertificadoDeTeste { Cnpj = CnpjEmitente }.Gerar();
-    private static readonly X509Certificate2 CertificadoOutro = new CertificadoDeTeste { Cnpj = CnpjOutro }.Gerar();
+    private static readonly X509Certificate2 Certificado = new CertificadoTeste { Cnpj = CnpjEmitente }.Gerar();
+    private static readonly X509Certificate2 CertificadoOutro = new CertificadoTeste { Cnpj = CnpjOutro }.Gerar();
 
     private static readonly ChaveAcesso Chave = ChaveAcesso.Montar(UF.MG,
         new DateTimeOffset(2026, 10, 19, 10, 0, 0, TimeSpan.FromHours(-3)), CnpjEmitente, Documento.NFe, 1, 123, TipoEmissao.Normal, 12345678);
@@ -191,7 +191,7 @@ public partial class AssinaturaDigitalTestes
     [Fact]
     public void AssinaComECpf()
     {
-        using var certificado = new CertificadoDeTeste { Cpf = CpfEmitente, Nome = "PRODUTOR DE TESTE" }.Gerar();
+        using var certificado = new CertificadoTeste { Cpf = CpfEmitente, Nome = "PRODUTOR DE TESTE" }.Gerar();
 
         var assinado = AssinaturaDigital.Assinar(Nota(IdNota), IdNota, certificado);
 
@@ -201,7 +201,7 @@ public partial class AssinaturaDigitalTestes
     [Fact]
     public void AssinaComOCertificadoAbertoDoPfx()
     {
-        var pfx = new CertificadoDeTeste { Cnpj = CnpjEmitente }.GerarPfx("senha");
+        var pfx = new CertificadoTeste { Cnpj = CnpjEmitente }.GerarPfx("senha");
         using var certificado = CertificadoDigital.AbrirPfx(pfx, "senha");
 
         var assinado = AssinaturaDigital.Assinar(Nota(IdNota), IdNota, certificado);
@@ -258,7 +258,7 @@ public partial class AssinaturaDigitalTestes
     [Fact]
     public void RecusaAChaveEcdsa()
     {
-        using var certificado = new CertificadoDeTeste { Cnpj = CnpjEmitente, ChaveEcdsa = true }.Gerar();
+        using var certificado = new CertificadoTeste { Cnpj = CnpjEmitente, ChaveEcdsa = true }.Gerar();
 
         Assert.Throws<CryptographicException>(() => AssinaturaDigital.Assinar(Nota(IdNota), IdNota, certificado));
     }
@@ -267,9 +267,9 @@ public partial class AssinaturaDigitalTestes
     public void RecusaOXmlMalformadoEADtd()
     {
         Assert.ThrowsAny<XmlException>(() => AssinaturaDigital.Assinar("<NFe><infNFe Id=\"a\"></NFe>", "a", Certificado));
-        var comDtd = $"<!DOCTYPE NFe [<!ENTITY x \"y\">]>{Nota(IdNota)}";
-        Assert.ThrowsAny<XmlException>(() => AssinaturaDigital.Assinar(comDtd, IdNota, Certificado));
-        Assert.ThrowsAny<XmlException>(() => AssinaturaDigital.Verificar(comDtd, IdNota, CnpjEmitente));
+        var xmlDtd = $"<!DOCTYPE NFe [<!ENTITY x \"y\">]>{Nota(IdNota)}";
+        Assert.ThrowsAny<XmlException>(() => AssinaturaDigital.Assinar(xmlDtd, IdNota, Certificado));
+        Assert.ThrowsAny<XmlException>(() => AssinaturaDigital.Verificar(xmlDtd, IdNota, CnpjEmitente));
     }
 
     [Fact]
@@ -337,7 +337,7 @@ public partial class AssinaturaDigitalTestes
     {
         var documento = Ler(NotaAssinada());
         documento.SelectSingleNode("//ds:X509Certificate", Nomes(documento))!.InnerText =
-            Convert.ToBase64String(new CertificadoDeTeste { Cnpj = CnpjEmitente }.Gerar().RawData);
+            Convert.ToBase64String(new CertificadoTeste { Cnpj = CnpjEmitente }.Gerar().RawData);
 
         Assert.Equal("297", Codigo(AssinaturaDigital.Verificar(documento.OuterXml, IdNota, CnpjEmitente)));
     }
@@ -457,14 +457,14 @@ public partial class AssinaturaDigitalTestes
         var dois = assinado.Replace(certificado, certificado + certificado, StringComparison.Ordinal);
         Assert.Equal("298", Codigo(AssinaturaDigital.Verificar(dois, IdNota, CnpjEmitente)));
 
-        var semCertificado = assinado.Replace(certificado, "", StringComparison.Ordinal);
-        Assert.Equal("298", Codigo(AssinaturaDigital.Verificar(semCertificado, IdNota, CnpjEmitente)));
+        var certificadoRemovido = assinado.Replace(certificado, "", StringComparison.Ordinal);
+        Assert.Equal("298", Codigo(AssinaturaDigital.Verificar(certificadoRemovido, IdNota, CnpjEmitente)));
 
-        var comChave = assinado.Replace("</X509Data>", "</X509Data><KeyName>x</KeyName>", StringComparison.Ordinal);
-        Assert.Equal("298", Codigo(AssinaturaDigital.Verificar(comChave, IdNota, CnpjEmitente)));
+        var nomeChaveAcrescido = assinado.Replace("</X509Data>", "</X509Data><KeyName>x</KeyName>", StringComparison.Ordinal);
+        Assert.Equal("298", Codigo(AssinaturaDigital.Verificar(nomeChaveAcrescido, IdNota, CnpjEmitente)));
 
-        var comObjeto = assinado.Replace("</KeyInfo>", "</KeyInfo><Object>x</Object>", StringComparison.Ordinal);
-        Assert.Equal("298", Codigo(AssinaturaDigital.Verificar(comObjeto, IdNota, CnpjEmitente)));
+        var objetoAcrescido = assinado.Replace("</KeyInfo>", "</KeyInfo><Object>x</Object>", StringComparison.Ordinal);
+        Assert.Equal("298", Codigo(AssinaturaDigital.Verificar(objetoAcrescido, IdNota, CnpjEmitente)));
     }
 
     // Certificado
@@ -480,7 +480,7 @@ public partial class AssinaturaDigitalTestes
     [Fact]
     public void RecusaOCertificadoSemNaoRepudio()
     {
-        using var certificado = new CertificadoDeTeste { Cnpj = CnpjEmitente, UsoDaChave = X509KeyUsageFlags.DigitalSignature }.Gerar();
+        using var certificado = new CertificadoTeste { Cnpj = CnpjEmitente, UsoChave = X509KeyUsageFlags.DigitalSignature }.Gerar();
         var assinado = AssinaturaDigital.Assinar(Nota(IdNota), IdNota, certificado);
 
         Assert.Equal("290", Codigo(AssinaturaDigital.Verificar(assinado, IdNota, CnpjEmitente)));
@@ -507,7 +507,7 @@ public partial class AssinaturaDigitalTestes
     [Fact]
     public void ConfereOCnpjAlfanumerico()
     {
-        using var certificado = new CertificadoDeTeste { Cnpj = CnpjAlfanumerico }.Gerar();
+        using var certificado = new CertificadoTeste { Cnpj = CnpjAlfanumerico }.Gerar();
         var assinado = AssinaturaDigital.Assinar(Nota(IdNota), IdNota, certificado);
 
         Assert.Empty(AssinaturaDigital.Verificar(assinado, IdNota, CnpjAlfanumerico));
@@ -517,7 +517,7 @@ public partial class AssinaturaDigitalTestes
     [Fact]
     public void ConfereOCpf()
     {
-        using var certificado = new CertificadoDeTeste { Cpf = CpfEmitente }.Gerar();
+        using var certificado = new CertificadoTeste { Cpf = CpfEmitente }.Gerar();
         var assinado = AssinaturaDigital.Assinar(Nota(IdNota), IdNota, certificado);
 
         Assert.Empty(AssinaturaDigital.Verificar(assinado, IdNota, Cpf.Formatar(CpfEmitente)));
@@ -529,7 +529,7 @@ public partial class AssinaturaDigitalTestes
     [Fact]
     public void RecusaOCertificadoSemTitular()
     {
-        using var certificado = new CertificadoDeTeste { Cnpj = CnpjEmitente, ComOtherName = false, DocumentoNoNomeComum = false }.Gerar();
+        using var certificado = new CertificadoTeste { Cnpj = CnpjEmitente, IncluiOtherName = false, DocumentoNomeComum = false }.Gerar();
         var assinado = AssinaturaDigital.Assinar(Nota(IdNota), IdNota, certificado);
 
         Assert.Equal("292", Codigo(AssinaturaDigital.Verificar(assinado, IdNota, CnpjEmitente)));

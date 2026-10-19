@@ -1,6 +1,6 @@
 # Contratos do núcleo (etapa 1.6)
 
-Desenho dos tipos públicos que ligam quem usa, o núcleo e o leiaute: a criação do núcleo, a declaração do leiaute, as operações, o resultado e os callbacks de regras. **Proposta de 2026-10-19, aguardando aprovação.** Nada implementado. A porta se chama `DFe` (`DFe.Criar`), não `Nucleo`, por decisão do usuário em 2026-10-19; "núcleo" continua sendo o pacote `OpenDFe.Nucleo`. O modelo é o `PROJETO.md` (3, 6.3, 8); onde este desenho diverge dele, a divergência está apontada numa das decisões (seção 8) e o `PROJETO.md` não foi mudado.
+Desenho dos tipos públicos que ligam quem usa, o núcleo e o leiaute: a criação do núcleo, a declaração do leiaute, as operações, o resultado e os callbacks de validação. **Aprovado em 2026-10-19** (as 17 recomendações da seção 8) e implementado na etapa 1.6, com as mudanças do usuário da seção 11 e os desvios da implementação da seção 12. A porta se chama `DFe` (`DFe.Criar`), não `Nucleo`, por decisão do usuário em 2026-10-19; "núcleo" continua sendo o pacote `OpenDFe.Nucleo`. O modelo é o `PROJETO.md` (3, 6.3, 8); onde este desenho diverge dele, a divergência está apontada numa das decisões (seção 8) e o `PROJETO.md` foi atualizado com ela na implementação.
 
 Critério: a menor superfície pública que atende as fases 2 a 8, fácil de estender em versão menor (12.3). Tudo no namespace `OpenDFe`, no pacote `OpenDFe.Nucleo`, como os tipos das etapas 1.1 a 1.5.
 
@@ -9,7 +9,7 @@ Critério: a menor superfície pública que atende as fases 2 a 8, fácil de est
 ```
 quem usa                         núcleo                                   leiaute (OpenDFe.NFe)
 --------                         ------                                   ---------------------
-DFe.Criar(leiaute, doc, cfg) ─► DeclaracaoLeiaute.De(leiaute, doc) ──► ILeiaute.Declarar(declaracao)
+DFe.Criar(leiaute, doc, cfg) ─► DeclaracaoLeiaute.Criar(leiaute, doc) ► ILeiaute.Declarar(declaracao)
                                    confere a configuração                   RegistrarOperacao, DeclararAtendimento,
                                                                             DeclararEndereco, DeclararConfiguracaoDocumento
 dfe.ExecutarAsync(parametro) ─► acha o IOperacao pelo tipo ──────────► Montar(parametro, contexto) → PedidoWS
@@ -22,7 +22,7 @@ ResultadoWS<TRetorno> ◄───────── junta problemas, rastro
 | Tipo | Papel |
 |---|---|
 | `DFe` | a porta: criado com um leiaute, um documento e uma configuração; executa operações e lista o que o leiaute declara |
-| `ConfiguracaoDFe` | ambiente, UF, tipo de emissão, certificado, conexões, URLs trocadas, a parte do documento, regras, relógio |
+| `ConfiguracaoDFe` | ambiente, UF, tipo de emissão, certificado, conexões, URLs trocadas, a parte do documento, validação, relógio |
 | `ConfiguracaoDocumento` | base abstrata da parte da configuração que é do documento (o CSC da NFC-e, `ConfiguracaoNFCe` no leiaute) |
 | `Contingencia` | início e justificativa da entrada em contingência (`dhCont`, `xJust`) |
 | `ConexoesSefaz` | o pool de `HttpMessageHandler` por certificado (8.5), de quem usa, compartilhado entre núcleos |
@@ -35,7 +35,7 @@ ResultadoWS<TRetorno> ◄───────── junta problemas, rastro
 | `ContextoOperacao`, `PedidoWS`, `LeituraWS<TRetorno>` | o que o handler recebe e devolve |
 | `ResultadoWS<TRetorno>`, `SituacaoResultado`, `RastroWS` | o resultado da operação, com o rastro (XMLs, URL, tempos) |
 | `FalhaTransmissaoException` | a falha de infraestrutura na transmissão, com o rastro e se o pedido pode ter sido processado |
-| `RegrasDeQuemUsa`, `CampoVerificado`, `DocumentoVerificado` | os callbacks de regras de quem usa (6.3) |
+| `ValidacaoCallback`, `CampoVerificado`, `DocumentoVerificado` | os callbacks de validação de quem usa (6.3) |
 
 ## 2. Tipos públicos
 
@@ -106,8 +106,8 @@ public sealed class ConfiguracaoDFe
     public IReadOnlyList<EnderecoServico> Urls { get; init; } = [];
     /// A parte que é do documento, do tipo que o leiaute declara (ConfiguracaoNFCe, com o CSC).
     public ConfiguracaoDocumento? Documento { get; init; }
-    /// Os callbacks de regras de quem usa (6.3).
-    public RegrasDeQuemUsa? Regras { get; init; }
+    /// Os callbacks de validação de quem usa (6.3).
+    public ValidacaoCallback? Validacao { get; init; }
     /// O relógio: rastro, tempos e o instante que o leiaute usar (2.3).
     public TimeProvider Relogio { get; init; } = TimeProvider.System;
 }
@@ -155,7 +155,7 @@ public interface ILeiaute
     /// Os documentos que o leiaute atende ([NFe, NFCe]).
     IReadOnlyList<Documento> Documentos { get; }
     /// Declara tudo o que o leiaute tem para o documento de declaracao.Documento. Chamado pelo Criar
-    /// (e pelo DeclaracaoLeiaute.De); a mesma entrada dá sempre a mesma declaração.
+    /// (e pelo DeclaracaoLeiaute.Criar); a mesma entrada dá sempre a mesma declaração.
     void Declarar(DeclaracaoLeiaute declaracao);
 }
 
@@ -165,7 +165,7 @@ public sealed class DeclaracaoLeiaute
 {
     /// A declaração de um leiaute para um documento, sem criar núcleo (a tela de configuração, antes do certificado).
     /// ArgumentException: o leiaute não atende o documento.
-    public static DeclaracaoLeiaute De(ILeiaute leiaute, Documento documento);
+    public static DeclaracaoLeiaute Criar(ILeiaute leiaute, Documento documento);
 
     public Documento Documento { get; }
 
@@ -238,7 +238,7 @@ public static class Destinos
     public static bool TentarUF(this Destino destino, out UF uf);
     /// "MG", "AN", "SVRS", "SVAN", "SVC-AN", "SVC-RS".
     public static string Sigla(this Destino destino);
-    public static bool TentarPelaSigla(string? sigla, out Destino destino);
+    public static bool TentarLerSigla(string? sigla, out Destino destino);
 }
 ```
 
@@ -298,7 +298,7 @@ public sealed class PedidoWS
 
     /// Os Id dos elementos que o núcleo assina, na ordem (uma NFe por nota do lote, um infEvento por evento);
     /// vazio quando a mensagem não é assinada ou já vem assinada (o XML preparado, 4.4).
-    public IReadOnlyList<string> IdsParaAssinar { get; init; } = [];
+    public IReadOnlyList<string> IdsAssinatura { get; init; } = [];
     /// O destino e o tipo de emissão que saem do documento ou da chave (8.4); null = os do núcleo.
     public Destino? Destino { get; init; }
     public TipoEmissao? Emissao { get; init; }
@@ -377,17 +377,17 @@ public sealed class FalhaTransmissaoException : Exception
 }
 ```
 
-### 2.10. Callbacks de regras (6.3)
+### 2.10. Callbacks de validação (6.3)
 
 ```csharp
 /// As regras de negócio de quem usa, na configuração. Cada callback devolve os problemas (vazio = nada).
 /// Podem ser chamados em paralelo (núcleo compartilhado). Exceção num callback sobe como veio (erro de programação).
-public sealed class RegrasDeQuemUsa
+public sealed class ValidacaoCallback
 {
     /// Chamado por campo escrito.
-    public Func<CampoVerificado, IEnumerable<Problema>>? PorCampo { get; init; }
+    public Func<CampoVerificado, IEnumerable<Problema>>? Campo { get; init; }
     /// Chamado por documento inteiro (cada nota do lote).
-    public Func<DocumentoVerificado, IEnumerable<Problema>>? PorDocumento { get; init; }
+    public Func<DocumentoVerificado, IEnumerable<Problema>>? Documento { get; init; }
 }
 
 /// Um campo, como foi escrito no XML. Construtor interno.
@@ -417,14 +417,14 @@ Quem chama os callbacks e em que ponto do caminho (depois do schema e das regras
 
 1. Acha o handler pelo **tipo exato** do parâmetro; sem ele, `NotSupportedException`.
 2. `Montar` → `PedidoWS`. Problema `Erro` em `Problemas`: `RecusadoLocalmente`, com o `XmlPedido` no rastro.
-3. Assina cada `Id` de `IdsParaAssinar` com o certificado (`AssinaturaDigital.Assinar`, 1.4).
+3. Assina cada `Id` de `IdsAssinatura` com o certificado (`AssinaturaDigital.Assinar`, 1.4).
 4. Valida o XML assinado pelo `Schema` (`SchemaXml.Validar`, 1.5). `Erro`: `RecusadoLocalmente`.
 5. Escolhe a URL: destino = `parametro.Destino` ?? `pedido.Destino` ?? a UF do núcleo; tipo de emissão = `pedido.Emissao` ?? o do núcleo; se o destino é uma UF, o autorizador sai do `Atendimento`; a URL, do autorizador × ambiente × serviço, nas efetivas. Sem URL: `NotSupportedException`.
 6. SOAP 1.2 pelas `Conexoes` (4.1). Falha: `FalhaTransmissaoException`.
 7. `Ler` → `LeituraWS`. Exceção da leitura: `FalhaTransmissaoException` com `PodeTerSidoProcessado`.
 8. `Processado`, com os problemas de 2, 4 e 7 (os avisos) e o rastro.
 
-Na 1.6 os passos 1 a 5 e 8 são implementados; o 6 é uma costura interna do `ConexoesSefaz` (o teste injeta um transporte falso) até a 4.1.
+Na 1.6 os passos 1 a 5, 7 e 8 são implementados; o 6 é uma costura interna do `ConexoesSefaz` (o teste injeta um transporte falso) até a 4.1.
 
 ## 4. Exemplo de uso
 
@@ -440,9 +440,9 @@ var dfe = DFe.Criar(new LeiauteNFe400(), Documento.NFCe, new ConfiguracaoDFe
     Conexoes    = conexoes,
     Documento   = new ConfiguracaoNFCe { IdCsc = "1", Csc = csc },
     Urls        = [new EnderecoServico(Destino.MG, Ambiente.Homologacao, "NFeStatusServico4", urlNova)],
-    Regras      = new RegrasDeQuemUsa
+    Validacao   = new ValidacaoCallback
     {
-        PorCampo = c => c.Tag == "xProd" && c.Texto.Contains("TESTE")
+        Campo = c => c.Tag == "xProd" && c.Texto.Contains("TESTE")
             ? [new Problema("PDV-01", Severidade.Erro, "Produto de teste na nota.") { Caminho = c.Caminho }]
             : [],
     },
@@ -505,7 +505,7 @@ internal sealed class OperacaoStatus : IOperacao<ConsultaStatus, RetornoStatus>
         return new(r, r.CStat, r.Motivo);
     }
 }
-// Na autorização: IdsParaAssinar = ["NFe" + chave, ...]; Destino e Emissao saem da chave na consulta e nos eventos.
+// Na autorização: IdsAssinatura = ["NFe" + chave, ...]; Destino e Emissao saem da chave na consulta e nos eventos.
 ```
 
 ## 6. Como as decisões das etapas 1.1 a 1.5 entram
@@ -529,10 +529,10 @@ internal sealed class OperacaoStatus : IOperacao<ConsultaStatus, RetornoStatus>
   - selados: todos os tipos concretos do núcleo; membros novos neles são versão menor;
   - abertos para o leiaute: as interfaces `ILeiaute` e `IOperacao` (mínimas: o que cresce, cresce na `DeclaracaoLeiaute`, no `ContextoOperacao` e no `PedidoWS`) e as bases abstratas `ParametroWS<TRetorno>` e `ConfiguracaoDocumento`;
   - construtor interno: `DeclaracaoLeiaute`, `ContextoOperacao`, `ResultadoWS`, `RastroWS`, `OperacaoSuportada`, `Atendimento`, `CampoVerificado`, `DocumentoVerificado`, `FalhaTransmissaoException`;
-  - construtor público: o que o leiaute ou quem usa cria (`PedidoWS`, `LeituraWS`, `EnderecoServico`, `ConfiguracaoDFe`, `Contingencia`, `RegrasDeQuemUsa`, `ConexoesSefaz`);
+  - construtor público: o que o leiaute ou quem usa cria (`PedidoWS`, `LeituraWS`, `EnderecoServico`, `ConfiguracaoDFe`, `Contingencia`, `ValidacaoCallback`, `ConexoesSefaz`);
   - `required` só nos quatro membros da configuração que todo núcleo precisa: acrescentar outro `required` depois seria versão maior.
 
-## 8. Decisões para o usuário
+## 8. Decisões (aprovadas em 2026-10-19)
 
 1. **`ILeiaute`: forma.** (a) interface com um membro por coisa declarada (operações, URLs, schemas, detector, impressão); (b) classe abstrata `Leiaute` com membros virtuais; (c) **interface mínima (`Versao`, `Documentos`, `Declarar`) e uma `DeclaracaoLeiaute` selada do núcleo**. Recomendo (c): o que vier (detector na 2.5, preparo na 4.4, cifras na 4.1, impressão na 7.2) é método novo na declaração, versão menor, sem quebrar leiaute de terceiro; mantém o nome `ILeiaute` do `PROJETO.md`.
 2. **`IOperacao`: quem conduz o caminho.** (a) **interface com `Montar` e `Ler` síncronos, o núcleo dono do caminho** (assina, valida, transmite); (b) classe abstrata com os mesmos métodos; (c) o handler conduz tudo (`ExecutarAsync` próprio, com serviços do contexto). Recomendo (a): o schema e a assinatura não ficam a critério do handler (6.1, "não é opcional"), o leiaute não faz I/O nem precisa de token, e o que crescer vai no `ContextoOperacao` e no `PedidoWS`.
@@ -542,14 +542,14 @@ internal sealed class OperacaoStatus : IOperacao<ConsultaStatus, RetornoStatus>
 6. **`CancellationToken` e `TimeProvider`.** Token: (a) **em cada `ExecutarAsync`**; (b) na configuração. Relógio: (a) **na `ConfiguracaoDFe`, padrão `TimeProvider.System`**; (b) parâmetro do `Criar`; (c) por chamada. Recomendo os dois (a): o token é da chamada (padrão do .NET, CA2016); o relógio é dependência do núcleo (2.3) e a configuração já é o "construtor" dele.
 7. **Conexões (o pool de handlers, 8.5).** (a) **objeto explícito `ConexoesSefaz`, `IDisposable`, de quem usa, obrigatório na configuração**; (b) pool estático interno, sem nada na configuração; (c) núcleo `IDisposable` dono do handler. Recomendo (a): (b) é estado global (2.3) e, no ERP com muitos certificados, cresce sem dono para descartar; (c) impede o compartilhamento entre núcleos que o 8.5 pede. **Diverge do exemplo do 3.2** (que não tem `Conexoes`) e do "pool do núcleo" do 8.5 (o pool continua do pacote do núcleo, mas a instância é de quem usa). Precisa ser decidido agora: tornar obrigatório depois é versão maior.
 8. **Configuração do documento sem o núcleo conhecer a NFC-e.** (a) **base abstrata `ConfiguracaoDocumento`, o leiaute declara o tipo e se é obrigatória, o `Criar` confere**; (b) `object?`, conferido pelo leiaute; (c) genérico (`ConfiguracaoDFe<T>`, `DFe<T>`). Recomendo (a): tipado no uso (`Documento = new ConfiguracaoNFCe {...}`, como o 3.2), erro cedo no `Criar`, e (c) espalharia o genérico por todos os tipos.
-9. **Callbacks de regras.** Forma: (a) **dois delegados (`Func<CampoVerificado, IEnumerable<Problema>>` e `Func<DocumentoVerificado, IEnumerable<Problema>>`) numa `RegrasDeQuemUsa` selada, na configuração**; (b) interface `IRegrasDeQuemUsa` com dois métodos; (c) classe abstrata com dois virtuais vazios. Recomendo (a): lambda sem classe para quem usa; um callback novo (por evento, por item) é propriedade nova, sem quebrar. O modelo vai como `object?` (o núcleo não conhece a nota; quem usa faz o *cast*) e o campo como texto do XML, com a tag, o caminho e a propriedade. Registrados na configuração (o 6.3 diz "no núcleo", e a configuração é dele), não por chamada.
+9. **Callbacks de regras.** Forma: (a) **dois delegados (`Func<CampoVerificado, IEnumerable<Problema>>` e `Func<DocumentoVerificado, IEnumerable<Problema>>`) numa `ValidacaoCallback` selada, na configuração**; (b) interface `IValidacaoCallback` com dois métodos; (c) classe abstrata com dois virtuais vazios. Recomendo (a): lambda sem classe para quem usa; um callback novo (por evento, por item) é propriedade nova, sem quebrar. O modelo vai como `object?` (o núcleo não conhece a nota; quem usa faz o *cast*) e o campo como texto do XML, com a tag, o caminho e a propriedade. Registrados na configuração (o 6.3 diz "no núcleo", e a configuração é dele), não por chamada.
 10. **Como o `ResultadoWS` representa os quatro casos.** Sucesso e rejeição: `Processado` com `CStat` (2.4). Recusa local: `RecusadoLocalmente`, com os problemas e o XML montado no rastro. Infraestrutura: (a) **`FalhaTransmissaoException` própria, com o `Rastro` e `PodeTerSidoProcessado`**; (b) terceira situação no resultado (`FalhaInfraestrutura`), sem exceção; (c) as exceções do .NET como vêm (`HttpRequestException`). Recomendo (a): segue o 2.4, e a queda no meio (8.6) precisa saber se o pedido saiu e qual XML foi, o que (c) não dá. `Processado` também como `bool` com `MemberNotNullWhen`, para o `Retorno` sem `!`.
 11. **Forma do rastro.** (a) **objeto `RastroWS`** (`XmlPedido`, `XmlRetorno`, `Autorizador`, `Url`, `Inicio`, `Duracao`, `DuracaoTransmissao`), o mesmo no resultado e na exceção; (b) propriedades soltas no `ResultadoWS`, como no 8.1. Conteúdo: (a) **a mensagem (o conteúdo do `nfeDadosMsg` e do `nfeResultMsg`)**; (b) o envelope SOAP inteiro. Recomendo os dois (a): a exceção precisa do rastro, e a mensagem é o que se guarda e se reenvia; o envelope não tem nada que quem usa precise. **Diverge do 8.1** (as propriedades `XmlEnviado`, `XmlRetorno`, `Url`, `Duracao` passam para o `Rastro`).
 12. **Ordem do caminho: assinar antes do schema.** (a) **montar → recusa local da montagem → assinar → schema → SOAP**; (b) validar antes de assinar, como no 8.2 e no `PLANO.md` 4.3, descartando o "falta `Signature`". Recomendo (a): o XSD da NF-e exige a `Signature` (o `TNFe` a declara obrigatória), e descartar um problema pelo nome é frágil; assinar antes custa uma assinatura RSA, nada é enviado com erro do mesmo jeito. **Diverge do 8.2 e do `PLANO.md` 4.3** na ordem. A ordem do 6 (schema, regras do leiaute, callbacks) fica para a 3.1.
 13. **`Destino`: enum ou classe.** (a) **enum com o valor da UF, o 91 do AN e valores sem significado oficial para os virtuais**, mais a classe estática `Destinos`; (b) classe selada com instâncias estáticas (`Destino.Da(UF.MG)`, `Destino.SVRS`). Recomendo (a): coerente com `UF` e `TipoEmissao` (1.1), `switch` completo, `Destino?` sem alocação.
 14. **Tabela de destinos em dois níveis.** (a) **UF × tipo de emissão → autorizador (`Atendimento`) e autorizador × ambiente × serviço → URL (`EnderecoServico`); quem usa troca só as URLs**; (b) uma tabela só, UF × tipo de emissão × ambiente × serviço → URL; (c) dois níveis com o atendimento também trocável. Recomendo (a): é como os autorizadores funcionam (a URL do SVRS muda num lugar só), e a UF que migra de autorizador se resolve trocando as URLs dela ou pelo `Destino` do parâmetro; trocar o atendimento entra depois como propriedade nova, se fizer falta.
 15. **Contingência na configuração agora.** (a) **`Contingencia` (início e justificativa) na 1.6, obrigatória com `Emissao` diferente de `Normal`**; (b) só na 5.2. Recomendo (a): o `dhCont` e o `xJust` são de toda nota em contingência (SVC na fase 4, offline na 5), e passar a exigir no `Criar` depois quebraria quem cria núcleo em contingência sem ela.
-16. **Listagem sem núcleo.** (a) **`DeclaracaoLeiaute.De(leiaute, documento)`, além das listas do núcleo**; (b) só pelo núcleo. Recomendo (a): a tela de configuração (3.2) lista antes de haver certificado; o mesmo objeto serve ao `Criar`.
+16. **Listagem sem núcleo.** (a) **`DeclaracaoLeiaute.Criar(leiaute, documento)`, além das listas do núcleo**; (b) só pelo núcleo. Recomendo (a): a tela de configuração (3.2) lista antes de haver certificado; o mesmo objeto serve ao `Criar`.
 17. **O `Criar` não confere a validade do certificado.** (a) **não confere** (quem usa chama `CertificadoDigital.Validade`; o PDV mostra "vencido em"); (b) recusa o vencido. Recomendo (a): conferir num instante fixo erraria no núcleo de vida longa (o certificado vence com o núcleo criado), e a SEFAZ rejeita (291). Conferir depois seria mudança de comportamento.
 
 ### Divergências com o `PROJETO.md`
@@ -573,4 +573,20 @@ Só declarado, ou nem isso, e vem depois:
 
 ## 10. Testes da 1.6
 
-Um leiaute falso no `Nucleo.Testes` (uma operação de eco com um XSD de exemplo da 1.5, um atendimento e uma URL): o `Criar` com cada recusa da seção 2.1; `Suporta`, `Operacoes`, `Atendimentos` e `Enderecos` (com a URL trocada por cima e a acrescentada); `DeclaracaoLeiaute.De` e a recusa do registro depois do `Declarar`; a escolha da URL (parâmetro, pedido, núcleo, atendimento); `RecusadoLocalmente` pela montagem e pelo schema, sem transmitir; a assinatura dos `Id` do pedido; `Processado` e `FalhaTransmissaoException` pelo transporte falso, com o rastro e um relógio falso; o cancelamento; chamadas em paralelo.
+Um leiaute falso no `Nucleo.Testes` (uma operação de eco com um XSD de exemplo da 1.5, um atendimento e uma URL): o `Criar` com cada recusa da seção 2.1; `Suporta`, `Operacoes`, `Atendimentos` e `Enderecos` (com a URL trocada por cima e a acrescentada); `DeclaracaoLeiaute.Criar` e a recusa do registro depois do `Declarar`; a escolha da URL (parâmetro, pedido, núcleo, atendimento); `RecusadoLocalmente` pela montagem e pelo schema, sem transmitir; a assinatura dos `Id` do pedido; `Processado` e `FalhaTransmissaoException` pelo transporte falso, com o rastro e um relógio falso; o cancelamento; chamadas em paralelo.
+
+## 11. Mudanças do usuário (2026-10-19, na aprovação)
+
+- **`RegrasDeQuemUsa` passa a ser `ValidacaoCallback`**, com os delegados `Campo` e `Documento` (antes `PorCampo` e `PorDocumento`) e a propriedade `ConfiguracaoDFe.Validacao` (antes `Regras`).
+- **Regra de nomes, para sempre no repositório: identificadores sem preposição nem contração** (`De`, `Da`, `Do`, `Das`, `Dos`, `Para`, `Por`, `Pelo`, `Pela`, `Com`, `Sem`, `No`, `Na`, `Em`, `Ao` e afins como palavra de ligação: nunca `RegrasDaNFe`, e sim `RegraNFe`). Vale para tipos, membros, parâmetros, variáveis, campos, constantes, alvos e propriedades MSBuild e nomes de arquivo, em `src/`, `tests/` (o código auxiliar) e `eng/`; não vale para os nomes dos métodos de teste (frases) nem para o texto em português. No desenho: `DeclaracaoLeiaute.De` → `DeclaracaoLeiaute.Criar`, `PedidoWS.IdsParaAssinar` → `IdsAssinatura`, `Destinos.TentarPelaSigla` → `TentarLerSigla`. As renomeações do código das etapas anteriores estão no `PLANO.md` (Situação, 1.6). `Destinos.ComoDestino` fica: "como" não é preposição.
+
+## 12. Desvios da implementação
+
+O mínimo, sem mudar a forma dos tipos:
+
+- **A transmissão (passo 6)** é a interface interna `ITransporteSefaz`, com o envio (`EnvioSefaz`: certificado, autorizador, URL, serviço, mensagem), recebida por um construtor interno do `ConexoesSefaz`. O transporte marca o envio quando a mensagem saiu inteira, e é essa marca que decide o `PodeTerSidoProcessado`. O construtor público usa um transporte pendente, que falha toda transmissão (`FalhaTransmissaoException` com `PodeTerSidoProcessado` falso e uma `NotSupportedException` dentro) até a 4.1.
+- **Recusas a mais no `Criar`:** a `Contingencia` com o tipo de emissão `Normal` (incoerente; aceitar depois é versão menor), a URL trocada nula ou repetida (mesmo autorizador, ambiente e serviço), os membros obrigatórios nulos e os valores de enumeração desconhecidos (`ArgumentException`), e as conexões já descartadas (`ObjectDisposedException`).
+- **Recusas a mais na declaração:** o parâmetro abstrato no `RegistrarOperacao` (o despacho é pelo tipo exato; nunca seria achado), o atendimento repetido para a mesma UF e tipo de emissão, a URL repetida e a configuração do documento declarada duas vezes. As exceções do `ILeiaute.Declarar` sobem do `Criar` como vieram.
+- **Cancelamento e tempo:** o token é conferido no início (antes do `Montar`) e antes de transmitir. A `OperationCanceledException` que não é do token de quem chama (o tempo esgotado do `HttpClient`) é falha de transmissão.
+- **Handler e transporte que devolvem nulo:** o pedido ou a leitura nulos são `InvalidOperationException` (erro de programação do leiaute); a resposta nula do transporte é falha de transmissão.
+- **Analisadores:** a `FalhaTransmissaoException` fica sem os construtores padrão de exceção, como no desenho: o CA1032 não está ligado no nível `latest-recommended` do repositório (conferido: só no `latest-all`) e o CA1710 é atendido pelo sufixo. O construtor protegido de `ParametroWS<TRetorno>` dispara o RS0022 (torna herdável a base com construtor `private protected`), que é o desenho; suprimido ali, com o motivo.

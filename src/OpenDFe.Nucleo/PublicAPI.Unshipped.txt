@@ -86,19 +86,19 @@ static OpenDFe.ChaveAcesso.operator !=(OpenDFe.ChaveAcesso? esquerda, OpenDFe.Ch
 static OpenDFe.ChaveAcesso.operator ==(OpenDFe.ChaveAcesso? esquerda, OpenDFe.ChaveAcesso? direita) -> bool
 static OpenDFe.Cnpj.CalcularDigitos(string! base) -> string!
 static OpenDFe.Cnpj.Formatar(string! valor) -> string!
-static OpenDFe.Cnpj.SemMascara(string! valor) -> string!
+static OpenDFe.Cnpj.RemoverMascara(string! valor) -> string!
 static OpenDFe.Cnpj.Valido(string? valor) -> bool
 static OpenDFe.Cpf.CalcularDigitos(string! base) -> string!
 static OpenDFe.Cpf.Formatar(string! valor) -> string!
-static OpenDFe.Cpf.SemMascara(string! valor) -> string!
+static OpenDFe.Cpf.RemoverMascara(string! valor) -> string!
 static OpenDFe.Cpf.Valido(string? valor) -> bool
 static OpenDFe.FormatadorInvariavel.Data(System.DateOnly valor) -> string!
 static OpenDFe.FormatadorInvariavel.DataHora(System.DateTimeOffset valor) -> string!
 static OpenDFe.FormatadorInvariavel.Numero(decimal valor, int casas) -> string!
 static OpenDFe.UnidadesFederativas.Codigo(this OpenDFe.UF uf) -> int
 static OpenDFe.UnidadesFederativas.Sigla(this OpenDFe.UF uf) -> string!
-static OpenDFe.UnidadesFederativas.TentarPelaSigla(string? sigla, out OpenDFe.UF uf) -> bool
-static OpenDFe.UnidadesFederativas.TentarPeloCodigo(int codigo, out OpenDFe.UF uf) -> bool
+static OpenDFe.UnidadesFederativas.TentarLerSigla(string? sigla, out OpenDFe.UF uf) -> bool
+static OpenDFe.UnidadesFederativas.TentarLerCodigo(int codigo, out OpenDFe.UF uf) -> bool
 OpenDFe.CertificadoDigital
 OpenDFe.TitularCertificado
 OpenDFe.TitularCertificado.Cnpj.get -> string?
@@ -154,3 +154,181 @@ OpenDFe.TipoFalhaSchema.Outra = 7 -> OpenDFe.TipoFalhaSchema
 OpenDFe.TipoFalhaSchema.TextoInesperado = 6 -> OpenDFe.TipoFalhaSchema
 OpenDFe.TipoFalhaSchema.Valor = 1 -> OpenDFe.TipoFalhaSchema
 static OpenDFe.SchemaXml.Carregar(System.Reflection.Assembly! assembly, string! recurso, string! codigo) -> OpenDFe.SchemaXml!
+OpenDFe.Destino
+OpenDFe.Destinos
+static OpenDFe.Destinos.ComoDestino(this OpenDFe.UF uf) -> OpenDFe.Destino
+static OpenDFe.Destinos.Sigla(this OpenDFe.Destino destino) -> string!
+static OpenDFe.Destinos.TentarLerSigla(string? sigla, out OpenDFe.Destino destino) -> bool
+static OpenDFe.Destinos.TentarUF(this OpenDFe.Destino destino, out OpenDFe.UF uf) -> bool
+OpenDFe.Atendimento
+OpenDFe.Atendimento.Autorizador.get -> OpenDFe.Destino
+OpenDFe.Atendimento.Emissao.get -> OpenDFe.TipoEmissao
+OpenDFe.Atendimento.UF.get -> OpenDFe.UF
+OpenDFe.CampoVerificado
+OpenDFe.CampoVerificado.Caminho.get -> string!
+OpenDFe.CampoVerificado.Documento.get -> OpenDFe.Documento
+OpenDFe.CampoVerificado.Propriedade.get -> string?
+OpenDFe.CampoVerificado.Tag.get -> string!
+OpenDFe.CampoVerificado.Texto.get -> string!
+OpenDFe.ConexoesSefaz
+OpenDFe.ConexoesSefaz.ConexoesSefaz() -> void
+OpenDFe.ConexoesSefaz.Dispose() -> void
+OpenDFe.ConfiguracaoDFe
+OpenDFe.ConfiguracaoDFe.Ambiente.get -> OpenDFe.Ambiente
+OpenDFe.ConfiguracaoDFe.Ambiente.init -> void
+OpenDFe.ConfiguracaoDFe.Certificado.get -> System.Security.Cryptography.X509Certificates.X509Certificate2!
+OpenDFe.ConfiguracaoDFe.Certificado.init -> void
+OpenDFe.ConfiguracaoDFe.ConfiguracaoDFe() -> void
+OpenDFe.ConfiguracaoDFe.Conexoes.get -> OpenDFe.ConexoesSefaz!
+OpenDFe.ConfiguracaoDFe.Conexoes.init -> void
+OpenDFe.ConfiguracaoDFe.Contingencia.get -> OpenDFe.Contingencia?
+OpenDFe.ConfiguracaoDFe.Contingencia.init -> void
+OpenDFe.ConfiguracaoDFe.Documento.get -> OpenDFe.ConfiguracaoDocumento?
+OpenDFe.ConfiguracaoDFe.Documento.init -> void
+OpenDFe.ConfiguracaoDFe.Emissao.get -> OpenDFe.TipoEmissao
+OpenDFe.ConfiguracaoDFe.Emissao.init -> void
+OpenDFe.ConfiguracaoDFe.Relogio.get -> System.TimeProvider!
+OpenDFe.ConfiguracaoDFe.Relogio.init -> void
+OpenDFe.ConfiguracaoDFe.UF.get -> OpenDFe.UF
+OpenDFe.ConfiguracaoDFe.UF.init -> void
+OpenDFe.ConfiguracaoDFe.Urls.get -> System.Collections.Generic.IReadOnlyList<OpenDFe.EnderecoServico!>!
+OpenDFe.ConfiguracaoDFe.Urls.init -> void
+OpenDFe.ConfiguracaoDFe.Validacao.get -> OpenDFe.ValidacaoCallback?
+OpenDFe.ConfiguracaoDFe.Validacao.init -> void
+OpenDFe.ConfiguracaoDocumento
+OpenDFe.ConfiguracaoDocumento.ConfiguracaoDocumento() -> void
+OpenDFe.ContextoOperacao
+OpenDFe.ContextoOperacao.Configuracao.get -> OpenDFe.ConfiguracaoDFe!
+OpenDFe.ContextoOperacao.Documento.get -> OpenDFe.Documento
+OpenDFe.Contingencia
+OpenDFe.Contingencia.Contingencia(System.DateTimeOffset inicio, string! justificativa) -> void
+OpenDFe.Contingencia.Inicio.get -> System.DateTimeOffset
+OpenDFe.Contingencia.Justificativa.get -> string!
+OpenDFe.DeclaracaoLeiaute
+OpenDFe.DeclaracaoLeiaute.Atendimentos.get -> System.Collections.Generic.IReadOnlyList<OpenDFe.Atendimento!>!
+OpenDFe.DeclaracaoLeiaute.ConfiguracaoDocumentoObrigatoria.get -> bool
+OpenDFe.DeclaracaoLeiaute.DeclararAtendimento(OpenDFe.UF uf, OpenDFe.TipoEmissao emissao, OpenDFe.Destino autorizador) -> void
+OpenDFe.DeclaracaoLeiaute.DeclararConfiguracaoDocumento<TConfiguracao>(bool obrigatoria) -> void
+OpenDFe.DeclaracaoLeiaute.DeclararEndereco(OpenDFe.EnderecoServico! endereco) -> void
+OpenDFe.DeclaracaoLeiaute.Documento.get -> OpenDFe.Documento
+OpenDFe.DeclaracaoLeiaute.Enderecos.get -> System.Collections.Generic.IReadOnlyList<OpenDFe.EnderecoServico!>!
+OpenDFe.DeclaracaoLeiaute.Operacoes.get -> System.Collections.Generic.IReadOnlyList<OpenDFe.OperacaoSuportada!>!
+OpenDFe.DeclaracaoLeiaute.RegistrarOperacao<TParametro, TRetorno>(OpenDFe.IOperacao<TParametro!, TRetorno!>! operacao) -> void
+OpenDFe.DeclaracaoLeiaute.TipoConfiguracaoDocumento.get -> System.Type?
+static OpenDFe.DeclaracaoLeiaute.Criar(OpenDFe.ILeiaute! leiaute, OpenDFe.Documento documento) -> OpenDFe.DeclaracaoLeiaute!
+OpenDFe.DFe
+OpenDFe.DFe.Atendimentos.get -> System.Collections.Generic.IReadOnlyList<OpenDFe.Atendimento!>!
+OpenDFe.DFe.Configuracao.get -> OpenDFe.ConfiguracaoDFe!
+OpenDFe.DFe.Documento.get -> OpenDFe.Documento
+OpenDFe.DFe.Enderecos.get -> System.Collections.Generic.IReadOnlyList<OpenDFe.EnderecoServico!>!
+OpenDFe.DFe.ExecutarAsync<TRetorno>(OpenDFe.ParametroWS<TRetorno!>! parametro, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<OpenDFe.ResultadoWS<TRetorno!>!>!
+OpenDFe.DFe.Leiaute.get -> OpenDFe.ILeiaute!
+OpenDFe.DFe.Operacoes.get -> System.Collections.Generic.IReadOnlyList<OpenDFe.OperacaoSuportada!>!
+OpenDFe.DFe.Suporta<TParametro>() -> bool
+static OpenDFe.DFe.Criar(OpenDFe.ILeiaute! leiaute, OpenDFe.Documento documento, OpenDFe.ConfiguracaoDFe! configuracao) -> OpenDFe.DFe!
+OpenDFe.DocumentoVerificado
+OpenDFe.DocumentoVerificado.Chave.get -> OpenDFe.ChaveAcesso?
+OpenDFe.DocumentoVerificado.Documento.get -> OpenDFe.Documento
+OpenDFe.DocumentoVerificado.Modelo.get -> object?
+OpenDFe.DocumentoVerificado.Xml.get -> string!
+OpenDFe.EnderecoServico
+OpenDFe.EnderecoServico.Ambiente.get -> OpenDFe.Ambiente
+OpenDFe.EnderecoServico.Autorizador.get -> OpenDFe.Destino
+OpenDFe.EnderecoServico.EnderecoServico(OpenDFe.Destino autorizador, OpenDFe.Ambiente ambiente, string! servico, System.Uri! url) -> void
+OpenDFe.EnderecoServico.Servico.get -> string!
+OpenDFe.EnderecoServico.Url.get -> System.Uri!
+OpenDFe.FalhaTransmissaoException
+OpenDFe.FalhaTransmissaoException.PodeTerSidoProcessado.get -> bool
+OpenDFe.FalhaTransmissaoException.Rastro.get -> OpenDFe.RastroWS!
+OpenDFe.ILeiaute
+OpenDFe.ILeiaute.Declarar(OpenDFe.DeclaracaoLeiaute! declaracao) -> void
+OpenDFe.ILeiaute.Documentos.get -> System.Collections.Generic.IReadOnlyList<OpenDFe.Documento>!
+OpenDFe.ILeiaute.Versao.get -> string!
+OpenDFe.IOperacao<TParametro, TRetorno>
+OpenDFe.IOperacao<TParametro, TRetorno>.Ler(TParametro! parametro, string! xmlRetorno, OpenDFe.ContextoOperacao! contexto) -> OpenDFe.LeituraWS<TRetorno!>!
+OpenDFe.IOperacao<TParametro, TRetorno>.Montar(TParametro! parametro, OpenDFe.ContextoOperacao! contexto) -> OpenDFe.PedidoWS!
+OpenDFe.LeituraWS<TRetorno>
+OpenDFe.LeituraWS<TRetorno>.CStat.get -> int
+OpenDFe.LeituraWS<TRetorno>.LeituraWS(TRetorno! retorno, int cStat, string! motivo) -> void
+OpenDFe.LeituraWS<TRetorno>.Motivo.get -> string!
+OpenDFe.LeituraWS<TRetorno>.Problemas.get -> System.Collections.Generic.IReadOnlyList<OpenDFe.Problema!>!
+OpenDFe.LeituraWS<TRetorno>.Problemas.init -> void
+OpenDFe.LeituraWS<TRetorno>.Retorno.get -> TRetorno!
+OpenDFe.OperacaoSuportada
+OpenDFe.OperacaoSuportada.Parametro.get -> System.Type!
+OpenDFe.OperacaoSuportada.Retorno.get -> System.Type!
+OpenDFe.ParametroWS
+OpenDFe.ParametroWS.Destino.get -> OpenDFe.Destino?
+OpenDFe.ParametroWS.Destino.init -> void
+OpenDFe.ParametroWS<TRetorno>
+OpenDFe.ParametroWS<TRetorno>.ParametroWS() -> void
+OpenDFe.PedidoWS
+OpenDFe.PedidoWS.Destino.get -> OpenDFe.Destino?
+OpenDFe.PedidoWS.Destino.init -> void
+OpenDFe.PedidoWS.Emissao.get -> OpenDFe.TipoEmissao?
+OpenDFe.PedidoWS.Emissao.init -> void
+OpenDFe.PedidoWS.IdsAssinatura.get -> System.Collections.Generic.IReadOnlyList<string!>!
+OpenDFe.PedidoWS.IdsAssinatura.init -> void
+OpenDFe.PedidoWS.PedidoWS(string! servico, string! xml, OpenDFe.SchemaXml! schema) -> void
+OpenDFe.PedidoWS.Problemas.get -> System.Collections.Generic.IReadOnlyList<OpenDFe.Problema!>!
+OpenDFe.PedidoWS.Problemas.init -> void
+OpenDFe.PedidoWS.Schema.get -> OpenDFe.SchemaXml!
+OpenDFe.PedidoWS.Servico.get -> string!
+OpenDFe.PedidoWS.Xml.get -> string!
+OpenDFe.RastroWS
+OpenDFe.RastroWS.Autorizador.get -> OpenDFe.Destino?
+OpenDFe.RastroWS.Duracao.get -> System.TimeSpan
+OpenDFe.RastroWS.DuracaoTransmissao.get -> System.TimeSpan?
+OpenDFe.RastroWS.Inicio.get -> System.DateTimeOffset
+OpenDFe.RastroWS.Url.get -> System.Uri?
+OpenDFe.RastroWS.XmlPedido.get -> string?
+OpenDFe.RastroWS.XmlRetorno.get -> string?
+OpenDFe.ResultadoWS<TRetorno>
+OpenDFe.ResultadoWS<TRetorno>.CStat.get -> int?
+OpenDFe.ResultadoWS<TRetorno>.Motivo.get -> string?
+OpenDFe.ResultadoWS<TRetorno>.Problemas.get -> System.Collections.Generic.IReadOnlyList<OpenDFe.Problema!>!
+OpenDFe.ResultadoWS<TRetorno>.Processado.get -> bool
+OpenDFe.ResultadoWS<TRetorno>.Rastro.get -> OpenDFe.RastroWS!
+OpenDFe.ResultadoWS<TRetorno>.Retorno.get -> TRetorno?
+OpenDFe.ResultadoWS<TRetorno>.Situacao.get -> OpenDFe.SituacaoResultado
+OpenDFe.SituacaoResultado
+OpenDFe.SituacaoResultado.Processado = 1 -> OpenDFe.SituacaoResultado
+OpenDFe.SituacaoResultado.RecusadoLocalmente = 2 -> OpenDFe.SituacaoResultado
+OpenDFe.ValidacaoCallback
+OpenDFe.ValidacaoCallback.Campo.get -> System.Func<OpenDFe.CampoVerificado!, System.Collections.Generic.IEnumerable<OpenDFe.Problema!>!>?
+OpenDFe.ValidacaoCallback.Campo.init -> void
+OpenDFe.ValidacaoCallback.Documento.get -> System.Func<OpenDFe.DocumentoVerificado!, System.Collections.Generic.IEnumerable<OpenDFe.Problema!>!>?
+OpenDFe.ValidacaoCallback.Documento.init -> void
+OpenDFe.ValidacaoCallback.ValidacaoCallback() -> void
+OpenDFe.Destino.RO = 11 -> OpenDFe.Destino
+OpenDFe.Destino.AC = 12 -> OpenDFe.Destino
+OpenDFe.Destino.AM = 13 -> OpenDFe.Destino
+OpenDFe.Destino.RR = 14 -> OpenDFe.Destino
+OpenDFe.Destino.PA = 15 -> OpenDFe.Destino
+OpenDFe.Destino.AP = 16 -> OpenDFe.Destino
+OpenDFe.Destino.TO = 17 -> OpenDFe.Destino
+OpenDFe.Destino.MA = 21 -> OpenDFe.Destino
+OpenDFe.Destino.PI = 22 -> OpenDFe.Destino
+OpenDFe.Destino.CE = 23 -> OpenDFe.Destino
+OpenDFe.Destino.RN = 24 -> OpenDFe.Destino
+OpenDFe.Destino.PB = 25 -> OpenDFe.Destino
+OpenDFe.Destino.PE = 26 -> OpenDFe.Destino
+OpenDFe.Destino.AL = 27 -> OpenDFe.Destino
+OpenDFe.Destino.SE = 28 -> OpenDFe.Destino
+OpenDFe.Destino.BA = 29 -> OpenDFe.Destino
+OpenDFe.Destino.MG = 31 -> OpenDFe.Destino
+OpenDFe.Destino.ES = 32 -> OpenDFe.Destino
+OpenDFe.Destino.RJ = 33 -> OpenDFe.Destino
+OpenDFe.Destino.SP = 35 -> OpenDFe.Destino
+OpenDFe.Destino.PR = 41 -> OpenDFe.Destino
+OpenDFe.Destino.SC = 42 -> OpenDFe.Destino
+OpenDFe.Destino.RS = 43 -> OpenDFe.Destino
+OpenDFe.Destino.MS = 50 -> OpenDFe.Destino
+OpenDFe.Destino.MT = 51 -> OpenDFe.Destino
+OpenDFe.Destino.GO = 52 -> OpenDFe.Destino
+OpenDFe.Destino.DF = 53 -> OpenDFe.Destino
+OpenDFe.Destino.AN = 91 -> OpenDFe.Destino
+OpenDFe.Destino.SVRS = 101 -> OpenDFe.Destino
+OpenDFe.Destino.SVAN = 102 -> OpenDFe.Destino
+OpenDFe.Destino.SvcAN = 103 -> OpenDFe.Destino
+OpenDFe.Destino.SvcRS = 104 -> OpenDFe.Destino

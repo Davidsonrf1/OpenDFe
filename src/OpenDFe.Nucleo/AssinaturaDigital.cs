@@ -65,7 +65,7 @@ public static class AssinaturaDigital
         CertificadoDigital.ExigirChavePrivadaRsa(certificado);
 
         var documento = Carregar(xml);
-        var elementos = ElementosComId(documento, id);
+        var elementos = ElementosId(documento, id);
         if (elementos.Count == 0)
             throw new ArgumentException($"Nenhum elemento tem o atributo Id \"{id}\".", nameof(id));
         if (elementos.Count > 1)
@@ -95,7 +95,7 @@ public static class AssinaturaDigital
             assinatura = assinador.GetXml().OuterXml;
         }
 
-        var assinado = xml.Insert(InicioDoFechamento(xml, id), assinatura);
+        var assinado = xml.Insert(InicioFechamento(xml, id), assinatura);
 
         // Conferência do próprio resultado: o XML assinado, lido de novo do texto, tem de verificar (a estrutura
         // e o valor; o uso da chave do certificado é de quem verifica).
@@ -151,9 +151,9 @@ public static class AssinaturaDigital
         ArgumentNullException.ThrowIfNull(cnpjOuCpf);
         string? cnpj = null, cpf = null;
         if (Cnpj.Valido(cnpjOuCpf))
-            cnpj = Cnpj.SemMascara(cnpjOuCpf);
+            cnpj = Cnpj.RemoverMascara(cnpjOuCpf);
         else if (Cpf.Valido(cnpjOuCpf))
-            cpf = Cpf.SemMascara(cnpjOuCpf);
+            cpf = Cpf.RemoverMascara(cnpjOuCpf);
         else
             throw new ArgumentException("O documento não é um CNPJ nem um CPF válido.", nameof(cnpjOuCpf));
 
@@ -168,7 +168,7 @@ public static class AssinaturaDigital
     // ou null se a estrutura ou o certificado não permitem continuar.
     private static X509Certificate2? VerificarAssinatura(XmlDocument documento, string id, bool conferirCertificado, List<Problema> problemas)
     {
-        var elementos = ElementosComId(documento, id);
+        var elementos = ElementosId(documento, id);
         if (elementos.Count == 0)
         {
             problemas.Add(Padrao($"Nenhum elemento tem o atributo Id \"{id}\".", AtributoId));
@@ -195,11 +195,11 @@ public static class AssinaturaDigital
         }
         var assinatura = assinaturas[0];
 
-        var textoDoCertificado = ConferirEstrutura(assinatura, id, problemas);
-        if (textoDoCertificado is null)
+        var textoCertificado = ConferirEstrutura(assinatura, id, problemas);
+        if (textoCertificado is null)
             return null;
 
-        var certificado = LerCertificado(textoDoCertificado, conferirCertificado, problemas);
+        var certificado = LerCertificado(textoCertificado, conferirCertificado, problemas);
         if (certificado is null)
             return null;
 
@@ -367,7 +367,7 @@ public static class AssinaturaDigital
 
     // Os mesmos nomes de atributo que o SignedXml aceita como identificador (Id, id, ID): um Id repetido em
     // qualquer um deles tornaria a referência ambígua.
-    private static List<XmlElement> ElementosComId(XmlDocument documento, string id)
+    private static List<XmlElement> ElementosId(XmlDocument documento, string id)
     {
         var encontrados = new List<XmlElement>();
         foreach (XmlElement elemento in documento.GetElementsByTagName("*"))
@@ -395,19 +395,19 @@ public static class AssinaturaDigital
     // A posição, no texto, do "</" do fechamento do pai do elemento com o Id: a Signature entra ali, e o resto
     // do texto fica como veio. A linha e a coluna vêm do XmlReader (que conta "\r\n", "\r" e "\n" como fim de
     // linha), e a posição é conferida contra o nome do elemento.
-    private static int InicioDoFechamento(string xml, string id)
+    private static int InicioFechamento(string xml, string id)
     {
         using var leitor = XmlReader.Create(new StringReader(xml), Configuracao());
         var linhas = (IXmlLineInfo)leitor;
-        var profundidadeDoPai = -1;
+        var profundidadePai = -1;
         while (leitor.Read())
         {
-            if (profundidadeDoPai < 0)
+            if (profundidadePai < 0)
             {
                 if (leitor.NodeType == XmlNodeType.Element && leitor.GetAttribute(AtributoId) == id)
-                    profundidadeDoPai = leitor.Depth - 1;
+                    profundidadePai = leitor.Depth - 1;
             }
-            else if (leitor.NodeType == XmlNodeType.EndElement && leitor.Depth == profundidadeDoPai)
+            else if (leitor.NodeType == XmlNodeType.EndElement && leitor.Depth == profundidadePai)
             {
                 var posicao = Posicao(xml, linhas.LineNumber, linhas.LinePosition) - 2;
                 if (posicao >= 0 && xml.AsSpan(posicao).StartsWith("</" + leitor.Name, StringComparison.Ordinal))

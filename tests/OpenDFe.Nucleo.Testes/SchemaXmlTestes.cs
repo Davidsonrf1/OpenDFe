@@ -82,9 +82,9 @@ public class SchemaXmlTestes
     public void DtdNoSchemaEhProibido()
     {
         var assembly = typeof(SchemaXmlTestes).Assembly;
-        Assert.ThrowsAny<XmlException>(() => SchemaXml.Carregar(assembly, "Schemas/Invalidos/comDtd.xsd", "225"));
+        Assert.ThrowsAny<XmlException>(() => SchemaXml.Carregar(assembly, "Schemas/Invalidos/declaraDtd.xsd", "225"));
         // O XmlSchemaSet lê o incluído com DTD proibido e trata a recusa como include que não resolve.
-        var incluido = Assert.Throws<XmlSchemaException>(() => SchemaXml.Carregar(assembly, "Schemas/Invalidos/incluiComDtd.xsd", "225"));
+        var incluido = Assert.Throws<XmlSchemaException>(() => SchemaXml.Carregar(assembly, "Schemas/Invalidos/incluiDtd.xsd", "225"));
         Assert.Contains("DTD", incluido.Message, StringComparison.Ordinal);
     }
 
@@ -205,20 +205,20 @@ public class SchemaXmlTestes
     [Fact]
     public void MinimoEMaximoInclusivos()
     {
-        string ComDesconto(string valor) =>
+        string NotaDesconto(string valor) =>
             Nota().Replace("<vProd>20.00</vProd>", $"<vProd>20.00</vProd><pDesc>{valor}</pDesc>", StringComparison.Ordinal);
 
-        Assert.Empty(Schema.Validar(ComDesconto("0")));
-        Assert.Empty(Schema.Validar(ComDesconto("100")));
+        Assert.Empty(Schema.Validar(NotaDesconto("0")));
+        Assert.Empty(Schema.Validar(NotaDesconto("100")));
 
-        var acima = Unico(ComDesconto("100.01"));
+        var acima = Unico(NotaDesconto("100.01"));
         Assert.Equal("NFe/infNFe/det[2]/prod/pDesc", acima.Caminho);
         var maximo = UnicaRestricao(acima);
         Assert.Equal(FacetaSchema.MaximoInclusivo, maximo.Faceta);
         Assert.Equal("100", Assert.Single(maximo.Valores));
         Assert.Equal("pDesc: o valor é maior que o máximo de 100 do tipo TPercentual.", acima.Mensagem);
 
-        var abaixo = Unico(ComDesconto("-1"));
+        var abaixo = Unico(NotaDesconto("-1"));
         var minimo = UnicaRestricao(abaixo);
         Assert.Equal(FacetaSchema.MinimoInclusivo, minimo.Faceta);
         Assert.Equal("0", Assert.Single(minimo.Valores));
@@ -228,13 +228,13 @@ public class SchemaXmlTestes
     [Fact]
     public void MinimoEMaximoExclusivos()
     {
-        string ComTributo(string valor) =>
+        string NotaTributo(string valor) =>
             Nota().Replace("<vNF>60.00</vNF>", $"<vNF>60.00</vNF><vTotTrib>{valor}</vTotTrib>", StringComparison.Ordinal);
 
-        Assert.Empty(Schema.Validar(ComTributo("0.01")));
-        Assert.Equal(FacetaSchema.MinimoExclusivo, UnicaRestricao(Unico(ComTributo("0"))).Faceta);
-        Assert.Equal(FacetaSchema.MaximoExclusivo, UnicaRestricao(Unico(ComTributo("1000000"))).Faceta);
-        Assert.Equal("vTotTrib: o valor tem de ser maior que 0 do tipo TValorPositivo.", Unico(ComTributo("0")).Mensagem);
+        Assert.Empty(Schema.Validar(NotaTributo("0.01")));
+        Assert.Equal(FacetaSchema.MinimoExclusivo, UnicaRestricao(Unico(NotaTributo("0"))).Faceta);
+        Assert.Equal(FacetaSchema.MaximoExclusivo, UnicaRestricao(Unico(NotaTributo("1000000"))).Faceta);
+        Assert.Equal("vTotTrib: o valor tem de ser maior que 0 do tipo TValorPositivo.", Unico(NotaTributo("0")).Mensagem);
     }
 
     [Fact]

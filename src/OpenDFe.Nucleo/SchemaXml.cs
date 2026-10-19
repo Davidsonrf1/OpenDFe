@@ -58,7 +58,7 @@ public sealed class SchemaXml
         ArgumentException.ThrowIfNullOrWhiteSpace(recurso);
         ArgumentException.ThrowIfNullOrWhiteSpace(codigo);
 
-        var resolvedor = new ResolvedorDeRecursos(assembly);
+        var resolvedor = new ResolvedorRecursos(assembly);
         var endereco = resolvedor.Endereco(recurso)
             ?? throw new ArgumentException($"O assembly {assembly.GetName().Name} não tem o recurso \"{recurso}\".", nameof(recurso));
 
@@ -68,7 +68,7 @@ public sealed class SchemaXml
         // pela metade validaria menos do que devia.
         schemas.ValidationEventHandler += (_, e) => falhas.Add(e.Exception?.InnerException is { } causa ? $"{e.Message} ({causa.Message})" : e.Message);
         using (var conteudo = resolvedor.Abrir(endereco))
-        using (var leitor = XmlReader.Create(conteudo, ResolvedorDeRecursos.ConfiguracaoDeLeitura(), endereco.AbsoluteUri))
+        using (var leitor = XmlReader.Create(conteudo, ResolvedorRecursos.ConfiguracaoLeitura(), endereco.AbsoluteUri))
         {
             schemas.Add(null, leitor);
         }

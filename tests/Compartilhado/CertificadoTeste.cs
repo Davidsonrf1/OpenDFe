@@ -25,7 +25,7 @@ public enum CodificacaoOtherName
 /// (<c>&lt;Compile Include="../Compartilhado/**/*.cs" /&gt;</c>). Os valores não são conferidos (um CNPJ com
 /// o dígito errado entra como está), para os testes da leitura.
 /// </remarks>
-public sealed class CertificadoDeTeste
+public sealed class CertificadoTeste
 {
     private const string OidNomeAlternativo = "2.5.29.17";
 
@@ -48,7 +48,7 @@ public sealed class CertificadoDeTeste
     public DateOnly Nascimento { get; init; } = new(1980, 1, 15);
 
     /// <summary>Se o "Subject Alternative Name" leva os otherName da ICP-Brasil.</summary>
-    public bool ComOtherName { get; init; } = true;
+    public bool IncluiOtherName { get; init; } = true;
 
     /// <summary>Como o valor de cada otherName é codificado.</summary>
     public CodificacaoOtherName Codificacao { get; init; } = CodificacaoOtherName.OctetString;
@@ -57,10 +57,10 @@ public sealed class CertificadoDeTeste
     /// Perfil anterior à versão 8.2 do DOC-ICP-04: o CN é <c>&lt;nome&gt;:&lt;CNPJ ou CPF&gt;</c>. Falso: o CN
     /// é só o nome.
     /// </summary>
-    public bool DocumentoNoNomeComum { get; init; } = true;
+    public bool DocumentoNomeComum { get; init; } = true;
 
     /// <summary>Perfil da versão 8.2 em diante: o <c>serialNumber</c> (2.5.4.5) do titular com o CNPJ ou CPF.</summary>
-    public bool DocumentoNoNumeroDeSerie { get; init; }
+    public bool DocumentoNumeroSerie { get; init; }
 
     /// <summary>Início da validade; o padrão é um dia antes de agora.</summary>
     public DateTimeOffset NaoAntes { get; init; } = DateTimeOffset.UtcNow.AddDays(-1);
@@ -69,7 +69,7 @@ public sealed class CertificadoDeTeste
     public DateTimeOffset NaoDepois { get; init; } = DateTimeOffset.UtcNow.AddYears(1);
 
     /// <summary>O uso da chave (extensão crítica); o padrão é o do certificado A1 de assinatura.</summary>
-    public X509KeyUsageFlags UsoDaChave { get; init; } =
+    public X509KeyUsageFlags UsoChave { get; init; } =
         X509KeyUsageFlags.DigitalSignature | X509KeyUsageFlags.NonRepudiation | X509KeyUsageFlags.KeyEncipherment;
 
     /// <summary>Chave ECDSA P-256 em vez de RSA 2048 (para o teste da recusa).</summary>
@@ -78,7 +78,7 @@ public sealed class CertificadoDeTeste
     /// <summary>O certificado com a chave privada. É de quem chama (descarte).</summary>
     public X509Certificate2 Gerar()
     {
-        var titular = NomeDoTitular();
+        var titular = NomeTitular();
         if (ChaveEcdsa)
         {
             using var ecdsa = ECDsa.Create(ECCurve.NamedCurves.nistP256);
@@ -101,22 +101,22 @@ public sealed class CertificadoDeTeste
     }
 
     /// <summary>O PFX só com o certificado, sem a chave privada.</summary>
-    public byte[] GerarPfxSemChavePrivada(string senha)
+    public byte[] GerarPfxApenasPublico(string senha)
     {
         using var certificado = Gerar();
         using var publico = X509CertificateLoader.LoadCertificate(certificado.RawData);
         return publico.Export(X509ContentType.Pkcs12, senha);
     }
 
-    private X500DistinguishedName NomeDoTitular()
+    private X500DistinguishedName NomeTitular()
     {
         var documento = Cnpj ?? Cpf;
         var nome = new X500DistinguishedNameBuilder();
         nome.AddCountryOrRegion("BR");
         nome.AddOrganizationName("ICP-Brasil");
         nome.AddOrganizationalUnitName("Certificado de teste autoassinado");
-        nome.AddCommonName(DocumentoNoNomeComum && documento is not null ? $"{Nome}:{documento}" : Nome);
-        if (DocumentoNoNumeroDeSerie && documento is not null)
+        nome.AddCommonName(DocumentoNomeComum && documento is not null ? $"{Nome}:{documento}" : Nome);
+        if (DocumentoNumeroSerie && documento is not null)
             nome.Add("2.5.4.5", documento, UniversalTagNumber.PrintableString);
         return nome.Build();
     }
@@ -124,7 +124,7 @@ public sealed class CertificadoDeTeste
     private void AcrescentarExtensoes(CertificateRequest pedido)
     {
         pedido.CertificateExtensions.Add(new X509BasicConstraintsExtension(false, false, 0, true));
-        pedido.CertificateExtensions.Add(new X509KeyUsageExtension(UsoDaChave, critical: true));
+        pedido.CertificateExtensions.Add(new X509KeyUsageExtension(UsoChave, critical: true));
         pedido.CertificateExtensions.Add(new X509EnhancedKeyUsageExtension(
             [new Oid("1.3.6.1.5.5.7.3.2"), new Oid("1.3.6.1.5.5.7.3.4")], critical: false));
         pedido.CertificateExtensions.Add(new X509SubjectKeyIdentifierExtension(pedido.PublicKey, critical: false));
@@ -139,7 +139,7 @@ public sealed class CertificadoDeTeste
         {
             escritor.WriteCharacterString(UniversalTagNumber.IA5String, "teste@exemplo.com.br",
                 new Asn1Tag(TagClass.ContextSpecific, 1));
-            if (ComOtherName)
+            if (IncluiOtherName)
             {
                 foreach (var (oid, valor) in OutrosNomes())
                     EscreverOutroNome(escritor, oid, valor);

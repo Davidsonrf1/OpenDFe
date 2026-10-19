@@ -5,7 +5,7 @@
   <PropertyGroup>
     <PackageId>OpenDFe.NFe</PackageId>
     <Description>NF-e (modelo 55) e NFC-e (modelo 65) para a OpenDFe: o modelo de dados e o leiaute 4.00, com XML, schemas, regras do MOC e web services da SEFAZ.</Description>
-    <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);IncluirModeloNoPacote</TargetsForTfmSpecificBuildOutput>
+    <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);IncluirModeloPacote</TargetsForTfmSpecificBuildOutput>
     <!-- O alvo abaixo resolve as referências; no pack com no-build, sem recompilar o modelo e o núcleo. -->
     <BuildProjectReferences Condition="'$(NoBuild)' == 'true'">false</BuildProjectReferences>
   </PropertyGroup>
@@ -16,12 +16,12 @@
   </ItemGroup>
 
   <!-- A DLL do modelo, com a documentação XML, em lib/; o PDB vai para o .snupkg. -->
-  <Target Name="IncluirModeloNoPacote" DependsOnTargets="ResolveReferences">
+  <Target Name="IncluirModeloPacote" DependsOnTargets="ResolveReferences">
     <ItemGroup>
-      <_ModeloNoPacote Include="@(ReferenceCopyLocalPaths)" Condition="'%(ReferenceCopyLocalPaths.ReferenceSourceTarget)' == 'ProjectReference' And '%(ReferenceCopyLocalPaths.Filename)%(ReferenceCopyLocalPaths.Extension)' == 'OpenDFe.NFe.Modelo.dll'" />
-      <BuildOutputInPackage Include="@(_ModeloNoPacote)" />
-      <BuildOutputInPackage Include="@(_ModeloNoPacote->'%(RootDir)%(Directory)%(Filename).xml')" />
-      <BuildOutputInPackage Include="@(_ModeloNoPacote->'%(RootDir)%(Directory)%(Filename).pdb')" />
+      <_ModeloPacote Include="@(ReferenceCopyLocalPaths)" Condition="'%(ReferenceCopyLocalPaths.ReferenceSourceTarget)' == 'ProjectReference' And '%(ReferenceCopyLocalPaths.Filename)%(ReferenceCopyLocalPaths.Extension)' == 'OpenDFe.NFe.Modelo.dll'" />
+      <BuildOutputInPackage Include="@(_ModeloPacote)" />
+      <BuildOutputInPackage Include="@(_ModeloPacote->'%(RootDir)%(Directory)%(Filename).xml')" />
+      <BuildOutputInPackage Include="@(_ModeloPacote->'%(RootDir)%(Directory)%(Filename).pdb')" />
     </ItemGroup>
   </Target>
 

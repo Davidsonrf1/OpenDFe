@@ -27,7 +27,7 @@ public static class UnidadesFederativas
     /// <param name="sigla">A sigla de duas letras maiúsculas.</param>
     /// <param name="uf">A UF, quando a sigla é de uma.</param>
     /// <returns>Se a sigla é de uma UF.</returns>
-    public static bool TentarPelaSigla(string? sigla, out UF uf)
+    public static bool TentarLerSigla(string? sigla, out UF uf)
     {
         uf = default;
         if (sigla is not { Length: 2 } || !char.IsAsciiLetterUpper(sigla[0]) || !char.IsAsciiLetterUpper(sigla[1]))
@@ -42,7 +42,7 @@ public static class UnidadesFederativas
     /// <param name="codigo">O código IBGE da UF.</param>
     /// <param name="uf">A UF, quando o código é de uma.</param>
     /// <returns>Se o código é de uma UF.</returns>
-    public static bool TentarPeloCodigo(int codigo, out UF uf)
+    public static bool TentarLerCodigo(int codigo, out UF uf)
     {
         uf = (UF)codigo;
         if (Enum.IsDefined(uf))

@@ -48,7 +48,7 @@ public class CpfTestes
     [Theory]
     [InlineData("529.982.247-25", "52998224725")]
     [InlineData("52998224725", "52998224725")]
-    public void TiraAMascara(string valor, string esperado) => Assert.Equal(esperado, Cpf.SemMascara(valor));
+    public void TiraAMascara(string valor, string esperado) => Assert.Equal(esperado, Cpf.RemoverMascara(valor));
 
     [Theory]
     [InlineData("52998224724")]
@@ -57,6 +57,6 @@ public class CpfTestes
     public void FormatarRecusaCpfInvalido(string valor)
     {
         Assert.Throws<ArgumentException>(() => Cpf.Formatar(valor));
-        Assert.Throws<ArgumentException>(() => Cpf.SemMascara(valor));
+        Assert.Throws<ArgumentException>(() => Cpf.RemoverMascara(valor));
     }
 }

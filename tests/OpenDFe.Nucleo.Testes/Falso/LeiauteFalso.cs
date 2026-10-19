@@ -1,0 +1,184 @@
+using System.Globalization;
+using System.Security;
+using System.Xml.Linq;
+
+namespace OpenDFe.Testes;
+
+/// <summary>
+/// Um leiaute falso, só para os testes dos contratos (CONTRATOS.md 10): duas operações (o status e um eco
+/// assinado), os atendimentos de MG e do AC, as URLs de quatro autorizadores nos dois ambientes e, na NFC-e, uma
+/// configuração do documento obrigatória. As mensagens seguem o <c>Schemas/Falso/eco_v1.00.xsd</c>.
+/// </summary>
+internal sealed class LeiauteFalso : ILeiaute
+{
+    public const string Namespace = "urn:opendfe:teste:eco";
+    public const string ServicoStatus = "StatusFalso";
+    public const string ServicoEco = "EcoFalso";
+    public const string CodigoSchema = "215";
+
+    public static readonly SchemaXml Schema =
+        SchemaXml.Carregar(typeof(LeiauteFalso).Assembly, "Schemas/Falso/eco_v1.00.xsd", CodigoSchema);
+
+    public static readonly Destino[] Autorizadores = [Destino.MG, Destino.SVRS, Destino.SvcAN, Destino.AN];
+
+    public string Versao => "1.00";
+
+    public IReadOnlyList<Documento> Documentos { get; init; } = [Documento.NFe, Documento.NFCe];
+
+    /// <summary>Uma declaração a mais, depois da padrão (para as recusas da declaração).</summary>
+    public Action<DeclaracaoLeiaute>? Acrescimo { get; init; }
+
+    /// <summary>A última declaração recebida (para a recusa do registro depois do Declarar).</summary>
+    public DeclaracaoLeiaute? Ultima { get; private set; }
+
+    public static Uri Url(Destino autorizador, Ambiente ambiente, string servico) =>
+        new($"https://{autorizador.Sigla().ToLowerInvariant()}.{(ambiente == Ambiente.Homologacao ? "hom" : "prod")}.exemplo/{servico}");
+
+    public void Declarar(DeclaracaoLeiaute declaracao)
+    {
+        Ultima = declaracao;
+        declaracao.RegistrarOperacao(new OperacaoStatusFalsa());
+        declaracao.RegistrarOperacao(new OperacaoEcoFalsa());
+        if (declaracao.Documento == Documento.NFCe)
+            declaracao.DeclararConfiguracaoDocumento<ConfiguracaoFalsa>(obrigatoria: true);
+
+        declaracao.DeclararAtendimento(UF.MG, TipoEmissao.Normal, Destino.MG);
+        declaracao.DeclararAtendimento(UF.MG, TipoEmissao.ContingenciaSvcAN, Destino.SvcAN);
+        declaracao.DeclararAtendimento(UF.AC, TipoEmissao.Normal, Destino.SVRS);
+        declaracao.DeclararAtendimento(UF.AC, TipoEmissao.ContingenciaSvcAN, Destino.SvcAN);
+        foreach (var autorizador in Autorizadores)
+        {
+            foreach (var ambiente in (Ambiente[])[Ambiente.Homologacao, Ambiente.Producao])
+            {
+                declaracao.DeclararEndereco(new EnderecoServico(autorizador, ambiente, ServicoStatus, Url(autorizador, ambiente, ServicoStatus)));
+                declaracao.DeclararEndereco(new EnderecoServico(autorizador, ambiente, ServicoEco, Url(autorizador, ambiente, ServicoEco)));
+            }
+        }
+        Acrescimo?.Invoke(declaracao);
+    }
+}
+
+internal sealed class ConfiguracaoFalsa : ConfiguracaoDocumento
+{
+    public string Csc { get; init; } = "CSC-TESTE";
+}
+
+internal sealed class OutraConfiguracaoFalsa : ConfiguracaoDocumento
+{
+}
+
+public sealed class RetornoStatusFalso
+{
+    public required string Host { get; init; }
+}
+
+public sealed class RetornoEcoFalso
+{
+    public required IReadOnlyList<string> Textos { get; init; }
+}
+
+/// <summary>O status falso: sem assinatura.</summary>
+public sealed class StatusFalso : ParametroWS<RetornoStatusFalso>
+{
+}
+
+/// <summary>Uma operação que o leiaute falso não registra.</summary>
+public sealed class NaoRegistradoFalso : ParametroWS<RetornoStatusFalso>
+{
+}
+
+/// <summary>Um parâmetro abstrato, que o registro recusa.</summary>
+public abstract class AbstratoFalso : ParametroWS<RetornoStatusFalso>
+{
+}
+
+/// <summary>O eco falso: cada texto vira um <c>eco</c> assinado; os outros membros mudam a montagem.</summary>
+public sealed class EcoFalso : ParametroWS<RetornoEcoFalso>
+{
+    public IReadOnlyList<string> Textos { get; init; } = ["ola"];
+
+    public bool Assinar { get; init; } = true;
+
+    public Problema? ProblemaMontagem { get; init; }
+
+    public bool MensagemVazia { get; init; }
+
+    public Exception? ExcecaoMontagem { get; init; }
+
+    public Destino? DestinoPedido { get; init; }
+
+    public TipoEmissao? EmissaoPedido { get; init; }
+
+    /// <summary>O contexto recebido na montagem.</summary>
+    public ContextoOperacao? ContextoRecebido { get; set; }
+}
+
+internal sealed class OperacaoStatusFalsa : IOperacao<StatusFalso, RetornoStatusFalso>
+{
+    public PedidoWS Montar(StatusFalso parametro, ContextoOperacao contexto) =>
+        new(LeiauteFalso.ServicoStatus,
+            $"<consStatus xmlns=\"{LeiauteFalso.Namespace}\" versao=\"1.00\"><tpAmb>{(int)contexto.Configuracao.Ambiente}</tpAmb></consStatus>",
+            LeiauteFalso.Schema);
+
+    public LeituraWS<RetornoStatusFalso> Ler(StatusFalso parametro, string xmlRetorno, ContextoOperacao contexto)
+    {
+        var raiz = XDocument.Parse(xmlRetorno).Root!;
+        var retorno = new RetornoStatusFalso { Host = (string?)raiz.Element("host") ?? "" };
+        return new LeituraWS<RetornoStatusFalso>(retorno, LerCStat(raiz), (string?)raiz.Element("xMotivo") ?? "");
+    }
+
+    internal static int LerCStat(XElement raiz) =>
+        int.Parse((string?)raiz.Element("cStat") ?? throw new FormatException("A resposta não tem cStat."), CultureInfo.InvariantCulture);
+}
+
+internal sealed class OperacaoAbstrataFalsa : IOperacao<AbstratoFalso, RetornoStatusFalso>
+{
+    public PedidoWS Montar(AbstratoFalso parametro, ContextoOperacao contexto) => throw new NotSupportedException();
+
+    public LeituraWS<RetornoStatusFalso> Ler(AbstratoFalso parametro, string xmlRetorno, ContextoOperacao contexto) =>
+        throw new NotSupportedException();
+}
+
+internal sealed class OperacaoEcoFalsa : IOperacao<EcoFalso, RetornoEcoFalso>
+{
+    public static string Id(int indice) => "ECO" + (indice + 1).ToString(CultureInfo.InvariantCulture);
+
+    public PedidoWS Montar(EcoFalso parametro, ContextoOperacao contexto)
+    {
+        parametro.ContextoRecebido = contexto;
+        if (parametro.ExcecaoMontagem is not null)
+            throw parametro.ExcecaoMontagem;
+
+        var xml = parametro.MensagemVazia
+            ? ""
+            : $"<ecoLote xmlns=\"{LeiauteFalso.Namespace}\">"
+              + string.Concat(parametro.Textos.Select((t, i) => $"<eco><infEco Id=\"{Id(i)}\"><texto>{SecurityElement.Escape(t)}</texto></infEco></eco>"))
+              + "</ecoLote>";
+        return new PedidoWS(LeiauteFalso.ServicoEco, xml, LeiauteFalso.Schema)
+        {
+            IdsAssinatura = parametro.Assinar ? [.. parametro.Textos.Select((_, i) => Id(i))] : [],
+            Destino = parametro.DestinoPedido,
+            Emissao = parametro.EmissaoPedido,
+            Problemas = parametro.ProblemaMontagem is { } problema ? [problema] : [],
+        };
+    }
+
+    public LeituraWS<RetornoEcoFalso> Ler(EcoFalso parametro, string xmlRetorno, ContextoOperacao contexto)
+    {
+        var raiz = XDocument.Parse(xmlRetorno).Root!;
+        var retorno = new RetornoEcoFalso { Textos = [.. raiz.Elements("texto").Select(e => e.Value)] };
+        var avisos = raiz.Elements("aviso").Select(e => new Problema("L01", Severidade.Aviso, e.Value)).ToArray();
+        return new LeituraWS<RetornoEcoFalso>(retorno, OperacaoStatusFalsa.LerCStat(raiz), (string?)raiz.Element("xMotivo") ?? "")
+        {
+            Problemas = avisos,
+        };
+    }
+
+    /// <summary>A resposta do autorizador falso ao eco: os textos de volta, na ordem.</summary>
+    public static string Responder(string xmlPedido)
+    {
+        XNamespace ns = LeiauteFalso.Namespace;
+        var textos = XDocument.Parse(xmlPedido).Descendants(ns + "texto").Select(e => SecurityElement.Escape(e.Value));
+        return "<retEco><cStat>100</cStat><xMotivo>Eco processado</xMotivo>" + string.Concat(textos.Select(t => $"<texto>{t}</texto>")) + "</retEco>";
+    }
+}

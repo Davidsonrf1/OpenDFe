@@ -15,7 +15,7 @@ public static class Cnpj
     /// <summary>Quantidade de posições do CNPJ sem máscara.</summary>
     public const int Tamanho = 14;
 
-    private const int TamanhoComMascara = 18;
+    private const int TamanhoMascarado = 18;
     private const int TamanhoBase = 12;
 
     /// <summary>Se o valor é um CNPJ válido, com ou sem máscara.</summary>
@@ -24,17 +24,17 @@ public static class Cnpj
     public static bool Valido(string? valor)
     {
         Span<char> cnpj = stackalloc char[Tamanho];
-        return TirarMascara(valor, cnpj) && ValidoSemMascara(cnpj);
+        return TirarMascara(valor, cnpj) && ValidoDesmascarado(cnpj);
     }
 
     /// <summary>O CNPJ sem máscara (<c>12ABC34501DE35</c>), como vai no XML.</summary>
     /// <param name="valor">Um CNPJ válido, sem máscara ou com a máscara inteira.</param>
     /// <returns>As 14 posições, sem máscara.</returns>
     /// <exception cref="ArgumentException">O valor não é um CNPJ válido.</exception>
-    public static string SemMascara(string valor)
+    public static string RemoverMascara(string valor)
     {
         Span<char> cnpj = stackalloc char[Tamanho];
-        if (!TirarMascara(valor, cnpj) || !ValidoSemMascara(cnpj))
+        if (!TirarMascara(valor, cnpj) || !ValidoDesmascarado(cnpj))
             throw new ArgumentException("O valor não é um CNPJ válido.", nameof(valor));
         return new string(cnpj);
     }
@@ -45,7 +45,7 @@ public static class Cnpj
     /// <exception cref="ArgumentException">O valor não é um CNPJ válido.</exception>
     public static string Formatar(string valor)
     {
-        var c = SemMascara(valor);
+        var c = RemoverMascara(valor);
         return $"{c[..2]}.{c[2..5]}.{c[5..8]}/{c[8..12]}-{c[12..]}";
     }
 
@@ -66,7 +66,7 @@ public static class Cnpj
         return new string(cnpj[12..]);
     }
 
-    private static bool ValidoSemMascara(ReadOnlySpan<char> cnpj)
+    private static bool ValidoDesmascarado(ReadOnlySpan<char> cnpj)
     {
         if (!Alfanumerico(cnpj[..TamanhoBase]) || !char.IsAsciiDigit(cnpj[12]) || !char.IsAsciiDigit(cnpj[13]))
             return false;
@@ -96,7 +96,7 @@ public static class Cnpj
             v.CopyTo(destino);
             return true;
         }
-        if (v.Length != TamanhoComMascara || v[2] != '.' || v[6] != '.' || v[10] != '/' || v[15] != '-')
+        if (v.Length != TamanhoMascarado || v[2] != '.' || v[6] != '.' || v[10] != '/' || v[15] != '-')
             return false;
         v[..2].CopyTo(destino);
         v[3..6].CopyTo(destino[2..]);

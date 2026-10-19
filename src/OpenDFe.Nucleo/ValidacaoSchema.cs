@@ -9,7 +9,7 @@ namespace OpenDFe;
 // validação e conduz o XmlSchemaValidator nó a nó: assim cada evento do validador chega sabendo qual nó o
 // causou (o elemento, o atributo, o texto, o fim do elemento), com o caminho e o tipo do schema dele, e a
 // lista do que era esperado ali. A mensagem do .NET não é lida: a classificação vem do contexto, e a mensagem
-// em português, das regras levantadas do tipo (AnaliseDeTipo).
+// em português, das regras levantadas do tipo (AnaliseTipo).
 //
 // Uma instância por chamada: o XmlSchemaSet compilado é só lido (nunca alterado), e o NameTable é o do leitor
 // desta chamada, nunca o do XmlSchemaSet, que não é seguro para escrita concorrente.
@@ -119,7 +119,7 @@ internal sealed class ValidacaoSchema
             var globais = _schemas.GlobalElements.Names.Cast<XmlQualifiedName>().Select(n => n.Name).ToList();
             var mensagemOriginal = _eventos.Count > 0 ? _eventos[0].Message : "";
             Adicionar(Severidade.Erro, nome, segmento,
-                $"{nome}: o elemento raiz não está declarado no schema{NoEspaco(espaco)}; esperado: {Lista(globais)}.",
+                $"{nome}: o elemento raiz não está declarado no schema{DescreverNamespace(espaco)}; esperado: {Lista(globais)}.",
                 new FalhaSchema(TipoFalhaSchema.ElementoInesperado, mensagemOriginal) { Esperados = globais, Linha = Linha(), Coluna = Coluna() });
         }
         if (_raizDesconhecida)
@@ -136,13 +136,13 @@ internal sealed class ValidacaoSchema
             if (evento.Severity == XmlSeverityType.Warning && quadro.Info.SchemaElement is null)
             {
                 // Aceito sem declaração (xs:any lax): um aviso só, no elemento de cima; o conteúdo não é validado.
-                if (!_pilha.Any(q => q.ComFalha || q.SemDeclaracao))
+                if (!_pilha.Any(q => q.Falhou || q.NaoDeclarado))
                 {
                     Adicionar(Severidade.Aviso, nome, segmento,
                         $"{nome}: o elemento não tem declaração no schema e não foi validado (o schema o aceita sem conferir).",
                         new FalhaSchema(TipoFalhaSchema.Outra, evento.Message) { Linha = Linha(evento), Coluna = Coluna(evento) });
                 }
-                quadro.SemDeclaracao = true;
+                quadro.NaoDeclarado = true;
                 continue;
             }
             if (evento.Severity == XmlSeverityType.Warning)
@@ -150,7 +150,7 @@ internal sealed class ValidacaoSchema
                 Generico(evento, nome, segmento);
                 continue;
             }
-            quadro.ComFalha = true;
+            quadro.Falhou = true;
             Inesperado(evento, nome, segmento, pai, esperados);
         }
 
@@ -191,7 +191,7 @@ internal sealed class ValidacaoSchema
                 ausentes.Count == 1
                     ? $"{nome}: falta o atributo obrigatório {ausentes[0]}."
                     : $"{nome}: faltam os atributos obrigatórios {Lista(ausentes)}.",
-                new FalhaSchema(TipoFalhaSchema.AtributoAusente, evento.Message) { Esperados = ausentes, TipoSchema = NomeDoTipo(quadro.Info.SchemaType), Linha = Linha(evento), Coluna = Coluna(evento) });
+                new FalhaSchema(TipoFalhaSchema.AtributoAusente, evento.Message) { Esperados = ausentes, TipoSchema = NomeTipo(quadro.Info.SchemaType), Linha = Linha(evento), Coluna = Coluna(evento) });
         }
 
         if (vazio)
@@ -209,17 +209,17 @@ internal sealed class ValidacaoSchema
             return;
         }
 
-        var tipoDoValor = AnaliseDeTipo.TipoSimples(quadro.Info.SchemaType);
-        var esperados = tipoDoValor is null ? _validador.GetExpectedParticles() : [];
+        var tipoValor = AnaliseTipo.TipoSimples(quadro.Info.SchemaType);
+        var esperados = tipoValor is null ? _validador.GetExpectedParticles() : [];
         _validador.ValidateEndElement(null);
         var nome = quadro.Segmento.Nome;
         foreach (var evento in Tomar())
         {
             if (evento.Severity == XmlSeverityType.Warning)
                 Generico(evento, nome, quadro.Segmento);
-            else if (quadro.ComFalha)
+            else if (quadro.Falhou)
                 continue;   // o .NET às vezes repete no fim a falha do início do mesmo elemento
-            else if (tipoDoValor is not null)
+            else if (tipoValor is not null)
                 ValorInvalido(evento, nome, quadro.Segmento, quadro.Info.SchemaType, quadro.Texto.ToString());
             else
                 Ausente(evento, nome, quadro, esperados);
@@ -243,14 +243,14 @@ internal sealed class ValidacaoSchema
         foreach (var evento in Tomar())
         {
             var nome = quadro.Segmento.Nome;
-            if (evento.Severity == XmlSeverityType.Warning || AnaliseDeTipo.TipoSimples(quadro.Info.SchemaType) is not null)
+            if (evento.Severity == XmlSeverityType.Warning || AnaliseTipo.TipoSimples(quadro.Info.SchemaType) is not null)
             {
                 Generico(evento, nome, quadro.Segmento);
                 continue;
             }
             Adicionar(Severidade.Erro, nome, quadro.Segmento,
                 $"{nome}: o elemento não aceita texto, só elementos filhos.",
-                new FalhaSchema(TipoFalhaSchema.TextoInesperado, evento.Message) { TipoSchema = NomeDoTipo(quadro.Info.SchemaType), Linha = Linha(evento), Coluna = Coluna(evento) });
+                new FalhaSchema(TipoFalhaSchema.TextoInesperado, evento.Message) { TipoSchema = NomeTipo(quadro.Info.SchemaType), Linha = Linha(evento), Coluna = Coluna(evento) });
         }
     }
 
@@ -259,13 +259,13 @@ internal sealed class ValidacaoSchema
     private void Inesperado(ValidationEventArgs evento, string nome, Segmento segmento, Quadro? pai, XmlSchemaParticle[] particulas)
     {
         var esperados = Nomes(particulas);
-        var tipoDoPai = pai?.Info.SchemaType;
+        var tipoPai = pai?.Info.SchemaType;
         string mensagem;
-        if (tipoDoPai is not null && AnaliseDeTipo.TipoSimples(tipoDoPai) is not null)
+        if (tipoPai is not null && AnaliseTipo.TipoSimples(tipoPai) is not null)
             mensagem = $"{nome}: o elemento {pai!.Segmento.Nome} não aceita elementos filhos.";
         else if (esperados.Count == 0)
             mensagem = $"{nome}: o elemento não era esperado; nenhum outro elemento era esperado em {pai?.Segmento.Nome}.";
-        else if (tipoDoPai is XmlSchemaComplexType complexo && Declara(complexo.ContentTypeParticle, nome))
+        else if (tipoPai is XmlSchemaComplexType complexo && Declara(complexo.ContentTypeParticle, nome))
             mensagem = $"{nome}: o elemento está fora de ordem ou repetido; esperado: {Lista(esperados)}.";
         else
             mensagem = $"{nome}: o elemento não era esperado; esperado: {Lista(esperados)}.";
@@ -285,7 +285,7 @@ internal sealed class ValidacaoSchema
         var falha = new FalhaSchema(TipoFalhaSchema.ElementoAusente, evento.Message)
         {
             Esperados = obrigatorios.Count > 0 ? obrigatorios : esperados,
-            TipoSchema = NomeDoTipo(quadro.Info.SchemaType),
+            TipoSchema = NomeTipo(quadro.Info.SchemaType),
             Linha = Linha(evento),
             Coluna = Coluna(evento),
         };
@@ -317,18 +317,18 @@ internal sealed class ValidacaoSchema
 
     private void ValorInvalido(ValidationEventArgs evento, string nome, Segmento segmento, XmlSchemaType? tipo, string valor)
     {
-        var simples = AnaliseDeTipo.TipoSimples(tipo);
-        var nomeDoTipo = NomeDoTipo(tipo);
+        var simples = AnaliseTipo.TipoSimples(tipo);
+        var nomeTipo = NomeTipo(tipo);
         var analise = simples is null
-            ? AnaliseDeTipo.Resultado.Vazio
-            : AnaliseDeTipo.Analisar(simples, valor, _leitor.NameTable, (IXmlNamespaceResolver)_leitor, nomeDoTipo);
+            ? AnaliseTipo.Resultado.Vazio
+            : AnaliseTipo.Analisar(simples, valor, _leitor.NameTable, (IXmlNamespaceResolver)_leitor, nomeTipo);
         var mensagem = analise.Frases.Count > 0
             ? $"{nome}: {string.Join("; ", analise.Frases)}."
-            : $"{nome}: o valor é inválido{(nomeDoTipo is null ? "" : " para o tipo " + nomeDoTipo)}.";
+            : $"{nome}: o valor é inválido{(nomeTipo is null ? "" : " para o tipo " + nomeTipo)}.";
         Adicionar(Severidade.Erro, nome, segmento, mensagem,
             new FalhaSchema(TipoFalhaSchema.Valor, evento.Message)
             {
-                TipoSchema = nomeDoTipo,
+                TipoSchema = nomeTipo,
                 Valor = valor,
                 Restricoes = analise.Restricoes,
                 Linha = Linha(evento),
@@ -341,7 +341,7 @@ internal sealed class ValidacaoSchema
         var aviso = evento.Severity == XmlSeverityType.Warning;
         // Dentro de um elemento que já falhou ou não tem declaração, o .NET valida o conteúdo sem schema e avisa
         // a cada nó: ruído.
-        if (aviso && _pilha.Any(q => q.ComFalha || q.SemDeclaracao))
+        if (aviso && _pilha.Any(q => q.Falhou || q.NaoDeclarado))
             return;
         Adicionar(aviso ? Severidade.Aviso : Severidade.Erro, nome, segmento,
             aviso
@@ -407,14 +407,14 @@ internal sealed class ValidacaoSchema
     private static IEnumerable<XmlSchemaAttribute> AtributosObrigatorios(XmlSchemaType? tipo) =>
         AtributosDeclarados(tipo).Where(a => a.Use == XmlSchemaUse.Required);
 
-    internal static string? NomeDoTipo(XmlSchemaType? tipo)
+    internal static string? NomeTipo(XmlSchemaType? tipo)
     {
         if (tipo is null || tipo.QualifiedName.IsEmpty)
             return null;
         return tipo.QualifiedName.Namespace == XmlSchema.Namespace ? "xs:" + tipo.QualifiedName.Name : tipo.QualifiedName.Name;
     }
 
-    private static string NoEspaco(string espaco) => espaco.Length == 0 ? " (sem namespace)" : $" (namespace {espaco})";
+    private static string DescreverNamespace(string espaco) => espaco.Length == 0 ? " (sem namespace)" : $" (namespace {espaco})";
 
     internal static string Lista(IReadOnlyList<string> nomes)
     {
@@ -444,8 +444,8 @@ internal sealed class ValidacaoSchema
         public Dictionary<string, int> Filhos { get; } = new(StringComparer.Ordinal);
         public XmlSchemaInfo Info { get; } = new();
         public StringBuilder Texto { get; } = new();
-        public bool ComFalha { get; set; }
-        public bool SemDeclaracao { get; set; }
+        public bool Falhou { get; set; }
+        public bool NaoDeclarado { get; set; }
 
         public int ContarFilho(string nome)
         {

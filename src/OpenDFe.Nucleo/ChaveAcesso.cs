@@ -175,14 +175,14 @@ public sealed class ChaveAcesso : IEquatable<ChaveAcesso>
 
         string documento;
         if (Cnpj.Valido(emitente))
-            documento = Cnpj.SemMascara(emitente);
+            documento = Cnpj.RemoverMascara(emitente);
         else if (Cpf.Valido(emitente))
-            documento = "000" + Cpf.SemMascara(emitente);
+            documento = "000" + Cpf.RemoverMascara(emitente);
         else
             throw new ArgumentException("O emitente não é um CNPJ nem um CPF válido.", nameof(emitente));
 
         var i = CultureInfo.InvariantCulture;
-        var semDigito = string.Concat(
+        var corpo = string.Concat(
             ((int)uf).ToString("D2", i),
             (emissao.Year % 100).ToString("D2", i),
             emissao.Month.ToString("D2", i),
@@ -192,7 +192,7 @@ public sealed class ChaveAcesso : IEquatable<ChaveAcesso>
             numero.ToString("D9", i),
             ((int)tipoEmissao).ToString(i),
             codigoNumerico.ToString("D8", i));
-        var valor = semDigito + (char)('0' + Modulo11.Calcular(semDigito));
+        var valor = corpo + (char)('0' + Modulo11.Calcular(corpo));
         return new ChaveAcesso(valor, uf, emissao.Year, emissao.Month, modelo, serie, numero, tipoEmissao,
             codigoNumerico);
     }
@@ -218,7 +218,7 @@ public sealed class ChaveAcesso : IEquatable<ChaveAcesso>
             return false;
 
         var v = valor.AsSpan();
-        if (!UnidadesFederativas.TentarPeloCodigo(Inteiro(v[..2]), out var uf))
+        if (!UnidadesFederativas.TentarLerCodigo(Inteiro(v[..2]), out var uf))
             return false;
         var mes = Inteiro(v[4..6]);
         if (mes is < 1 or > 12)

@@ -3,7 +3,7 @@ using System.Security.Cryptography.X509Certificates;
 
 namespace OpenDFe.Testes;
 
-// Todos com o certificado autoassinado gerado na hora (CertificadoDeTeste): não há PFX real no repositório.
+// Todos com o certificado autoassinado gerado na hora (CertificadoTeste): não há PFX real no repositório.
 public class CertificadoDigitalTestes
 {
     private const string Senha = "senha-de-teste";
@@ -20,7 +20,7 @@ public class CertificadoDigitalTestes
     [Fact]
     public void AbreOPfxGerado()
     {
-        var pfx = new CertificadoDeTeste { Cnpj = CnpjNumerico }.GerarPfx(Senha);
+        var pfx = new CertificadoTeste { Cnpj = CnpjNumerico }.GerarPfx(Senha);
 
         using var certificado = CertificadoDigital.AbrirPfx(pfx, Senha);
 
@@ -35,7 +35,7 @@ public class CertificadoDigitalTestes
     [Fact]
     public void AChaveAbertaAssinaEVerifica()
     {
-        var pfx = new CertificadoDeTeste { Cnpj = CnpjNumerico }.GerarPfx(Senha);
+        var pfx = new CertificadoTeste { Cnpj = CnpjNumerico }.GerarPfx(Senha);
         using var certificado = CertificadoDigital.AbrirPfx(pfx, Senha);
         using var privada = certificado.GetRSAPrivateKey()!;
         using var publica = certificado.GetRSAPublicKey()!;
@@ -49,7 +49,7 @@ public class CertificadoDigitalTestes
     [Fact]
     public void AbreOPfxSemSenha()
     {
-        var pfx = new CertificadoDeTeste { Cnpj = CnpjNumerico }.GerarPfx("");
+        var pfx = new CertificadoTeste { Cnpj = CnpjNumerico }.GerarPfx("");
 
         using var certificado = CertificadoDigital.AbrirPfx(pfx, "");
 
@@ -61,7 +61,7 @@ public class CertificadoDigitalTestes
     {
         // Arquivo temporário, fora do repositório, apagado no fim.
         var caminho = Path.Combine(Path.GetTempPath(), $"opendfe-teste-{Guid.NewGuid():N}.pfx");
-        File.WriteAllBytes(caminho, new CertificadoDeTeste { Cnpj = CnpjNumerico }.GerarPfx(Senha));
+        File.WriteAllBytes(caminho, new CertificadoTeste { Cnpj = CnpjNumerico }.GerarPfx(Senha));
         try
         {
             using var certificado = CertificadoDigital.AbrirArquivoPfx(caminho, Senha);
@@ -81,7 +81,7 @@ public class CertificadoDigitalTestes
     [Fact]
     public void RecusaASenhaErrada()
     {
-        var pfx = new CertificadoDeTeste { Cnpj = CnpjNumerico }.GerarPfx(Senha);
+        var pfx = new CertificadoTeste { Cnpj = CnpjNumerico }.GerarPfx(Senha);
 
         var erro = Assert.Throws<CryptographicException>(() => CertificadoDigital.AbrirPfx(pfx, "outra senha"));
 
@@ -102,7 +102,7 @@ public class CertificadoDigitalTestes
     [Fact]
     public void RecusaOCertificadoEmDerQueNaoEPfx()
     {
-        using var certificado = new CertificadoDeTeste { Cnpj = CnpjNumerico }.Gerar();
+        using var certificado = new CertificadoTeste { Cnpj = CnpjNumerico }.Gerar();
 
         var erro = Assert.Throws<CryptographicException>(() => CertificadoDigital.AbrirPfx(certificado.RawData, Senha));
 
@@ -112,7 +112,7 @@ public class CertificadoDigitalTestes
     [Fact]
     public void RecusaOPfxSemChavePrivada()
     {
-        var pfx = new CertificadoDeTeste { Cnpj = CnpjNumerico }.GerarPfxSemChavePrivada(Senha);
+        var pfx = new CertificadoTeste { Cnpj = CnpjNumerico }.GerarPfxApenasPublico(Senha);
 
         var erro = Assert.Throws<CryptographicException>(() => CertificadoDigital.AbrirPfx(pfx, Senha));
 
@@ -122,7 +122,7 @@ public class CertificadoDigitalTestes
     [Fact]
     public void RecusaAChaveQueNaoERsa()
     {
-        var pfx = new CertificadoDeTeste { Cnpj = CnpjNumerico, ChaveEcdsa = true }.GerarPfx(Senha);
+        var pfx = new CertificadoTeste { Cnpj = CnpjNumerico, ChaveEcdsa = true }.GerarPfx(Senha);
 
         var erro = Assert.Throws<CryptographicException>(() => CertificadoDigital.AbrirPfx(pfx, Senha));
 
@@ -133,8 +133,8 @@ public class CertificadoDigitalTestes
     public void AbreOVencidoEOAindaNaoVigente()
     {
         // Abrir não confere a validade: o vencido é aberto para ser lido.
-        var vencido = new CertificadoDeTeste { Cnpj = CnpjNumerico, NaoAntes = Inicio, NaoDepois = Fim }.GerarPfx(Senha);
-        var futuro = new CertificadoDeTeste
+        var vencido = new CertificadoTeste { Cnpj = CnpjNumerico, NaoAntes = Inicio, NaoDepois = Fim }.GerarPfx(Senha);
+        var futuro = new CertificadoTeste
         {
             Cnpj = CnpjNumerico,
             NaoAntes = DateTimeOffset.UtcNow.AddYears(5),
@@ -178,14 +178,14 @@ public class CertificadoDigitalTestes
     [MemberData(nameof(Instantes))]
     public void ConfereAValidadeNoInstante(DateTimeOffset instante, ValidadeCertificado esperado)
     {
-        using var certificado = new CertificadoDeTeste { Cnpj = CnpjNumerico, NaoAntes = Inicio, NaoDepois = Fim }.Gerar();
+        using var certificado = new CertificadoTeste { Cnpj = CnpjNumerico, NaoAntes = Inicio, NaoDepois = Fim }.Gerar();
         Assert.Equal(esperado, CertificadoDigital.Validade(certificado, instante));
     }
 
     [Fact]
     public void ValidadeDoPfxAberto()
     {
-        var pfx = new CertificadoDeTeste { Cpf = CpfTitular, NaoAntes = Inicio, NaoDepois = Fim }.GerarPfx(Senha);
+        var pfx = new CertificadoTeste { Cpf = CpfTitular, NaoAntes = Inicio, NaoDepois = Fim }.GerarPfx(Senha);
         using var certificado = CertificadoDigital.AbrirPfx(pfx, Senha);
 
         Assert.Equal(ValidadeCertificado.Vencido, CertificadoDigital.Validade(certificado, Fim.AddDays(1)));
@@ -202,7 +202,7 @@ public class CertificadoDigitalTestes
     [InlineData(CnpjAlfanumerico, CodificacaoOtherName.PrintableString)]
     public void LeOTitularCnpj(string cnpj, CodificacaoOtherName codificacao)
     {
-        using var certificado = new CertificadoDeTeste
+        using var certificado = new CertificadoTeste
         {
             Nome = "EMPRESA DE TESTE LTDA",
             Cnpj = cnpj,
@@ -223,7 +223,7 @@ public class CertificadoDigitalTestes
     [InlineData(CodificacaoOtherName.PrintableString)]
     public void LeOTitularCpf(CodificacaoOtherName codificacao)
     {
-        using var certificado = new CertificadoDeTeste
+        using var certificado = new CertificadoTeste
         {
             Nome = "FULANO DE TAL",
             Cpf = CpfTitular,
@@ -242,7 +242,7 @@ public class CertificadoDigitalTestes
     [Fact]
     public void LeOTitularDoPfxAberto()
     {
-        var pfx = new CertificadoDeTeste { Nome = "LOJA ALFA", Cnpj = CnpjAlfanumerico }.GerarPfx(Senha);
+        var pfx = new CertificadoTeste { Nome = "LOJA ALFA", Cnpj = CnpjAlfanumerico }.GerarPfx(Senha);
         using var certificado = CertificadoDigital.AbrirPfx(pfx, Senha);
 
         var titular = CertificadoDigital.LerTitular(certificado);
@@ -259,14 +259,14 @@ public class CertificadoDigitalTestes
     {
         // Perfil da versão 8.2 do DOC-ICP-04 em diante, depois de 2028: sem o otherName, o documento no
         // serialNumber e o CN só com o nome.
-        using var certificado = new CertificadoDeTeste
+        using var certificado = new CertificadoTeste
         {
             Nome = "TITULAR NOVO",
             Cnpj = cnpj,
             Cpf = cpf,
-            ComOtherName = false,
-            DocumentoNoNomeComum = false,
-            DocumentoNoNumeroDeSerie = true,
+            IncluiOtherName = false,
+            DocumentoNomeComum = false,
+            DocumentoNumeroSerie = true,
         }.Gerar();
 
         var titular = CertificadoDigital.LerTitular(certificado);
@@ -280,11 +280,11 @@ public class CertificadoDigitalTestes
     [Fact]
     public void ONomeComumSemODocumentoFicaInteiro()
     {
-        using var certificado = new CertificadoDeTeste
+        using var certificado = new CertificadoTeste
         {
             Nome = "EMPRESA:FILIAL",
             Cnpj = CnpjNumerico,
-            DocumentoNoNomeComum = false,
+            DocumentoNomeComum = false,
         }.Gerar();
 
         Assert.Equal("EMPRESA:FILIAL", CertificadoDigital.LerTitular(certificado)?.Nome);
@@ -294,12 +294,12 @@ public class CertificadoDigitalTestes
     public void SemOsCamposDaIcpBrasilNaoHaTitular()
     {
         // Decidido: sem CNPJ nem CPF, LerTitular devolve null (não é erro: o certificado pode ser lido).
-        using var certificado = new CertificadoDeTeste
+        using var certificado = new CertificadoTeste
         {
             Nome = "SERVIDOR QUALQUER",
             Cnpj = CnpjNumerico,
-            ComOtherName = false,
-            DocumentoNoNomeComum = false,
+            IncluiOtherName = false,
+            DocumentoNomeComum = false,
         }.Gerar();
 
         Assert.Null(CertificadoDigital.LerTitular(certificado));
@@ -314,11 +314,11 @@ public class CertificadoDigitalTestes
     [InlineData(null, "52998224726")]
     public void CampoInvalidoNaoEOTitular(string? cnpj, string? cpf)
     {
-        using var certificado = new CertificadoDeTeste
+        using var certificado = new CertificadoTeste
         {
             Cnpj = cnpj,
             Cpf = cpf,
-            DocumentoNoNomeComum = false,
+            DocumentoNomeComum = false,
         }.Gerar();
 
         Assert.Null(CertificadoDigital.LerTitular(certificado));
@@ -328,10 +328,10 @@ public class CertificadoDigitalTestes
     public void OOtherNameValeMaisQueONumeroDeSerie()
     {
         // Na transição (até 31/12/2028) os dois vêm juntos e iguais; se divergirem, vale o otherName.
-        using var certificado = new CertificadoDeTeste
+        using var certificado = new CertificadoTeste
         {
             Cnpj = CnpjAlfanumerico,
-            DocumentoNoNumeroDeSerie = true,
+            DocumentoNumeroSerie = true,
         }.Gerar();
 
         Assert.Equal(CnpjAlfanumerico, CertificadoDigital.LerTitular(certificado)?.Cnpj);
@@ -341,7 +341,7 @@ public class CertificadoDigitalTestes
     public void LeOTitularDeUmCertificadoSemChavePrivada()
     {
         // O certificado recebido num XML (1.4) não tem chave: a leitura do titular não depende dela.
-        using var completo = new CertificadoDeTeste { Cnpj = CnpjNumerico }.Gerar();
+        using var completo = new CertificadoTeste { Cnpj = CnpjNumerico }.Gerar();
         using var publico = X509CertificateLoader.LoadCertificate(completo.RawData);
 
         Assert.False(publico.HasPrivateKey);

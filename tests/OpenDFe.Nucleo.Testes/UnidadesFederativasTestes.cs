@@ -21,10 +21,10 @@ public class UnidadesFederativasTestes
     {
         Assert.Equal(sigla, uf.Sigla());
         Assert.Equal(codigo, uf.Codigo());
-        Assert.True(UnidadesFederativas.TentarPelaSigla(sigla, out var pelaSigla));
-        Assert.Equal(uf, pelaSigla);
-        Assert.True(UnidadesFederativas.TentarPeloCodigo(codigo, out var peloCodigo));
-        Assert.Equal(uf, peloCodigo);
+        Assert.True(UnidadesFederativas.TentarLerSigla(sigla, out var lidaSigla));
+        Assert.Equal(uf, lidaSigla);
+        Assert.True(UnidadesFederativas.TentarLerCodigo(codigo, out var lidaCodigo));
+        Assert.Equal(uf, lidaCodigo);
     }
 
     [Fact]
@@ -43,7 +43,7 @@ public class UnidadesFederativasTestes
     [InlineData(" MG")]
     public void RecusaSiglaQueNaoEhDeUF(string? sigla)
     {
-        Assert.False(UnidadesFederativas.TentarPelaSigla(sigla, out var uf));
+        Assert.False(UnidadesFederativas.TentarLerSigla(sigla, out var uf));
         Assert.Equal(default, uf);
     }
 
@@ -56,7 +56,7 @@ public class UnidadesFederativasTestes
     [InlineData(-31)]
     public void RecusaCodigoQueNaoEhDeUF(int codigo)
     {
-        Assert.False(UnidadesFederativas.TentarPeloCodigo(codigo, out var uf));
+        Assert.False(UnidadesFederativas.TentarLerCodigo(codigo, out var uf));
         Assert.Equal(default, uf);
     }
 

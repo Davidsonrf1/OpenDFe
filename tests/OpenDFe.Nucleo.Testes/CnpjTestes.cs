@@ -70,7 +70,7 @@ public class CnpjTestes
     [InlineData("12.ABC.345/01DE-35", "12ABC34501DE35")]
     [InlineData("12ABC34501DE35", "12ABC34501DE35")]
     [InlineData("11.222.333/0001-81", "11222333000181")]
-    public void TiraAMascara(string valor, string esperado) => Assert.Equal(esperado, Cnpj.SemMascara(valor));
+    public void TiraAMascara(string valor, string esperado) => Assert.Equal(esperado, Cnpj.RemoverMascara(valor));
 
     [Theory]
     [InlineData("12ABC34501DE36")]
@@ -79,6 +79,6 @@ public class CnpjTestes
     public void FormatarRecusaCnpjInvalido(string valor)
     {
         Assert.Throws<ArgumentException>(() => Cnpj.Formatar(valor));
-        Assert.Throws<ArgumentException>(() => Cnpj.SemMascara(valor));
+        Assert.Throws<ArgumentException>(() => Cnpj.RemoverMascara(valor));
     }
 }

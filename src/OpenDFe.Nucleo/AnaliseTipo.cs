@@ -11,9 +11,9 @@ namespace OpenDFe;
 // que tem a restrição violada. Dentro desse passo, cada faceta é conferida à parte; o padrão, que é uma
 // expressão do XSD, é conferido com o Regex do .NET e, se não der para conferir, por eliminação (o passo
 // recusa e as outras facetas dele passam).
-internal static class AnaliseDeTipo
+internal static class AnaliseTipo
 {
-    private static readonly TimeSpan LimiteDoPadrao = TimeSpan.FromSeconds(1);
+    private static readonly TimeSpan LimitePadrao = TimeSpan.FromSeconds(1);
 
     internal sealed record Resultado(IReadOnlyList<RestricaoSchema> Restricoes, IReadOnlyList<string> Frases)
     {
@@ -37,7 +37,7 @@ internal static class AnaliseDeTipo
         return null;
     }
 
-    public static Resultado Analisar(XmlSchemaSimpleType tipo, string valor, XmlNameTable nomes, IXmlNamespaceResolver espacos, string? tipoDoCampo)
+    public static Resultado Analisar(XmlSchemaSimpleType tipo, string valor, XmlNameTable nomes, IXmlNamespaceResolver espacos, string? tipoCampo)
     {
         // A cadeia, do primitivo do XSD (o primeiro tipo embutido) até o tipo do campo.
         var cadeia = new List<XmlSchemaSimpleType>();
@@ -54,7 +54,7 @@ internal static class AnaliseDeTipo
         {
             var nome = primitivo.QualifiedName.Name;
             var frase = "o valor não é " + Descricao(nome)
-                + (tipoDoCampo is null || tipoDoCampo == "xs:" + nome ? "" : $" (tipo {tipoDoCampo})");
+                + (tipoCampo is null || tipoCampo == "xs:" + nome ? "" : $" (tipo {tipoCampo})");
             return new([new RestricaoSchema(FacetaSchema.TipoPrimitivo, [nome], "xs:" + nome)], [frase]);
         }
 
@@ -65,23 +65,23 @@ internal static class AnaliseDeTipo
                 continue;
             if (passo.Content is not XmlSchemaSimpleTypeRestriction restricao)
                 return Resultado.Vazio;   // lista ou união: sem detalhe
-            return Facetas(restricao, ValidacaoSchema.NomeDoTipo(passo), tipoDoCampo, normalizado, primitivo, nomes, espacos);
+            return Facetas(restricao, ValidacaoSchema.NomeTipo(passo), tipoCampo, normalizado, primitivo, nomes, espacos);
         }
         return Resultado.Vazio;
     }
 
-    private static Resultado Facetas(XmlSchemaSimpleTypeRestriction restricao, string? tipoDoPasso, string? tipoDoCampo,
+    private static Resultado Facetas(XmlSchemaSimpleTypeRestriction restricao, string? tipoPasso, string? tipoCampo,
         string valor, XmlSchemaSimpleType primitivo, XmlNameTable nomes, IXmlNamespaceResolver espacos)
     {
         var restricoes = new List<RestricaoSchema>();
         var frases = new List<string>();
-        var doTipo = DoTipo(tipoDoPasso, tipoDoCampo);
+        var sufixoTipo = SufixoTipo(tipoPasso, tipoCampo);
         var padroes = new List<string>();
         var enumeracao = new List<string>();
 
         void Violou(FacetaSchema faceta, IReadOnlyList<string> valores, string frase)
         {
-            restricoes.Add(new RestricaoSchema(faceta, valores, tipoDoPasso));
+            restricoes.Add(new RestricaoSchema(faceta, valores, tipoPasso));
             frases.Add(frase);
         }
 
@@ -93,31 +93,31 @@ internal static class AnaliseDeTipo
             switch (faceta)
             {
                 case XmlSchemaLengthFacet when Inteiro(limite) is { } n && tamanho != n:
-                    Violou(FacetaSchema.Tamanho, [limite], $"o valor tem {Caracteres(tamanho)}, e o tamanho deve ser exatamente {limite}{doTipo}");
+                    Violou(FacetaSchema.Tamanho, [limite], $"o valor tem {Caracteres(tamanho)}, e o tamanho deve ser exatamente {limite}{sufixoTipo}");
                     break;
                 case XmlSchemaMinLengthFacet when Inteiro(limite) is { } n && tamanho < n:
-                    Violou(FacetaSchema.TamanhoMinimo, [limite], $"o valor tem {Caracteres(tamanho)}, abaixo do mínimo de {limite}{doTipo}");
+                    Violou(FacetaSchema.TamanhoMinimo, [limite], $"o valor tem {Caracteres(tamanho)}, abaixo do mínimo de {limite}{sufixoTipo}");
                     break;
                 case XmlSchemaMaxLengthFacet when Inteiro(limite) is { } n && tamanho > n:
-                    Violou(FacetaSchema.TamanhoMaximo, [limite], $"o valor tem {Caracteres(tamanho)}, acima do máximo de {limite}{doTipo}");
+                    Violou(FacetaSchema.TamanhoMaximo, [limite], $"o valor tem {Caracteres(tamanho)}, acima do máximo de {limite}{sufixoTipo}");
                     break;
                 case XmlSchemaTotalDigitsFacet when digitos is { } d && Inteiro(limite) is { } n && d.Total > n:
-                    Violou(FacetaSchema.TotalDigitos, [limite], $"o valor tem {d.Total} dígitos, acima do total de {limite}{doTipo}");
+                    Violou(FacetaSchema.TotalDigitos, [limite], $"o valor tem {d.Total} dígitos, acima do total de {limite}{sufixoTipo}");
                     break;
                 case XmlSchemaFractionDigitsFacet when digitos is { } d && Inteiro(limite) is { } n && d.Casas > n:
-                    Violou(FacetaSchema.CasasDecimais, [limite], $"o valor tem {d.Casas} casas decimais, acima do máximo de {limite}{doTipo}");
+                    Violou(FacetaSchema.CasasDecimais, [limite], $"o valor tem {d.Casas} casas decimais, acima do máximo de {limite}{sufixoTipo}");
                     break;
                 case XmlSchemaMinInclusiveFacet when Comparar(valor, limite, primitivo, nomes, espacos) is < 0:
-                    Violou(FacetaSchema.MinimoInclusivo, [limite], $"o valor é menor que o mínimo de {limite}{doTipo}");
+                    Violou(FacetaSchema.MinimoInclusivo, [limite], $"o valor é menor que o mínimo de {limite}{sufixoTipo}");
                     break;
                 case XmlSchemaMaxInclusiveFacet when Comparar(valor, limite, primitivo, nomes, espacos) is > 0:
-                    Violou(FacetaSchema.MaximoInclusivo, [limite], $"o valor é maior que o máximo de {limite}{doTipo}");
+                    Violou(FacetaSchema.MaximoInclusivo, [limite], $"o valor é maior que o máximo de {limite}{sufixoTipo}");
                     break;
                 case XmlSchemaMinExclusiveFacet when Comparar(valor, limite, primitivo, nomes, espacos) is <= 0:
-                    Violou(FacetaSchema.MinimoExclusivo, [limite], $"o valor tem de ser maior que {limite}{doTipo}");
+                    Violou(FacetaSchema.MinimoExclusivo, [limite], $"o valor tem de ser maior que {limite}{sufixoTipo}");
                     break;
                 case XmlSchemaMaxExclusiveFacet when Comparar(valor, limite, primitivo, nomes, espacos) is >= 0:
-                    Violou(FacetaSchema.MaximoExclusivo, [limite], $"o valor tem de ser menor que {limite}{doTipo}");
+                    Violou(FacetaSchema.MaximoExclusivo, [limite], $"o valor tem de ser menor que {limite}{sufixoTipo}");
                     break;
                 case XmlSchemaPatternFacet:
                     padroes.Add(limite);
@@ -129,7 +129,7 @@ internal static class AnaliseDeTipo
         }
 
         if (enumeracao.Count > 0 && !enumeracao.Any(e => Igual(valor, e, primitivo, nomes, espacos)))
-            Violou(FacetaSchema.Enumeracao, enumeracao, $"o valor não está entre os aceitos{DoTipo(tipoDoPasso, tipoDoCampo, "pelo")}: {ValidacaoSchema.Lista(enumeracao)}");
+            Violou(FacetaSchema.Enumeracao, enumeracao, $"o valor não está entre os aceitos{SufixoTipo(tipoPasso, tipoCampo, "pelo")}: {ValidacaoSchema.Lista(enumeracao)}");
 
         if (padroes.Count > 0)
         {
@@ -137,7 +137,7 @@ internal static class AnaliseDeTipo
             // Sem nenhuma outra explicação, o padrão é o que falhou (o .NET recusou o passo), mesmo que o
             // Regex não tenha conseguido conferir (expressão do XSD que o .NET lê diferente).
             if (atende.All(a => a == false) || (restricoes.Count == 0 && !atende.Contains(true)))
-                Violou(FacetaSchema.Padrao, padroes, $"o valor não segue o padrão{doTipo} ({string.Join(" ou ", padroes)})");
+                Violou(FacetaSchema.Padrao, padroes, $"o valor não segue o padrão{sufixoTipo} ({string.Join(" ou ", padroes)})");
         }
 
         return new(restricoes, frases);
@@ -193,7 +193,7 @@ internal static class AnaliseDeTipo
     {
         try
         {
-            return Regex.IsMatch(valor, "^(?:" + padrao + ")$", RegexOptions.CultureInvariant, LimiteDoPadrao);
+            return Regex.IsMatch(valor, "^(?:" + padrao + ")$", RegexOptions.CultureInvariant, LimitePadrao);
         }
         catch (ArgumentException)
         {
@@ -258,13 +258,13 @@ internal static class AnaliseDeTipo
     private static string Caracteres(int n) =>
         string.Create(CultureInfo.InvariantCulture, $"{n} {(n == 1 ? "caractere" : "caracteres")}");
 
-    private static string DoTipo(string? tipoDoPasso, string? tipoDoCampo, string preposicao = "do")
+    private static string SufixoTipo(string? tipoPasso, string? tipoCampo, string preposicao = "do")
     {
-        if (tipoDoPasso is null)
+        if (tipoPasso is null)
             return "";
-        return tipoDoCampo is null || tipoDoCampo == tipoDoPasso
-            ? $" {preposicao} tipo {tipoDoPasso}"
-            : $" {preposicao} tipo {tipoDoPasso} (herdado por {tipoDoCampo})";
+        return tipoCampo is null || tipoCampo == tipoPasso
+            ? $" {preposicao} tipo {tipoPasso}"
+            : $" {preposicao} tipo {tipoPasso} (herdado por {tipoCampo})";
     }
 
     private static string Descricao(string primitivo) => primitivo switch

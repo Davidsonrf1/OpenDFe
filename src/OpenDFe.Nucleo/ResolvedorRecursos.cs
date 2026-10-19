@@ -7,21 +7,21 @@ namespace OpenDFe;
 // Resolve os include e import dos schemas só nos recursos embutidos de um assembly, pelo esquema
 // "recurso:///<nome do recurso>". Qualquer outro endereço (arquivo, http) é recusado: a carga nunca toca o
 // disco nem a rede.
-internal sealed class ResolvedorDeRecursos : XmlResolver
+internal sealed class ResolvedorRecursos : XmlResolver
 {
     private const string Esquema = "recurso";
 
     private readonly Assembly _assembly;
     private readonly Dictionary<string, string> _recursos = new(StringComparer.Ordinal);
 
-    public ResolvedorDeRecursos(Assembly assembly)
+    public ResolvedorRecursos(Assembly assembly)
     {
         _assembly = assembly;
         foreach (var nome in assembly.GetManifestResourceNames())
             _recursos.TryAdd(Normalizar(nome), nome);
     }
 
-    public static XmlReaderSettings ConfiguracaoDeLeitura() => new()
+    public static XmlReaderSettings ConfiguracaoLeitura() => new()
     {
         DtdProcessing = DtdProcessing.Prohibit,
         XmlResolver = null,
