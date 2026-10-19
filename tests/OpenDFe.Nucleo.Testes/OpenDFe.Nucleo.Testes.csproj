@@ -8,4 +8,9 @@
     <ProjectReference Include="../../src/OpenDFe.Nucleo/OpenDFe.Nucleo.csproj" />
   </ItemGroup>
 
+  <!-- O gerador do certificado de teste (PROJETO.md 13.1), compartilhado entre os projetos de teste. -->
+  <ItemGroup>
+    <Compile Include="../Compartilhado/**/*.cs" LinkBase="Compartilhado" />
+  </ItemGroup>
+
 </Project>

@@ -212,7 +212,7 @@ Cancelamento (110111), cancelamento por substituição (110112, NFC-e), carta de
 
 ## 13. Testes
 
-13.1. **Sem certificado real na CI pública.** Os testes de assinatura geram um certificado de teste na hora. A verificação usa XMLs autorizados públicos (exemplos dos manuais) e XMLs reais com os dados trocados.
+13.1. **Sem certificado real na CI pública.** Os testes de assinatura geram um certificado de teste na hora: **autoassinado** (RSA 2048, com os campos de titular que o e-CNPJ e o e-CPF da ICP-Brasil levam, DOC-ICP-04), pelo código compartilhado dos testes (`tests/Compartilhado`), fora da API pública. Abrir o PFX e ler o titular não exigem a cadeia ICP-Brasil, para funcionar com ele; o certificado real entra com o PFX de homologação (13.3). A verificação usa XMLs autorizados públicos (exemplos dos manuais) e XMLs reais com os dados trocados.
 
 13.2. **Todo XML gerado passa pelo XSD** nos testes, e a leitura de volta reproduz o objeto.
 

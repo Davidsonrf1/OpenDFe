@@ -99,3 +99,16 @@ static OpenDFe.UnidadesFederativas.Codigo(this OpenDFe.UF uf) -> int
 static OpenDFe.UnidadesFederativas.Sigla(this OpenDFe.UF uf) -> string!
 static OpenDFe.UnidadesFederativas.TentarPelaSigla(string? sigla, out OpenDFe.UF uf) -> bool
 static OpenDFe.UnidadesFederativas.TentarPeloCodigo(int codigo, out OpenDFe.UF uf) -> bool
+OpenDFe.CertificadoDigital
+OpenDFe.TitularCertificado
+OpenDFe.TitularCertificado.Cnpj.get -> string?
+OpenDFe.TitularCertificado.Cpf.get -> string?
+OpenDFe.TitularCertificado.Nome.get -> string!
+OpenDFe.ValidadeCertificado
+OpenDFe.ValidadeCertificado.AindaNaoVigente = 2 -> OpenDFe.ValidadeCertificado
+OpenDFe.ValidadeCertificado.Vencido = 3 -> OpenDFe.ValidadeCertificado
+OpenDFe.ValidadeCertificado.Vigente = 1 -> OpenDFe.ValidadeCertificado
+static OpenDFe.CertificadoDigital.AbrirArquivoPfx(string! caminho, string! senha) -> System.Security.Cryptography.X509Certificates.X509Certificate2!
+static OpenDFe.CertificadoDigital.AbrirPfx(byte[]! conteudo, string! senha) -> System.Security.Cryptography.X509Certificates.X509Certificate2!
+static OpenDFe.CertificadoDigital.LerTitular(System.Security.Cryptography.X509Certificates.X509Certificate2! certificado) -> OpenDFe.TitularCertificado?
+static OpenDFe.CertificadoDigital.Validade(System.Security.Cryptography.X509Certificates.X509Certificate2! certificado, System.DateTimeOffset instante) -> OpenDFe.ValidadeCertificado
