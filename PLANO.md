@@ -1,6 +1,6 @@
 # Plano de implementação — OpenDFe
 
-O modelo é o `docs/PROJETO.md`; onde este plano e o documento divergirem, vale o documento. **Proposta de 2026-10-19, aguardando aprovação.**
+O modelo é o `docs/PROJETO.md`; onde este plano e o documento divergirem, vale o documento. **Aprovado em 2026-10-19.**
 
 ## Como trabalhar
 
@@ -135,4 +135,11 @@ Pré-lançamentos (`0.x`) no NuGet.org a partir do fim da fase 5, quando o PDV p
 - Conferido: `dotnet build` sem aviso e `dotnet test` com código 0 (build com `--artifacts-path` fora do repositório).
 - **Fica para a 0.2:** o `OpenDFe.NFe` com as duas DLLs (hoje o modelo e o leiaute empacotariam separados), `RepositoryUrl` e `PackageProjectUrl` (quando o repositório do GitHub existir) e a CI.
 
-**Próxima: 0.2** (depende do repositório público no GitHub, criado pelo usuário).
+**0.2. CI e pacotes. Feita (2026-10-19).**
+- O `OpenDFe.Leiaute.NFe.v400` sai como pacote `OpenDFe.NFe` (`PackageId`), com o modelo por `ProjectReference` `PrivateAssets="all"` e o alvo `IncluirModeloNoPacote` (`TargetsForTfmSpecificBuildOutput`): a DLL e o XML do modelo em `lib/`, o PDB no `.snupkg`; o `OpenDFe.Nucleo` continua dependência de pacote. O modelo tem `IsPackable` e `EnablePackageValidation` desligados. No `pack --no-build`, o leiaute não recompila as referências (`BuildProjectReferences` falso com `NoBuild`; sem isso, NETSDK1085).
+- `Directory.Build.props`: `VersionPrefix` 0.1.0 (0.x até a fase 8), `RepositoryUrl` e `PackageProjectUrl` (`https://github.com/Davidsonrf1/OpenDFe`, público).
+- `.github/workflows/ci.yml`: `ubuntu-latest` e `windows-latest` (sem `fail-fast`), SDK pelo `global.json`; restore, build, `dotnet test --solution` (os de homologação passam vazios), `pack --no-build` e `eng/ConferirPacotes.ps1`, que abre cada `.nupkg`/`.snupkg` e confere o `lib/` contra o esperado (os três pacotes, nenhum a mais; o `OpenDFe.NFe` com as duas DLLs). Os pacotes do Ubuntu sobem como artefato. Roda em push no `main` e nas `fase-*`, e em PR.
+- Conferido localmente (Windows), na sequência da CI: build sem aviso, testes com código 0, os três pacotes e o script; o script falha (código 1) com os `.snupkg` ausentes. **A CI no GitHub ainda não rodou:** sobe com o push da branch, que é do usuário. O "pronto quando" da fase 0 (a CI vazia nos dois sistemas) fecha nessa primeira execução.
+- **Do usuário, pendente:** o push e a reserva do prefixo `OpenDFe.*` no NuGet.org (14.1, antes da primeira publicação).
+
+**Próxima: 1.1. Tipos base** (fase 1, branch `fase-1-nucleo` a partir desta). Ao entrar o primeiro teste no `Nucleo.Testes`, tirar o `AceitaNenhumTeste` dele.

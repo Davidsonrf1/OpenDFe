@@ -1,7 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
+  <!-- Não tem pacote próprio: sai dentro do OpenDFe.NFe, com o leiaute (PROJETO.md 3.4). -->
   <PropertyGroup>
     <Description>Modelo de dados da NF-e e da NFC-e da OpenDFe, com nomes descritivos e válido para todas as versões do leiaute.</Description>
+    <IsPackable>false</IsPackable>
+    <EnablePackageValidation>false</EnablePackageValidation>
   </PropertyGroup>
 
   <ItemGroup>

@@ -1,12 +1,28 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
+  <!-- Sai no pacote OpenDFe.NFe, com o modelo dentro (PROJETO.md 3.4): o leiaute nunca roda
+       contra um modelo de outra versão. O núcleo continua dependência de pacote. -->
   <PropertyGroup>
-    <Description>Leiaute 4.00 da NF-e (modelo 55) e da NFC-e (modelo 65) para a OpenDFe: XML, schemas, regras do MOC e web services da SEFAZ.</Description>
+    <PackageId>OpenDFe.NFe</PackageId>
+    <Description>NF-e (modelo 55) e NFC-e (modelo 65) para a OpenDFe: o modelo de dados e o leiaute 4.00, com XML, schemas, regras do MOC e web services da SEFAZ.</Description>
+    <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);IncluirModeloNoPacote</TargetsForTfmSpecificBuildOutput>
+    <!-- O alvo abaixo resolve as referências; no pack com no-build, sem recompilar o modelo e o núcleo. -->
+    <BuildProjectReferences Condition="'$(NoBuild)' == 'true'">false</BuildProjectReferences>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="../OpenDFe.Nucleo/OpenDFe.Nucleo.csproj" />
-    <ProjectReference Include="../OpenDFe.NFe.Modelo/OpenDFe.NFe.Modelo.csproj" />
+    <ProjectReference Include="../OpenDFe.NFe.Modelo/OpenDFe.NFe.Modelo.csproj" PrivateAssets="all" />
   </ItemGroup>
+
+  <!-- A DLL do modelo, com a documentação XML, em lib/; o PDB vai para o .snupkg. -->
+  <Target Name="IncluirModeloNoPacote" DependsOnTargets="ResolveReferences">
+    <ItemGroup>
+      <_ModeloNoPacote Include="@(ReferenceCopyLocalPaths)" Condition="'%(ReferenceCopyLocalPaths.ReferenceSourceTarget)' == 'ProjectReference' And '%(ReferenceCopyLocalPaths.Filename)%(ReferenceCopyLocalPaths.Extension)' == 'OpenDFe.NFe.Modelo.dll'" />
+      <BuildOutputInPackage Include="@(_ModeloNoPacote)" />
+      <BuildOutputInPackage Include="@(_ModeloNoPacote->'%(RootDir)%(Directory)%(Filename).xml')" />
+      <BuildOutputInPackage Include="@(_ModeloNoPacote->'%(RootDir)%(Directory)%(Filename).pdb')" />
+    </ItemGroup>
+  </Target>
 
 </Project>

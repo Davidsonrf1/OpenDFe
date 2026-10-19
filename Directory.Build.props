@@ -12,11 +12,16 @@
   </PropertyGroup>
 
   <PropertyGroup>
+    <!-- 0.x até a fase 8 fechar (PLANO.md, Publicação). -->
+    <VersionPrefix>0.1.0</VersionPrefix>
     <Authors>Davidson Faria</Authors>
     <Copyright>Copyright (c) 2026 Davidson Faria</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageTags>nfe;nfce;dfe;sefaz;fiscal;brasil</PackageTags>
     <NeutralLanguage>pt-BR</NeutralLanguage>
+    <RepositoryUrl>https://github.com/Davidsonrf1/OpenDFe</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageProjectUrl>https://github.com/Davidsonrf1/OpenDFe</PackageProjectUrl>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">

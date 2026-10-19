@@ -1,0 +1,43 @@
+name: CI
+
+on:
+  push:
+    branches: [main, 'fase-*']
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    # Linux e Windows: o TLS e o certificado se comportam diferente nos dois (PROJETO.md 13.4).
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    env:
+      DOTNET_NOLOGO: true
+      DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - run: dotnet restore OpenDFe.slnx
+      - run: dotnet build OpenDFe.slnx -c Release --no-restore
+      # Os de homologação não rodam aqui: sem o PFX nas variáveis de ambiente, nenhum roda (PROJETO.md 13.3).
+      - run: dotnet test --solution OpenDFe.slnx -c Release --no-build
+      - run: dotnet pack OpenDFe.slnx -c Release --no-build -o pacotes
+      - name: Conferir pacotes
+        shell: pwsh
+        run: ./eng/ConferirPacotes.ps1 -Pasta pacotes
+
+      - uses: actions/upload-artifact@v4
+        if: matrix.os == 'ubuntu-latest'
+        with:
+          name: pacotes
+          path: pacotes/
