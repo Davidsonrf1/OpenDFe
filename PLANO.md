@@ -108,7 +108,7 @@ As fases 1 a 5 e a 7 atendem o PDV (fase 5 dele); a 8, a caixa de entrada do Erp
 
 ### Fase 7: impressão
 
-- **7.1. Biblioteca de PDF.** Decidida no início da fase (10.2), pela licença e pelo resultado de uma página de teste com código de barras e QR Code.
+- **7.1. QuestPDF.** Decidido (10.2). Página de teste com código de barras e QR Code, o README do pacote com a licença e o erro de licença não definida apontando para ele.
 - **7.2. Modelo de impressão e DANFCE.** O modelo neutro no núcleo (blocos, seções, destaque, QR Code, imagem de 1 bit; 10.1) e o DANFCE no leiaute.
 - **7.3. DANFE.** O DANFE no leiaute, com as seções do manual.
 - **7.4. PDF.** `OpenDFe.Impressao.Pdf`, conferido contra o manual.

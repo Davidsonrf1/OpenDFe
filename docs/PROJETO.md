@@ -190,7 +190,11 @@ Serviços SOAP por trás: `NFeAutorizacao4` (síncrona, `indSinc=1`, e por lote)
 
 10.1. **O leiaute monta o modelo de impressão**, porque ele depende do leiaute (grupos, QR Code): o DANFCE como blocos de texto com alinhamento, destaque e o QR Code, e o DANFE como seções. O modelo é neutro, definido no núcleo, e aceita também **imagem de 1 bit** (o logo do emitente no topo e a assinatura do software emissor no rodapé, como o PDV do ErpCore pede): a térmica só imprime preto, e o renderizador ESC/POS a manda como raster.
 
-10.2. **Renderizador PDF em pacote à parte** (`OpenDFe.Impressao.Pdf`), para que nem o núcleo nem o leiaute carreguem a biblioteca de PDF. Ela precisa ter licença compatível com a da OpenDFe (seção 14). **Escolhida na fase 7** (candidatas: PdfSharp/MigraDoc, MIT; o QuestPDF tem licença comunitária com limite de receita, o que complica uma lib aberta).
+10.2. **Renderizador PDF em pacote à parte** (`OpenDFe.Impressao.Pdf`), para que nem o núcleo nem o leiaute carreguem a biblioteca de PDF. **QuestPDF** (decidido em 2026-10-19; descartado o PdfSharp/MigraDoc). A licença do QuestPDF é dupla: a comunitária (MIT) vale para projetos open source, pessoas físicas e empresas abaixo do limite de receita anual; acima dele, quem usa compra a licença. Por isso:
+
+- a obrigação é de **quem usa o `OpenDFe.Impressao.Pdf`**, não da OpenDFe, e o README do pacote diz isso logo no início;
+- o pacote **não define** `QuestPDF.Settings.License` (é estado global, 2.3, e a escolha da licença é do aplicativo); sem ela definida, o QuestPDF recusa gerar, e o erro aponta o README;
+- o núcleo e o leiaute não dependem do QuestPDF; quem não gera PDF (o PDV, com ESC/POS) não o carrega.
 
 10.3. **ESC/POS fica com o aplicativo** (o PDV), a partir do mesmo modelo. Pode virar pacote depois, se houver demanda.
 
@@ -251,4 +255,4 @@ As fases 1 a 5 atendem o PDV; a 8, a caixa de entrada do ErpCore.
 
 ## 17. Em aberto
 
-1. Biblioteca de PDF (10.2), decidida na fase 7.
+Nada.
