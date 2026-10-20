@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Text.Json.Serialization;
 using System.Xml.Linq;
 
 namespace OpenDFe.SefazEmulada;
@@ -65,10 +66,29 @@ internal sealed class Repositorio
     private long Proximo() => ++_sequencia;
 }
 
-// Uma nota autorizada. Numeracao: o que a duplicidade compara (Anexo I, 2B08-10): modelo, UF, CNPJ ou CPF do
-// emitente, série e número, e na NFC-e também o tipo de emissão. Recibo: o do lote assíncrono que a
-// autorizou; nulo na autorização síncrona.
-internal sealed record NotaRegistrada(string Chave, string Numeracao, string Protocolo, string? Recibo, DateTimeOffset Recebimento);
+// Uma nota autorizada. Numeracao: o que a duplicidade compara (Numerar). Recibo: o do lote assíncrono que a
+// autorizou; nulo na autorização síncrona. Autorizador: a sigla de quem autorizou (a SVC só consulta as suas).
+// Situacao: o cStat da autorização, 100 ou 150. ProtocoloXml: o protNFe como saiu, para a consulta.
+internal sealed record NotaRegistrada(
+    string Chave,
+    string Numeracao,
+    string Protocolo,
+    string? Recibo,
+    DateTimeOffset Recebimento,
+    string Autorizador,
+    string Situacao,
+    [property: JsonIgnore] XElement ProtocoloXml)
+{
+    // O que a duplicidade compara (Anexo I, 2B08-10) e a consulta procura (Visão Geral, 5.4.4, J03): modelo,
+    // UF, CNPJ ou CPF do emitente, série e número; na NFC-e, também o tipo de emissão. Tirado da chave, que a
+    // autorização já conferiu contra os campos (502); o CPF vem com os zeros à esquerda, como na chave.
+    public static string Numerar(string chave)
+    {
+        var modelo = chave[20..22];
+        var numeracao = string.Join('|', modelo, chave[..2], chave[6..20], chave[22..25], chave[25..34]);
+        return modelo == "65" ? numeracao + "|" + chave[34] : numeracao;
+    }
+}
 
 // Um lote assíncrono: os protocolos das notas, prontos para a consulta, o transmissor (só ele consulta,
 // regra E05 do NFeRetAutorizacao4) e as consultas que ainda respondem 105.

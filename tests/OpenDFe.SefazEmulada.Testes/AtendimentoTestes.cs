@@ -10,7 +10,7 @@ public class AtendimentoTestes(EmuladorFixture fixture) : IClassFixture<Emulador
 
     [Theory]
     [InlineData("XX", Servico.NomeStatus)]
-    [InlineData("MG", "NFeConsultaProtocolo4")]
+    [InlineData("MG", "NFeInutilizacao4")]
     [InlineData("AN", Servico.NomeAutorizacao)]
     [InlineData("AN", Servico.NomeStatus)]
     [InlineData("MG", "NFeServicoInexistente")]
@@ -79,9 +79,9 @@ public class AtendimentoTestes(EmuladorFixture fixture) : IClassFixture<Emulador
         var urls = json.RootElement.GetProperty("urls").EnumerateArray()
             .Select(u => (Destino: u.GetProperty("destino").GetString(), Servico: u.GetProperty("servico").GetString(), Url: u.GetProperty("url").GetString()))
             .ToList();
-        // O status, a autorização e o recibo nos 14 autorizadores que os têm; o AN não tem nenhum dos três.
-        Assert.Equal(42, urls.Count);
-        foreach (var servico in (string[])[Servico.NomeStatus, Servico.NomeAutorizacao, Servico.NomeRetAutorizacao])
+        // O status, a autorização, o recibo e a consulta nos 14 autorizadores que os têm; o AN não tem nenhum.
+        Assert.Equal(56, urls.Count);
+        foreach (var servico in (string[])[Servico.NomeStatus, Servico.NomeAutorizacao, Servico.NomeRetAutorizacao, Servico.NomeConsultaProtocolo])
             Assert.Equal(14, urls.Count(u => u.Servico == servico));
         Assert.DoesNotContain(urls, u => u.Destino == "AN");
         Assert.Contains(urls, u => u.Destino == "MG" && u.Url == new Uri(fixture.Emulador.Endereco, "MG/NFeStatusServico4").ToString());

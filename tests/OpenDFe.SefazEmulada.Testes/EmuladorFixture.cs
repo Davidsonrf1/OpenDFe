@@ -103,6 +103,15 @@ internal static class Clientes
         return Mensagens.Retorno(await resposta.Content.ReadAsStringAsync(cancellationToken));
     }
 
+    // A consulta do protocolo: o consSitNFe, HTTP 200 e o retConsSitNFe.
+    public static async Task<XElement> ConsultarProtocoloAsync(
+        this HttpClient http, Uri url, string chave, CancellationToken cancellationToken, string ambiente = "2")
+    {
+        using var resposta = await http.EnviarAsync(url, Mensagens.Envelope(Mensagens.Consulta(chave, ambiente), Servico.NomeConsultaProtocolo), cancellationToken);
+        Assert.Equal(System.Net.HttpStatusCode.OK, resposta.StatusCode);
+        return Mensagens.Retorno(await resposta.Content.ReadAsStringAsync(cancellationToken));
+    }
+
     // O status: POST, HTTP 200 e o retConsStatServ.
     public static async Task<XElement> ConsultarStatusAsync(
         this HttpClient http, Uri url, CancellationToken cancellationToken, string ambiente = "2", string uf = "31")
@@ -133,6 +142,10 @@ internal static class Mensagens
     // A consulta do recibo (Tabela 5-5).
     public static string Recibo(string recibo, string ambiente = "2") =>
         $"<consReciNFe xmlns=\"{NamespaceNFe}\" versao=\"4.00\"><tpAmb>{ambiente}</tpAmb><nRec>{recibo}</nRec></consReciNFe>";
+
+    // A consulta do protocolo (Visão Geral, Tabela 5-13).
+    public static string Consulta(string chave, string ambiente = "2", string servico = "CONSULTAR") =>
+        $"<consSitNFe xmlns=\"{NamespaceNFe}\" versao=\"4.00\"><tpAmb>{ambiente}</tpAmb><xServ>{servico}</xServ><chNFe>{chave}</chNFe></consSitNFe>";
 
     public static string Envelope(string dados, string servico = Servico.NomeStatus) =>
         "<?xml version=\"1.0\" encoding=\"utf-8\"?>"
