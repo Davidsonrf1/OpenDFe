@@ -1,1 +1,772 @@
 #nullable enable
+OpenDFe.NFe.Agropecuario
+OpenDFe.NFe.Agropecuario.Agropecuario() -> void
+OpenDFe.NFe.Agropecuario.Defensivos.get -> System.Collections.Generic.IList<OpenDFe.NFe.Defensivo!>!
+OpenDFe.NFe.Agropecuario.GuiaTransito.get -> OpenDFe.NFe.GuiaTransito?
+OpenDFe.NFe.Agropecuario.GuiaTransito.set -> void
+OpenDFe.NFe.AquisicaoCana
+OpenDFe.NFe.AquisicaoCana.AquisicaoCana() -> void
+OpenDFe.NFe.AquisicaoCana.Deducoes.get -> System.Collections.Generic.IList<OpenDFe.NFe.Deducao!>!
+OpenDFe.NFe.AquisicaoCana.Fornecimentos.get -> System.Collections.Generic.IList<OpenDFe.NFe.FornecimentoDiario!>!
+OpenDFe.NFe.AquisicaoCana.QuantidadeAnterior.get -> decimal?
+OpenDFe.NFe.AquisicaoCana.QuantidadeAnterior.set -> void
+OpenDFe.NFe.AquisicaoCana.QuantidadeGeral.get -> decimal?
+OpenDFe.NFe.AquisicaoCana.QuantidadeGeral.set -> void
+OpenDFe.NFe.AquisicaoCana.QuantidadeMes.get -> decimal?
+OpenDFe.NFe.AquisicaoCana.QuantidadeMes.set -> void
+OpenDFe.NFe.AquisicaoCana.Referencia.get -> string?
+OpenDFe.NFe.AquisicaoCana.Referencia.set -> void
+OpenDFe.NFe.AquisicaoCana.Safra.get -> string?
+OpenDFe.NFe.AquisicaoCana.Safra.set -> void
+OpenDFe.NFe.AquisicaoCana.ValorDeducoes.get -> decimal?
+OpenDFe.NFe.AquisicaoCana.ValorDeducoes.set -> void
+OpenDFe.NFe.AquisicaoCana.ValorFornecimentos.get -> decimal?
+OpenDFe.NFe.AquisicaoCana.ValorFornecimentos.set -> void
+OpenDFe.NFe.AquisicaoCana.ValorLiquido.get -> decimal?
+OpenDFe.NFe.AquisicaoCana.ValorLiquido.set -> void
+OpenDFe.NFe.AssinaturaProvedor
+OpenDFe.NFe.AssinaturaProvedor.AssinaturaProvedor() -> void
+OpenDFe.NFe.AssinaturaProvedor.ChavePublica.get -> OpenDFe.NFe.ChavePublicaRsa!
+OpenDFe.NFe.AssinaturaProvedor.ChavePublica.set -> void
+OpenDFe.NFe.AssinaturaProvedor.Valor.get -> string?
+OpenDFe.NFe.AssinaturaProvedor.Valor.set -> void
+OpenDFe.NFe.BandeiraCartao
+OpenDFe.NFe.BandeiraCartao.AmericanExpress = 3 -> OpenDFe.NFe.BandeiraCartao
+OpenDFe.NFe.BandeiraCartao.Aura = 8 -> OpenDFe.NFe.BandeiraCartao
+OpenDFe.NFe.BandeiraCartao.Cabal = 9 -> OpenDFe.NFe.BandeiraCartao
+OpenDFe.NFe.BandeiraCartao.DinersClub = 5 -> OpenDFe.NFe.BandeiraCartao
+OpenDFe.NFe.BandeiraCartao.Elo = 6 -> OpenDFe.NFe.BandeiraCartao
+OpenDFe.NFe.BandeiraCartao.Hipercard = 7 -> OpenDFe.NFe.BandeiraCartao
+OpenDFe.NFe.BandeiraCartao.Mastercard = 2 -> OpenDFe.NFe.BandeiraCartao
+OpenDFe.NFe.BandeiraCartao.Outros = 99 -> OpenDFe.NFe.BandeiraCartao
+OpenDFe.NFe.BandeiraCartao.Sorocred = 4 -> OpenDFe.NFe.BandeiraCartao
+OpenDFe.NFe.BandeiraCartao.Visa = 1 -> OpenDFe.NFe.BandeiraCartao
+OpenDFe.NFe.CTeReferenciado
+OpenDFe.NFe.CTeReferenciado.CTeReferenciado() -> void
+OpenDFe.NFe.CTeReferenciado.Chave.get -> string?
+OpenDFe.NFe.CTeReferenciado.Chave.set -> void
+OpenDFe.NFe.ChavePublicaRsa
+OpenDFe.NFe.ChavePublicaRsa.ChavePublicaRsa() -> void
+OpenDFe.NFe.ChavePublicaRsa.Expoente.get -> string?
+OpenDFe.NFe.ChavePublicaRsa.Expoente.set -> void
+OpenDFe.NFe.ChavePublicaRsa.Modulo.get -> string?
+OpenDFe.NFe.ChavePublicaRsa.Modulo.set -> void
+OpenDFe.NFe.Cobranca
+OpenDFe.NFe.Cobranca.Cobranca() -> void
+OpenDFe.NFe.Cobranca.Duplicatas.get -> System.Collections.Generic.IList<OpenDFe.NFe.Duplicata!>!
+OpenDFe.NFe.Cobranca.Fatura.get -> OpenDFe.NFe.Fatura?
+OpenDFe.NFe.Cobranca.Fatura.set -> void
+OpenDFe.NFe.Compra
+OpenDFe.NFe.Compra.Compra() -> void
+OpenDFe.NFe.Compra.Contrato.get -> string?
+OpenDFe.NFe.Compra.Contrato.set -> void
+OpenDFe.NFe.Compra.NotaEmpenho.get -> string?
+OpenDFe.NFe.Compra.NotaEmpenho.set -> void
+OpenDFe.NFe.Compra.Pedido.get -> string?
+OpenDFe.NFe.Compra.Pedido.set -> void
+OpenDFe.NFe.CompraGovernamental
+OpenDFe.NFe.CompraGovernamental.CompraGovernamental() -> void
+OpenDFe.NFe.CompraGovernamental.DocumentosAnteriores.get -> System.Collections.Generic.IList<string!>!
+OpenDFe.NFe.CompraGovernamental.Ente.get -> OpenDFe.NFe.EnteGovernamental?
+OpenDFe.NFe.CompraGovernamental.Ente.set -> void
+OpenDFe.NFe.CompraGovernamental.Operacao.get -> OpenDFe.NFe.OperacaoGovernamental?
+OpenDFe.NFe.CompraGovernamental.Operacao.set -> void
+OpenDFe.NFe.CompraGovernamental.PercentualReducao.get -> decimal?
+OpenDFe.NFe.CompraGovernamental.PercentualReducao.set -> void
+OpenDFe.NFe.CupomFiscalReferenciado
+OpenDFe.NFe.CupomFiscalReferenciado.Coo.get -> int?
+OpenDFe.NFe.CupomFiscalReferenciado.Coo.set -> void
+OpenDFe.NFe.CupomFiscalReferenciado.CupomFiscalReferenciado() -> void
+OpenDFe.NFe.CupomFiscalReferenciado.Modelo.get -> OpenDFe.NFe.ModeloCupomFiscal?
+OpenDFe.NFe.CupomFiscalReferenciado.Modelo.set -> void
+OpenDFe.NFe.CupomFiscalReferenciado.NumeroEcf.get -> int?
+OpenDFe.NFe.CupomFiscalReferenciado.NumeroEcf.set -> void
+OpenDFe.NFe.Deducao
+OpenDFe.NFe.Deducao.Deducao() -> void
+OpenDFe.NFe.Deducao.Descricao.get -> string?
+OpenDFe.NFe.Deducao.Descricao.set -> void
+OpenDFe.NFe.Deducao.Valor.get -> decimal?
+OpenDFe.NFe.Deducao.Valor.set -> void
+OpenDFe.NFe.Defensivo
+OpenDFe.NFe.Defensivo.CpfResponsavel.get -> string?
+OpenDFe.NFe.Defensivo.CpfResponsavel.set -> void
+OpenDFe.NFe.Defensivo.Defensivo() -> void
+OpenDFe.NFe.Defensivo.Receituario.get -> string?
+OpenDFe.NFe.Defensivo.Receituario.set -> void
+OpenDFe.NFe.Destinatario
+OpenDFe.NFe.Destinatario.Cnpj.get -> string?
+OpenDFe.NFe.Destinatario.Cnpj.set -> void
+OpenDFe.NFe.Destinatario.Cpf.get -> string?
+OpenDFe.NFe.Destinatario.Cpf.set -> void
+OpenDFe.NFe.Destinatario.Destinatario() -> void
+OpenDFe.NFe.Destinatario.Email.get -> string?
+OpenDFe.NFe.Destinatario.Email.set -> void
+OpenDFe.NFe.Destinatario.Endereco.get -> OpenDFe.NFe.EnderecoDestinatario?
+OpenDFe.NFe.Destinatario.Endereco.set -> void
+OpenDFe.NFe.Destinatario.IdEstrangeiro.get -> string?
+OpenDFe.NFe.Destinatario.IdEstrangeiro.set -> void
+OpenDFe.NFe.Destinatario.IndicadorIE.get -> OpenDFe.NFe.IndicadorIEDestinatario?
+OpenDFe.NFe.Destinatario.IndicadorIE.set -> void
+OpenDFe.NFe.Destinatario.InscricaoEstadual.get -> string?
+OpenDFe.NFe.Destinatario.InscricaoEstadual.set -> void
+OpenDFe.NFe.Destinatario.InscricaoMunicipal.get -> string?
+OpenDFe.NFe.Destinatario.InscricaoMunicipal.set -> void
+OpenDFe.NFe.Destinatario.InscricaoSuframa.get -> string?
+OpenDFe.NFe.Destinatario.InscricaoSuframa.set -> void
+OpenDFe.NFe.Destinatario.Nome.get -> string?
+OpenDFe.NFe.Destinatario.Nome.set -> void
+OpenDFe.NFe.DocumentoReferenciado
+OpenDFe.NFe.Duplicata
+OpenDFe.NFe.Duplicata.Duplicata() -> void
+OpenDFe.NFe.Duplicata.Numero.get -> string?
+OpenDFe.NFe.Duplicata.Numero.set -> void
+OpenDFe.NFe.Duplicata.Valor.get -> decimal?
+OpenDFe.NFe.Duplicata.Valor.set -> void
+OpenDFe.NFe.Duplicata.Vencimento.get -> System.DateOnly?
+OpenDFe.NFe.Duplicata.Vencimento.set -> void
+OpenDFe.NFe.Emitente
+OpenDFe.NFe.Emitente.Cnae.get -> string?
+OpenDFe.NFe.Emitente.Cnae.set -> void
+OpenDFe.NFe.Emitente.Cnpj.get -> string?
+OpenDFe.NFe.Emitente.Cnpj.set -> void
+OpenDFe.NFe.Emitente.Cpf.get -> string?
+OpenDFe.NFe.Emitente.Cpf.set -> void
+OpenDFe.NFe.Emitente.Emitente() -> void
+OpenDFe.NFe.Emitente.Endereco.get -> OpenDFe.NFe.EnderecoEmitente!
+OpenDFe.NFe.Emitente.Endereco.set -> void
+OpenDFe.NFe.Emitente.InscricaoEstadual.get -> string?
+OpenDFe.NFe.Emitente.InscricaoEstadual.set -> void
+OpenDFe.NFe.Emitente.InscricaoEstadualSubstituto.get -> string?
+OpenDFe.NFe.Emitente.InscricaoEstadualSubstituto.set -> void
+OpenDFe.NFe.Emitente.InscricaoMunicipal.get -> string?
+OpenDFe.NFe.Emitente.InscricaoMunicipal.set -> void
+OpenDFe.NFe.Emitente.InscricaoSuframa.get -> string?
+OpenDFe.NFe.Emitente.InscricaoSuframa.set -> void
+OpenDFe.NFe.Emitente.Nome.get -> string?
+OpenDFe.NFe.Emitente.Nome.set -> void
+OpenDFe.NFe.Emitente.NomeFantasia.get -> string?
+OpenDFe.NFe.Emitente.NomeFantasia.set -> void
+OpenDFe.NFe.Emitente.RegimeTributario.get -> OpenDFe.NFe.RegimeTributario?
+OpenDFe.NFe.Emitente.RegimeTributario.set -> void
+OpenDFe.NFe.EnderecoDestinatario
+OpenDFe.NFe.EnderecoDestinatario.Bairro.get -> string?
+OpenDFe.NFe.EnderecoDestinatario.Bairro.set -> void
+OpenDFe.NFe.EnderecoDestinatario.Cep.get -> string?
+OpenDFe.NFe.EnderecoDestinatario.Cep.set -> void
+OpenDFe.NFe.EnderecoDestinatario.CodigoMunicipio.get -> int?
+OpenDFe.NFe.EnderecoDestinatario.CodigoMunicipio.set -> void
+OpenDFe.NFe.EnderecoDestinatario.CodigoPais.get -> int?
+OpenDFe.NFe.EnderecoDestinatario.CodigoPais.set -> void
+OpenDFe.NFe.EnderecoDestinatario.Complemento.get -> string?
+OpenDFe.NFe.EnderecoDestinatario.Complemento.set -> void
+OpenDFe.NFe.EnderecoDestinatario.EnderecoDestinatario() -> void
+OpenDFe.NFe.EnderecoDestinatario.Exterior.get -> bool
+OpenDFe.NFe.EnderecoDestinatario.Exterior.set -> void
+OpenDFe.NFe.EnderecoDestinatario.Logradouro.get -> string?
+OpenDFe.NFe.EnderecoDestinatario.Logradouro.set -> void
+OpenDFe.NFe.EnderecoDestinatario.Municipio.get -> string?
+OpenDFe.NFe.EnderecoDestinatario.Municipio.set -> void
+OpenDFe.NFe.EnderecoDestinatario.Numero.get -> string?
+OpenDFe.NFe.EnderecoDestinatario.Numero.set -> void
+OpenDFe.NFe.EnderecoDestinatario.Pais.get -> string?
+OpenDFe.NFe.EnderecoDestinatario.Pais.set -> void
+OpenDFe.NFe.EnderecoDestinatario.Telefone.get -> string?
+OpenDFe.NFe.EnderecoDestinatario.Telefone.set -> void
+OpenDFe.NFe.EnderecoDestinatario.UF.get -> OpenDFe.UF?
+OpenDFe.NFe.EnderecoDestinatario.UF.set -> void
+OpenDFe.NFe.EnderecoEmitente
+OpenDFe.NFe.EnderecoEmitente.Bairro.get -> string?
+OpenDFe.NFe.EnderecoEmitente.Bairro.set -> void
+OpenDFe.NFe.EnderecoEmitente.Cep.get -> string?
+OpenDFe.NFe.EnderecoEmitente.Cep.set -> void
+OpenDFe.NFe.EnderecoEmitente.CodigoMunicipio.get -> int?
+OpenDFe.NFe.EnderecoEmitente.CodigoMunicipio.set -> void
+OpenDFe.NFe.EnderecoEmitente.CodigoPais.get -> int?
+OpenDFe.NFe.EnderecoEmitente.CodigoPais.set -> void
+OpenDFe.NFe.EnderecoEmitente.Complemento.get -> string?
+OpenDFe.NFe.EnderecoEmitente.Complemento.set -> void
+OpenDFe.NFe.EnderecoEmitente.EnderecoEmitente() -> void
+OpenDFe.NFe.EnderecoEmitente.Logradouro.get -> string?
+OpenDFe.NFe.EnderecoEmitente.Logradouro.set -> void
+OpenDFe.NFe.EnderecoEmitente.Municipio.get -> string?
+OpenDFe.NFe.EnderecoEmitente.Municipio.set -> void
+OpenDFe.NFe.EnderecoEmitente.Numero.get -> string?
+OpenDFe.NFe.EnderecoEmitente.Numero.set -> void
+OpenDFe.NFe.EnderecoEmitente.Pais.get -> string?
+OpenDFe.NFe.EnderecoEmitente.Pais.set -> void
+OpenDFe.NFe.EnderecoEmitente.Telefone.get -> string?
+OpenDFe.NFe.EnderecoEmitente.Telefone.set -> void
+OpenDFe.NFe.EnderecoEmitente.UF.get -> OpenDFe.UF?
+OpenDFe.NFe.EnderecoEmitente.UF.set -> void
+OpenDFe.NFe.EnteGovernamental
+OpenDFe.NFe.EnteGovernamental.ComiteGestorIbs = 6 -> OpenDFe.NFe.EnteGovernamental
+OpenDFe.NFe.EnteGovernamental.ConsorcioPublico = 5 -> OpenDFe.NFe.EnteGovernamental
+OpenDFe.NFe.EnteGovernamental.DistritoFederal = 3 -> OpenDFe.NFe.EnteGovernamental
+OpenDFe.NFe.EnteGovernamental.Estado = 2 -> OpenDFe.NFe.EnteGovernamental
+OpenDFe.NFe.EnteGovernamental.Municipio = 4 -> OpenDFe.NFe.EnteGovernamental
+OpenDFe.NFe.EnteGovernamental.Uniao = 1 -> OpenDFe.NFe.EnteGovernamental
+OpenDFe.NFe.Exportacao
+OpenDFe.NFe.Exportacao.Exportacao() -> void
+OpenDFe.NFe.Exportacao.LocalDespacho.get -> string?
+OpenDFe.NFe.Exportacao.LocalDespacho.set -> void
+OpenDFe.NFe.Exportacao.LocalEmbarque.get -> string?
+OpenDFe.NFe.Exportacao.LocalEmbarque.set -> void
+OpenDFe.NFe.Exportacao.UFSaida.get -> OpenDFe.UF?
+OpenDFe.NFe.Exportacao.UFSaida.set -> void
+OpenDFe.NFe.Fatura
+OpenDFe.NFe.Fatura.Desconto.get -> decimal?
+OpenDFe.NFe.Fatura.Desconto.set -> void
+OpenDFe.NFe.Fatura.Fatura() -> void
+OpenDFe.NFe.Fatura.Numero.get -> string?
+OpenDFe.NFe.Fatura.Numero.set -> void
+OpenDFe.NFe.Fatura.ValorLiquido.get -> decimal?
+OpenDFe.NFe.Fatura.ValorLiquido.set -> void
+OpenDFe.NFe.Fatura.ValorOriginal.get -> decimal?
+OpenDFe.NFe.Fatura.ValorOriginal.set -> void
+OpenDFe.NFe.FinalidadeEmissao
+OpenDFe.NFe.FinalidadeEmissao.Ajuste = 3 -> OpenDFe.NFe.FinalidadeEmissao
+OpenDFe.NFe.FinalidadeEmissao.Complementar = 2 -> OpenDFe.NFe.FinalidadeEmissao
+OpenDFe.NFe.FinalidadeEmissao.Devolucao = 4 -> OpenDFe.NFe.FinalidadeEmissao
+OpenDFe.NFe.FinalidadeEmissao.Normal = 1 -> OpenDFe.NFe.FinalidadeEmissao
+OpenDFe.NFe.FinalidadeEmissao.NotaCredito = 5 -> OpenDFe.NFe.FinalidadeEmissao
+OpenDFe.NFe.FinalidadeEmissao.NotaDebito = 6 -> OpenDFe.NFe.FinalidadeEmissao
+OpenDFe.NFe.FiscoEmitente
+OpenDFe.NFe.FiscoEmitente.Cnpj.get -> string?
+OpenDFe.NFe.FiscoEmitente.Cnpj.set -> void
+OpenDFe.NFe.FiscoEmitente.EmissaoDar.get -> System.DateOnly?
+OpenDFe.NFe.FiscoEmitente.EmissaoDar.set -> void
+OpenDFe.NFe.FiscoEmitente.FiscoEmitente() -> void
+OpenDFe.NFe.FiscoEmitente.MatriculaAgente.get -> string?
+OpenDFe.NFe.FiscoEmitente.MatriculaAgente.set -> void
+OpenDFe.NFe.FiscoEmitente.NomeAgente.get -> string?
+OpenDFe.NFe.FiscoEmitente.NomeAgente.set -> void
+OpenDFe.NFe.FiscoEmitente.NumeroDar.get -> string?
+OpenDFe.NFe.FiscoEmitente.NumeroDar.set -> void
+OpenDFe.NFe.FiscoEmitente.Orgao.get -> string?
+OpenDFe.NFe.FiscoEmitente.Orgao.set -> void
+OpenDFe.NFe.FiscoEmitente.PagamentoDar.get -> System.DateOnly?
+OpenDFe.NFe.FiscoEmitente.PagamentoDar.set -> void
+OpenDFe.NFe.FiscoEmitente.Reparticao.get -> string?
+OpenDFe.NFe.FiscoEmitente.Reparticao.set -> void
+OpenDFe.NFe.FiscoEmitente.Telefone.get -> string?
+OpenDFe.NFe.FiscoEmitente.Telefone.set -> void
+OpenDFe.NFe.FiscoEmitente.UF.get -> OpenDFe.UF?
+OpenDFe.NFe.FiscoEmitente.UF.set -> void
+OpenDFe.NFe.FiscoEmitente.ValorDar.get -> decimal?
+OpenDFe.NFe.FiscoEmitente.ValorDar.set -> void
+OpenDFe.NFe.FormaPagamento
+OpenDFe.NFe.FormaPagamento.CnpjTransacao.get -> string?
+OpenDFe.NFe.FormaPagamento.CnpjTransacao.set -> void
+OpenDFe.NFe.FormaPagamento.Data.get -> System.DateOnly?
+OpenDFe.NFe.FormaPagamento.Data.set -> void
+OpenDFe.NFe.FormaPagamento.Descricao.get -> string?
+OpenDFe.NFe.FormaPagamento.Descricao.set -> void
+OpenDFe.NFe.FormaPagamento.FormaPagamento() -> void
+OpenDFe.NFe.FormaPagamento.Indicador.get -> OpenDFe.NFe.IndicadorPagamento?
+OpenDFe.NFe.FormaPagamento.Indicador.set -> void
+OpenDFe.NFe.FormaPagamento.Meio.get -> OpenDFe.NFe.MeioPagamento?
+OpenDFe.NFe.FormaPagamento.Meio.set -> void
+OpenDFe.NFe.FormaPagamento.Transacao.get -> OpenDFe.NFe.TransacaoEletronica?
+OpenDFe.NFe.FormaPagamento.Transacao.set -> void
+OpenDFe.NFe.FormaPagamento.UFTransacao.get -> OpenDFe.UF?
+OpenDFe.NFe.FormaPagamento.UFTransacao.set -> void
+OpenDFe.NFe.FormaPagamento.Valor.get -> decimal?
+OpenDFe.NFe.FormaPagamento.Valor.set -> void
+OpenDFe.NFe.FormatoImpressao
+OpenDFe.NFe.FormatoImpressao.DanfeNFCe = 4 -> OpenDFe.NFe.FormatoImpressao
+OpenDFe.NFe.FormatoImpressao.DanfeNFCeMensagem = 5 -> OpenDFe.NFe.FormatoImpressao
+OpenDFe.NFe.FormatoImpressao.DanfePaisagem = 2 -> OpenDFe.NFe.FormatoImpressao
+OpenDFe.NFe.FormatoImpressao.DanfeRetrato = 1 -> OpenDFe.NFe.FormatoImpressao
+OpenDFe.NFe.FormatoImpressao.DanfeSimplificado = 3 -> OpenDFe.NFe.FormatoImpressao
+OpenDFe.NFe.FormatoImpressao.DanfeSimplificadoTipo2 = 6 -> OpenDFe.NFe.FormatoImpressao
+OpenDFe.NFe.FormatoImpressao.Nenhum = 0 -> OpenDFe.NFe.FormatoImpressao
+OpenDFe.NFe.FornecimentoDiario
+OpenDFe.NFe.FornecimentoDiario.Dia.get -> int?
+OpenDFe.NFe.FornecimentoDiario.Dia.set -> void
+OpenDFe.NFe.FornecimentoDiario.FornecimentoDiario() -> void
+OpenDFe.NFe.FornecimentoDiario.Quantidade.get -> decimal?
+OpenDFe.NFe.FornecimentoDiario.Quantidade.set -> void
+OpenDFe.NFe.GuiaTransito
+OpenDFe.NFe.GuiaTransito.GuiaTransito() -> void
+OpenDFe.NFe.GuiaTransito.Numero.get -> int?
+OpenDFe.NFe.GuiaTransito.Numero.set -> void
+OpenDFe.NFe.GuiaTransito.Serie.get -> string?
+OpenDFe.NFe.GuiaTransito.Serie.set -> void
+OpenDFe.NFe.GuiaTransito.Tipo.get -> OpenDFe.NFe.TipoGuiaTransito?
+OpenDFe.NFe.GuiaTransito.Tipo.set -> void
+OpenDFe.NFe.GuiaTransito.UF.get -> OpenDFe.UF?
+OpenDFe.NFe.GuiaTransito.UF.set -> void
+OpenDFe.NFe.Identificacao
+OpenDFe.NFe.Identificacao.Ambiente.get -> OpenDFe.Ambiente?
+OpenDFe.NFe.Identificacao.Ambiente.set -> void
+OpenDFe.NFe.Identificacao.CodigoLocalOperacao.get -> string?
+OpenDFe.NFe.Identificacao.CodigoLocalOperacao.set -> void
+OpenDFe.NFe.Identificacao.CodigoNumerico.get -> int?
+OpenDFe.NFe.Identificacao.CodigoNumerico.set -> void
+OpenDFe.NFe.Identificacao.CompraGovernamental.get -> OpenDFe.NFe.CompraGovernamental?
+OpenDFe.NFe.Identificacao.CompraGovernamental.set -> void
+OpenDFe.NFe.Identificacao.ConsumidorFinal.get -> OpenDFe.NFe.IndicadorConsumidorFinal?
+OpenDFe.NFe.Identificacao.ConsumidorFinal.set -> void
+OpenDFe.NFe.Identificacao.Emissao.get -> System.DateTimeOffset?
+OpenDFe.NFe.Identificacao.Emissao.set -> void
+OpenDFe.NFe.Identificacao.Finalidade.get -> OpenDFe.NFe.FinalidadeEmissao?
+OpenDFe.NFe.Identificacao.Finalidade.set -> void
+OpenDFe.NFe.Identificacao.FormatoImpressao.get -> OpenDFe.NFe.FormatoImpressao?
+OpenDFe.NFe.Identificacao.FormatoImpressao.set -> void
+OpenDFe.NFe.Identificacao.Identificacao() -> void
+OpenDFe.NFe.Identificacao.InicioContingencia.get -> System.DateTimeOffset?
+OpenDFe.NFe.Identificacao.InicioContingencia.set -> void
+OpenDFe.NFe.Identificacao.Intermediacao.get -> OpenDFe.NFe.IndicadorIntermediador?
+OpenDFe.NFe.Identificacao.Intermediacao.set -> void
+OpenDFe.NFe.Identificacao.JustificativaContingencia.get -> string?
+OpenDFe.NFe.Identificacao.JustificativaContingencia.set -> void
+OpenDFe.NFe.Identificacao.LocalDestino.get -> OpenDFe.NFe.LocalDestino?
+OpenDFe.NFe.Identificacao.LocalDestino.set -> void
+OpenDFe.NFe.Identificacao.Modelo.get -> OpenDFe.Documento?
+OpenDFe.NFe.Identificacao.Modelo.set -> void
+OpenDFe.NFe.Identificacao.MunicipioFatoGerador.get -> int?
+OpenDFe.NFe.Identificacao.MunicipioFatoGerador.set -> void
+OpenDFe.NFe.Identificacao.MunicipioFatoGeradorIbsCbs.get -> int?
+OpenDFe.NFe.Identificacao.MunicipioFatoGeradorIbsCbs.set -> void
+OpenDFe.NFe.Identificacao.NaturezaOperacao.get -> string?
+OpenDFe.NFe.Identificacao.NaturezaOperacao.set -> void
+OpenDFe.NFe.Identificacao.Numero.get -> int?
+OpenDFe.NFe.Identificacao.Numero.set -> void
+OpenDFe.NFe.Identificacao.PagamentoAntecipado.get -> OpenDFe.NFe.PagamentoAntecipado?
+OpenDFe.NFe.Identificacao.PagamentoAntecipado.set -> void
+OpenDFe.NFe.Identificacao.Presenca.get -> OpenDFe.NFe.PresencaComprador?
+OpenDFe.NFe.Identificacao.Presenca.set -> void
+OpenDFe.NFe.Identificacao.PrevisaoEntrega.get -> System.DateOnly?
+OpenDFe.NFe.Identificacao.PrevisaoEntrega.set -> void
+OpenDFe.NFe.Identificacao.Processo.get -> OpenDFe.NFe.ProcessoEmissao?
+OpenDFe.NFe.Identificacao.Processo.set -> void
+OpenDFe.NFe.Identificacao.Referencias.get -> System.Collections.Generic.IList<OpenDFe.NFe.DocumentoReferenciado!>!
+OpenDFe.NFe.Identificacao.SaidaEntrada.get -> System.DateTimeOffset?
+OpenDFe.NFe.Identificacao.SaidaEntrada.set -> void
+OpenDFe.NFe.Identificacao.Serie.get -> int?
+OpenDFe.NFe.Identificacao.Serie.set -> void
+OpenDFe.NFe.Identificacao.Tipo.get -> OpenDFe.NFe.TipoNota?
+OpenDFe.NFe.Identificacao.Tipo.set -> void
+OpenDFe.NFe.Identificacao.TipoCredito.get -> OpenDFe.NFe.TipoNotaCredito?
+OpenDFe.NFe.Identificacao.TipoCredito.set -> void
+OpenDFe.NFe.Identificacao.TipoDebito.get -> OpenDFe.NFe.TipoNotaDebito?
+OpenDFe.NFe.Identificacao.TipoDebito.set -> void
+OpenDFe.NFe.Identificacao.TipoEmissao.get -> OpenDFe.TipoEmissao?
+OpenDFe.NFe.Identificacao.TipoEmissao.set -> void
+OpenDFe.NFe.Identificacao.UF.get -> OpenDFe.UF?
+OpenDFe.NFe.Identificacao.UF.set -> void
+OpenDFe.NFe.Identificacao.VersaoAplicativo.get -> string?
+OpenDFe.NFe.Identificacao.VersaoAplicativo.set -> void
+OpenDFe.NFe.IndicadorConsumidorFinal
+OpenDFe.NFe.IndicadorConsumidorFinal.ConsumidorFinal = 1 -> OpenDFe.NFe.IndicadorConsumidorFinal
+OpenDFe.NFe.IndicadorConsumidorFinal.Normal = 0 -> OpenDFe.NFe.IndicadorConsumidorFinal
+OpenDFe.NFe.IndicadorIEDestinatario
+OpenDFe.NFe.IndicadorIEDestinatario.Contribuinte = 1 -> OpenDFe.NFe.IndicadorIEDestinatario
+OpenDFe.NFe.IndicadorIEDestinatario.ContribuinteIsento = 2 -> OpenDFe.NFe.IndicadorIEDestinatario
+OpenDFe.NFe.IndicadorIEDestinatario.NaoContribuinte = 9 -> OpenDFe.NFe.IndicadorIEDestinatario
+OpenDFe.NFe.IndicadorIntermediador
+OpenDFe.NFe.IndicadorIntermediador.PlataformaPropria = 0 -> OpenDFe.NFe.IndicadorIntermediador
+OpenDFe.NFe.IndicadorIntermediador.PlataformaTerceiros = 1 -> OpenDFe.NFe.IndicadorIntermediador
+OpenDFe.NFe.IndicadorPagamento
+OpenDFe.NFe.IndicadorPagamento.Prazo = 1 -> OpenDFe.NFe.IndicadorPagamento
+OpenDFe.NFe.IndicadorPagamento.Vista = 0 -> OpenDFe.NFe.IndicadorPagamento
+OpenDFe.NFe.InformacoesAdicionais
+OpenDFe.NFe.InformacoesAdicionais.Complementares.get -> string?
+OpenDFe.NFe.InformacoesAdicionais.Complementares.set -> void
+OpenDFe.NFe.InformacoesAdicionais.Fisco.get -> string?
+OpenDFe.NFe.InformacoesAdicionais.Fisco.set -> void
+OpenDFe.NFe.InformacoesAdicionais.InformacoesAdicionais() -> void
+OpenDFe.NFe.InformacoesAdicionais.ObservacoesContribuinte.get -> System.Collections.Generic.IList<OpenDFe.NFe.Observacao!>!
+OpenDFe.NFe.InformacoesAdicionais.ObservacoesFisco.get -> System.Collections.Generic.IList<OpenDFe.NFe.Observacao!>!
+OpenDFe.NFe.InformacoesAdicionais.Processos.get -> System.Collections.Generic.IList<OpenDFe.NFe.ProcessoReferenciado!>!
+OpenDFe.NFe.InformacoesSuplementares
+OpenDFe.NFe.InformacoesSuplementares.InformacoesSuplementares() -> void
+OpenDFe.NFe.InformacoesSuplementares.QrCode.get -> string?
+OpenDFe.NFe.InformacoesSuplementares.QrCode.set -> void
+OpenDFe.NFe.InformacoesSuplementares.UrlChave.get -> string?
+OpenDFe.NFe.InformacoesSuplementares.UrlChave.set -> void
+OpenDFe.NFe.Intermediador
+OpenDFe.NFe.Intermediador.Cnpj.get -> string?
+OpenDFe.NFe.Intermediador.Cnpj.set -> void
+OpenDFe.NFe.Intermediador.Identificador.get -> string?
+OpenDFe.NFe.Intermediador.Identificador.set -> void
+OpenDFe.NFe.Intermediador.Intermediador() -> void
+OpenDFe.NFe.Item
+OpenDFe.NFe.Item.Item() -> void
+OpenDFe.NFe.Lacre
+OpenDFe.NFe.Lacre.Lacre() -> void
+OpenDFe.NFe.Lacre.Numero.get -> string?
+OpenDFe.NFe.Lacre.Numero.set -> void
+OpenDFe.NFe.Local
+OpenDFe.NFe.Local.Bairro.get -> string?
+OpenDFe.NFe.Local.Bairro.set -> void
+OpenDFe.NFe.Local.Cep.get -> string?
+OpenDFe.NFe.Local.Cep.set -> void
+OpenDFe.NFe.Local.Cnpj.get -> string?
+OpenDFe.NFe.Local.Cnpj.set -> void
+OpenDFe.NFe.Local.CodigoMunicipio.get -> int?
+OpenDFe.NFe.Local.CodigoMunicipio.set -> void
+OpenDFe.NFe.Local.CodigoPais.get -> int?
+OpenDFe.NFe.Local.CodigoPais.set -> void
+OpenDFe.NFe.Local.Complemento.get -> string?
+OpenDFe.NFe.Local.Complemento.set -> void
+OpenDFe.NFe.Local.Cpf.get -> string?
+OpenDFe.NFe.Local.Cpf.set -> void
+OpenDFe.NFe.Local.Email.get -> string?
+OpenDFe.NFe.Local.Email.set -> void
+OpenDFe.NFe.Local.Exterior.get -> bool
+OpenDFe.NFe.Local.Exterior.set -> void
+OpenDFe.NFe.Local.InscricaoEstadual.get -> string?
+OpenDFe.NFe.Local.InscricaoEstadual.set -> void
+OpenDFe.NFe.Local.Local() -> void
+OpenDFe.NFe.Local.Logradouro.get -> string?
+OpenDFe.NFe.Local.Logradouro.set -> void
+OpenDFe.NFe.Local.Municipio.get -> string?
+OpenDFe.NFe.Local.Municipio.set -> void
+OpenDFe.NFe.Local.Nome.get -> string?
+OpenDFe.NFe.Local.Nome.set -> void
+OpenDFe.NFe.Local.Numero.get -> string?
+OpenDFe.NFe.Local.Numero.set -> void
+OpenDFe.NFe.Local.Pais.get -> string?
+OpenDFe.NFe.Local.Pais.set -> void
+OpenDFe.NFe.Local.Telefone.get -> string?
+OpenDFe.NFe.Local.Telefone.set -> void
+OpenDFe.NFe.Local.UF.get -> OpenDFe.UF?
+OpenDFe.NFe.Local.UF.set -> void
+OpenDFe.NFe.LocalDestino
+OpenDFe.NFe.LocalDestino.Exterior = 3 -> OpenDFe.NFe.LocalDestino
+OpenDFe.NFe.LocalDestino.Interestadual = 2 -> OpenDFe.NFe.LocalDestino
+OpenDFe.NFe.LocalDestino.Interna = 1 -> OpenDFe.NFe.LocalDestino
+OpenDFe.NFe.MeioPagamento
+OpenDFe.NFe.MeioPagamento.BoletoBancario = 15 -> OpenDFe.NFe.MeioPagamento
+OpenDFe.NFe.MeioPagamento.CartaoCredito = 3 -> OpenDFe.NFe.MeioPagamento
+OpenDFe.NFe.MeioPagamento.CartaoDebito = 4 -> OpenDFe.NFe.MeioPagamento
+OpenDFe.NFe.MeioPagamento.CartaoLoja = 5 -> OpenDFe.NFe.MeioPagamento
+OpenDFe.NFe.MeioPagamento.Cheque = 2 -> OpenDFe.NFe.MeioPagamento
+OpenDFe.NFe.MeioPagamento.CreditoLoja = 21 -> OpenDFe.NFe.MeioPagamento
+OpenDFe.NFe.MeioPagamento.DepositoBancario = 16 -> OpenDFe.NFe.MeioPagamento
+OpenDFe.NFe.MeioPagamento.Dinheiro = 1 -> OpenDFe.NFe.MeioPagamento
+OpenDFe.NFe.MeioPagamento.DuplicataMercantil = 14 -> OpenDFe.NFe.MeioPagamento
+OpenDFe.NFe.MeioPagamento.Nenhum = 90 -> OpenDFe.NFe.MeioPagamento
+OpenDFe.NFe.MeioPagamento.Outros = 99 -> OpenDFe.NFe.MeioPagamento
+OpenDFe.NFe.MeioPagamento.PagamentoEletronicoNaoInformado = 22 -> OpenDFe.NFe.MeioPagamento
+OpenDFe.NFe.MeioPagamento.PagamentoPosterior = 91 -> OpenDFe.NFe.MeioPagamento
+OpenDFe.NFe.MeioPagamento.PixAutomatico = 23 -> OpenDFe.NFe.MeioPagamento
+OpenDFe.NFe.MeioPagamento.PixDinamico = 17 -> OpenDFe.NFe.MeioPagamento
+OpenDFe.NFe.MeioPagamento.PixEstatico = 20 -> OpenDFe.NFe.MeioPagamento
+OpenDFe.NFe.MeioPagamento.ProgramaFidelidade = 19 -> OpenDFe.NFe.MeioPagamento
+OpenDFe.NFe.MeioPagamento.Ted = 18 -> OpenDFe.NFe.MeioPagamento
+OpenDFe.NFe.MeioPagamento.TefBookTransfer = 24 -> OpenDFe.NFe.MeioPagamento
+OpenDFe.NFe.MeioPagamento.ValeAlimentacao = 10 -> OpenDFe.NFe.MeioPagamento
+OpenDFe.NFe.MeioPagamento.ValeCombustivel = 13 -> OpenDFe.NFe.MeioPagamento
+OpenDFe.NFe.MeioPagamento.ValePresente = 12 -> OpenDFe.NFe.MeioPagamento
+OpenDFe.NFe.MeioPagamento.ValeRefeicao = 11 -> OpenDFe.NFe.MeioPagamento
+OpenDFe.NFe.ModalidadeFrete
+OpenDFe.NFe.ModalidadeFrete.Destinatario = 1 -> OpenDFe.NFe.ModalidadeFrete
+OpenDFe.NFe.ModalidadeFrete.NenhumTransporte = 9 -> OpenDFe.NFe.ModalidadeFrete
+OpenDFe.NFe.ModalidadeFrete.ProprioDestinatario = 4 -> OpenDFe.NFe.ModalidadeFrete
+OpenDFe.NFe.ModalidadeFrete.ProprioRemetente = 3 -> OpenDFe.NFe.ModalidadeFrete
+OpenDFe.NFe.ModalidadeFrete.Remetente = 0 -> OpenDFe.NFe.ModalidadeFrete
+OpenDFe.NFe.ModalidadeFrete.Terceiros = 2 -> OpenDFe.NFe.ModalidadeFrete
+OpenDFe.NFe.ModeloCupomFiscal
+OpenDFe.NFe.ModeloCupomFiscal.Ecf = 3 -> OpenDFe.NFe.ModeloCupomFiscal
+OpenDFe.NFe.ModeloCupomFiscal.MaquinaRegistradora = 1 -> OpenDFe.NFe.ModeloCupomFiscal
+OpenDFe.NFe.ModeloCupomFiscal.Pdv = 2 -> OpenDFe.NFe.ModeloCupomFiscal
+OpenDFe.NFe.ModeloNotaProdutor
+OpenDFe.NFe.ModeloNotaProdutor.NotaAvulsa = 1 -> OpenDFe.NFe.ModeloNotaProdutor
+OpenDFe.NFe.ModeloNotaProdutor.NotaProdutor = 4 -> OpenDFe.NFe.ModeloNotaProdutor
+OpenDFe.NFe.ModeloNotaReferenciada
+OpenDFe.NFe.ModeloNotaReferenciada.Modelo1 = 1 -> OpenDFe.NFe.ModeloNotaReferenciada
+OpenDFe.NFe.ModeloNotaReferenciada.Modelo2 = 2 -> OpenDFe.NFe.ModeloNotaReferenciada
+OpenDFe.NFe.NFeReferenciada
+OpenDFe.NFe.NFeReferenciada.Chave.get -> string?
+OpenDFe.NFe.NFeReferenciada.Chave.set -> void
+OpenDFe.NFe.NFeReferenciada.NFeReferenciada() -> void
+OpenDFe.NFe.NFeSigilosaReferenciada
+OpenDFe.NFe.NFeSigilosaReferenciada.Chave.get -> string?
+OpenDFe.NFe.NFeSigilosaReferenciada.Chave.set -> void
+OpenDFe.NFe.NFeSigilosaReferenciada.NFeSigilosaReferenciada() -> void
+OpenDFe.NFe.NotaFiscal
+OpenDFe.NFe.NotaFiscal.Agropecuario.get -> OpenDFe.NFe.Agropecuario?
+OpenDFe.NFe.NotaFiscal.Agropecuario.set -> void
+OpenDFe.NFe.NotaFiscal.AutorizadosXml.get -> System.Collections.Generic.IList<OpenDFe.NFe.PessoaAutorizada!>!
+OpenDFe.NFe.NotaFiscal.Avulsa.get -> OpenDFe.NFe.FiscoEmitente?
+OpenDFe.NFe.NotaFiscal.Avulsa.set -> void
+OpenDFe.NFe.NotaFiscal.Cana.get -> OpenDFe.NFe.AquisicaoCana?
+OpenDFe.NFe.NotaFiscal.Cana.set -> void
+OpenDFe.NFe.NotaFiscal.Cobranca.get -> OpenDFe.NFe.Cobranca?
+OpenDFe.NFe.NotaFiscal.Cobranca.set -> void
+OpenDFe.NFe.NotaFiscal.Compra.get -> OpenDFe.NFe.Compra?
+OpenDFe.NFe.NotaFiscal.Compra.set -> void
+OpenDFe.NFe.NotaFiscal.Destinatario.get -> OpenDFe.NFe.Destinatario?
+OpenDFe.NFe.NotaFiscal.Destinatario.set -> void
+OpenDFe.NFe.NotaFiscal.Emitente.get -> OpenDFe.NFe.Emitente!
+OpenDFe.NFe.NotaFiscal.Emitente.set -> void
+OpenDFe.NFe.NotaFiscal.Entrega.get -> OpenDFe.NFe.Local?
+OpenDFe.NFe.NotaFiscal.Entrega.set -> void
+OpenDFe.NFe.NotaFiscal.Exportacao.get -> OpenDFe.NFe.Exportacao?
+OpenDFe.NFe.NotaFiscal.Exportacao.set -> void
+OpenDFe.NFe.NotaFiscal.Identificacao.get -> OpenDFe.NFe.Identificacao!
+OpenDFe.NFe.NotaFiscal.Identificacao.set -> void
+OpenDFe.NFe.NotaFiscal.InformacoesAdicionais.get -> OpenDFe.NFe.InformacoesAdicionais?
+OpenDFe.NFe.NotaFiscal.InformacoesAdicionais.set -> void
+OpenDFe.NFe.NotaFiscal.Intermediador.get -> OpenDFe.NFe.Intermediador?
+OpenDFe.NFe.NotaFiscal.Intermediador.set -> void
+OpenDFe.NFe.NotaFiscal.Itens.get -> System.Collections.Generic.IList<OpenDFe.NFe.Item!>!
+OpenDFe.NFe.NotaFiscal.NotaFiscal() -> void
+OpenDFe.NFe.NotaFiscal.Pagamento.get -> OpenDFe.NFe.Pagamento!
+OpenDFe.NFe.NotaFiscal.Pagamento.set -> void
+OpenDFe.NFe.NotaFiscal.ProvedorAssinatura.get -> OpenDFe.NFe.ProvedorAssinatura?
+OpenDFe.NFe.NotaFiscal.ProvedorAssinatura.set -> void
+OpenDFe.NFe.NotaFiscal.ResponsavelTecnico.get -> OpenDFe.NFe.ResponsavelTecnico?
+OpenDFe.NFe.NotaFiscal.ResponsavelTecnico.set -> void
+OpenDFe.NFe.NotaFiscal.Retirada.get -> OpenDFe.NFe.Local?
+OpenDFe.NFe.NotaFiscal.Retirada.set -> void
+OpenDFe.NFe.NotaFiscal.SolicitacaoNff.get -> OpenDFe.NFe.SolicitacaoNff?
+OpenDFe.NFe.NotaFiscal.SolicitacaoNff.set -> void
+OpenDFe.NFe.NotaFiscal.Suplementares.get -> OpenDFe.NFe.InformacoesSuplementares?
+OpenDFe.NFe.NotaFiscal.Suplementares.set -> void
+OpenDFe.NFe.NotaFiscal.Total.get -> OpenDFe.NFe.Total!
+OpenDFe.NFe.NotaFiscal.Total.set -> void
+OpenDFe.NFe.NotaFiscal.Transporte.get -> OpenDFe.NFe.Transporte!
+OpenDFe.NFe.NotaFiscal.Transporte.set -> void
+OpenDFe.NFe.NotaModelo1Referenciada
+OpenDFe.NFe.NotaModelo1Referenciada.AnoMes.get -> string?
+OpenDFe.NFe.NotaModelo1Referenciada.AnoMes.set -> void
+OpenDFe.NFe.NotaModelo1Referenciada.Cnpj.get -> string?
+OpenDFe.NFe.NotaModelo1Referenciada.Cnpj.set -> void
+OpenDFe.NFe.NotaModelo1Referenciada.Modelo.get -> OpenDFe.NFe.ModeloNotaReferenciada?
+OpenDFe.NFe.NotaModelo1Referenciada.Modelo.set -> void
+OpenDFe.NFe.NotaModelo1Referenciada.NotaModelo1Referenciada() -> void
+OpenDFe.NFe.NotaModelo1Referenciada.Numero.get -> int?
+OpenDFe.NFe.NotaModelo1Referenciada.Numero.set -> void
+OpenDFe.NFe.NotaModelo1Referenciada.Serie.get -> int?
+OpenDFe.NFe.NotaModelo1Referenciada.Serie.set -> void
+OpenDFe.NFe.NotaModelo1Referenciada.UF.get -> OpenDFe.UF?
+OpenDFe.NFe.NotaModelo1Referenciada.UF.set -> void
+OpenDFe.NFe.NotaProdutorReferenciada
+OpenDFe.NFe.NotaProdutorReferenciada.AnoMes.get -> string?
+OpenDFe.NFe.NotaProdutorReferenciada.AnoMes.set -> void
+OpenDFe.NFe.NotaProdutorReferenciada.Cnpj.get -> string?
+OpenDFe.NFe.NotaProdutorReferenciada.Cnpj.set -> void
+OpenDFe.NFe.NotaProdutorReferenciada.Cpf.get -> string?
+OpenDFe.NFe.NotaProdutorReferenciada.Cpf.set -> void
+OpenDFe.NFe.NotaProdutorReferenciada.InscricaoEstadual.get -> string?
+OpenDFe.NFe.NotaProdutorReferenciada.InscricaoEstadual.set -> void
+OpenDFe.NFe.NotaProdutorReferenciada.Modelo.get -> OpenDFe.NFe.ModeloNotaProdutor?
+OpenDFe.NFe.NotaProdutorReferenciada.Modelo.set -> void
+OpenDFe.NFe.NotaProdutorReferenciada.NotaProdutorReferenciada() -> void
+OpenDFe.NFe.NotaProdutorReferenciada.Numero.get -> int?
+OpenDFe.NFe.NotaProdutorReferenciada.Numero.set -> void
+OpenDFe.NFe.NotaProdutorReferenciada.Serie.get -> int?
+OpenDFe.NFe.NotaProdutorReferenciada.Serie.set -> void
+OpenDFe.NFe.NotaProdutorReferenciada.UF.get -> OpenDFe.UF?
+OpenDFe.NFe.NotaProdutorReferenciada.UF.set -> void
+OpenDFe.NFe.Observacao
+OpenDFe.NFe.Observacao.Campo.get -> string?
+OpenDFe.NFe.Observacao.Campo.set -> void
+OpenDFe.NFe.Observacao.Observacao() -> void
+OpenDFe.NFe.Observacao.Texto.get -> string?
+OpenDFe.NFe.Observacao.Texto.set -> void
+OpenDFe.NFe.OperacaoGovernamental
+OpenDFe.NFe.OperacaoGovernamental.FornecimentoPagamentoPosterior = 1 -> OpenDFe.NFe.OperacaoGovernamental
+OpenDFe.NFe.OperacaoGovernamental.FornecimentoPagamentoRealizado = 3 -> OpenDFe.NFe.OperacaoGovernamental
+OpenDFe.NFe.OperacaoGovernamental.RecebimentoFornecimentoPosterior = 4 -> OpenDFe.NFe.OperacaoGovernamental
+OpenDFe.NFe.OperacaoGovernamental.RecebimentoFornecimentoRealizado = 2 -> OpenDFe.NFe.OperacaoGovernamental
+OpenDFe.NFe.OrigemProcesso
+OpenDFe.NFe.OrigemProcesso.Confaz = 4 -> OpenDFe.NFe.OrigemProcesso
+OpenDFe.NFe.OrigemProcesso.JusticaEstadual = 2 -> OpenDFe.NFe.OrigemProcesso
+OpenDFe.NFe.OrigemProcesso.JusticaFederal = 1 -> OpenDFe.NFe.OrigemProcesso
+OpenDFe.NFe.OrigemProcesso.Outros = 9 -> OpenDFe.NFe.OrigemProcesso
+OpenDFe.NFe.OrigemProcesso.SecexRfb = 3 -> OpenDFe.NFe.OrigemProcesso
+OpenDFe.NFe.OrigemProcesso.Sefaz = 0 -> OpenDFe.NFe.OrigemProcesso
+OpenDFe.NFe.Pagamento
+OpenDFe.NFe.Pagamento.Formas.get -> System.Collections.Generic.IList<OpenDFe.NFe.FormaPagamento!>!
+OpenDFe.NFe.Pagamento.Pagamento() -> void
+OpenDFe.NFe.Pagamento.Troco.get -> decimal?
+OpenDFe.NFe.Pagamento.Troco.set -> void
+OpenDFe.NFe.PagamentoAntecipado
+OpenDFe.NFe.PagamentoAntecipado.Chaves.get -> System.Collections.Generic.IList<string!>!
+OpenDFe.NFe.PagamentoAntecipado.PagamentoAntecipado() -> void
+OpenDFe.NFe.PessoaAutorizada
+OpenDFe.NFe.PessoaAutorizada.Cnpj.get -> string?
+OpenDFe.NFe.PessoaAutorizada.Cnpj.set -> void
+OpenDFe.NFe.PessoaAutorizada.Cpf.get -> string?
+OpenDFe.NFe.PessoaAutorizada.Cpf.set -> void
+OpenDFe.NFe.PessoaAutorizada.PessoaAutorizada() -> void
+OpenDFe.NFe.PresencaComprador
+OpenDFe.NFe.PresencaComprador.NaoAplicavel = 0 -> OpenDFe.NFe.PresencaComprador
+OpenDFe.NFe.PresencaComprador.NaoPresencialEntrega = 4 -> OpenDFe.NFe.PresencaComprador
+OpenDFe.NFe.PresencaComprador.NaoPresencialInternet = 2 -> OpenDFe.NFe.PresencaComprador
+OpenDFe.NFe.PresencaComprador.NaoPresencialOutros = 9 -> OpenDFe.NFe.PresencaComprador
+OpenDFe.NFe.PresencaComprador.NaoPresencialTeleatendimento = 3 -> OpenDFe.NFe.PresencaComprador
+OpenDFe.NFe.PresencaComprador.Presencial = 1 -> OpenDFe.NFe.PresencaComprador
+OpenDFe.NFe.PresencaComprador.PresencialExterno = 5 -> OpenDFe.NFe.PresencaComprador
+OpenDFe.NFe.ProcessoEmissao
+OpenDFe.NFe.ProcessoEmissao.AplicativoContribuinte = 0 -> OpenDFe.NFe.ProcessoEmissao
+OpenDFe.NFe.ProcessoEmissao.AplicativoFisco = 3 -> OpenDFe.NFe.ProcessoEmissao
+OpenDFe.NFe.ProcessoEmissao.AvulsaContribuinteSite = 2 -> OpenDFe.NFe.ProcessoEmissao
+OpenDFe.NFe.ProcessoEmissao.AvulsaFisco = 1 -> OpenDFe.NFe.ProcessoEmissao
+OpenDFe.NFe.ProcessoEmissao.ProvedorAssinatura = 4 -> OpenDFe.NFe.ProcessoEmissao
+OpenDFe.NFe.ProcessoReferenciado
+OpenDFe.NFe.ProcessoReferenciado.Numero.get -> string?
+OpenDFe.NFe.ProcessoReferenciado.Numero.set -> void
+OpenDFe.NFe.ProcessoReferenciado.Origem.get -> OpenDFe.NFe.OrigemProcesso?
+OpenDFe.NFe.ProcessoReferenciado.Origem.set -> void
+OpenDFe.NFe.ProcessoReferenciado.ProcessoReferenciado() -> void
+OpenDFe.NFe.ProcessoReferenciado.TipoAto.get -> OpenDFe.NFe.TipoAtoConcessorio?
+OpenDFe.NFe.ProcessoReferenciado.TipoAto.set -> void
+OpenDFe.NFe.ProvedorAssinatura
+OpenDFe.NFe.ProvedorAssinatura.Assinatura.get -> OpenDFe.NFe.AssinaturaProvedor!
+OpenDFe.NFe.ProvedorAssinatura.Assinatura.set -> void
+OpenDFe.NFe.ProvedorAssinatura.Cnpj.get -> string?
+OpenDFe.NFe.ProvedorAssinatura.Cnpj.set -> void
+OpenDFe.NFe.ProvedorAssinatura.ProvedorAssinatura() -> void
+OpenDFe.NFe.RegimeTributario
+OpenDFe.NFe.RegimeTributario.Mei = 4 -> OpenDFe.NFe.RegimeTributario
+OpenDFe.NFe.RegimeTributario.Normal = 3 -> OpenDFe.NFe.RegimeTributario
+OpenDFe.NFe.RegimeTributario.SimplesExcessoSublimite = 2 -> OpenDFe.NFe.RegimeTributario
+OpenDFe.NFe.RegimeTributario.SimplesNacional = 1 -> OpenDFe.NFe.RegimeTributario
+OpenDFe.NFe.ResponsavelTecnico
+OpenDFe.NFe.ResponsavelTecnico.Cnpj.get -> string?
+OpenDFe.NFe.ResponsavelTecnico.Cnpj.set -> void
+OpenDFe.NFe.ResponsavelTecnico.Contato.get -> string?
+OpenDFe.NFe.ResponsavelTecnico.Contato.set -> void
+OpenDFe.NFe.ResponsavelTecnico.Email.get -> string?
+OpenDFe.NFe.ResponsavelTecnico.Email.set -> void
+OpenDFe.NFe.ResponsavelTecnico.HashCsrt.get -> string?
+OpenDFe.NFe.ResponsavelTecnico.HashCsrt.set -> void
+OpenDFe.NFe.ResponsavelTecnico.IdCsrt.get -> int?
+OpenDFe.NFe.ResponsavelTecnico.IdCsrt.set -> void
+OpenDFe.NFe.ResponsavelTecnico.ResponsavelTecnico() -> void
+OpenDFe.NFe.ResponsavelTecnico.Telefone.get -> string?
+OpenDFe.NFe.ResponsavelTecnico.Telefone.set -> void
+OpenDFe.NFe.RetencaoIcmsTransporte
+OpenDFe.NFe.RetencaoIcmsTransporte.Aliquota.get -> decimal?
+OpenDFe.NFe.RetencaoIcmsTransporte.Aliquota.set -> void
+OpenDFe.NFe.RetencaoIcmsTransporte.BaseCalculo.get -> decimal?
+OpenDFe.NFe.RetencaoIcmsTransporte.BaseCalculo.set -> void
+OpenDFe.NFe.RetencaoIcmsTransporte.Cfop.get -> int?
+OpenDFe.NFe.RetencaoIcmsTransporte.Cfop.set -> void
+OpenDFe.NFe.RetencaoIcmsTransporte.MunicipioFatoGerador.get -> int?
+OpenDFe.NFe.RetencaoIcmsTransporte.MunicipioFatoGerador.set -> void
+OpenDFe.NFe.RetencaoIcmsTransporte.RetencaoIcmsTransporte() -> void
+OpenDFe.NFe.RetencaoIcmsTransporte.Valor.get -> decimal?
+OpenDFe.NFe.RetencaoIcmsTransporte.Valor.set -> void
+OpenDFe.NFe.RetencaoIcmsTransporte.ValorServico.get -> decimal?
+OpenDFe.NFe.RetencaoIcmsTransporte.ValorServico.set -> void
+OpenDFe.NFe.SolicitacaoNff
+OpenDFe.NFe.SolicitacaoNff.SolicitacaoNff() -> void
+OpenDFe.NFe.SolicitacaoNff.Texto.get -> string?
+OpenDFe.NFe.SolicitacaoNff.Texto.set -> void
+OpenDFe.NFe.TipoAtoConcessorio
+OpenDFe.NFe.TipoAtoConcessorio.AjusteSinief = 14 -> OpenDFe.NFe.TipoAtoConcessorio
+OpenDFe.NFe.TipoAtoConcessorio.AutorizacaoEspecifica = 12 -> OpenDFe.NFe.TipoAtoConcessorio
+OpenDFe.NFe.TipoAtoConcessorio.ConvenioIcms = 15 -> OpenDFe.NFe.TipoAtoConcessorio
+OpenDFe.NFe.TipoAtoConcessorio.RegimeEspecial = 10 -> OpenDFe.NFe.TipoAtoConcessorio
+OpenDFe.NFe.TipoAtoConcessorio.TermoAcordo = 8 -> OpenDFe.NFe.TipoAtoConcessorio
+OpenDFe.NFe.TipoGuiaTransito
+OpenDFe.NFe.TipoGuiaTransito.Atv = 4 -> OpenDFe.NFe.TipoGuiaTransito
+OpenDFe.NFe.TipoGuiaTransito.Dta = 3 -> OpenDFe.NFe.TipoGuiaTransito
+OpenDFe.NFe.TipoGuiaTransito.Gta = 1 -> OpenDFe.NFe.TipoGuiaTransito
+OpenDFe.NFe.TipoGuiaTransito.Gtv = 6 -> OpenDFe.NFe.TipoGuiaTransito
+OpenDFe.NFe.TipoGuiaTransito.GuiaFlorestal = 7 -> OpenDFe.NFe.TipoGuiaTransito
+OpenDFe.NFe.TipoGuiaTransito.Ptv = 5 -> OpenDFe.NFe.TipoGuiaTransito
+OpenDFe.NFe.TipoGuiaTransito.Tta = 2 -> OpenDFe.NFe.TipoGuiaTransito
+OpenDFe.NFe.TipoIntegracao
+OpenDFe.NFe.TipoIntegracao.Integrado = 1 -> OpenDFe.NFe.TipoIntegracao
+OpenDFe.NFe.TipoIntegracao.NaoIntegrado = 2 -> OpenDFe.NFe.TipoIntegracao
+OpenDFe.NFe.TipoNota
+OpenDFe.NFe.TipoNota.Entrada = 0 -> OpenDFe.NFe.TipoNota
+OpenDFe.NFe.TipoNota.Saida = 1 -> OpenDFe.NFe.TipoNota
+OpenDFe.NFe.TipoNotaCredito
+OpenDFe.NFe.TipoNotaCredito.CreditoPresumidoZfm = 2 -> OpenDFe.NFe.TipoNotaCredito
+OpenDFe.NFe.TipoNotaCredito.MultaJuros = 1 -> OpenDFe.NFe.TipoNotaCredito
+OpenDFe.NFe.TipoNotaCredito.ReducaoValores = 4 -> OpenDFe.NFe.TipoNotaCredito
+OpenDFe.NFe.TipoNotaCredito.RetornoRecusaEntrega = 3 -> OpenDFe.NFe.TipoNotaCredito
+OpenDFe.NFe.TipoNotaCredito.RetornoRecusaParcial = 6 -> OpenDFe.NFe.TipoNotaCredito
+OpenDFe.NFe.TipoNotaCredito.TransferenciaCreditoSucessao = 5 -> OpenDFe.NFe.TipoNotaCredito
+OpenDFe.NFe.TipoNotaDebito
+OpenDFe.NFe.TipoNotaDebito.AnulacaoCreditoSaidaImune = 2 -> OpenDFe.NFe.TipoNotaDebito
+OpenDFe.NFe.TipoNotaDebito.DebitoNaoProcessado = 3 -> OpenDFe.NFe.TipoNotaDebito
+OpenDFe.NFe.TipoNotaDebito.DesenquadramentoSimples = 8 -> OpenDFe.NFe.TipoNotaDebito
+OpenDFe.NFe.TipoNotaDebito.MultaJuros = 4 -> OpenDFe.NFe.TipoNotaDebito
+OpenDFe.NFe.TipoNotaDebito.PagamentoAntecipado = 6 -> OpenDFe.NFe.TipoNotaDebito
+OpenDFe.NFe.TipoNotaDebito.PerdaEstoque = 7 -> OpenDFe.NFe.TipoNotaDebito
+OpenDFe.NFe.TipoNotaDebito.TransferenciaCreditoCooperativa = 1 -> OpenDFe.NFe.TipoNotaDebito
+OpenDFe.NFe.TipoNotaDebito.TransferenciaCreditoSucessao = 5 -> OpenDFe.NFe.TipoNotaDebito
+OpenDFe.NFe.Total
+OpenDFe.NFe.Total.Total() -> void
+OpenDFe.NFe.TransacaoEletronica
+OpenDFe.NFe.TransacaoEletronica.Autorizacao.get -> string?
+OpenDFe.NFe.TransacaoEletronica.Autorizacao.set -> void
+OpenDFe.NFe.TransacaoEletronica.Bandeira.get -> OpenDFe.NFe.BandeiraCartao?
+OpenDFe.NFe.TransacaoEletronica.Bandeira.set -> void
+OpenDFe.NFe.TransacaoEletronica.CnpjBeneficiario.get -> string?
+OpenDFe.NFe.TransacaoEletronica.CnpjBeneficiario.set -> void
+OpenDFe.NFe.TransacaoEletronica.CnpjInstituicao.get -> string?
+OpenDFe.NFe.TransacaoEletronica.CnpjInstituicao.set -> void
+OpenDFe.NFe.TransacaoEletronica.Integracao.get -> OpenDFe.NFe.TipoIntegracao?
+OpenDFe.NFe.TransacaoEletronica.Integracao.set -> void
+OpenDFe.NFe.TransacaoEletronica.Terminal.get -> string?
+OpenDFe.NFe.TransacaoEletronica.Terminal.set -> void
+OpenDFe.NFe.TransacaoEletronica.TransacaoEletronica() -> void
+OpenDFe.NFe.Transportador
+OpenDFe.NFe.Transportador.Cnpj.get -> string?
+OpenDFe.NFe.Transportador.Cnpj.set -> void
+OpenDFe.NFe.Transportador.Cpf.get -> string?
+OpenDFe.NFe.Transportador.Cpf.set -> void
+OpenDFe.NFe.Transportador.Endereco.get -> string?
+OpenDFe.NFe.Transportador.Endereco.set -> void
+OpenDFe.NFe.Transportador.Exterior.get -> bool
+OpenDFe.NFe.Transportador.Exterior.set -> void
+OpenDFe.NFe.Transportador.InscricaoEstadual.get -> string?
+OpenDFe.NFe.Transportador.InscricaoEstadual.set -> void
+OpenDFe.NFe.Transportador.Municipio.get -> string?
+OpenDFe.NFe.Transportador.Municipio.set -> void
+OpenDFe.NFe.Transportador.Nome.get -> string?
+OpenDFe.NFe.Transportador.Nome.set -> void
+OpenDFe.NFe.Transportador.Transportador() -> void
+OpenDFe.NFe.Transportador.UF.get -> OpenDFe.UF?
+OpenDFe.NFe.Transportador.UF.set -> void
+OpenDFe.NFe.Transporte
+OpenDFe.NFe.Transporte.Balsa.get -> string?
+OpenDFe.NFe.Transporte.Balsa.set -> void
+OpenDFe.NFe.Transporte.Modalidade.get -> OpenDFe.NFe.ModalidadeFrete?
+OpenDFe.NFe.Transporte.Modalidade.set -> void
+OpenDFe.NFe.Transporte.Reboques.get -> System.Collections.Generic.IList<OpenDFe.NFe.Veiculo!>!
+OpenDFe.NFe.Transporte.Retencao.get -> OpenDFe.NFe.RetencaoIcmsTransporte?
+OpenDFe.NFe.Transporte.Retencao.set -> void
+OpenDFe.NFe.Transporte.Transportador.get -> OpenDFe.NFe.Transportador?
+OpenDFe.NFe.Transporte.Transportador.set -> void
+OpenDFe.NFe.Transporte.Transporte() -> void
+OpenDFe.NFe.Transporte.Vagao.get -> string?
+OpenDFe.NFe.Transporte.Vagao.set -> void
+OpenDFe.NFe.Transporte.Veiculo.get -> OpenDFe.NFe.Veiculo?
+OpenDFe.NFe.Transporte.Veiculo.set -> void
+OpenDFe.NFe.Transporte.Volumes.get -> System.Collections.Generic.IList<OpenDFe.NFe.Volume!>!
+OpenDFe.NFe.Veiculo
+OpenDFe.NFe.Veiculo.Exterior.get -> bool
+OpenDFe.NFe.Veiculo.Exterior.set -> void
+OpenDFe.NFe.Veiculo.Placa.get -> string?
+OpenDFe.NFe.Veiculo.Placa.set -> void
+OpenDFe.NFe.Veiculo.Rntc.get -> string?
+OpenDFe.NFe.Veiculo.Rntc.set -> void
+OpenDFe.NFe.Veiculo.UF.get -> OpenDFe.UF?
+OpenDFe.NFe.Veiculo.UF.set -> void
+OpenDFe.NFe.Veiculo.Veiculo() -> void
+OpenDFe.NFe.Volume
+OpenDFe.NFe.Volume.Especie.get -> string?
+OpenDFe.NFe.Volume.Especie.set -> void
+OpenDFe.NFe.Volume.Lacres.get -> System.Collections.Generic.IList<OpenDFe.NFe.Lacre!>!
+OpenDFe.NFe.Volume.Marca.get -> string?
+OpenDFe.NFe.Volume.Marca.set -> void
+OpenDFe.NFe.Volume.Numeracao.get -> string?
+OpenDFe.NFe.Volume.Numeracao.set -> void
+OpenDFe.NFe.Volume.PesoBruto.get -> decimal?
+OpenDFe.NFe.Volume.PesoBruto.set -> void
+OpenDFe.NFe.Volume.PesoLiquido.get -> decimal?
+OpenDFe.NFe.Volume.PesoLiquido.set -> void
+OpenDFe.NFe.Volume.Quantidade.get -> long?
+OpenDFe.NFe.Volume.Quantidade.set -> void
+OpenDFe.NFe.Volume.Volume() -> void

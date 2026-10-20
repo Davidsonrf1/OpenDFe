@@ -70,6 +70,17 @@ Os schemas de outras mensagens, em pacotes próprios no portal, entram com as et
 - **distribuição DF-e** (fase 8): "Pacote de Liberação Distribuição de DF-e v.1.04", publicado em 03/07/2026;
 - **consulta cadastro** (fase 8): a pasta `CadConsultaCadastro/` do `PL_010d_v1.03.zip`.
 
+### 1.5. Tabelas de domínio fora do schema
+
+Campos que o XSD declara só pelo padrão (`[0-9]{2}`), com a lista numa tabela do Portal Nacional que muda por informe técnico, sem pacote de schemas novo. No modelo, são enumerações abertas (`docs/MODELO.md`, decisão 8): o código fora da lista é lido como o número e escrito como está; o código novo entra como membro novo, em versão menor.
+
+| Campo | Enumeração | Fonte | Conferido |
+|---|---|---|---|
+| `tPag` (YA02) | `MeioPagamento` | "Tabela de Meios de Pagamento", publicada em 04/03/2026 (`Tabela_de_meios_de_pagamento - 04032026.xlsx`, no Portal Nacional e no portal da SVRS), e o IT 2024.002 v1.11: os códigos 01 a 05, 10 a 24, 90, 91 e 99. A v1.10 incluiu o 91 (produção em 03/11/2025); a v1.11, o 23 e o 24 (produção em 04/05/2026) | 2026-10-19 (etapa 2.2); o teste `MeioPagamentoTemOsCodigosDaTabelaDoPortal` |
+| `tBand` (YA06) | `BandeiraCartao` | o MOC 7.0, Anexo I: 01 a 09 e 99. A NT 2020.006 manda usar a "Tabela de Códigos das Operadoras" publicada no Portal Nacional, que **não foi achada** nas páginas de documentos do portal nem no da SVRS | 2026-10-19 (etapa 2.2), só a lista do MOC |
+
+**Pendente:** a tabela das bandeiras do Portal Nacional. Achada, os códigos que faltam entram em `BandeiraCartao` (versão menor) e esta tabela ganha a fonte.
+
 ## 2. Como atualizar
 
 1. Na lista de Esquemas XML do portal, o primeiro pacote de "VERSÕES OFICIAIS (em uso)" que traz a nota; ler o título (as NTs) e a data.

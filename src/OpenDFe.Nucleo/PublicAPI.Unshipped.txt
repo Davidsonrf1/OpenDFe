@@ -333,6 +333,7 @@ OpenDFe.Destino.SVAN = 102 -> OpenDFe.Destino
 OpenDFe.Destino.SvcAN = 103 -> OpenDFe.Destino
 OpenDFe.Destino.SvcRS = 104 -> OpenDFe.Destino
 OpenDFe.TagAttribute
-OpenDFe.TagAttribute.Identificador.get -> string!
+OpenDFe.TagAttribute.Identificador.get -> string?
 OpenDFe.TagAttribute.Tag.get -> string!
+OpenDFe.TagAttribute.TagAttribute(string! tag) -> void
 OpenDFe.TagAttribute.TagAttribute(string! tag, string! identificador) -> void

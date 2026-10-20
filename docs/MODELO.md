@@ -1,12 +1,12 @@
 # Modelo da NF-e e da NFC-e: cabeçalho e partes (etapa 2.2)
 
-Desenho dos tipos públicos do modelo de dados (`PROJETO.md` 4) para tudo o que não é item, tributo nem total: a raiz da nota, a identificação com os documentos referenciados, o emitente, a emissão avulsa, o destinatário, a retirada e a entrega, os autorizados a obter o XML, o transporte, a cobrança, o pagamento, o intermediador, as informações adicionais, a exportação, a compra, a cana, o responsável técnico, a solicitação da NFF, os produtos agropecuários, o provedor de assinatura e as informações suplementares da NFC-e. **Aprovado em 2026-10-19** (seção 8): todas as decisões pela recomendação, salvo a 12, que ficou com a classe compartilhada (`Local`, `Veiculo`, `Observacao`).
+Desenho dos tipos públicos do modelo de dados (`PROJETO.md` 4) para tudo o que não é item, tributo nem total: a raiz da nota, a identificação com os documentos referenciados, o emitente, a emissão avulsa, o destinatário, a retirada e a entrega, os autorizados a obter o XML, o transporte, a cobrança, o pagamento, o intermediador, as informações adicionais, a exportação, a compra, a cana, o responsável técnico, a solicitação da NFF, os produtos agropecuários, o provedor de assinatura e as informações suplementares da NFC-e. **Aprovado em 2026-10-19** (seção 8): todas as decisões pela recomendação, salvo a 12, que ficou com a classe compartilhada (`Local`, `Veiculo`, `Observacao`). **Implementado em 2026-10-19** (etapa 2.2), com os ajustes da seção 10.
 
 O arquivo se chama `MODELO.md`, e não `CABECALHO.md`, porque o desenho da 2.3 (itens, tributos e totais) entra nele como seções novas: as regras de forma (seção 3) valem para as duas etapas, e o modelo é um só.
 
 Tudo no projeto `OpenDFe.NFe.Modelo`, namespace `OpenDFe.NFe` (2.1), no pacote `OpenDFe.NFe`. O critério é o do `CONTRATOS.md`: a menor superfície pública que serve à escrita (2.4), à leitura (2.5) e ao caminho do problema até a propriedade (2.6), fácil de estender em versão menor (`PROJETO.md` 12.3), com a regra de nomes sem preposição.
 
-**Conferido na fonte (2026-10-19):** a estrutura, as ocorrências, os tipos e as escolhas pelos XSDs embutidos do `PL_010f_v1.04` (`leiauteNFe_v4.00.xsd`, `tiposBasico_v4.00.xsd`, `DFeTiposBasicos_v1.00.xsd`); os identificadores do MOC (`B02`, `C06`...) no MOC 7.0, Anexo I (o PDF `moc7-anexo-i-leiaute-e-rv.pdf` do portal da SVRS), e os dos campos criados depois nas NTs do Portal Nacional: 2025.002 v1.52 (`B10a`, `B12a`, `B25.1`, `B25.2`, `B25d`, `BB01` a `BB05`, `BC01`, `BC02`, `C22`), 2023.004 v1.20 (`YA02a`, `YA03a` a `YA03d`, `YA07a`, `YA07b`, `Z13`), 2021.002 v1.12 (`ZE01`, `ZE02`), 2024.003 v1.10 (`ZF01` a `ZF08`) e 2026.001 v1.02b (`ZG01` a `ZG07`); o `BA02a` (`refNFeSig`) na regra BA02a-50 da NT 2023.002. **De memória, a conferir na implementação:** as listas completas de `tPag` e `tBand` depois da NT 2020.006 (o MOC 7.0 traz até o 19 e até o 09; ver 2.12).
+**Conferido na fonte (2026-10-19):** a estrutura, as ocorrências, os tipos e as escolhas pelos XSDs embutidos do `PL_010f_v1.04` (`leiauteNFe_v4.00.xsd`, `tiposBasico_v4.00.xsd`, `DFeTiposBasicos_v1.00.xsd`); os identificadores do MOC (`B02`, `C06`...) no MOC 7.0, Anexo I (o PDF `moc7-anexo-i-leiaute-e-rv.pdf` do portal da SVRS), e os dos campos criados depois nas NTs do Portal Nacional: 2025.002 v1.52 (`B10a`, `B12a`, `B25.1`, `B25.2`, `B25d`, `BB01` a `BB05`, `BC01`, `BC02`, `C22`), 2023.004 v1.20 (`YA02a`, `YA03a` a `YA03d`, `YA07a`, `YA07b`, `Z13`), 2021.002 v1.12 (`ZE01`, `ZE02`), 2024.003 v1.10 (`ZF01` a `ZF08`) e 2026.001 v1.02b (`ZG01` a `ZG07`); o `BA02a` (`refNFeSig`) na regra BA02a-50 da NT 2023.002. As listas de `tPag` e `tBand`, que o XSD declara só pelo padrão, conferidas na implementação (seção 10 e `docs/NTS.md` 1.5): o `tPag` pela Tabela de Meios de Pagamento do Portal Nacional (04/03/2026); o `tBand` só pelo MOC 7.0, porque a tabela das operadoras do portal não foi achada.
 
 ## 1. Visão geral
 
@@ -568,13 +568,13 @@ public sealed class GuiaTransito
 public sealed class ProvedorAssinatura
 {
     [Tag("CNPJPAA", "ZG02")]      public string? Cnpj { get; set; }
-    [Tag("PAASignature", "ZG03")] public AssinaturaProvedor? Assinatura { get; set; }
+    [Tag("PAASignature", "ZG03")] public AssinaturaProvedor Assinatura { get; set; } = new();   // obrigatório no infPAA (seção 10)
 }
 
 public sealed class AssinaturaProvedor
 {
     [Tag("SignatureValue", "ZG04")] public string? Valor { get; set; }                  // base64
-    [Tag("RSAKeyValue", "ZG05")]    public ChavePublicaRsa? ChavePublica { get; set; }
+    [Tag("RSAKeyValue", "ZG05")]    public ChavePublicaRsa ChavePublica { get; set; } = new();    // idem
 }
 
 public sealed class ChavePublicaRsa
@@ -638,15 +638,16 @@ public enum ModalidadeFrete                                                     
     Remetente = 0, Destinatario = 1, Terceiros = 2, ProprioRemetente = 3, ProprioDestinatario = 4, NenhumTransporte = 9,
 }
 public enum IndicadorPagamento { Vista = 0, Prazo = 1 }                                            // indPag
-public enum MeioPagamento                                                                          // tPag (lista a completar: ver "De memória" no início)
+public enum MeioPagamento                                                                          // tPag: a tabela do portal de 04/03/2026 (seção 10)
 {
-    Dinheiro = 1, Cheque = 2, CartaoCredito = 3, CartaoDebito = 4, CreditoLoja = 5,
-    ValeAlimentacao = 10, ValeRefeicao = 11, ValePresente = 12, ValeCombustivel = 13,
-    BoletoBancario = 15, DepositoBancario = 16, Pix = 17, TransferenciaBancaria = 18, ProgramaFidelidade = 19,
-    Nenhum = 90, Outros = 99,
+    Dinheiro = 1, Cheque = 2, CartaoCredito = 3, CartaoDebito = 4, CartaoLoja = 5,
+    ValeAlimentacao = 10, ValeRefeicao = 11, ValePresente = 12, ValeCombustivel = 13, DuplicataMercantil = 14,
+    BoletoBancario = 15, DepositoBancario = 16, PixDinamico = 17, Ted = 18, ProgramaFidelidade = 19,
+    PixEstatico = 20, CreditoLoja = 21, PagamentoEletronicoNaoInformado = 22, PixAutomatico = 23, TefBookTransfer = 24,
+    Nenhum = 90, PagamentoPosterior = 91, Outros = 99,
 }
 public enum TipoIntegracao { Integrado = 1, NaoIntegrado = 2 }                                     // tpIntegra
-public enum BandeiraCartao                                                                         // tBand (lista a completar: idem)
+public enum BandeiraCartao                                                                         // tBand: a lista do MOC 7.0 (seção 10)
 {
     Visa = 1, Mastercard = 2, AmericanExpress = 3, Sorocred = 4, DinersClub = 5, Elo = 6, Hipercard = 7,
     Aura = 8, Cabal = 9, Outros = 99,
@@ -764,7 +765,7 @@ var nota = new NotaFiscal
     {
         Formas =
         {
-            new FormaPagamento { Meio = MeioPagamento.Pix, Valor = 50.00m,
+            new FormaPagamento { Meio = MeioPagamento.PixDinamico, Valor = 50.00m,
                                  Transacao = new TransacaoEletronica { Integracao = TipoIntegracao.NaoIntegrado } },
         },
     },
@@ -836,3 +837,13 @@ Todas pela recomendação (a), salvo a 12, aprovada com a (b).
 - **Fase 3:** as exclusividades e as regras da NFC-e como regras do MOC com o código da rejeição (a 2.4 já recusa as exclusividades na montagem).
 - **Fase 4 e 5:** o hash do CSRT (decisão 16), o QR Code e a URL de consulta (decisão 15).
 - **NTs sem pacote:** 2026.006 e 2026.008 (decisão 17).
+
+## 10. Implementação (etapa 2.2, 2026-10-19)
+
+- **Onde:** `src/OpenDFe.NFe.Modelo/`, um arquivo por tipo (50 classes e 25 enumerações), com a documentação XML e os 771 símbolos no `PublicAPI.Unshipped.txt`. O `TagAttribute` do núcleo ganhou o `AttributeTargets.Class`, o construtor `(string tag)` e o `Identificador` anulável (decisões 11 e 12).
+- **Conferido contra o XSD pelo teste** (`tests/OpenDFe.NFe.Testes/ModeloNFeTestes.cs`), que percorre o `PL_010f_v1.04` compilado a partir do `NFe`: cada `[Tag]` existe no grupo certo; todo campo do XSD tem propriedade, salvo os da seção 4 que ficam fora (`Id`, `versao`, `Signature`, `cDV`) e o conteúdo de `det` e `total` (2.3); lista no modelo onde o XSD repete; grupo obrigatório inicializado e opcional nulo (a escolha conta como opcional); o `Exterior` exatamente onde a UF aceita `EX`; os valores de cada enumeração iguais aos do XSD; toda classe pública na árvore da nota; os identificadores do MOC sem repetição; e as regras de forma da seção 3. As mutações (uma tag trocada, um grupo opcional inicializado, um valor de enumeração mudado) foram conferidas: o teste acusa cada uma.
+- **Ajustes ao desenho** (pelas regras da seção 3, sem decisão nova):
+  - `ProvedorAssinatura.Assinatura` e `AssinaturaProvedor.ChavePublica` são grupos **obrigatórios** dentro do `infPAA` (o `PAASignature` e o `RSAKeyValue` não têm `minOccurs="0"`): inicializados (`= new()`) e não anuláveis, pela regra 3, e não `?` como no bloco da 2.10 da aprovação.
+  - **`MeioPagamento`** pela Tabela de Meios de Pagamento do Portal Nacional (IT 2024.002 v1.11, 04/03/2026), e não pela do MOC 7.0: o 5 virou `CartaoLoja` ("Cartão da Loja (Private Label), Crediário Digital, Outros Crediários") e o `CreditoLoja` é o 21 ("Crédito em Loja"); o 17 virou `PixDinamico` e o 18 `Ted` (a tabela passou a dizer "TED"; o 24 é a transferência no mesmo banco, `TefBookTransfer`); entraram o 14 (`DuplicataMercantil`), 20 (`PixEstatico`), 22 (`PagamentoEletronicoNaoInformado`), 23 (`PixAutomatico`), 24 e 91 (`PagamentoPosterior`).
+  - **`BandeiraCartao`** fica com a lista do MOC 7.0 (01 a 09 e 99): a tabela das operadoras que a NT 2020.006 cita não foi achada no portal (`docs/NTS.md` 1.5, pendente). O enum é aberto na leitura (decisão 8), e o código que falta entra em versão menor.
+

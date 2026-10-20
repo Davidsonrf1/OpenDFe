@@ -12,15 +12,28 @@ namespace OpenDFe;
 /// para o modelo de qualquer documento.
 /// </para>
 /// <para>
-/// Na propriedade que guarda um grupo (<c>Nota.Destinatario</c>), é a tag do grupo (<c>dest</c>, <c>E01</c>); no
-/// atributo do XML, o nome sem <c>@</c> (<c>nItem</c>, <c>H02</c>). Os valores não são conferidos aqui: são
-/// constantes do código do modelo, conferidas pelos testes do leiaute.
+/// Na propriedade que guarda um grupo (<c>NotaFiscal.Destinatario</c>), é a tag do grupo (<c>dest</c>, <c>E01</c>);
+/// no atributo do XML, o nome sem <c>@</c> (<c>nItem</c>, <c>H02</c>). Na classe, é a tag da escolha do XML que a
+/// subclasse representa (<c>refNF</c>, <c>BA03</c>), quando a escolha é um grupo. Os valores não são conferidos
+/// aqui: são constantes do código do modelo, conferidas pelos testes do leiaute.
+/// </para>
+/// <para>
+/// Sem identificador (<see cref="TagAttribute(string)"/>) nos campos de uma classe que o XML usa em mais de um
+/// lugar, onde o identificador do MOC muda com o lugar (<c>xLgr</c> é F03 na retirada e G03 na entrega): o
+/// identificador do grupo fica na propriedade que o guarda.
 /// </para>
 /// </remarks>
-[AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
+[AttributeUsage(AttributeTargets.Property | AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
 public sealed class TagAttribute : Attribute
 {
-    /// <summary>Marca a propriedade com a tag e o identificador do campo.</summary>
+    /// <summary>Marca o campo com a tag, sem o identificador do MOC.</summary>
+    /// <param name="tag">O nome local da tag no XML (<c>"xLgr"</c>), sem prefixo nem namespace.</param>
+    public TagAttribute(string tag)
+    {
+        Tag = tag;
+    }
+
+    /// <summary>Marca o campo com a tag e o identificador do campo.</summary>
     /// <param name="tag">O nome local da tag no XML (<c>"xNome"</c>), sem prefixo nem namespace.</param>
     /// <param name="identificador">O identificador do campo no leiaute do MOC (<c>"E04"</c>).</param>
     public TagAttribute(string tag, string identificador)
@@ -32,6 +45,9 @@ public sealed class TagAttribute : Attribute
     /// <summary>O nome local da tag no XML (<c>"xNome"</c>).</summary>
     public string Tag { get; }
 
-    /// <summary>O identificador do campo no leiaute do MOC (<c>"E04"</c>).</summary>
-    public string Identificador { get; }
+    /// <summary>
+    /// O identificador do campo no leiaute do MOC (<c>"E04"</c>); nulo no campo de uma classe usada em mais de um
+    /// lugar.
+    /// </summary>
+    public string? Identificador { get; }
 }

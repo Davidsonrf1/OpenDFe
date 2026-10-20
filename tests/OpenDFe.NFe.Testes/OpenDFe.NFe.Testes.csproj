@@ -6,6 +6,8 @@
 
   <ItemGroup>
     <ProjectReference Include="../../src/OpenDFe.Leiaute.NFe.v400/OpenDFe.Leiaute.NFe.v400.csproj" />
+    <!-- O leiaute leva o modelo como referência privada (sai no mesmo pacote); o teste o usa direto. -->
+    <ProjectReference Include="../../src/OpenDFe.NFe.Modelo/OpenDFe.NFe.Modelo.csproj" />
   </ItemGroup>
 
 </Project>
