@@ -48,8 +48,8 @@ internal sealed class Autorizador
 
     private static List<Autorizador> Montar()
     {
-        string[] completos = [Servico.NomeStatus, Servico.NomeAutorizacao, Servico.NomeRetAutorizacao, "NFeConsultaProtocolo4", "NFeRecepcaoEvento4", "NFeInutilizacao4"];
-        string[] svcRS = [Servico.NomeStatus, Servico.NomeAutorizacao, Servico.NomeRetAutorizacao, "NFeConsultaProtocolo4", "NFeRecepcaoEvento4"];
+        string[] completos = [Servico.NomeStatus, Servico.NomeAutorizacao, Servico.NomeRetAutorizacao, Servico.NomeConsultaProtocolo, "NFeRecepcaoEvento4", "NFeInutilizacao4"];
+        string[] svcRS = [Servico.NomeStatus, Servico.NomeAutorizacao, Servico.NomeRetAutorizacao, Servico.NomeConsultaProtocolo, "NFeRecepcaoEvento4"];
         string[] an = ["NFeDistribuicaoDFe", "NFeRecepcaoEvento4"];
 
         var lista = new List<Autorizador>();
@@ -78,6 +78,11 @@ internal static class UnidadesFederativas
     };
 
     public static string Codigo(string sigla) => Tabela[sigla];
+
+    public static string? CodigoOuNulo(string sigla) => Tabela.GetValueOrDefault(sigla);
+
+    // A sigla do código IBGE; nulo se o código não é de uma UF.
+    public static string? Sigla(string codigo) => Tabela.FirstOrDefault(p => p.Value == codigo).Key;
 
     public static bool Existe(string codigo) => Tabela.ContainsValue(codigo);
 }

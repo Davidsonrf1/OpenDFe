@@ -9,12 +9,16 @@ internal static class SchemasLeiaute
 {
     private static readonly Lazy<SchemaXml> SchemaLote = Preparar("enviNFe_v4.00.xsd");
     private static readonly Lazy<SchemaXml> SchemaRecibo = Preparar("consReciNFe_v4.00.xsd");
+    private static readonly Lazy<SchemaXml> SchemaConsulta = Preparar("consSitNFe_v4.00.xsd");
 
     // O enviNFe, com as notas dentro (NFeAutorizacao4).
     public static SchemaXml Lote => SchemaLote.Value;
 
     // O consReciNFe (NFeRetAutorizacao4).
     public static SchemaXml Recibo => SchemaRecibo.Value;
+
+    // O consSitNFe (NFeConsultaProtocolo4).
+    public static SchemaXml Consulta => SchemaConsulta.Value;
 
     private static Lazy<SchemaXml> Preparar(string arquivo) => new(() =>
     {

@@ -297,7 +297,8 @@ public sealed class AutorizacaoTestes : IClassFixture<EmuladorFixture>, IDisposa
     [Fact]
     public async Task RejeitaANfceNaSvc()
     {
-        Assert.Equal("783", await RejeicaoAsync(new NotaTeste { Modelo = "65", TipoEmissao = "6" }, "SVC-AN"));
+        // Sem o QR Code: o da versão 3 online não aceita o tpEmis 6 na chave (o schema recusaria o lote, 225).
+        Assert.Equal("783", await RejeicaoAsync(new NotaTeste { Modelo = "65", TipoEmissao = "6", OmitirQrCode = true }, "SVC-AN"));
     }
 
     [Fact]
@@ -316,7 +317,7 @@ public sealed class AutorizacaoTestes : IClassFixture<EmuladorFixture>, IDisposa
     public async Task RejeitaANfeEmitidaHaMaisDeTrintaDias()
     {
         Assert.Equal("228", await RejeicaoAsync(new NotaTeste { Emissao = NotaTeste.Agora().AddDays(-31) }));
-        Assert.Equal("100", await RejeicaoAsync(new NotaTeste { Emissao = NotaTeste.Agora().AddDays(-29) }));
+        Assert.Equal("150", await RejeicaoAsync(new NotaTeste { Emissao = NotaTeste.Agora().AddDays(-29) }));
     }
 
     [Fact]

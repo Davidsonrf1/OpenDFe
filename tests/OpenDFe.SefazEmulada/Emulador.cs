@@ -27,6 +27,7 @@ internal sealed class Emulador : IAsyncDisposable
         Autoridade = X509CertificateLoader.LoadCertificate(autoridade.RawData);
         Controle = app.Services.GetRequiredService<Controle>();
         Repositorio = app.Services.GetRequiredService<Repositorio>();
+        Codigos = app.Services.GetRequiredService<CodigosSeguranca>();
         Urls = [.. Listar(endereco)];
     }
 
@@ -43,6 +44,9 @@ internal sealed class Emulador : IAsyncDisposable
 
     // As notas e os lotes recebidos.
     public Repositorio Repositorio { get; }
+
+    // Os CSCs da NFC-e.
+    public CodigosSeguranca Codigos { get; }
 
     public IReadOnlyList<UrlServico> Urls { get; }
 
@@ -65,6 +69,7 @@ internal sealed class Emulador : IAsyncDisposable
         construtor.Services.AddSingleton(opcoes);
         construtor.Services.AddSingleton<Controle>();
         construtor.Services.AddSingleton<Repositorio>();
+        construtor.Services.AddSingleton<CodigosSeguranca>();
         construtor.Services.AddSingleton<Atendimento>();
         construtor.Services.ConfigureHttpJsonOptions(o =>
         {

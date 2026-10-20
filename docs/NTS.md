@@ -63,6 +63,17 @@ Em 2026-10-19 o portal não tem pacote de schemas posterior ao 010f, e o 010f n�
 | 2026.008 v1.00 (RTC, valor líquido do produto; publicada em 01/10/2026) | a sequência `I11a` com `vUnComLiq` e `vProdLiq` no item (0-1, "futuramente obrigatória"); o grupo `ICMSPrevistoPagtoAntecip` (NB01, `vICMSPrevisto`); o `vProdLiqTot` nos totais (W01a, 0-1) | 05/10/2026 | 03/11/2026 |
 | 2026.006 v1.00 (vinculação com a transação de pagamento, *split payment*; publicada em 25/08/2026) | o grupo `gPgtoVinc` (YC01, 0-1) e o evento 110300; "não há exigência de preenchimento ou uso dos campos de split payment em 2026" | 05/10/2026 | 03/11/2026 |
 
+### 1.3a. NTs de regras de validação já aplicadas
+
+As NTs que mudam as regras do MOC 7.0 sem mudar o schema embutido, conferidas na SEFAZ emulada (`docs/SEFAZ_EMULADA.md`, E.3) e a conferir de novo nas regras da lib (fase 3) e nas operações (fases 4 e 5).
+
+| NT | O que muda nas regras | Homologação | Produção |
+|---|---|---|---|
+| 2025.001 v1.02 (simplificação operacional; setembro de 2025) | o QR Code versão 3 da NFC-e (sem CSC; a offline assinada em RSA-SHA1), o 444 (versão 2 do emitente CPF), o **452 (lote assíncrono com uma só nota, GAP03a-3)** e o prazo da NF-e (até 7 dias, 100; depois, 150) | até 08/09/2025 | 13/10/2025 (o 452) |
+| 2026.002 v1.11 (emissão offline, autorização com alerta e DANFE Simplificado Tipo 2; setembro de 2026) | o `tpEmis` 9 na NF-e com `tpImp` 6 (711 sem ele), o QR Code também nessa NF-e (só a versão 3, 672), o prazo das 24 horas da offline (150) e o 120 (autorização com alerta) | 01/09/2026 | 05/10/2026 |
+
+O PDF da 2025.001 v1.02 veio de cópia pública (SHA-256 `44b71f16bf1196f35efe0f8645d7992305b37506ffd2e44fe7fb3350616a930d`); o da 2026.002 v1.11 (`72c033b2c7490710f61488a14d0bb3d7bb54e5345aa8d33d6ff2c270c228f046`), do portal. Do portal também, em 2026-10-19: o Manual de Padrões Técnicos do DANFE NFC-e e QR Code 6.0, de março de 2025 (`bf906cc212f1edd19b1df7d1cdf4fbf5e73c3fec77567b6e69fa74453c95db5e`), e o MOC 7.0, Anexo III (`e1cfb9b6c5adc6a67062f66fd1699495fdec5dfdb93025768f87fe3782918dde`). O Anexo I baixado de novo é o mesmo arquivo da E.1 (`5eb4cf2010b10b0b62f78197c4eb64025f24535d4c6e61158bc7806dd008f55d`).
+
 ### 1.4. Fora do pacote embutido
 
 Os schemas de outras mensagens, em pacotes próprios no portal, entram com as etapas que os usam, conferidos de novo nelas:

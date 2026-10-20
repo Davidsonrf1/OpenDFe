@@ -10,6 +10,7 @@ internal abstract class Servico
     public const string NomeStatus = "NFeStatusServico4";
     public const string NomeAutorizacao = "NFeAutorizacao4";
     public const string NomeRetAutorizacao = "NFeRetAutorizacao4";
+    public const string NomeConsultaProtocolo = "NFeConsultaProtocolo4";
 
     public static readonly XNamespace NamespaceNFe = "http://www.portalfiscal.inf.br/nfe";
 
@@ -80,7 +81,8 @@ internal abstract class Servico
 // com prefixo de namespace (o LINQ to XML não guarda o prefixo; quem lê o envelope confere). Transmissor: o
 // CNPJ ou o CPF do certificado do TLS (ou a impressão digital, sem os campos da ICP-Brasil), que o recibo
 // guarda (Visão Geral, 4.3.3). Processando: o lote consultado responde 105 (a falha comandada).
-// Pendentes: as consultas que o lote novo responde com 105 (a marca no infCpl).
+// Pendentes: as consultas que o lote novo responde com 105 (a marca no infCpl). Codigos: os CSCs, para o
+// hash do QR Code da NFC-e.
 internal sealed record Pedido(
     Autorizador Autorizador,
     DateTimeOffset Recebimento,
@@ -89,7 +91,8 @@ internal sealed record Pedido(
     string Transmissor = "",
     Repositorio? Repositorio = null,
     bool Processando = false,
-    int Pendentes = 0);
+    int Pendentes = 0,
+    CodigosSeguranca? Codigos = null);
 
 // O serviço paralisado (Anexo I, B03 e B04): 108 (momentaneamente) ou 109 (sem previsão).
 internal sealed record Paralisacao(string Codigo, string? Observacao);
