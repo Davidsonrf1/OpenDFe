@@ -1,6 +1,6 @@
 # Modelo da NF-e e da NFC-e: cabeçalho e partes (etapa 2.2)
 
-Desenho dos tipos públicos do modelo de dados (`PROJETO.md` 4) para tudo o que não é item, tributo nem total: a raiz da nota, a identificação com os documentos referenciados, o emitente, a emissão avulsa, o destinatário, a retirada e a entrega, os autorizados a obter o XML, o transporte, a cobrança, o pagamento, o intermediador, as informações adicionais, a exportação, a compra, a cana, o responsável técnico, a solicitação da NFF, os produtos agropecuários, o provedor de assinatura e as informações suplementares da NFC-e. **Proposto em 2026-10-19, aguardando aprovação.** As recomendações estão na seção 8.
+Desenho dos tipos públicos do modelo de dados (`PROJETO.md` 4) para tudo o que não é item, tributo nem total: a raiz da nota, a identificação com os documentos referenciados, o emitente, a emissão avulsa, o destinatário, a retirada e a entrega, os autorizados a obter o XML, o transporte, a cobrança, o pagamento, o intermediador, as informações adicionais, a exportação, a compra, a cana, o responsável técnico, a solicitação da NFF, os produtos agropecuários, o provedor de assinatura e as informações suplementares da NFC-e. **Aprovado em 2026-10-19** (seção 8): todas as decisões pela recomendação, salvo a 12, que ficou com a classe compartilhada (`Local`, `Veiculo`, `Observacao`).
 
 O arquivo se chama `MODELO.md`, e não `CABECALHO.md`, porque o desenho da 2.3 (itens, tributos e totais) entra nele como seções novas: as regras de forma (seção 3) valem para as duas etapas, e o modelo é um só.
 
@@ -20,7 +20,7 @@ NFe                           NotaFiscal
     emit                        .Emitente             Emitente, EnderecoEmitente
     avulsa?                     .Avulsa               FiscoEmitente
     dest?                       .Destinatario         Destinatario, EnderecoDestinatario
-    retirada?, entrega?         .Retirada, .Entrega   LocalRetirada, LocalEntrega
+    retirada?, entrega?         .Retirada, .Entrega   Local (as duas: decisão 12)
     autXML*                     .AutorizadosXml       PessoaAutorizada
     det+                        .Itens                Item          (2.3)
     total                       .Total                Total         (2.3)
@@ -43,8 +43,8 @@ NFe                           NotaFiscal
 | `NotaFiscal` | a raiz: uma NF-e ou uma NFC-e, o que se passa à autorização e o que a leitura devolve |
 | `Identificacao` | o `ide`: número, série, datas, natureza, finalidade, indicadores |
 | `DocumentoReferenciado` e as subclasses | cada `NFref`: NF-e, NF-e com sigilo, NF modelo 1/2, NF de produtor, CT-e, cupom fiscal |
-| `Emitente`, `Destinatario`, `FiscoEmitente` | as partes; os endereços em classes por lugar (decisão 12) |
-| `LocalRetirada`, `LocalEntrega`, `PessoaAutorizada` | os locais e os autorizados a obter o XML |
+| `Emitente`, `Destinatario`, `FiscoEmitente` | as partes; os endereços do emitente e do destinatário são tipos diferentes no XSD e ficam em classes diferentes |
+| `Local`, `PessoaAutorizada` | os locais de retirada e de entrega (uma classe para os dois, decisão 12) e os autorizados a obter o XML |
 | `Transporte` e os grupos | modalidade, transportador, retenção, veículo, reboques, volumes |
 | `Cobranca`, `Pagamento` e os grupos | fatura e duplicatas; as formas de pagamento e a transação eletrônica |
 | os outros grupos | intermediador, informações adicionais, exportação, compra, cana, responsável técnico, NFF, agropecuário, PAA, suplementares |
@@ -67,8 +67,8 @@ public sealed class NotaFiscal
     [Tag("emit", "C01")]         public Emitente Emitente { get; set; } = new();
     [Tag("avulsa", "D01")]       public FiscoEmitente? Avulsa { get; set; }
     [Tag("dest", "E01")]         public Destinatario? Destinatario { get; set; }
-    [Tag("retirada", "F01")]     public LocalRetirada? Retirada { get; set; }
-    [Tag("entrega", "G01")]      public LocalEntrega? Entrega { get; set; }
+    [Tag("retirada", "F01")]     public Local? Retirada { get; set; }
+    [Tag("entrega", "G01")]      public Local? Entrega { get; set; }
     [Tag("autXML", "GA01")]      public IList<PessoaAutorizada> AutorizadosXml { get; } = new List<PessoaAutorizada>();
     [Tag("det", "H01")]          public IList<Item> Itens { get; } = new List<Item>();          // 2.3
     [Tag("total", "W01")]        public Total Total { get; set; } = new();                       // 2.3
@@ -292,29 +292,29 @@ public sealed class EnderecoDestinatario
     [Tag("fone", "E16")]    public string? Telefone { get; set; }
 }
 
-/// O TLocal na retirada. LocalEntrega tem os mesmos membros, com os identificadores G (decisão 12).
-public sealed class LocalRetirada
+/// O TLocal: o local de retirada (F) e o de entrega (G). Uma classe para os dois lugares (decisão 12): o [Tag]
+/// dos campos leva só a tag, sem o identificador do MOC, que muda com o lugar (xLgr é F03 na retirada e G03
+/// na entrega); o identificador do grupo fica na propriedade da NotaFiscal (F01, G01).
+public sealed class Local
 {
-    [Tag("CNPJ", "F02")]    public string? Cnpj { get; set; }                           // CNPJ ou CPF
-    [Tag("CPF", "F02a")]    public string? Cpf { get; set; }
-    [Tag("xNome", "F02b")]  public string? Nome { get; set; }
-    [Tag("xLgr", "F03")]    public string? Logradouro { get; set; }
-    [Tag("nro", "F04")]     public string? Numero { get; set; }
-    [Tag("xCpl", "F05")]    public string? Complemento { get; set; }
-    [Tag("xBairro", "F06")] public string? Bairro { get; set; }
-    [Tag("cMun", "F07")]    public int? CodigoMunicipio { get; set; }
-    [Tag("xMun", "F08")]    public string? Municipio { get; set; }
-    [Tag("UF", "F09")]      public UF? UF { get; set; }
+    [Tag("CNPJ")]    public string? Cnpj { get; set; }                                  // CNPJ ou CPF
+    [Tag("CPF")]     public string? Cpf { get; set; }
+    [Tag("xNome")]   public string? Nome { get; set; }
+    [Tag("xLgr")]    public string? Logradouro { get; set; }
+    [Tag("nro")]     public string? Numero { get; set; }
+    [Tag("xCpl")]    public string? Complemento { get; set; }
+    [Tag("xBairro")] public string? Bairro { get; set; }
+    [Tag("cMun")]    public int? CodigoMunicipio { get; set; }
+    [Tag("xMun")]    public string? Municipio { get; set; }
+    [Tag("UF")]      public UF? UF { get; set; }
     public bool Exterior { get; set; }
-    [Tag("CEP", "F10")]     public string? Cep { get; set; }
-    [Tag("cPais", "F11")]   public int? CodigoPais { get; set; }
-    [Tag("xPais", "F12")]   public string? Pais { get; set; }
-    [Tag("fone", "F13")]    public string? Telefone { get; set; }
-    [Tag("email", "F14")]   public string? Email { get; set; }
-    [Tag("IE", "F15")]      public string? InscricaoEstadual { get; set; }
+    [Tag("CEP")]     public string? Cep { get; set; }
+    [Tag("cPais")]   public int? CodigoPais { get; set; }
+    [Tag("xPais")]   public string? Pais { get; set; }
+    [Tag("fone")]    public string? Telefone { get; set; }
+    [Tag("email")]   public string? Email { get; set; }
+    [Tag("IE")]      public string? InscricaoEstadual { get; set; }
 }
-
-public sealed class LocalEntrega { /* os mesmos de LocalRetirada, G02, G02a, G02b, G03 ... G15 */ }
 
 public sealed class PessoaAutorizada
 {
@@ -332,8 +332,8 @@ public sealed class Transporte
     [Tag("transporta", "X03")] public Transportador? Transportador { get; set; }
     [Tag("retTransp", "X11")]  public RetencaoIcmsTransporte? Retencao { get; set; }
     // veicTransp + reboque, vagao ou balsa: escolha do XSD, propriedades exclusivas (decisão 10).
-    [Tag("veicTransp", "X18")] public VeiculoTracao? Veiculo { get; set; }
-    [Tag("reboque", "X22")]    public IList<Reboque> Reboques { get; } = new List<Reboque>();       // 0-5
+    [Tag("veicTransp", "X18")] public Veiculo? Veiculo { get; set; }
+    [Tag("reboque", "X22")]    public IList<Veiculo> Reboques { get; } = new List<Veiculo>();       // 0-5
     [Tag("vagao", "X25a")]     public string? Vagao { get; set; }
     [Tag("balsa", "X25b")]     public string? Balsa { get; set; }
     [Tag("vol", "X26")]        public IList<Volume> Volumes { get; } = new List<Volume>();         // 0-5000
@@ -361,16 +361,15 @@ public sealed class RetencaoIcmsTransporte
     [Tag("cMunFG", "X17")]   public int? MunicipioFatoGerador { get; set; }
 }
 
-/// O TVeiculo no veicTransp. Reboque tem os mesmos membros, com X23 a X25 (decisão 12).
-public sealed class VeiculoTracao
+/// O TVeiculo: o veículo de tração (veicTransp, X19 a X21) e cada reboque (X23 a X25). Uma classe para os dois
+/// (decisão 12), com o [Tag] só com a tag.
+public sealed class Veiculo
 {
-    [Tag("placa", "X19")] public string? Placa { get; set; }
-    [Tag("UF", "X20")]    public UF? UF { get; set; }
+    [Tag("placa")] public string? Placa { get; set; }
+    [Tag("UF")]    public UF? UF { get; set; }
     public bool Exterior { get; set; }
-    [Tag("RNTC", "X21")]  public string? Rntc { get; set; }
+    [Tag("RNTC")]  public string? Rntc { get; set; }
 }
-
-public sealed class Reboque { /* Placa X23, UF X24, Exterior, Rntc X25 */ }
 
 public sealed class Volume
 {
@@ -461,18 +460,17 @@ public sealed class InformacoesAdicionais
 {
     [Tag("infAdFisco", "Z02")] public string? Fisco { get; set; }
     [Tag("infCpl", "Z03")]     public string? Complementares { get; set; }
-    [Tag("obsCont", "Z04")]    public IList<ObservacaoContribuinte> ObservacoesContribuinte { get; } = new List<ObservacaoContribuinte>();
-    [Tag("obsFisco", "Z07")]   public IList<ObservacaoFisco> ObservacoesFisco { get; } = new List<ObservacaoFisco>();
+    [Tag("obsCont", "Z04")]    public IList<Observacao> ObservacoesContribuinte { get; } = new List<Observacao>();
+    [Tag("obsFisco", "Z07")]   public IList<Observacao> ObservacoesFisco { get; } = new List<Observacao>();
     [Tag("procRef", "Z10")]    public IList<ProcessoReferenciado> Processos { get; } = new List<ProcessoReferenciado>();
 }
 
-public sealed class ObservacaoContribuinte
+/// O obsCont (Z05, Z06) e o obsFisco (Z08, Z09). Uma classe para os dois (decisão 12), com o [Tag] só com a tag.
+public sealed class Observacao
 {
-    [Tag("xCampo", "Z05")] public string? Campo { get; set; }                           // o atributo
-    [Tag("xTexto", "Z06")] public string? Texto { get; set; }
+    [Tag("xCampo")] public string? Campo { get; set; }                                  // o atributo
+    [Tag("xTexto")] public string? Texto { get; set; }
 }
-
-public sealed class ObservacaoFisco { /* Campo Z08, Texto Z09 */ }
 
 public sealed class ProcessoReferenciado
 {
@@ -675,7 +673,7 @@ public enum ModeloCupomFiscal { MaquinaRegistradora = 1, Pdv = 2, Ecf = 3 }     
 
 ## 3. Regras de forma (valem também para a 2.3)
 
-1. **Um grupo do XML, uma classe; um campo, uma propriedade com `[Tag]`** (tag e identificador do MOC). Lista do XML, `IList<T>` com o `[Tag]` do elemento que se repete. Atributo do XML, propriedade com a tag sem `@` (`xCampo`, `dia`), como diz o `TagAttribute`.
+1. **Um grupo do XML, uma classe; um campo, uma propriedade com `[Tag]`** (tag e identificador do MOC). O mesmo tipo do XSD em mais de um lugar é uma classe só, e o `[Tag]` dos campos dela leva só a tag (decisão 12); o identificador do grupo fica na propriedade que o guarda. Lista do XML, `IList<T>` com o `[Tag]` do elemento que se repete. Atributo do XML, propriedade com a tag sem `@` (`xCampo`, `dia`), como diz o `TagAttribute`.
 2. **Classe selada, mutável (`get; set;`), construtor público sem parâmetros**; sem `record`, sem `struct`, sem igualdade de valor, sem `required`.
 3. **Todo campo é anulável**; grupo opcional `null` = ausente; grupo obrigatório inicializado (`= new()`); lista nunca nula, inicializada, só leitura na propriedade.
 4. **O modelo não confere nem normaliza nada:** sem exceção em setter, sem tirar máscara, sem aparar espaços. O valor vai ao XML como está (formatado pelo leiaute: decimais com as casas, datas com o fuso) e o schema e as regras apontam o erro, com a propriedade (2.6).
@@ -703,16 +701,16 @@ O caminho do XML (o do `Problema`, 1.5) e a propriedade (o `Problema.Propriedade
 | D01-D12 | `NFe/infNFe/avulsa/CNPJ` ... `dPag` | `Avulsa.Cnpj` ... `PagamentoDar` | `FiscoEmitente` |
 | E01-E19 | `NFe/infNFe/dest/CNPJ`, `CPF`, `idEstrangeiro`, `xNome`, `indIEDest`, `IE`, `ISUF`, `IM`, `email` | `Destinatario.Cnpj`, `Cpf`, `IdEstrangeiro`, `Nome`, `IndicadorIE`, `InscricaoEstadual`, `InscricaoSuframa`, `InscricaoMunicipal`, `Email` | `Destinatario` |
 | E05-E16 | `.../dest/enderDest/xLgr` ... `fone` (`UF` = `EX`: `Exterior`) | `Destinatario.Endereco.Logradouro` ... `Telefone` | `EnderecoDestinatario` |
-| F01-F15 | `NFe/infNFe/retirada/CNPJ` ... `IE` | `Retirada.Cnpj` ... `InscricaoEstadual` | `LocalRetirada` |
-| G01-G15 | `NFe/infNFe/entrega/...` | `Entrega...` | `LocalEntrega` |
+| F01-F15 | `NFe/infNFe/retirada/CNPJ` ... `IE` | `Retirada.Cnpj` ... `InscricaoEstadual` | `Local` |
+| G01-G15 | `NFe/infNFe/entrega/...` | `Entrega...` | `Local` |
 | GA01-GA03 | `NFe/infNFe/autXML[n]/CNPJ`, `CPF` | `AutorizadosXml[n-1].Cnpj`, `Cpf` | `PessoaAutorizada` |
 | H01 | `NFe/infNFe/det[n]` (e `@nItem`) | `Itens[n-1]` | `Item` (2.3) |
 | W01 | `NFe/infNFe/total` | `Total` | `Total` (2.3) |
 | X01-X02 | `NFe/infNFe/transp/modFrete` | `Transporte.Modalidade` | `Transporte` |
 | X03-X10 | `.../transp/transporta/CNPJ` ... `UF` | `Transporte.Transportador.Cnpj` ... `UF` | `Transportador` |
 | X11-X17 | `.../transp/retTransp/vServ` ... `cMunFG` | `Transporte.Retencao.ValorServico` ... `MunicipioFatoGerador` | `RetencaoIcmsTransporte` |
-| X18-X21 | `.../transp/veicTransp/placa`, `UF`, `RNTC` | `Transporte.Veiculo.Placa`, `UF`, `Rntc` | `VeiculoTracao` |
-| X22-X25 | `.../transp/reboque[n]/placa`, `UF`, `RNTC` | `Transporte.Reboques[n-1].Placa`, `UF`, `Rntc` | `Reboque` |
+| X18-X21 | `.../transp/veicTransp/placa`, `UF`, `RNTC` | `Transporte.Veiculo.Placa`, `UF`, `Rntc` | `Veiculo` |
+| X22-X25 | `.../transp/reboque[n]/placa`, `UF`, `RNTC` | `Transporte.Reboques[n-1].Placa`, `UF`, `Rntc` | `Veiculo` |
 | X25a, X25b | `.../transp/vagao`, `balsa` | `Transporte.Vagao`, `Balsa` | `string` |
 | X26-X32 | `.../transp/vol[n]/qVol` ... `pesoB` | `Transporte.Volumes[n-1].Quantidade` ... `PesoBruto` | `Volume` |
 | X33-X34 | `.../transp/vol[n]/lacres[m]/nLacre` | `Transporte.Volumes[n-1].Lacres[m-1].Numero` | `Lacre` |
@@ -723,7 +721,7 @@ O caminho do XML (o do `Problema`, 1.5) e a propriedade (o `Problema.Propriedade
 | YA04-YA07b | `.../detPag[n]/card/tpIntegra`, `CNPJ`, `tBand`, `cAut`, `CNPJReceb`, `idTermPag` | `Pagamento.Formas[n-1].Transacao.Integracao`, `CnpjInstituicao`, `Bandeira`, `Autorizacao`, `CnpjBeneficiario`, `Terminal` | `TransacaoEletronica` |
 | YB01-YB03 | `NFe/infNFe/infIntermed/CNPJ`, `idCadIntTran` | `Intermediador.Cnpj`, `Identificador` | `Intermediador` |
 | Z01-Z03 | `NFe/infNFe/infAdic/infAdFisco`, `infCpl` | `InformacoesAdicionais.Fisco`, `Complementares` | `InformacoesAdicionais` |
-| Z04-Z09 | `.../infAdic/obsCont[n]/@xCampo`, `xTexto` (e `obsFisco`) | `InformacoesAdicionais.ObservacoesContribuinte[n-1].Campo`, `Texto` (e `ObservacoesFisco`) | `ObservacaoContribuinte`, `ObservacaoFisco` |
+| Z04-Z09 | `.../infAdic/obsCont[n]/@xCampo`, `xTexto` (e `obsFisco`) | `InformacoesAdicionais.ObservacoesContribuinte[n-1].Campo`, `Texto` (e `ObservacoesFisco`) | `Observacao` |
 | Z10-Z13 | `.../infAdic/procRef[n]/nProc`, `indProc`, `tpAto` | `InformacoesAdicionais.Processos[n-1].Numero`, `Origem`, `TipoAto` | `ProcessoReferenciado` |
 | ZA01-ZA04 | `NFe/infNFe/exporta/UFSaidaPais`, `xLocExporta`, `xLocDespacho` | `Exportacao.UFSaida`, `LocalEmbarque`, `LocalDespacho` | `Exportacao` |
 | ZB01-ZB04 | `NFe/infNFe/compra/xNEmp`, `xPed`, `xCont` | `Compra.NotaEmpenho`, `Pedido`, `Contrato` | `Compra` |
@@ -736,7 +734,7 @@ O caminho do XML (o do `Problema`, 1.5) e a propriedade (o `Problema.Propriedade
 | A02, A01 | `NFe/infNFe/@Id`, `@versao` | (nenhuma: a chave e a versão do leiaute) | |
 | ZZ01 | `NFe/Signature` e o que vem dentro | (nenhuma: decisão 20) | |
 
-**Como a 2.6 converte:** a partir de `NotaFiscal`, cada passo do caminho acha a propriedade do tipo atual com aquela tag (`[Tag]` em propriedade); `[n]` vira `[n-1]` na lista, e sem índice é o primeiro (1.5). Nos `NFref`, o passo da escolha (`refNF`, `refNFP`, `refECF`) é o `[Tag]` da subclasse (decisão 11): o caminho segue nas propriedades dela; nas escolhas de um valor só (`refNFe`, `refNFeSig`, `refCTe`), a propriedade `Chave` da subclasse é achada pela tag. `infNFe` não gera passo; `Signature`, `@Id`, `@versao` e `cDV` não têm propriedade (`Problema.Propriedade` nulo). `UF` com `EX` aponta a propriedade `UF`.
+**Como a 2.6 converte:** a partir de `NotaFiscal`, cada passo do caminho acha a propriedade do tipo atual com aquela tag (`[Tag]` em propriedade); `[n]` vira `[n-1]` na lista, e sem índice é o primeiro (1.5). Nos `NFref`, o passo da escolha (`refNF`, `refNFP`, `refECF`) é o `[Tag]` da subclasse (decisão 11): o caminho segue nas propriedades dela; nas escolhas de um valor só (`refNFe`, `refNFeSig`, `refCTe`), a propriedade `Chave` da subclasse é achada pela tag. `infNFe` não gera passo; `Signature`, `@Id`, `@versao` e `cDV` não têm propriedade (`Problema.Propriedade` nulo). `UF` com `EX` aponta a propriedade `UF`. Nas classes compartilhadas (`Local`, `Veiculo`, `Observacao`), o passo acha a propriedade pela tag, como nas outras; o identificador do MOC do campo (F03 ou G03) não vem do `[Tag]`, e o `Problema` aponta a propriedade pelo caminho (`Entrega.Logradouro`).
 
 ## 5. Exemplo de uso
 
@@ -798,7 +796,9 @@ foreach (var r in lida.Identificacao.Referencias)
 - **Versão menor:** propriedade anulável nova (campo de NT), grupo opcional novo, classe nova, subclasse nova de uma escolha, membro novo de enumeração. **Versão maior:** renomear, mudar o tipo, tornar obrigatório (por isso nenhum `required`), tirar campo.
 - As bases de escolha são fechadas (`private protected`): só a lib deriva, e o leiaute conhece todas.
 
-## 8. Decisões (para aprovação)
+## 8. Decisões (aprovadas em 2026-10-19)
+
+Todas pela recomendação (a), salvo a 12, aprovada com a (b).
 
 1. **Nome da raiz.** (a) **`NotaFiscal`**; (b) `Nota`; (c) `NotaFiscalEletronica`; (d) `DocumentoNFe` (colide no uso com o enum `Documento` do núcleo). Recomendo (a): descritivo, vale para a NF-e e a NFC-e (que também é nota fiscal), não colide com o namespace `OpenDFe.NFe` (2.1) nem com o núcleo; (b) é curto demais para um tipo público ao lado de `Item` e `Total`.
 2. **Raiz achatada.** (a) **`NotaFiscal` é o `NFe` e o `infNFe` juntos; o `infNFeSupl` é uma propriedade dela; `Id`, `versao` e `Signature` ficam fora**; (b) espelho do XML (`nota.Informacoes.Identificacao`). Recomendo (a): o `infNFe` não tem campo próprio (só o `Id`, que é a chave, e a `versao`, que é do leiaute), e o caminho da 2.6 fica `Itens[2].Produto.Valor`, como o `PLANO.md` pede.
@@ -811,7 +811,7 @@ foreach (var r in lida.Identificacao.Referencias)
 9. **UF com "EX"** (endereço do destinatário, retirada, entrega, transportador, veículos: o `TUf` aceita `EX`; o emitente, a exportação, o pagamento e a guia usam o `TUfEmi`, sem ele). (a) **`UF? UF` mais `bool Exterior` (sem `[Tag]`) nas classes do `TUf`**; (b) `string` com a sigla nessas classes; (c) um `EX` no `UF` do núcleo. Recomendo (a): continua tipado; (c) poria no núcleo uma "UF" que não é UF, e (b) perde o tipo nos casos comuns. O problema no `UF` aponta a propriedade `UF`.
 10. **Escolhas do XSD (`xs:choice`).** (a) **valores alternativos e grupos que dividem o pai com outros campos viram propriedades exclusivas (CNPJ/CPF/`idEstrangeiro`; `veicTransp`+`reboque`/`vagao`/`balsa`; `defensivo`/`guiaTransito`), com `Erro` na montagem se mais de uma vier preenchida; a escolha que é todo o conteúdo de um elemento repetido (`NFref`) vira subclasses de uma base fechada; o pagamento não tem escolha no XSD (o `card` é opcional) e não ganha subclasse por meio**; (b) subclasses em todas (`DestinatarioPessoaFisica`...); (c) propriedades exclusivas em todas, também no `NFref`. Recomendo (a): CNPJ e CPF são o mesmo dado em duas tags, e a subclasse obrigaria a trocar o objeto para mudar de CPF para CNPJ; o `NFref` é uma lista de coisas diferentes, como os grupos de ICMS (`PROJETO.md` 4.3), e o `switch` por tipo é o natural; subclasse por meio de pagamento não acompanha o `tPag`, que muda por NT.
 11. **`[Tag]` na classe.** (a) **o `TagAttribute` passa a valer também em classe (`AttributeTargets.Property | AttributeTargets.Class`), para a subclasse de escolha que é um grupo (`refNF`, `refNFP`, `refECF`; na 2.3, os grupos de ICMS)**; (b) só em propriedade, e o leiaute guarda à parte qual tag é qual subclasse. Recomendo (a): a 2.6 e a documentação acham a tag no próprio tipo, sem tabela paralela. Muda a decisão da 2.1 ("só propriedade; abrir depois é versão menor") sem custo: nada foi publicado e o `AttributeUsage` não está no `PublicAPI`.
-12. **O mesmo tipo do XSD em dois lugares** (`TLocal` na retirada e na entrega, `TVeiculo` no `veicTransp` e no `reboque`, `obsCont` e `obsFisco`; o endereço do emitente e o do destinatário já são tipos diferentes no XSD). (a) **uma classe por lugar (`LocalRetirada`/`LocalEntrega`, `VeiculoTracao`/`Reboque`, `ObservacaoContribuinte`/`ObservacaoFisco`), cada uma com os identificadores do MOC do seu lugar**; (b) uma classe compartilhada (`Local`, `Veiculo`, `Observacao`), com um construtor novo do `[Tag]` só com a tag, sem identificador, nos campos dela; (c) classe compartilhada com o identificador do primeiro lugar. Recomendo (a): o identificador do MOC é diferente em cada lugar (`xLgr` é F03 na retirada e G03 na entrega), o `[Tag]` o exige, e um XSD futuro pode separar os dois. Custo: três pares de classes iguais e, para quem mapeia de um endereço próprio, duas atribuições. (c) é errado; (b) perde o identificador e é a alternativa se (a) parecer repetitiva demais.
+12. **O mesmo tipo do XSD em dois lugares** (`TLocal` na retirada e na entrega, `TVeiculo` no `veicTransp` e no `reboque`, `obsCont` e `obsFisco`; o endereço do emitente e o do destinatário já são tipos diferentes no XSD). (a) **uma classe por lugar (`LocalRetirada`/`LocalEntrega`, `VeiculoTracao`/`Reboque`, `ObservacaoContribuinte`/`ObservacaoFisco`), cada uma com os identificadores do MOC do seu lugar**; (b) uma classe compartilhada (`Local`, `Veiculo`, `Observacao`), com um construtor novo do `[Tag]` só com a tag, sem identificador, nos campos dela; (c) classe compartilhada com o identificador do primeiro lugar. Recomendo (a): o identificador do MOC é diferente em cada lugar (`xLgr` é F03 na retirada e G03 na entrega), o `[Tag]` o exige, e um XSD futuro pode separar os dois. Custo: três pares de classes iguais e, para quem mapeia de um endereço próprio, duas atribuições. (c) é errado; (b) perde o identificador e é a alternativa se (a) parecer repetitiva demais. **Aprovada a (b):** `Local`, `Veiculo` e `Observacao`; o `TagAttribute` ganha o construtor `(string tag)`, e o `Identificador` passa a `string?` (nulo nesses campos). Se um XSD futuro separar os dois lugares, a classe nova entra em versão maior.
 13. **Sequências sem elemento** (`dhCont`+`xJust`, `IM`+`CNAE`, `CNPJPag`+`UFPag`, `idCSRT`+`hashCSRT`). (a) **propriedades soltas no pai; o schema aponta o par incompleto**; (b) uma classe para o par (`Identificacao.Contingencia`, usando a `Contingencia` do núcleo). Recomendo (a): não há tag no XML para o grupo, e a 2.6 não teria passo para ele; a `Contingencia` do núcleo não tem `[Tag]` nem aceita o par incompleto que a leitura pode encontrar.
 14. **A NFC-e.** (a) **o mesmo modelo; o que a NFC-e não usa (avulsa, retirada, cobrança, `NFref`, exportação, compra, cana, `dPrevEntrega`...) é regra da 3.3, com o código da rejeição; a escrita escreve o que estiver preenchido**; (b) um tipo próprio (`NotaFiscalConsumidor`) sem esses grupos; (c) a escrita recusa já na 2.4. Recomendo (a): `PROJETO.md` 3.1 ("o mesmo modelo de dados"), e as regras da NFC-e mudam por NT e por UF, o que um tipo não acompanha.
 15. **`infNFeSupl` (QR Code e URL da consulta).** (a) **no modelo (`Suplementares`), preenchido pela leitura; na escrita, escrito como está até a 5.1, quando o leiaute passa a gerá-lo a partir do CSC da configuração; com o gerado, o preenchido e diferente é `Erro`**; (b) fora do modelo, só no resultado. Recomendo (a): a leitura precisa de onde pô-lo (o DANFCE de uma nota lida o imprime), e não decidir hoje o que a 5.1 vai precisar.
@@ -824,6 +824,7 @@ foreach (var r in lida.Identificacao.Referencias)
 ### Divergências com o `PROJETO.md` e a 2.1
 
 - `PLANO.md` 2.1, decisão do `[Tag]` "só propriedade": passa a valer também em classe (decisão 11).
+- `PLANO.md` 2.1, `TagAttribute` com o identificador obrigatório: ganha o construtor só com a tag, e o `Identificador` fica anulável (decisão 12). Nada foi publicado; muda só o `PublicAPI.Unshipped.txt`.
 - Nenhuma com o `PROJETO.md`: o 4.1 a 4.6 e o 5.1 continuam valendo; o 4.3 ("escolhas viram tipos") ganha o critério da decisão 10.
 
 ## 9. O que fica para depois
