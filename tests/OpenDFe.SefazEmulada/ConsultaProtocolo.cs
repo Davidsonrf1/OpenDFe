@@ -8,7 +8,8 @@ namespace OpenDFe.SefazEmulada;
 // 226), o DV (J02a, 236), o ano (J02c, 615), o mês (J02d, 616), o CNPJ ou o CPF (J02e, 617), o modelo (J02f,
 // 618) e o número (J02g, 619); a paralisação (108, 109); e, na base, a nota pela numeração (J03, 217), o
 // código numérico (J04, 562), o mês (J05, 561) e o resto da chave (J06, 613). Achada, a situação da nota (100
-// ou 150) com o protNFe da autorização. A SVC só acha as notas que ela autorizou (Anexo III, 2.1.3.4, f); o
+// ou 150; 101 depois do cancelamento) com o protNFe da autorização e o procEventoNFe de cada evento registrado
+// (5.4.3: o cancelamento e a CC-e). A SVC só acha as notas que ela autorizou (Anexo III, 2.1.3.4, f); o
 // autorizador normal acha também as da SVC, que chegam a ele pelo Ambiente Nacional (h).
 internal sealed class ConsultaProtocolo : Servico
 {
@@ -43,7 +44,8 @@ internal sealed class ConsultaProtocolo : Servico
                 return Retorno(Motivos.MesChaveDivergente, pedido, chave);
             if (nota.Chave != chave)
                 return Retorno(Motivos.ChaveDivergenteBase, pedido, chave);
-            return Retorno(nota.Situacao, pedido, chave, protocolo: nota.ProtocoloXml);
+            return Retorno(nota.Cancelada ? Motivos.Cancelado : nota.Situacao, pedido, chave, protocolo: nota.ProtocoloXml,
+                eventos: repositorio.Eventos(nota.Chave));
         }
     }
 
@@ -56,22 +58,7 @@ internal sealed class ConsultaProtocolo : Servico
     {
         if (!pedido.Autorizador.Atende(chave[..2]))
             return Motivos.UFEmitenteDivergente;
-        if (Documentos.Modulo11(chave[..43]) != chave[43] - '0')
-            return Motivos.ChaveDigitoInvalido;
-        var ano = int.Parse(chave[2..4], CultureInfo.InvariantCulture);
-        if (ano < 6 || ano > pedido.Recebimento.ToOffset(TimeSpan.FromHours(-3)).Year % 100)
-            return Motivos.ChaveAnoInvalido;
-        if (chave[4..6] is not ("01" or "02" or "03" or "04" or "05" or "06" or "07" or "08" or "09" or "10" or "11" or "12"))
-            return Motivos.ChaveMesInvalido;
-        // J02e (NT 2018.001): da série 0 a 909, o CNPJ; da 910 a 969, o CPF (com os três zeros à esquerda).
-        var serie = int.Parse(chave[22..25], CultureInfo.InvariantCulture);
-        var documento = chave[6..20];
-        if ((serie <= 909 && !Documentos.CnpjValido(documento))
-            || (serie is >= 910 and <= 969 && (!documento.StartsWith("000", StringComparison.Ordinal) || !Documentos.CpfValido(documento[3..]))))
-            return Motivos.ChaveDocumentoInvalido;
-        if (chave[20..22] is not ("55" or "65"))
-            return Motivos.ChaveModeloInvalido;
-        return chave[25..34] == "000000000" ? Motivos.ChaveNumeroInvalido : null;
+        return Documentos.ConferirChave(chave, pedido.Recebimento);
     }
 
     // J04: a chave da nota na base, opcional no motivo, quando o transmissor é o emitente (a raiz do CNPJ ou o
@@ -85,8 +72,10 @@ internal sealed class ConsultaProtocolo : Servico
         return mesmo ? $" [chNFe:{nota.Chave}]" : "";
     }
 
-    // O retConsSitNFe (Tabela 5-14), com o cUF da casa do autorizador e o protNFe só na nota achada.
-    private static XElement Retorno(string codigo, Pedido pedido, string chave, string complemento = "", XElement? protocolo = null) =>
+    // O retConsSitNFe (Tabela 5-14), com o cUF da casa do autorizador e o protNFe e os eventos só na nota achada. O
+    // retCancNFe, do cancelamento anterior aos eventos, não sai.
+    private static XElement Retorno(string codigo, Pedido pedido, string chave, string complemento = "", XElement? protocolo = null,
+        IReadOnlyList<EventoRegistrado>? eventos = null) =>
         new(NamespaceNFe + "retConsSitNFe",
             new XAttribute("versao", Versao),
             Elemento("tpAmb", "2"),
@@ -96,5 +85,6 @@ internal sealed class ConsultaProtocolo : Servico
             Elemento("cUF", pedido.Autorizador.CodigoCasa),
             Elemento("dhRecbto", DataHora(pedido.Recebimento)),
             Elemento("chNFe", chave),
-            protocolo is null ? null : new XElement(protocolo));
+            protocolo is null ? null : new XElement(protocolo),
+            eventos?.Select(e => new XElement(e.Processado)));
 }

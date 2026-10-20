@@ -48,9 +48,9 @@ internal sealed class Autorizador
 
     private static List<Autorizador> Montar()
     {
-        string[] completos = [Servico.NomeStatus, Servico.NomeAutorizacao, Servico.NomeRetAutorizacao, Servico.NomeConsultaProtocolo, "NFeRecepcaoEvento4", "NFeInutilizacao4"];
-        string[] svcRS = [Servico.NomeStatus, Servico.NomeAutorizacao, Servico.NomeRetAutorizacao, Servico.NomeConsultaProtocolo, "NFeRecepcaoEvento4"];
-        string[] an = ["NFeDistribuicaoDFe", "NFeRecepcaoEvento4"];
+        string[] completos = [Servico.NomeStatus, Servico.NomeAutorizacao, Servico.NomeRetAutorizacao, Servico.NomeConsultaProtocolo, Servico.NomeRecepcaoEvento, Servico.NomeInutilizacao];
+        string[] svcRS = [Servico.NomeStatus, Servico.NomeAutorizacao, Servico.NomeRetAutorizacao, Servico.NomeConsultaProtocolo, Servico.NomeRecepcaoEvento];
+        string[] an = ["NFeDistribuicaoDFe", Servico.NomeRecepcaoEvento];
 
         var lista = new List<Autorizador>();
         foreach (var uf in (string[])["AM", "BA", "GO", "MG", "MS", "MT", "PE", "PR", "RS", "SP"])

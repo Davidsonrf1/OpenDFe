@@ -3,8 +3,12 @@ namespace OpenDFe.SefazEmulada;
 // Os códigos de resultado (cStat) que o emulador usa e o texto do xMotivo, como o MOC 7.0, Anexo I, 4.4.1
 // e 4.4.2 os escreve (sem a referência à NT entre parênteses e sem os complementos entre colchetes, que
 // quem monta o retorno acrescenta). O 764 não aparece na tabela 4.4.2 do PDF; o texto é o da regra GAP03a-1,
-// em 4.1.3. Os códigos que as NTs criaram ou mudaram depois do MOC 7.0 levam o texto da NT: a 2025.001 v1.02
-// (444, 452, 583) e a 2026.002 v1.11 (672, 704, 711).
+// em 4.1.3; o mesmo com o 491, o 492 e o 493 (regras D04 a D06) e o 921 (Visão Geral, Tabela 5-38). Os
+// códigos que as NTs criaram ou mudaram depois do MOC 7.0 levam o texto da NT: a 2025.001 v1.02 (444, 452,
+// 583), a 2026.002 v1.11 (672, 704, 711) e a 2024.001 v1.20 (302, que deixou de ser denegação, e 781). O 910 e
+// o 911 levam o nome do campo entre parênteses, que quem monta o retorno acrescenta. O travessão e as aspas
+// curvas do MOC (516, 517, 565, 568, 572, 903) vão como o hífen e as aspas retas: o TString do schema dos
+// retornos só aceita caracteres até o ÿ.
 internal static class Motivos
 {
     public const string Autorizado = "100";
@@ -75,6 +79,58 @@ internal static class Motivos
     public const string NfceSvc = "783";
     public const string VersaoQrCodeAntiga = "903";
 
+    // E.4: os eventos, a inutilização e os irregulares.
+    public const string Cancelado = "101";
+    public const string Inutilizado = "102";
+    public const string LoteEventoProcessado = "128";
+    public const string EventoVinculado = "135";
+    public const string InutilizacaoLimite = "201";
+    public const string EmissorInabilitado = "203";
+    public const string NumeracaoInutilizada = "206";
+    public const string NotaCancelada = "218";
+    public const string ProtocoloDivergente = "222";
+    public const string FaixaInvertida = "224";
+    public const string EmitenteIrregular = "240";
+    public const string NumeroUtilizado = "241";
+    public const string OrgaoDivergente = "250";
+    public const string FaixaInutilizada = "256";
+    public const string SerieNaoPermitida = "266";
+    public const string DestinatarioIrregular = "302";
+    public const string AnoPosterior = "453";
+    public const string AnoAnterior = "454";
+    public const string OrgaoAutorDivergente = "455";
+    public const string CnpjInvalido = "489";
+    public const string CpfInvalido = "490";
+    public const string TipoEventoInvalido = "491";
+    public const string VersaoEventoInvalida = "492";
+    public const string SchemaEventoInvalido = "493";
+    public const string ChaveInexistente = "494";
+    public const string PrazoCancelamento = "501";
+    public const string InutilizacaoRepetida = "563";
+    public const string IdEventoDivergente = "572";
+    public const string EventoDuplicado = "573";
+    public const string AutorDivergente = "574";
+    public const string EventoAntesEmissao = "577";
+    public const string EventoPosterior = "578";
+    public const string EventoAntesAutorizacao = "579";
+    public const string NotaNaoAutorizada = "580";
+    public const string SequenciaEventoInvalida = "594";
+    public const string ChaveUFInvalida = "614";
+    public const string EmissorNaoHabilitado = "781";
+    public const string CartaCorrecaoNfce = "784";
+    public const string SubstitutaInvalida = "910";
+    public const string SubstitutaIncorreta = "911";
+    public const string SubstitutaInexistente = "912";
+    public const string SubstitutaCancelada = "913";
+    public const string SubstitutaEmissao = "914";
+    public const string SubstitutaValor = "915";
+    public const string SubstitutaIcms = "916";
+    public const string SubstitutaDestinatario = "917";
+    public const string SubstitutaQuantidadeItens = "918";
+    public const string SubstitutaItem = "919";
+    public const string SubstituicaoTipoEmissao = "920";
+    public const string SubstitutaTipoEmissao = "921";
+
     private static readonly Dictionary<string, string> Textos = new(StringComparer.Ordinal)
     {
         [Autorizado] = "Autorizado o uso da NF-e",
@@ -119,14 +175,14 @@ internal static class Motivos
         [HashQrCodeDivergente] = "Rejeição: Código de Hash no QR-Code difere do calculado",
         [UFPrimeiraNotaDivergente] = "Rejeição: Código da UF diverge da UF da primeira NF-e do Lote",
         [ChaveDivergenteCampos] = "Rejeição: Erro na Chave de Acesso - Campo Id não corresponde à concatenação dos campos correspondentes",
-        [RaizInexistente] = "Rejeição: Falha no schema XML – inexiste a tag raiz esperada para a mensagem",
-        [VersaoInexistente] = "Rejeição: Falha no schema XML – inexiste atributo versao na tag raiz da mensagem",
+        [RaizInexistente] = "Rejeição: Falha no schema XML - inexiste a tag raiz esperada para a mensagem",
+        [VersaoInexistente] = "Rejeição: Falha no schema XML - inexiste atributo versao na tag raiz da mensagem",
         [DuplicidadeChaveDiferente] = "Rejeição: Duplicidade de NF-e com diferença na Chave de Acesso",
         [MesChaveDivergente] = "Rejeição: Mês de Emissão informado na Chave de Acesso difere do Mês de Emissão da NF-e",
         [CodigoNumericoDivergente] = "Rejeição: Código Numérico informado na Chave de Acesso difere do Código Numérico da NF-e",
         [TipoAutorizadorDivergente] = "Rejeição: Tipo autorizador do recibo diverge do Órgão Autorizador.",
-        [RaizLoteInexistente] = "Rejeição: Falha no schema XML – inexiste a tag raiz esperada para o lote de NF-e",
-        [VersaoLoteInexistente] = "Rejeição: Falha no schema XML – inexiste atributo versao na tag raiz do lote de NF-e",
+        [RaizLoteInexistente] = "Rejeição: Falha no schema XML - inexiste a tag raiz esperada para o lote de NF-e",
+        [VersaoLoteInexistente] = "Rejeição: Falha no schema XML - inexiste atributo versao na tag raiz do lote de NF-e",
         [TipoEmissaoContingencia] = "Rejeição: Tipo de Emissão 3, 6 ou 7 só é válido nas contingências SCAN/SVC",
         [AssinaturaQrCodeDivergente] = "Rejeição: Valor da assinatura do qrCode difere do valor calculado",
         [ChaveDivergenteBase] = "Rejeição: Chave de Acesso difere da existente em BD",
@@ -143,7 +199,57 @@ internal static class Motivos
         [SincronoVariasNotas] = "Rejeição: Solicitada resposta síncrona para Lote com mais de uma NF-e (indSinc=1)",
         [LoteMisturado] = "Rejeição: Lote só poderá conter NF-e ou NFC-e",
         [NfceSvc] = "Rejeição: NFC-e não é autorizada pela SVC",
-        [VersaoQrCodeAntiga] = "Rejeição Versão informada no QR-Code (“100”) não é mais válida para a data de emissão",
+        [VersaoQrCodeAntiga] = "Rejeição Versão informada no QR-Code (\"100\") não é mais válida para a data de emissão",
+        [Cancelado] = "Cancelamento de NF-e homologado",
+        [Inutilizado] = "Inutilização de número homologado",
+        [LoteEventoProcessado] = "Lote de Evento Processado",
+        [EventoVinculado] = "Evento registrado e vinculado a NF-e",
+        [EmissorInabilitado] = "Rejeição: Emissor não habilitado para emissão da NF-e",
+        [InutilizacaoLimite] = "Rejeição: Número máximo de numeração a inutilizar ultrapassou o limite",
+        [NumeracaoInutilizada] = "Rejeição: NF-e já está inutilizada na Base de Dados da SEFAZ",
+        [NotaCancelada] = "Rejeição: NF-e já está cancelada na base de dados da SEFAZ",
+        [ProtocoloDivergente] = "Rejeição: Protocolo de Autorização de Uso difere do cadastrado",
+        [FaixaInvertida] = "Rejeição: A faixa inicial é maior que a faixa final",
+        [EmitenteIrregular] = "Rejeição: Irregularidade Fiscal do Emitente",
+        [NumeroUtilizado] = "Rejeição: Um número da faixa já foi utilizado",
+        [OrgaoDivergente] = "Rejeição: UF diverge da UF autorizadora",
+        [FaixaInutilizada] = "Rejeição: Uma NF-e da faixa já está inutilizada na Base de dados da SEFAZ",
+        [SerieNaoPermitida] = "Rejeição: Série utilizada não permitida no Web Service",
+        [DestinatarioIrregular] = "Rejeição: Irregularidade fiscal do destinatário",
+        [AnoPosterior] = "Rejeição: Ano de inutilização não pode ser superior ao Ano atual",
+        [AnoAnterior] = "Rejeição: Ano de inutilização não pode ser inferior a 2006",
+        [OrgaoAutorDivergente] = "Rejeição: Órgão Autor do evento diferente da UF da Chave de Acesso",
+        [CnpjInvalido] = "Rejeição: CNPJ informado inválido (DV ou zeros)",
+        [CpfInvalido] = "Rejeição: CPF informado inválido (DV ou zeros)",
+        [TipoEventoInvalido] = "Rejeição: O tpEvento informado inválido",
+        [VersaoEventoInvalida] = "Rejeição: O verEvento informado inválido",
+        [SchemaEventoInvalido] = "Rejeição: Evento não atende o Schema XML específico",
+        [ChaveInexistente] = "Rejeição: Chave de Acesso inexistente",
+        [PrazoCancelamento] = "Rejeição: Prazo de cancelamento superior ao previsto na Legislação",
+        [InutilizacaoRepetida] = "Rejeição: Já existe pedido de Inutilização com a mesma faixa de inutilização",
+        [IdEventoDivergente] = "Rejeição: Erro Atributo ID do evento não corresponde a concatenação dos campos (\"ID\" + tpEvento + chNFe + nSeqEvento)",
+        [EventoDuplicado] = "Rejeição: Duplicidade de Evento",
+        [AutorDivergente] = "Rejeição: O autor do evento diverge do emissor da NF-e",
+        [EventoAntesEmissao] = "Rejeição: A data do evento não pode ser menor que a data de emissão da NF-e",
+        [EventoPosterior] = "Rejeição: A data do evento não pode ser maior que a data do processamento",
+        [EventoAntesAutorizacao] = "Rejeição: A data do evento não pode ser menor que a data de autorização para NF-e não emitida em contingência",
+        [NotaNaoAutorizada] = "Rejeição: O evento exige uma NF-e autorizada",
+        [SequenciaEventoInvalida] = "Rejeição: O número de sequencia do evento informado é maior que o permitido",
+        [ChaveUFInvalida] = "Rejeição: Chave de Acesso inválida (Código UF inválido)",
+        [EmissorNaoHabilitado] = "Rejeição: Emissor não habilitado para emissão da NF-e/NFC-e",
+        [CartaCorrecaoNfce] = "Rejeição: NFC-e não permite o evento de Carta de Correção",
+        [SubstitutaInvalida] = "Rejeição: Chave de Acesso NF-e Substituta inválida",
+        [SubstitutaIncorreta] = "Rejeição: Chave de Acesso NF-e Substituta incorreta",
+        [SubstitutaInexistente] = "Rejeição: NF-e Substituta inexistente",
+        [SubstitutaCancelada] = "Rejeição: NF-e Substituta Denegada ou Cancelada",
+        [SubstitutaEmissao] = "Rejeição: Data de emissão da NF-e Substituta maior que 2 horas da data de emissão da NF-e a ser cancelada",
+        [SubstitutaValor] = "Rejeição: Valor total da NF-e Substituta difere do valor da NF-e a ser cancelada",
+        [SubstitutaIcms] = "Rejeição: Valor total do ICMS da NF-e Substituta difere do valor da NF-e a ser cancelada",
+        [SubstitutaDestinatario] = "Rejeição: Identificação do destinatário da NF-e Substituta difere da identificação do destinatário da NF-e a ser cancelada.",
+        [SubstitutaQuantidadeItens] = "Rejeição: Quantidade de itens da NF-e Substituta difere da quantidade de itens da NF-e a ser cancelada.",
+        [SubstitutaItem] = "Rejeição: Item da NF-e Substituta difere do mesmo item da NF-e a ser cancelada.",
+        [SubstituicaoTipoEmissao] = "Rejeição: Tipo de Emissão inválido no Cancelamento por Substituição",
+        [SubstitutaTipoEmissao] = "Rejeição: Tipo de emissão da NF-e substituta deve ser de contingência",
     };
 
     public static string Texto(string codigo) => Textos[codigo];

@@ -8,11 +8,15 @@ namespace OpenDFe.SefazEmulada;
 //   DELETE /_controle/falhas/{id}   remove uma; 404 se não existe
 //   DELETE /_controle/falhas        remove todas
 //   GET    /_controle/notas         as notas autorizadas, na ordem
-//   DELETE /_controle/notas         esquece as notas e os lotes
+//   DELETE /_controle/notas         esquece as notas, os lotes, os eventos e as faixas inutilizadas
 //   GET    /_controle/csc           os CSCs cadastrados e revogados
 //   POST   /_controle/csc           cadastra um (PedidoCsc em JSON); 201 com o CSC, 400 com o motivo
 //   DELETE /_controle/csc/{uf}/{cnpj}/{id}   revoga um; 404 se não existe
 //   DELETE /_controle/csc           esquece os cadastrados e as revogações (fica só o padrão)
+//   GET    /_controle/irregulares   os CNPJs e CPFs em situação irregular
+//   POST   /_controle/irregulares   cadastra um (PedidoIrregular em JSON); 201 com o documento, 400 com o motivo
+//   DELETE /_controle/irregulares/{documento}   tira um; 404 se não está
+//   DELETE /_controle/irregulares   tira todos
 internal static class RotasControle
 {
     public static void Mapear(WebApplication app)
@@ -75,6 +79,26 @@ internal static class RotasControle
         grupo.MapDelete("/csc", (CodigosSeguranca codigos) =>
         {
             codigos.Limpar();
+            return Results.NoContent();
+        });
+        grupo.MapGet("/irregulares", (Irregulares irregulares) => irregulares.Listar());
+        grupo.MapPost("/irregulares", (PedidoIrregular pedido, Irregulares irregulares) =>
+        {
+            try
+            {
+                irregulares.Cadastrar(pedido.Documento);
+                return Results.Created($"/_controle/irregulares/{pedido.Documento}", new { documento = pedido.Documento });
+            }
+            catch (ArgumentException erro)
+            {
+                return Results.BadRequest(new { erro = MensagemLimpa(erro) });
+            }
+        });
+        grupo.MapDelete("/irregulares/{documento}", (string documento, Irregulares irregulares) =>
+            irregulares.Remover(documento) ? Results.NoContent() : Results.NotFound());
+        grupo.MapDelete("/irregulares", (Irregulares irregulares) =>
+        {
+            irregulares.Limpar();
             return Results.NoContent();
         });
     }

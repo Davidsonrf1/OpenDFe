@@ -251,6 +251,21 @@ public sealed class ConsultaProtocoloTestes : IClassFixture<EmuladorFixture>, ID
     }
 
     [Theory]
+    [InlineData("985", "11222333000181", "217")]
+    [InlineData("975", "11222333000181", "617")]
+    [InlineData("975", "00052998224725", "217")]
+    [InlineData("995", "00052998224725", "217")]
+    [InlineData("985", "00052998224725", "617")]
+    public async Task ConfereODocumentoPelaSerieDoPaa(string serie, string documento, string codigo)
+    {
+        // J02e com a NT 2026.001: o CNPJ também nas séries 980 a 989; o CPF em todas as outras acima de 909.
+        var parte = new NotaTeste { Serie = serie }.Chave[..43];
+        var chave = Completar(parte[..6] + documento + parte[20..]);
+
+        Assert.Equal(codigo, (await ConsultarAsync(chave)).Campo("cStat"));
+    }
+
+    [Theory]
     [InlineData("<consSitNFe xmlns=\"http://www.portalfiscal.inf.br/nfe\" versao=\"4.00\"><tpAmb>2</tpAmb><xServ>STATUS</xServ><chNFe>31261011222333000181550010000000011102938476</chNFe></consSitNFe>", "215")]
     [InlineData("<consSitNFe xmlns=\"http://www.portalfiscal.inf.br/nfe\" versao=\"4.00\"><tpAmb>2</tpAmb><xServ>CONSULTAR</xServ><chNFe>3126101122233300018155001000000001110293847</chNFe></consSitNFe>", "215")]
     [InlineData("<consSitNFe xmlns=\"http://www.portalfiscal.inf.br/nfe\"><tpAmb>2</tpAmb><xServ>CONSULTAR</xServ><chNFe>31261011222333000181550010000000011102938476</chNFe></consSitNFe>", "517")]

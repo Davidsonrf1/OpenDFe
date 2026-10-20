@@ -34,6 +34,14 @@ public class SchemasNFe400Testes
         { "retConsStatServ_v4.00.xsd", "337ceed7f74c0764edbc8a18feacaf8c33f66aa951c46b4b29b561cda7c2f7fb" },
         { "retEnviNFe_v4.00.xsd", "d58b700f849ea7df9f1d35580ae0de425dfa1e295408c02609b81905b04ce4ce" },
         { "retInutNFe_v4.00.xsd", "8b5590f79c157510c5f65a43c7325008c01677ebf24e14eef26e4817ea2673a1" },
+        { "envEvento_v1.00.xsd", "e4d61ba81582b5f1f9a2a4b135d33f4c1ec1c8f9138a2343a9abfffa02bb2777" },
+        { "leiauteEvento_v1.00.xsd", "9a48df8603f685653dfde27dbda72e0f47b5d3c13be0090952f1e82f8d2bc476" },
+        { "procEventoNFe_v1.00.xsd", "4263ee5d12e7a731efab126310aba4edb25612e5986a1c5dde0c87e6c6173798" },
+        { "retEnvEvento_v1.00.xsd", "5eb93a244c5b26c983c08f725f8eafaa1923664a992181b9d78f60cc8523fa72" },
+        { "tiposBasico_v1.03.xsd", "d89d4fe1136f89abc7878b440d91ac0e770fbc128dd35b483284c961d6c3fd5d" },
+        { "e110110_v1.00.xsd", "0a56d7efa780579eb82f28c2069748bad1bf0fdbae57f3c59b0a198cecf3b718" },
+        { "e110111_v1.00.xsd", "56fcdad336b281a9de5e7aae27850bc2c5bd7714e267c891e1b4d0dc227c65da" },
+        { "e110112_v1.00.xsd", "73c555577c21a10d9f572efaafe56ad52314b86e98d9ba3a8d679a2750ee944e" },
     };
 
     // Os schemas principais: os que declaram o elemento raiz de uma mensagem (os outros são incluídos por eles).
@@ -45,6 +53,9 @@ public class SchemasNFe400Testes
         "consSitNFe_v4.00.xsd", "retConsSitNFe_v4.00.xsd",
         "consStatServ_v4.00.xsd", "retConsStatServ_v4.00.xsd",
         "inutNFe_v4.00.xsd", "retInutNFe_v4.00.xsd", "procInutNFe_v4.00.xsd",
+        "envEvento_v1.00.xsd", "retEnvEvento_v1.00.xsd", "procEventoNFe_v1.00.xsd",
+        // O detEvento de cada evento, validado à parte do evento genérico (MOC 7.0, Anexo I, D06).
+        "e110110_v1.00.xsd", "e110111_v1.00.xsd", "e110112_v1.00.xsd",
     };
 
     // O nome do recurso com a barra normalizada: no Windows, o RecursiveDir do LogicalName vem com "\" (o

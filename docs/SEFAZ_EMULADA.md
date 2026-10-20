@@ -4,7 +4,7 @@ Um servidor local que responde como os autorizadores da NF-e, **só para testes 
 
 Este documento registra o que o emulador implementa: os serviços, as regras com os códigos do MOC e as falhas que dá para comandar. Cada etapa da trilha (`PLANO.md`, "Trilha paralela") acrescenta a sua parte.
 
-Fontes: MOC 7.0, Visão Geral (4.2.2, 4.3.1 a 4.3.6, 4.4.1, 5.1, 5.2, 5.4 e 5.5), Anexo I (4.1, grupos A, B, D, DA, E, F e K; 4.2.1, os grupos A, B e ZX e o 2B08 da duplicidade; 4.4.1 e 4.4.2, os textos dos motivos) e Anexo III (2.1.3, a SVC); a NT 2025.001 v1.02 (QR Code versão 3, o 452 e o prazo de 7 dias) e a NT 2026.002 v1.11 (emissão offline e DANFE Simplificado Tipo 2); o Manual de Padrões Técnicos do DANFE NFC-e e QR Code 6.0 (o hash e a assinatura do QR Code); os XSDs do pacote de liberação embutido no leiaute (`docs/NTS.md`) e a "Relação de Serviços Web" do Portal Nacional, conferidos em 2026-10-19. Quando uma NT muda uma regra do MOC, vale a NT.
+Fontes: MOC 7.0, Visão Geral (4.2.2, 4.3.1 a 4.3.6, 4.4.1, 5.1 a 5.5 e 5.8 a 5.10), Anexo I (4.1, grupos A, B, D, DA, DB, E, F e K; 4.2.1, os grupos A, B e ZX, o 1C17, o 2B08 da duplicidade, o 3B08 e o 5E17; 4.4.1 e 4.4.2, os textos dos motivos) e Anexo III (2.1.3, a SVC); a NT 2020.005 v1.21 (a numeração inutilizada na autorização), a NT 2023.002 v1.01 (o emitente CPF na NFC-e), a NT 2024.001 v1.20 (o fim da denegação), a NT 2025.001 v1.02 (QR Code versão 3, o 452 e o prazo de 7 dias), a NT 2026.001 v1.02b (as séries do PAA) e a NT 2026.002 v1.11 (emissão offline e DANFE Simplificado Tipo 2); o Manual de Padrões Técnicos do DANFE NFC-e e QR Code 6.0 (o hash e a assinatura do QR Code); os XSDs do pacote de liberação embutido no leiaute (`docs/NTS.md`) e a "Relação de Serviços Web" do Portal Nacional, conferidos em 2026-10-19 e 2026-10-20. Quando uma NT muda uma regra do MOC, vale a NT.
 
 ## Como rodar
 
@@ -36,8 +36,9 @@ Ao subir, o emulador mostra o endereço, o caminho do `ac.crt` e a URL do contro
 | `POST /<destino>/<serviço>` | O Web Service, como `/MG/NFeStatusServico4`. Destino e serviço não distinguem maiúsculas. |
 | `GET /` | Em JSON, o `ac.crt` e as URLs prontas para trocar (`PROJETO.md` 8.4): `{ "autoridade": "...", "urls": [ { "destino": "MG", "servico": "NFeStatusServico4", "url": "https://127.0.0.1:5443/MG/NFeStatusServico4" }, ... ] }`. A lista traz cada serviço implementado em cada autorizador que o tem. |
 | `/_controle/falhas` | As falhas comandadas (abaixo). |
-| `/_controle/notas` | As notas autorizadas: `GET` lista, na ordem (`chave`, `numeracao`, `protocolo`, `recibo`, `recebimento`, `autorizador`, `situacao`, que é o 100 ou o 150); `DELETE` esquece as notas e os lotes (204). Só do próprio computador, como as falhas. |
+| `/_controle/notas` | As notas autorizadas: `GET` lista, na ordem (`chave`, `numeracao`, `protocolo`, `recibo`, `recebimento`, `autorizador`, `situacao`, que é o 100 ou o 150 da autorização, e `cancelada`); `DELETE` esquece as notas, os lotes, os eventos e as faixas inutilizadas (204). Só do próprio computador, como as falhas. |
 | `/_controle/csc` | Os CSCs da NFC-e (abaixo, em "CSC"). Só do próprio computador. |
+| `/_controle/irregulares` | Os CNPJs e CPFs em situação irregular (abaixo, em "Irregulares"). Só do próprio computador. |
 
 ### Autorizadores
 
@@ -52,7 +53,7 @@ A tabela é do próprio emulador, sem o `Atendimento` da lib: se ele reaproveita
 | SVC-RS | AM, BA, GO, MA, MS, MT, PE, PR (sem o `NFeInutilizacao4`) | 43 |
 | AN | nenhuma: só `NFeDistribuicaoDFe` e `NFeRecepcaoEvento4` | 91 |
 
-O emulador responde só os serviços que já implementa. Os outros dão 404, mesmo os que o autorizador tem.
+O emulador responde só os serviços que já implementa. Os outros dão 404, mesmo os que o autorizador tem. A SVC-AN tem o `NFeInutilizacao4` na lista do Portal, mas a SVC não oferece a inutilização (Anexo III, 2.1.3, e): no emulador, 404 nas duas SVC. O `NFeRecepcaoEvento4` do AN (a manifestação e a EPEC) chega na E.5; até lá, 404.
 
 ### Envelope SOAP 1.2
 
@@ -71,7 +72,7 @@ A ligação HTTP das falhas segue o SOAP 1.2, parte 2, 7.5.1: `Sender` é 400; o
 
 ## Serviços
 
-Em todo retorno, `tpAmb` é 2 e `verAplic` é a sigla do destino seguida de `-EMULADA` (FR04: começa pela sigla da UF, ou por SVAN ou SVRS). O `dhRecbto` sai no horário de Brasília (`-03:00`), e o `xMotivo` traz o texto do Anexo I, 4.4.1, sem a referência à NT.
+Em todo retorno, `tpAmb` é 2 e `verAplic` é a sigla do destino seguida de `-EMULADA` (FR04: começa pela sigla da UF, ou por SVAN ou SVRS). O `dhRecbto` sai no horário de Brasília (`-03:00`), e o `xMotivo` traz o texto do Anexo I, 4.4.1, sem a referência à NT, com o travessão e as aspas curvas do MOC trocados pelo hífen e pelas aspas retas (516, 517, 565, 568, 572, 903): o `TString` dos schemas de retorno só aceita caracteres até o `ÿ`, e o retorno passa no schema (conferido nos testes do evento, da inutilização e da consulta).
 
 ### NFeStatusServico4 (E.1)
 
@@ -134,13 +135,19 @@ As regras de cada nota, na ordem:
 | B09-40 (NT 2026.002) | 704 | NFC-e, ou NF-e com `tpImp` 6, com `tpEmis` 1, 3, 6 ou 7 emitida há mais de 5 minutos. A de contingência (4 e 9) não é rejeitada: transmitida depois de 24 horas, é autorizada fora de prazo (150). |
 | B09-20 (NT 2025.001, NT 2026.002) | 228 | A outra NF-e, com `tpEmis` 1, 3, 6 ou 7, emitida há mais de 30 dias (a exceção 01, a critério da UF, que o emulador aplica). Com mais de 7 dias, a NF-e é autorizada fora de prazo (150); até 7 dias, 100. |
 | ZX | 393 a 903 | O QR Code (abaixo). |
+| 1C17-38 (NT 2024.001) | 781 | O emitente irregular: o CNPJ ou o CPF em "Irregulares", ou a marca `EMULADA:irregular:emitente` na própria nota. Na NF-e e na NFC-e. |
 | 2B08-10 | 539 | A mesma numeração (modelo, UF, CNPJ ou CPF do emitente, série e número; na NFC-e, também o `tpEmis`) já autorizada com outra chave. O motivo leva `[chNFe:<a chave autorizada>]` e, se ela veio num lote assíncrono, `[nRec:<o recibo dele>]`. |
 | 2B08-20 | 204 | A mesma chave já autorizada. O motivo leva `[nRec:...]` como no 539. O emulador não devolve o protocolo da nota igual (a observação 2, a critério da UF). |
+| 2B08-30 | 218 | A mesma chave já autorizada e cancelada. O motivo leva `[nRec:...]` como no 539. |
+| 3B08-100 (NT 2020.005) | 206 | A numeração inutilizada (modelo, UF, CNPJ ou CPF, série e número), na emissão normal e na SVC (`tpEmis` 1, 6 e 7); em SP, também na FS-IA, na EPEC e na FS-DA (2, 4 e 5). A NFC-e offline (9) não é conferida. |
+| 5E17-40 (NT 2024.001) | 302 | Na NF-e, o destinatário (o CNPJ ou o CPF) irregular, em "Irregulares" ou pela marca `EMULADA:irregular:destinatario`. Rejeição, e não mais denegação. |
 | | 100, 150 | Autorizada (150: fora de prazo, pela data de emissão acima): o `nProt` e a nota registrada. |
 
 O `protNFe` 4.00 (Tabela 5-6) sai sem o `Id` e sem a `Signature`, que são a critério da UF: `tpAmb`, `verAplic`, `chNFe`, `dhRecbto`, `nProt` (só no 100 e no 150), `digVal` (o `DigestValue` da assinatura da nota, quando há), `cStat` e `xMotivo`. A nota rejeitada não é registrada e pode ser corrigida e enviada de novo. A duplicidade vale entre autorizadores: a base é uma só, como a do país.
 
-Ainda não: a denegação (110, 301, 302) e as notas canceladas ou denegadas na duplicidade (218, 205), que chegam com os eventos (E.4); a autorização com alerta (120, NT 2026.002), que só sai de regras de cadastro do destinatário; a NFC-e offline recusada pela UF (712, facultativa); as regras de conteúdo da nota que a lib já confere antes (`PROJETO.md` 6.2), como os totais, a justificativa da contingência (556, 557) e as da NF-e com `tpImp` 6 (705, 706, 707, 715).
+**Sem denegação** (NT 2024.001 v1.20, em produção desde 16/09/2024, pelo Ajuste SINIEF 43/23; a NT 2023.002 já a tirara da NFC-e): a regra do 301 (1C17-40) foi excluída, o emitente irregular é o 781 e o destinatário irregular, o 302 e o 303, agora rejeições. Nenhuma nota nova sai com 110, e o 205 da duplicidade (a nota denegada) não aparece. O 303 (5E17-60, o destinatário vedado na UF) não é aplicado: o emulador não separa a UF do cadastro.
+
+Ainda não: a autorização com alerta (120, NT 2026.002), que só sai de regras de cadastro do destinatário; a NFC-e offline recusada pela UF (712, facultativa); as regras de conteúdo da nota que a lib já confere antes (`PROJETO.md` 6.2), como os totais, a justificativa da contingência (556, 557) e as da NF-e com `tpImp` 6 (705, 706, 707, 715).
 
 ### QR Code (E.3)
 
@@ -186,22 +193,112 @@ Pedido `consSitNFe` 4.00 (`tpAmb`, `xServ` = `CONSULTAR`, `chNFe`), retorno `ret
 | J02 | 226 | O autorizador não atende a UF da chave (também a que não existe: o J02b, 614, não chega a aparecer). |
 | J02a | 236 | O DV da chave não confere. |
 | J02c, J02d | 615, 616 | O ano da chave menor que 06 ou maior que o atual; o mês fora de 1 a 12. |
-| J02e | 617 | Da série 0 a 909, o CNPJ da chave inválido ou zerado; da 910 a 969, o CPF (depois de `000`). |
+| J02e (NT 2018.001, NT 2026.001) | 617 | Das séries 0 a 909 e 980 a 989 (as do PAA com CNPJ), o CNPJ da chave inválido ou zerado; das outras, o CPF (depois de `000`). |
 | J02f, J02g | 618, 619 | O modelo diferente de 55 e 65; o número zero. |
 | B03, B04 | 108, 109 | O serviço está paralisado (comandado). |
 | J03 | 217 | Nenhuma nota com a numeração da chave (a da duplicidade: modelo, UF, emitente, série, número e, na NFC-e, o `tpEmis`). Na SVC, só contam as notas que ela autorizou. |
 | J04 | 562 | A nota da base tem outro `cNF`. O motivo leva `[chNFe:<a chave da base>]` quando o transmissor (o certificado do TLS) é o emitente: a raiz do CNPJ ou o CPF. |
 | J05 | 561 | A nota da base tem outro mês na chave. |
 | J06 | 613 | A chave difere da da base em outra posição (na NF-e, o `tpEmis`). |
-| | 100, 150 | Achada: a situação da autorização e o `protNFe` que ela devolveu. |
+| | 100, 150, 101 | Achada: a situação da autorização (101 depois do cancelamento, pelo 110111 ou pelo 110112), o `protNFe` que a autorização devolveu e um `procEventoNFe` por evento registrado, na ordem do registro (5.4.3: o cancelamento e a CC-e). |
 
-O `chNFe` do retorno é o do pedido; quando não dá para lê-lo (as rejeições até o 215), vai com zeros. O J02k (526, a chave com mais de 6 meses) é a critério da UF e não é aplicado; os eventos (`procEventoNFe`, `retCancNFe`) chegam na E.4.
+O `chNFe` do retorno é o do pedido; quando não dá para lê-lo (as rejeições até o 215), vai com zeros. O J02k (526, a chave com mais de 6 meses) é a critério da UF e não é aplicado. O `retCancNFe` (o cancelamento de antes dos eventos) não sai, nem o 151 (o cancelamento fora de prazo, que o emulador não aceita: 501).
+
+**Divergência entre os schemas do Portal:** o `procEventoNFe` vai como foi registrado, e o do cancelamento por substituição traz o `cOrgaoAutor` no `retEvento` (R22), que o `retEnvEvento_v1.00` e o `procEventoNFe_v1.00` preveem; o `retConsSitNFe_v4.00` do PL_010d tem o seu próprio `TProcEvento`, sem ele. Quem valida o retorno da consulta pelo schema acha essa falha só nesse caso.
 
 **A consulta na SVC** (Anexo III, 2.1.3.4, f e h): a SVC só acha as notas que ela mesma autorizou; o autorizador normal acha também as da SVC, que chegam a ele pelo Ambiente Nacional. No emulador, a nota da SVC já está no normal na hora.
 
 ### Contingência SVC (E.3)
 
 Em homologação, a SVC fica sempre ativa para todas as UFs (Anexo III, 2.1.3.2): o emulador não tem o 113 nem o 114 (a SVC desabilitada), e a SVC-AN e a SVC-RS respondem 107 no status e autorizam com o `tpEmis` delas (6 e 7) também com o autorizador normal paralisado. O caso de teste é o do Anexo III, 2.1.3.5: a paralisação comandada em MG (108 ou 109 no status e na autorização), o status da SVC-AN com 107 para MG, a nota gerada de novo com o `tpEmis` 6 e autorizada na SVC-AN, e a consulta na SVC-AN e, depois, em MG.
+
+### NFeInutilizacao4 (E.4)
+
+Pedido `inutNFe` 4.00 (`infInut` com `tpAmb`, `xServ` = `INUTILIZAR`, `cUF`, `ano`, `CNPJ`, `mod`, `serie`, `nNFIni`, `nNFFin` e `xJust`, assinado), retorno `retInutNFe` 4.00 na ordem da Tabela 5-10, sem o `Id` (a resposta não é assinada) e com o `cUF` da casa do autorizador. O schema é o `inutNFe_v4.00.xsd` do leiaute. A SVC não oferece o serviço (acima, em "Autorizadores"). As regras, na ordem (Visão Geral, Tabelas 5-11 e 5-12):
+
+| Regra | cStat | Motivo |
+|---|---|---|
+| D01b, D02, D01e, B06 | 516, 404, 517, 239 | A raiz, como no status. |
+| D01 | 215 | O pedido não passa no schema. |
+| I05 | 203 | O CNPJ com o DV errado: a Tabela 5-12 não tem regra própria, e o CNPJ que não existe não está no cadastro. |
+| E, F | 290, 292, 297, 298, 213 | A assinatura e o titular contra o CNPJ do pedido (a raiz: a matriz inutiliza pela filial), pela verificação da lib. |
+| I01 | 252 | `tpAmb` = 1. |
+| I02 | 250 | O autorizador não atende o `cUF`. |
+| I02a, I02d (NT 2026.001) | 266 | A série do emitente CPF (910 a 969) ou a reservada ao PAA (970 a 989). |
+| I02b, I02c | 453, 454 | O ano depois do atual (horário de Brasília) ou antes de 06. |
+| I03 | 224 | O número inicial maior que o final. |
+| I04 | 201 | Mais de 10.000 números. |
+| I04.a | 502 | O `Id` não é `ID` + `cUF` + `ano` + `CNPJ` + `mod` + a série com 3 posições + o início e o fim com 9. |
+| B03, B04 | 108, 109 | O serviço está paralisado (comandado). |
+| I06 | 240 | O emitente irregular (em "Irregulares"). |
+| I07 | 563 | A mesma faixa (UF, CNPJ, modelo, série, início e fim) já inutilizada: a faixa e o `nProt` da anterior vão no retorno (5.3.5). |
+| I07a | 256 | Um número da faixa já inutilizado em outra faixa. |
+| I08 | 241 | Um número da faixa já usado por uma nota autorizada (também a cancelada), pela chave. |
+| | 102 | Homologada: a faixa, o `dhRecbto` e o `nProt` (formado como o da nota). |
+
+O `ano`, o `CNPJ`, o `mod`, a `serie`, o `nNFIni`, o `nNFFin` e o `nProt` vão só no 102 e no 563; o `dhRecbto`, sempre. O I09 (241 pela EPEC) chega com a EPEC, no AN.
+
+### NFeRecepcaoEvento4 (E.4)
+
+Pedido `envEvento` 1.00 (`idLote` e de 1 a 20 `evento`, cada um assinado no `infEvento`), retorno `retEnvEvento` 1.00 na ordem da Tabela 5-33, com o `cOrgao` do primeiro evento (R06: idem a entrada; antes de ler o lote, a casa do autorizador e o `idLote` 0). O schema é o `envEvento_v1.00.xsd` genérico do leiaute (o do PL_010d, com o CNPJ alfanumérico), que deixa o `detEvento` livre; o detalhe de cada evento é conferido à parte, no schema do tipo (`e110110`, `e110111`, `e110112`).
+
+As regras do lote: a raiz (516, 404, 517, 239), o schema (215; também mais de 20 eventos) e a paralisação (108, 109). Passando, 128 ("Lote de Evento Processado"), e cada evento recebe o seu `retEvento`, na ordem do lote; os eventos do mesmo lote se veem (o cancelamento depois da CC-e da mesma nota).
+
+Os eventos: o **cancelamento** (110111), o **cancelamento por substituição** (110112, da NFC-e) e a **carta de correção** (110110). A SVC registra só o cancelamento, e só das notas que ela autorizou (Anexo III, 2.1.3, c e d); o autorizador normal cancela também as da SVC, que a consulta dele já acha. As regras de cada evento, na ordem:
+
+| Regra | cStat | Motivo |
+|---|---|---|
+| D04 | 491 | O `tpEvento` não é um dos três (na SVC, não é o 110111). |
+| D05 | 492 | O `verEvento` não é 1.00. |
+| D06 | 493 | O `detEvento` não passa no schema do tipo (também o `tpAutor` diferente de 1, P21-10, 466, que o schema confere). |
+| P10-10, P11-10 | 489, 490 | O CNPJ ou o CPF do autor com o DV errado. |
+| E, F | 290, 292, 297, 298, 213, 227 | A assinatura e o titular contra o autor. |
+| P07-10 | 572 | O `Id` não é `ID` + `tpEvento` + `chNFe` + `nSeqEvento` com 2 posições. |
+| P08-10 | 250 | O `cOrgao` não é a UF da chave, ou o autorizador não a atende. Cobre o 249 (P12-40) e o 614 (P12-14), que viriam depois. |
+| P09-10 | 252 | `tpAmb` = 1. |
+| P12-10 a P12-34 | 236, 615 a 619 | A chave, como na consulta (o documento pela série, com a NT 2026.001). |
+| P12-44 | 574 | O CNPJ ou o CPF do autor não é o da chave (o documento inteiro: a filial cancela a sua nota, com o certificado da matriz). |
+| P13-10 | 578 | O `dhEvento` mais de 5 minutos depois do recebimento. |
+| 1P10-20 | 240 | O autor irregular (em "Irregulares"). |
+| 3P15-10 | 573 | O mesmo evento (`tpEvento`, chave e `nSeqEvento`) já registrado. |
+
+Depois, as do cancelamento e do cancelamento por substituição (Tabela 5-38):
+
+| Regra | cStat | Motivo |
+|---|---|---|
+| P12-48 | 920 | No 110112, a nota cancelada não é da emissão normal (`tpEmis` 1). |
+| P15-10 | 594 | O `nSeqEvento` não é 1. |
+| P20-10 | 455 | No 110112, o `cOrgaoAutor` não é a UF da chave. |
+| P31-10 a P31-34 | 910 | No 110112, a chave da substituta inválida, com o campo no motivo: `(Dígito)`, `(Código UF)`, `(Ano)`, `(Mês)`, `(CNPJ/CPF)`, `(Modelo)`, `(Número)`. |
+| P31-38 a P31-52 | 911 | No 110112, a chave da substituta incorreta para a cancelada: `(mesma Chave de Acesso)`, `(Código da UF)`, `(CNPJ/CPF)`, `(Ano-Mes)` (depois do mês da cancelada ou antes do anterior), `(Modelo)`. |
+| 2P12-10 | 494 | A nota não está na base (pela numeração, como a consulta; na SVC, só as dela). Achada com outra chave, o motivo leva `[chNFe:<a chave da base>]`. |
+| 2P12-14, 2P12-18 | 501 | Mais de 24 horas (110111) ou de 168 horas (110112) desde a autorização. O 155 (o cancelamento fora de prazo, a critério da UF) não é aplicado. |
+| 2P12-22 | 580 | A nota já cancelada. |
+| 2P13-10 | 577 | O `dhEvento` antes da emissão. |
+| 2P13-14 | 579 | Na nota da emissão normal, o `dhEvento` mais de 5 minutos antes da autorização. |
+| 2P23-10 | 222 | O `nProt` não é o da autorização. |
+| 5P31-10 a 5P31-40 | 912 a 919 | No 110112, a substituta (pela chave): inexistente (912), cancelada (913), emitida mais de 2 horas depois da cancelada (914), com outro valor total (915), outro ICMS (916), outro destinatário (917: o CNPJ, o CPF ou o `idEstrangeiro`, e a IE), outra quantidade de itens (918) ou um item diferente (919: `cProd`, `cEAN`, `xProd`, `NCM`, `CFOP`, `uCom`, `indTot` como texto; `qCom`, `vUnCom`, `vProd` como número). |
+| 5P31-44 | 921 | No 110112, a substituta da emissão normal (`tpEmis` 1). |
+| | 135 | Registrado e vinculado à nota: a nota passa a cancelada. |
+
+E as da carta de correção (Tabela 5-40): a sequência acima de 20 (GA03, 594), a NFC-e (GA03a, 784), a nota que não está na base (494, como acima), a nota cancelada (GA01, 580) e o `dhEvento` antes da emissão (577); passando, 135. A carta nova substitui a anterior (5.10), e a consulta devolve todas, na ordem.
+
+O `retEvento` (Tabela 5-33, R10 a R31) sai sem o `Id` e sem a assinatura (a critério da UF): `tpAmb`, `verAplic`, `cOrgao` (o do evento), `cStat`, `xMotivo`, `chNFe`, `tpEvento`, `xEvento` (só no 135: "Cancelamento homologado" ou "Carta de Correção registrada"), `nSeqEvento`, o `cOrgaoAutor` (só no 110112 registrado), o `CNPJDest` ou o `CPFDest` e o `emailDest` da nota (só no 110111 registrado, quando a nota os tem), `dhRegEvento` (o recebimento, também na rejeição) e `nProt` (só no 135, formado como o da nota, com o cUF da chave). O evento registrado guarda o `procEventoNFe` (o `evento` como chegou e o `retEvento`), que a consulta devolve.
+
+Não aplicadas: o 408 (P11-20, o autor CPF na NFC-e), porque a NT 2023.002 permite a NFC-e do emitente CPF e o seu cancelamento; o 203 e o 240 do cadastro além do autor irregular; o 221, o 690, o 219, o 304, o 939, o 940 e o 811, que dependem de eventos de outros autores (a manifestação, o CT-e, o MDF-e, a passagem, a SUFRAMA, a averbação, os financeiros, a prorrogação), que o emulador não registra.
+
+### Irregulares (E.4)
+
+O pedaço do cadastro da SEFAZ que as regras consultam: os CNPJs (também os alfanuméricos) e os CPFs em situação irregular, pelo documento inteiro (o estabelecimento, e não a raiz) e em qualquer UF. Como emitente, rejeitam a autorização com 781, o evento com 240 e a inutilização com 240; como destinatário da NF-e, a autorização com 302.
+
+| Rota | O que faz |
+|---|---|
+| `POST /_controle/irregulares` | Cadastra, em JSON: `{ "documento": "11222333000181" }`, sem máscara, com o DV conferido. Devolve 201 com o documento e o `Location`, ou 400 com `{ "erro": "..." }`. |
+| `GET /_controle/irregulares` | Os documentos, em ordem. |
+| `DELETE /_controle/irregulares/{documento}` | Tira um: 204, ou 404 se não está. |
+| `DELETE /_controle/irregulares` | Tira todos: 204. |
+
+A marca `EMULADA:irregular:emitente` ou `EMULADA:irregular:destinatario` no `infCpl` faz o mesmo só para a nota que a traz (abaixo).
 
 ### NFeRetAutorizacao4 (E.2)
 
@@ -233,7 +330,7 @@ O tipo de autorizador é 1 nos autorizadores de UF, 2 na SVC-AN (a Receita, que 
 
 ### O que o emulador guarda
 
-Em memória, vazio a cada partida (ou depois do `DELETE /_controle/notas`): as notas autorizadas (a chave, a numeração da duplicidade, o protocolo, o recibo do lote, o recebimento, o autorizador, a situação e o `protNFe`, para a consulta) e os lotes assíncronos (o recibo, o transmissor, os protocolos e as consultas que ainda respondem 105). Um lote é processado de uma vez, sem outro no meio: as notas do mesmo lote e de lotes simultâneos se veem na ordem. Os CSCs cadastrados e revogados ficam à parte, também em memória (`DELETE /_controle/csc`).
+Em memória, vazio a cada partida (ou depois do `DELETE /_controle/notas`): as notas autorizadas (a chave, a numeração da duplicidade, o protocolo, o recibo do lote, o recebimento, o autorizador, a situação, o `protNFe`, para a consulta, a nota como chegou, para os eventos, e se está cancelada), os lotes assíncronos (o recibo, o transmissor, os protocolos e as consultas que ainda respondem 105), os eventos registrados (o `procEventoNFe` de cada um) e as faixas inutilizadas (com o protocolo). Um lote é processado de uma vez, sem outro no meio: as notas do mesmo lote e de lotes simultâneos se veem na ordem. Os CSCs cadastrados e revogados e os irregulares ficam à parte, também em memória (`DELETE /_controle/csc`, `DELETE /_controle/irregulares`).
 
 ## Falhas comandadas
 
@@ -289,5 +386,6 @@ Para provocar a falha a partir do PDV ou do ERP, sem a rota de controle: o texto
 | `EMULADA:falhaSoap` | A `falhaSoap`. |
 | `EMULADA:paralisacao`, `EMULADA:paralisacao:109` | A `paralisacao` (108 se omitido). |
 | `EMULADA:loteProcessando[:<n>]` | No lote assíncrono, as `n` primeiras consultas do recibo respondem 105 (1 se omitido). Na síncrona, não faz nada. |
+| `EMULADA:irregular:emitente`, `EMULADA:irregular:destinatario` | Só a nota que a traz: o emitente irregular (781) ou, na NF-e, o destinatário irregular (302), como em "Irregulares". As outras notas do lote seguem normais. |
 
-O resto do texto fica como está (`Pedido 123 EMULADA:paralisacao:109`). Uma marca por espécie no lote (transporte, paralisação, lote em processamento). A marca que não serve (tipo desconhecido, valor que o tipo não aceita, duas da mesma espécie) responde HTTP 400 com a falha `soap:Sender` e a explicação, sem processar o lote: o erro de digitação não passa calado.
+O resto do texto fica como está (`Pedido 123 EMULADA:paralisacao:109`). Uma marca por espécie no lote (transporte, paralisação, lote em processamento); a do irregular é da nota. A marca que não serve (tipo desconhecido, valor que o tipo não aceita, duas da mesma espécie) responde HTTP 400 com a falha `soap:Sender` e a explicação, sem processar o lote: o erro de digitação não passa calado.

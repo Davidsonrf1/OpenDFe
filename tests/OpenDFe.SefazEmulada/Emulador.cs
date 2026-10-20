@@ -28,6 +28,7 @@ internal sealed class Emulador : IAsyncDisposable
         Controle = app.Services.GetRequiredService<Controle>();
         Repositorio = app.Services.GetRequiredService<Repositorio>();
         Codigos = app.Services.GetRequiredService<CodigosSeguranca>();
+        Irregulares = app.Services.GetRequiredService<Irregulares>();
         Urls = [.. Listar(endereco)];
     }
 
@@ -47,6 +48,9 @@ internal sealed class Emulador : IAsyncDisposable
 
     // Os CSCs da NFC-e.
     public CodigosSeguranca Codigos { get; }
+
+    // Os CNPJs e CPFs em situação irregular.
+    public Irregulares Irregulares { get; }
 
     public IReadOnlyList<UrlServico> Urls { get; }
 
@@ -70,6 +74,7 @@ internal sealed class Emulador : IAsyncDisposable
         construtor.Services.AddSingleton<Controle>();
         construtor.Services.AddSingleton<Repositorio>();
         construtor.Services.AddSingleton<CodigosSeguranca>();
+        construtor.Services.AddSingleton<Irregulares>();
         construtor.Services.AddSingleton<Atendimento>();
         construtor.Services.ConfigureHttpJsonOptions(o =>
         {
@@ -128,7 +133,7 @@ internal sealed class Emulador : IAsyncDisposable
     private static List<UrlServico> Listar(Uri endereco) =>
         [.. from autorizador in Autorizador.Todos
         from servico in Atendimento.Servicos
-        where autorizador.Servicos.Contains(servico.Nome, StringComparer.Ordinal)
+        where Atendimento.Procurar(autorizador, servico.Nome) is not null
         select new UrlServico(autorizador.Sigla, servico.Nome, new Uri(endereco, $"{autorizador.Sigla}/{servico.Nome}"))];
 }
 

@@ -9,7 +9,8 @@ namespace OpenDFe.Testes;
 
 // Um emulador por classe de teste, numa porta livre e com a AC numa pasta temporária, e o HttpClient que
 // confia nela e apresenta o certificado autoassinado dos testes (13.1). As falhas comandadas são limpas
-// por cada classe que as usa.
+// por cada classe que as usa. O relógio do emulador anda com o do sistema, mais o avanço que o teste der
+// (o prazo do cancelamento, a emissão da substituta); quem avança volta a zero no fim.
 public sealed class EmuladorFixture : IAsyncLifetime
 {
     private readonly string _pasta = Path.Combine(Path.GetTempPath(), "OpenDFe.SefazEmulada.Testes", Guid.NewGuid().ToString("N"));
@@ -20,11 +21,13 @@ public sealed class EmuladorFixture : IAsyncLifetime
 
     public string Pasta => _pasta;
 
+    public RelogioAjustavel Relogio { get; } = new();
+
     public Uri Url(string destino, string servico = Servico.NomeStatus) => new(Emulador.Endereco, $"{destino}/{servico}");
 
     public async ValueTask InitializeAsync()
     {
-        Emulador = await Emulador.IniciarAsync(new OpcoesEmulador { Porta = 0, Pasta = _pasta });
+        Emulador = await Emulador.IniciarAsync(new OpcoesEmulador { Porta = 0, Pasta = _pasta, Relogio = Relogio });
         Http = Clientes.Criar(Emulador.Autoridade, Clientes.CertificadoCliente);
     }
 
@@ -40,6 +43,14 @@ public sealed class EmuladorFixture : IAsyncLifetime
         {
         }
     }
+}
+
+// O relógio do sistema adiantado pelo Avanco; os temporizadores são os do sistema.
+public sealed class RelogioAjustavel : TimeProvider
+{
+    public TimeSpan Avanco { get; set; }
+
+    public override DateTimeOffset GetUtcNow() => base.GetUtcNow() + Avanco;
 }
 
 // O cliente HTTP dos testes, sem a lib: TLS 1.2 ou 1.3, o certificado do cliente e a confiança só na AC dada.
@@ -120,6 +131,24 @@ internal static class Clientes
         Assert.Equal(System.Net.HttpStatusCode.OK, resposta.StatusCode);
         return Mensagens.Retorno(await resposta.Content.ReadAsStringAsync(cancellationToken));
     }
+
+    // Os eventos: o envEvento com os eventos assinados, HTTP 200 e o retEnvEvento.
+    public static async Task<XElement> EnviarEventosAsync(
+        this HttpClient http, Uri url, IEnumerable<string> eventos, CancellationToken cancellationToken)
+    {
+        using var resposta = await http.EnviarAsync(url, Mensagens.Envelope(Mensagens.Eventos([.. eventos]), Servico.NomeRecepcaoEvento), cancellationToken);
+        Assert.Equal(System.Net.HttpStatusCode.OK, resposta.StatusCode);
+        return Mensagens.Retorno(await resposta.Content.ReadAsStringAsync(cancellationToken));
+    }
+
+    // A inutilização: o inutNFe assinado, HTTP 200 e o retInutNFe.
+    public static async Task<XElement> InutilizarAsync(
+        this HttpClient http, Uri url, string pedido, CancellationToken cancellationToken)
+    {
+        using var resposta = await http.EnviarAsync(url, Mensagens.Envelope(pedido, Servico.NomeInutilizacao), cancellationToken);
+        Assert.Equal(System.Net.HttpStatusCode.OK, resposta.StatusCode);
+        return Mensagens.Retorno(await resposta.Content.ReadAsStringAsync(cancellationToken));
+    }
 }
 
 // As mensagens como os manuais as mostram (MOC 7.0, Visão Geral, 4.2.2 e o exemplo do consStatServ),
@@ -146,6 +175,10 @@ internal static class Mensagens
     // A consulta do protocolo (Visão Geral, Tabela 5-13).
     public static string Consulta(string chave, string ambiente = "2", string servico = "CONSULTAR") =>
         $"<consSitNFe xmlns=\"{NamespaceNFe}\" versao=\"4.00\"><tpAmb>{ambiente}</tpAmb><xServ>{servico}</xServ><chNFe>{chave}</chNFe></consSitNFe>";
+
+    // O lote de eventos (Tabela 5-32), com os eventos já assinados.
+    public static string Eventos(params string[] eventos) =>
+        $"<envEvento xmlns=\"{NamespaceNFe}\" versao=\"1.00\"><idLote>7</idLote>{string.Concat(eventos)}</envEvento>";
 
     public static string Envelope(string dados, string servico = Servico.NomeStatus) =>
         "<?xml version=\"1.0\" encoding=\"utf-8\"?>"

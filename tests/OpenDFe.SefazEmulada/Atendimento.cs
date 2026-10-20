@@ -6,16 +6,16 @@ namespace OpenDFe.SefazEmulada;
 
 // O atendimento de POST /<destino>/<serviço>: as falhas de transporte comandadas, o envelope SOAP 1.2, o
 // limite de tamanho (Anexo I, B01, 214) e o serviço.
-internal sealed partial class Atendimento(Controle controle, Repositorio repositorio, CodigosSeguranca codigos, OpcoesEmulador opcoes, IHostApplicationLifetime vida, ILogger<Atendimento> registro)
+internal sealed partial class Atendimento(Controle controle, Repositorio repositorio, CodigosSeguranca codigos, Irregulares irregulares, OpcoesEmulador opcoes, IHostApplicationLifetime vida, ILogger<Atendimento> registro)
 {
     // B01: o XML de dados até 500 KB. Medido no corpo inteiro do pedido, com o envelope.
     public const int LimiteDados = 500 * 1024;
 
-    public static IReadOnlyList<Servico> Servicos { get; } = [new StatusServico(), new Autorizacao(), new RetAutorizacao(), new ConsultaProtocolo()];
+    public static IReadOnlyList<Servico> Servicos { get; } = [new StatusServico(), new Autorizacao(), new RetAutorizacao(), new ConsultaProtocolo(), new Inutilizacao(), new RecepcaoEvento()];
 
     public static Servico? Procurar(Autorizador autorizador, string nome) =>
         Servicos.FirstOrDefault(s => string.Equals(s.Nome, nome, StringComparison.OrdinalIgnoreCase)
-            && autorizador.Servicos.Contains(s.Nome, StringComparer.Ordinal));
+            && autorizador.Servicos.Contains(s.Nome, StringComparer.Ordinal) && s.Atende(autorizador));
 
     public async Task AtenderAsync(HttpContext contexto, string destino, string nomeServico)
     {
@@ -82,7 +82,8 @@ internal sealed partial class Atendimento(Controle controle, Repositorio reposit
             Repositorio: repositorio,
             Processando: processamento is not null,
             Pendentes: marca?.Pendentes ?? 0,
-            Codigos: codigos);
+            Codigos: codigos,
+            Irregulares: irregulares);
         var (status, resposta, situacao) = Responder(corpo, servico, pedido);
         switch (transporte?.Tipo)
         {

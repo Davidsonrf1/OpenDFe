@@ -28,6 +28,14 @@ O registro de `PROJETO.md` 12.2: cada pacote de liberação de schemas embutido 
 | `retEnviNFe_v4.00.xsd` | `PL_009q_NT2025_001_v1.00.zip` | `d58b700f849ea7df9f1d35580ae0de425dfa1e295408c02609b81905b04ce4ce` |
 | `consReciNFe_v4.00.xsd` | `PL_009q_NT2025_001_v1.00.zip` | `0520356a8ac619c8730f793ed2a955418ce5a138b6811f3a6f2c0e72017002c5` |
 | `consStatServ_v4.00.xsd` | `PL_009q_NT2025_001_v1.00.zip` | `20c2cae522ac79ea52353ca66d7595c6616a46a491e561b076145fe8574b8773` |
+| `envEvento_v1.00.xsd` | `PL_010d_v1.03.zip` (`Evento/`) | `e4d61ba81582b5f1f9a2a4b135d33f4c1ec1c8f9138a2343a9abfffa02bb2777` |
+| `leiauteEvento_v1.00.xsd` | `PL_010d_v1.03.zip` (`Evento/`) | `9a48df8603f685653dfde27dbda72e0f47b5d3c13be0090952f1e82f8d2bc476` |
+| `retEnvEvento_v1.00.xsd` | `PL_010d_v1.03.zip` (`Evento/`) | `5eb93a244c5b26c983c08f725f8eafaa1923664a992181b9d78f60cc8523fa72` |
+| `procEventoNFe_v1.00.xsd` | `PL_010d_v1.03.zip` (`Evento/`) | `4263ee5d12e7a731efab126310aba4edb25612e5986a1c5dde0c87e6c6173798` |
+| `tiposBasico_v1.03.xsd` | `PL_010d_v1.03.zip` (`Evento/`) | `d89d4fe1136f89abc7878b440d91ac0e770fbc128dd35b483284c961d6c3fd5d` |
+| `e110111_v1.00.xsd` | `Evento_Canc_PL_v1.01_NT_2018_004.zip` | `56fcdad336b281a9de5e7aae27850bc2c5bd7714e267c891e1b4d0dc227c65da` |
+| `e110112_v1.00.xsd` | `Evento_CancSubst_v1.01_NT_2018_004.zip` | `73c555577c21a10d9f572efaafe56ad52314b86e98d9ba3a8d679a2750ee944e` |
+| `e110110_v1.00.xsd` | `Evento_CCe_PL_v1.01.zip` | `0a56d7efa780579eb82f28c2069748bad1bf0fdbae57f3c59b0a198cecf3b718` |
 | `retConsStatServ_v4.00.xsd` | `PL_009q_NT2025_001_v1.00.zip` | `337ceed7f74c0764edbc8a18feacaf8c33f66aa951c46b4b29b561cda7c2f7fb` |
 | `leiauteConsStatServ_v4.00.xsd` | `PL_009q_NT2025_001_v1.00.zip` | `cdc0813b5bf0087c7c8510f6ea0c2a367c829d9ea4b44c23533d18d3bcf23375` |
 | `inutNFe_v4.00.xsd` | `PL_009q_NT2025_001_v1.00.zip` | `d50dd40f010634d8576ad880552a3d186bd4cfe0a4b554f3097dae2cc5c6a59e` |
@@ -36,11 +44,19 @@ O registro de `PROJETO.md` 12.2: cada pacote de liberação de schemas embutido 
 
 Os ZIPs de origem: `PL_010d_v1.03.zip` ("Pacote de Liberação 010d_v.1.03 (ZIP) CNPJ Alfanumérico - NT 2026.004 v.1.01", publicado em 10/07/2026, em uso), SHA-256 `45ceefe4dfbbfec93958283b650a2f1e1734784f4770d070b9907754de081d9b`; `PL_009q_NT2025_001_v1.00.zip` ("Pacote de Liberação nº 9q (Novo leiaute da NF-e, NT 2025.001 v.1.00)", publicado em 19/05/2025, hoje entre as versões anteriores; o mais recente com o conjunto inteiro), SHA-256 `82a26d04a778fc214bf8c6c6e5c65ea577721e32ed5efa9a11a80098b8f9802f`.
 
+**Os eventos** (desde a etapa E.4 da trilha da SEFAZ emulada, 2026-10-20, por decisão do usuário, adiantando a parte da fase 6): o evento genérico da pasta `Evento/` do `PL_010d_v1.03.zip` (o `envEvento`, o `retEnvEvento` e o `procEventoNFe`, com o CNPJ alfanumérico), que deixa o `detEvento` livre (`xs:any`), e o `detEvento` de cada evento, validado à parte (MOC 7.0, Anexo I, D06): o do cancelamento (`e110111`), o do cancelamento por substituição (`e110112`) e o da carta de correção (`e110110`), cada um do pacote do evento em uso no portal: "Esquemas XML NF-e / NFC-e - Evento Cancelamento (Atualizado em 21/12/2018)" (`Evento_Canc_PL_v1.01_NT_2018_004.zip`, SHA-256 `71ccd5fcc48f9604a2a8965146df45e3b73e96e87942ab3391be0d55cc0df718`), "Esquemas XML NFC-e - Evento Cancelamento por Substituição (Atualizado em 21/12/2018)" (`Evento_CancSubst_v1.01_NT_2018_004.zip`, `49a32c2c4dc64413f6ef47ed4756b54121ec56514d5352d6931b9bf43a0706a1`) e "Esquemas XML NF-e - Pacote de Liberação Evento CCe v1.01 (30/05/2014)" (`Evento_CCe_PL_v1.01.zip`, `c300695ae3344dcb0c000ec806559e7392c54f7be99599274965050112771f77`). Os pacotes de cada evento trazem o evento inteiro (`envEventoCancNFe`, `leiauteEventoCancNFe` e afins), mas com um `tiposBasico_v1.03.xsd` próprio e anterior ao CNPJ alfanumérico; deles entra só o `detEvento`, que inclui o `tiposBasico_v1.03` da mesma pasta, o do 010d.
+
+**Conferido (2026-10-20), nos eventos:**
+- o `tiposBasico_v1.03.xsd` muda de pacote para pacote: o do 010d v1.03 difere do 010d v1.01 ("Eventos e ws de Consulta CCC", de 08/06/2026, o `PL_Evento.zip` de dentro) só em comentários e numa documentação; os do cancelamento (32.400 bytes) e da CC-e (30.140) são outros, mais antigos. O `envEvento`, o `leiauteEvento`, o `retEnvEvento` e o `procEventoNFe` são iguais no 010d v1.01 e no v1.03;
+- a pasta `Evento/` do 010d traz também um `tiposBasico_v4.00.xsd`, diferente do do 010f, e o `xmldsig-core-schema_v1.01.xsd`, igual ao do 010f; o `leiauteEvento` não inclui o primeiro, que não entra;
+- o `e110111`, o `e110112` e o `e110110` compilam com o `tiposBasico_v1.03` do 010d (o `TProt`, o `TJust`, o `TChNFe` alfanumérico, o `TCodUfIBGE` e o `TVerAplic` estão nele); o `e110110` não inclui nada;
+- o `retConsSitNFe_v4.00` (PL_010d) tem o seu próprio `TProcEvento`, cujo `retEvento` não tem o `cOrgaoAutor` (R22 do MOC, do cancelamento por substituição) que o `leiauteEvento` tem.
+
 **Conferido (2026-10-19):**
 - a sequência 010d → 010e → 010f do `leiauteNFe` é cumulativa (comparados os arquivos): o 010e acrescenta ao 010d o `tpImp` 6, o `cIndOp` e o `ISUFEmit`, entre outros; o 010f muda do 010e só o `IE` do emitente (passa a opcional, NT 2026.007) e o tipo do `vNFTot` (`TDec_1302`). O `tiposBasico_v4.00.xsd` é o mesmo nos três;
 - o `TChNFe` aceita o CNPJ alfanumérico (`[0-9]{6}[0-9A-Z]{12}[0-9]{26}`) e o `leiauteNFe` tem os grupos da reforma tributária (`IBSCBS`, `IS`, `IBSCBSTot`, `ISTot`, `vNFTot`), também nos testes;
 - dos arquivos tirados do 010d e do 9q, os iguais nos dois pacotes têm o mesmo SHA-256; o `leiauteConsSitNFe` e o `leiauteInutNFe` do 010d só diferem do 9q pelo padrão do `Id` (com o CNPJ alfanumérico); o 010e não desfaz nenhum padrão alfanumérico do `leiauteNFe` do 010d;
-- todas as mensagens (`nfe`, `procNFe`, `enviNFe`, `retEnviNFe`, `consReciNFe`, `retConsReciNFe`, `consSitNFe`, `retConsSitNFe`, `consStatServ`, `retConsStatServ`, `inutNFe`, `retInutNFe`, `procInutNFe`) carregam e compilam pelo `SchemaXml` do .NET 10, no Windows e no Linux (Ubuntu 26.04).
+- todas as mensagens (`nfe`, `procNFe`, `enviNFe`, `retEnviNFe`, `consReciNFe`, `retConsReciNFe`, `consSitNFe`, `retConsSitNFe`, `consStatServ`, `retConsStatServ`, `inutNFe`, `retInutNFe`, `procInutNFe` e, desde a E.4, `envEvento`, `retEnvEvento`, `procEventoNFe`, `e110110`, `e110111` e `e110112`) carregam e compilam pelo `SchemaXml` do .NET 10, no Windows e no Linux (Ubuntu 26.04).
 
 ### 1.2. As NTs que o pacote implementa
 
@@ -65,19 +81,23 @@ Em 2026-10-19 o portal não tem pacote de schemas posterior ao 010f, e o 010f n�
 
 ### 1.3a. NTs de regras de validação já aplicadas
 
-As NTs que mudam as regras do MOC 7.0 sem mudar o schema embutido, conferidas na SEFAZ emulada (`docs/SEFAZ_EMULADA.md`, E.3) e a conferir de novo nas regras da lib (fase 3) e nas operações (fases 4 e 5).
+As NTs que mudam as regras do MOC 7.0 sem mudar o schema embutido, conferidas na SEFAZ emulada (`docs/SEFAZ_EMULADA.md`, E.3 e E.4) e a conferir de novo nas regras da lib (fase 3) e nas operações (fases 4 a 6).
 
 | NT | O que muda nas regras | Homologação | Produção |
 |---|---|---|---|
 | 2025.001 v1.02 (simplificação operacional; setembro de 2025) | o QR Code versão 3 da NFC-e (sem CSC; a offline assinada em RSA-SHA1), o 444 (versão 2 do emitente CPF), o **452 (lote assíncrono com uma só nota, GAP03a-3)** e o prazo da NF-e (até 7 dias, 100; depois, 150) | até 08/09/2025 | 13/10/2025 (o 452) |
 | 2026.002 v1.11 (emissão offline, autorização com alerta e DANFE Simplificado Tipo 2; setembro de 2026) | o `tpEmis` 9 na NF-e com `tpImp` 6 (711 sem ele), o QR Code também nessa NF-e (só a versão 3, 672), o prazo das 24 horas da offline (150) e o 120 (autorização com alerta) | 01/09/2026 | 05/10/2026 |
+| 2020.005 v1.21 (criação e atualização de regras; outubro de 2021) | a numeração inutilizada na autorização (3B08-100, 206) só na emissão normal e na SVC (em SP, também na FS-IA, na EPEC e na FS-DA); os eventos que impedem o cancelamento (4P15-30 e 4P15-34, 939 e 940) | 01/07/2021 | 01/09/2021 (v1.21: 25/10/2021) |
+| 2023.002 v1.01 (emitente CPF na NFC-e) | a NFC-e do produtor rural pessoa física, com o seu cancelamento (o autor CPF no modelo 65), e o fim da denegação na NFC-e | 24/07/2023 | 04/09/2023 (v1.01: 02/02/2026) |
+| 2024.001 v1.20 (CRT 4, MEI, e denegação; agosto de 2024) | **o fim da denegação também na NF-e** (Ajuste SINIEF 43/23): excluída a 1C17-40 (301); o emitente irregular é rejeitado com 781 (1C17-38); o 302 e o 303 do destinatário passam a rejeição | 03/06/2024 | 16/09/2024 |
+| 2026.001 v1.02b (PAA, provedor de assinatura e autorização; julho de 2026) | as séries 970 a 989 reservadas ao PAA (I02d, 266 na inutilização) e o CNPJ também nas séries 980 a 989 (J02e da consulta, P12-26 e P12-44 do evento) | 03/08/2026 | 05/10/2026 |
 
-O PDF da 2025.001 v1.02 veio de cópia pública (SHA-256 `44b71f16bf1196f35efe0f8645d7992305b37506ffd2e44fe7fb3350616a930d`); o da 2026.002 v1.11 (`72c033b2c7490710f61488a14d0bb3d7bb54e5345aa8d33d6ff2c270c228f046`), do portal. Do portal também, em 2026-10-19: o Manual de Padrões Técnicos do DANFE NFC-e e QR Code 6.0, de março de 2025 (`bf906cc212f1edd19b1df7d1cdf4fbf5e73c3fec77567b6e69fa74453c95db5e`), e o MOC 7.0, Anexo III (`e1cfb9b6c5adc6a67062f66fd1699495fdec5dfdb93025768f87fe3782918dde`). O Anexo I baixado de novo é o mesmo arquivo da E.1 (`5eb4cf2010b10b0b62f78197c4eb64025f24535d4c6e61158bc7806dd008f55d`).
+Os textos da 2020.005 v1.21, da 2023.002 v1.01, da 2024.001 v1.20 e da 2026.001 v1.02b foram lidos na E.4 (2026-10-20) em cópias baixadas em sessões anteriores, sem o SHA-256 registrado: a conferir de novo no portal na fase 3. O PDF da 2025.001 v1.02 veio de cópia pública (SHA-256 `44b71f16bf1196f35efe0f8645d7992305b37506ffd2e44fe7fb3350616a930d`); o da 2026.002 v1.11 (`72c033b2c7490710f61488a14d0bb3d7bb54e5345aa8d33d6ff2c270c228f046`), do portal. Do portal também, em 2026-10-19: o Manual de Padrões Técnicos do DANFE NFC-e e QR Code 6.0, de março de 2025 (`bf906cc212f1edd19b1df7d1cdf4fbf5e73c3fec77567b6e69fa74453c95db5e`), e o MOC 7.0, Anexo III (`e1cfb9b6c5adc6a67062f66fd1699495fdec5dfdb93025768f87fe3782918dde`). O Anexo I baixado de novo é o mesmo arquivo da E.1 (`5eb4cf2010b10b0b62f78197c4eb64025f24535d4c6e61158bc7806dd008f55d`).
 
 ### 1.4. Fora do pacote embutido
 
 Os schemas de outras mensagens, em pacotes próprios no portal, entram com as etapas que os usam, conferidos de novo nelas:
-- **eventos** (fase 6): o `envEvento` genérico e os específicos (cancelamento, cancelamento por substituição, CC-e, EPEC, manifestação), com a pasta `Evento/` do `PL_010d_v1.03.zip` (CNPJ alfanumérico) e os pacotes de cada evento; os eventos da reforma ("Schema dos eventos da NT 2025.002 v.1.40 - RTC", `Eventos_RTC.zip`, publicado em 27/07/2026);
+- **eventos** (fase 6): os detalhes da EPEC e da manifestação, dos pacotes de cada evento (o genérico, o cancelamento, o cancelamento por substituição e a CC-e já estão embutidos, acima, desde a E.4); os eventos da reforma ("Schema dos eventos da NT 2025.002 v.1.40 - RTC", `Eventos_RTC.zip`, publicado em 27/07/2026);
 - **distribuição DF-e** (fase 8): "Pacote de Liberação Distribuição de DF-e v.1.04", publicado em 03/07/2026;
 - **consulta cadastro** (fase 8): a pasta `CadConsultaCadastro/` do `PL_010d_v1.03.zip`.
 

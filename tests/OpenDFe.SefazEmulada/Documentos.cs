@@ -22,6 +22,38 @@ internal static class Documentos
         return DigitoCpf(cpf[..9]) == cpf[9] - '0' && DigitoCpf(cpf[..10]) == cpf[10] - '0';
     }
 
+    // Se a série é de emitente CNPJ: de 0 a 909 e, desde a NT 2026.001 (PAA), de 980 a 989; as outras são do
+    // emitente CPF (NT 2018.001), que vai na chave com três zeros à esquerda.
+    public static bool SerieCnpj(int serie) => serie <= 909 || serie is >= 980 and <= 989;
+
+    // O CNPJ ou o CPF da chave, pela série (J02e da consulta; P12-26 do evento, 617), com o DV conferido.
+    public static bool DocumentoChaveValido(string chave)
+    {
+        var documento = chave[6..20];
+        return SerieCnpj(int.Parse(chave[22..25], System.Globalization.CultureInfo.InvariantCulture))
+            ? CnpjValido(documento)
+            : documento.StartsWith("000", StringComparison.Ordinal) && CpfValido(documento[3..]);
+    }
+
+    // As regras da chave que a consulta (J02a a J02g) e o evento (P12-10 a P12-34) aplicam iguais: o DV (236), o
+    // ano menor que 06 ou maior que o do recebimento (615), o mês (616), o CNPJ ou o CPF pela série (617), o
+    // modelo (618) e o número zero (619). Nulo: a chave passa.
+    public static string? ConferirChave(string chave, DateTimeOffset recebimento)
+    {
+        if (Modulo11(chave[..43]) != chave[43] - '0')
+            return Motivos.ChaveDigitoInvalido;
+        var ano = int.Parse(chave[2..4], System.Globalization.CultureInfo.InvariantCulture);
+        if (ano < 6 || ano > recebimento.ToOffset(TimeSpan.FromHours(-3)).Year % 100)
+            return Motivos.ChaveAnoInvalido;
+        if (chave[4..6] is not ("01" or "02" or "03" or "04" or "05" or "06" or "07" or "08" or "09" or "10" or "11" or "12"))
+            return Motivos.ChaveMesInvalido;
+        if (!DocumentoChaveValido(chave))
+            return Motivos.ChaveDocumentoInvalido;
+        if (chave[20..22] is not ("55" or "65"))
+            return Motivos.ChaveModeloInvalido;
+        return chave[25..34] == "000000000" ? Motivos.ChaveNumeroInvalido : null;
+    }
+
     // A chave de acesso (MOC 7.0, Visão Geral, 2.2.6): cUF, AAMM da emissão, CNPJ ou CPF do emitente (o CPF
     // com zeros à esquerda), modelo, série, número, tipo de emissão, código numérico e o DV.
     public static string Chave(string uf, DateTimeOffset emissao, string emitente, string modelo, string serie, string numero, string tipoEmissao, string codigo, string digito) =>

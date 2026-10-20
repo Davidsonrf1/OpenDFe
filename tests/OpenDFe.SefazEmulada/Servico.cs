@@ -11,12 +11,18 @@ internal abstract class Servico
     public const string NomeAutorizacao = "NFeAutorizacao4";
     public const string NomeRetAutorizacao = "NFeRetAutorizacao4";
     public const string NomeConsultaProtocolo = "NFeConsultaProtocolo4";
+    public const string NomeInutilizacao = "NFeInutilizacao4";
+    public const string NomeRecepcaoEvento = "NFeRecepcaoEvento4";
 
     public static readonly XNamespace NamespaceNFe = "http://www.portalfiscal.inf.br/nfe";
 
     public abstract string Nome { get; }
 
     public XNamespace NamespaceWsdl => "http://www.portalfiscal.inf.br/nfe/wsdl/" + Nome;
+
+    // Se o autorizador responde o serviço, além de tê-lo na lista do Portal: a SVC não oferece a inutilização
+    // (MOC 7.0, Anexo III, 2.1.3, e).
+    public virtual bool Atende(Autorizador autorizador) => true;
 
     // O cStat do nfeDadosMsg sem a área de dados: 516 (D01b); no lote da autorização, 565.
     public virtual string RaizAusente => Motivos.RaizInexistente;
@@ -82,7 +88,7 @@ internal abstract class Servico
 // CNPJ ou o CPF do certificado do TLS (ou a impressão digital, sem os campos da ICP-Brasil), que o recibo
 // guarda (Visão Geral, 4.3.3). Processando: o lote consultado responde 105 (a falha comandada).
 // Pendentes: as consultas que o lote novo responde com 105 (a marca no infCpl). Codigos: os CSCs, para o
-// hash do QR Code da NFC-e.
+// hash do QR Code da NFC-e. Irregulares: os CNPJs e CPFs em situação irregular (o cadastro da SEFAZ).
 internal sealed record Pedido(
     Autorizador Autorizador,
     DateTimeOffset Recebimento,
@@ -92,7 +98,8 @@ internal sealed record Pedido(
     Repositorio? Repositorio = null,
     bool Processando = false,
     int Pendentes = 0,
-    CodigosSeguranca? Codigos = null);
+    CodigosSeguranca? Codigos = null,
+    Irregulares? Irregulares = null);
 
 // O serviço paralisado (Anexo I, B03 e B04): 108 (momentaneamente) ou 109 (sem previsão).
 internal sealed record Paralisacao(string Codigo, string? Observacao);

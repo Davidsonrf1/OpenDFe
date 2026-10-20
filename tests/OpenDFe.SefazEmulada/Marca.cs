@@ -11,10 +11,14 @@ namespace OpenDFe.SefazEmulada;
 //   EMULADA:atraso:<milissegundos>     EMULADA:tempoEsgotado        EMULADA:conexaoDerrubada[:depois]
 //   EMULADA:respostaIlegivel           EMULADA:falhaSoap            EMULADA:paralisacao[:108|:109]
 //   EMULADA:loteProcessando[:<n>]  (as n primeiras consultas do recibo respondem 105; 1 se omitido)
-// Uma por espécie no lote (transporte, paralisação, lote em processamento). Marca que não serve vira falha
-// SOAP (soap:Sender), para o erro de digitação não passar calado.
+//   EMULADA:irregular:emitente|destinatario  (só a nota que a traz: 781 ou 302, como os Irregulares)
+// Uma por espécie no lote (transporte, paralisação, lote em processamento); a do irregular é da nota, e não do
+// lote. Marca que não serve vira falha SOAP (soap:Sender), para o erro de digitação não passar calado.
 internal static partial class Marca
 {
+    private const string Emitente = "emitente";
+    private const string Destinatario = "destinatario";
+
     public static MarcaFalha? Ler(byte[] corpo)
     {
         XDocument documento;
@@ -47,6 +51,11 @@ internal static partial class Marca
                             throw Invalida(marca.Value, "a paralisação é 108 ou 109");
                         paralisacao = Falha(TipoFalha.Paralisacao, codigo: valor ?? Motivos.ParalisadoMomentaneamente);
                         break;
+                    case "irregular":
+                        // Da nota: quem a aplica é a autorização (Irregular), nota a nota.
+                        if (valor is not (Emitente or Destinatario))
+                            throw Invalida(marca.Value, "o irregular é o emitente ou o destinatario");
+                        break;
                     case "loteProcessando":
                         if (pendentes is not null)
                             throw Repetida(tipo);
@@ -61,6 +70,23 @@ internal static partial class Marca
             }
         }
         return transporte is null && paralisacao is null && pendentes is null ? null : new MarcaFalha(transporte, paralisacao, pendentes ?? 0);
+    }
+
+    // Os papéis que a marca do irregular põe em situação irregular nesta nota (o Ler já conferiu o valor).
+    public static (bool Emitente, bool Destinatario) Irregular(XElement nota)
+    {
+        bool emitente = false, destinatario = false;
+        foreach (var texto in nota.Descendants(Servico.NamespaceNFe + "infCpl").Select(e => e.Value))
+        {
+            foreach (Match marca in Padrao().Matches(texto))
+            {
+                if (marca.Groups["tipo"].Value != "irregular")
+                    continue;
+                emitente |= marca.Groups["valor"].Value == Emitente;
+                destinatario |= marca.Groups["valor"].Value == Destinatario;
+            }
+        }
+        return (emitente, destinatario);
     }
 
     private static FalhaComandada Transporte(string marca, string tipo, string? valor) => tipo switch

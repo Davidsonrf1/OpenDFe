@@ -10,7 +10,11 @@ public class AtendimentoTestes(EmuladorFixture fixture) : IClassFixture<Emulador
 
     [Theory]
     [InlineData("XX", Servico.NomeStatus)]
-    [InlineData("MG", "NFeInutilizacao4")]
+    [InlineData("MG", "NFeDistribuicaoDFe")]
+    [InlineData("AN", "NFeDistribuicaoDFe")]
+    [InlineData("AN", Servico.NomeRecepcaoEvento)]
+    [InlineData("SVC-AN", Servico.NomeInutilizacao)]
+    [InlineData("SVC-RS", Servico.NomeInutilizacao)]
     [InlineData("AN", Servico.NomeAutorizacao)]
     [InlineData("AN", Servico.NomeStatus)]
     [InlineData("MG", "NFeServicoInexistente")]
@@ -79,11 +83,14 @@ public class AtendimentoTestes(EmuladorFixture fixture) : IClassFixture<Emulador
         var urls = json.RootElement.GetProperty("urls").EnumerateArray()
             .Select(u => (Destino: u.GetProperty("destino").GetString(), Servico: u.GetProperty("servico").GetString(), Url: u.GetProperty("url").GetString()))
             .ToList();
-        // O status, a autorização, o recibo e a consulta nos 14 autorizadores que os têm; o AN não tem nenhum.
-        Assert.Equal(56, urls.Count);
-        foreach (var servico in (string[])[Servico.NomeStatus, Servico.NomeAutorizacao, Servico.NomeRetAutorizacao, Servico.NomeConsultaProtocolo])
+        // O status, a autorização, o recibo, a consulta e os eventos nos 14 autorizadores que os têm; a
+        // inutilização nos 12 que não são a SVC (Anexo III, 2.1.3, e); o AN, só com a E.5.
+        Assert.Equal(82, urls.Count);
+        foreach (var servico in (string[])[Servico.NomeStatus, Servico.NomeAutorizacao, Servico.NomeRetAutorizacao, Servico.NomeConsultaProtocolo, Servico.NomeRecepcaoEvento])
             Assert.Equal(14, urls.Count(u => u.Servico == servico));
+        Assert.Equal(12, urls.Count(u => u.Servico == Servico.NomeInutilizacao));
         Assert.DoesNotContain(urls, u => u.Destino == "AN");
+        Assert.DoesNotContain(urls, u => u.Destino is "SVC-AN" or "SVC-RS" && u.Servico == Servico.NomeInutilizacao);
         Assert.Contains(urls, u => u.Destino == "MG" && u.Url == new Uri(fixture.Emulador.Endereco, "MG/NFeStatusServico4").ToString());
         Assert.Contains(urls, u => u.Destino == "SVC-RS" && u.Servico == Servico.NomeRetAutorizacao);
         Assert.Equal(urls.Count, fixture.Emulador.Urls.Count);
