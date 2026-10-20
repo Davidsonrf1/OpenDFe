@@ -10,4 +10,9 @@
     <ProjectReference Include="../../src/OpenDFe.NFe.Modelo/OpenDFe.NFe.Modelo.csproj" />
   </ItemGroup>
 
+  <!-- O gerador do certificado de teste (PROJETO.md 13.1): a nota escrita é assinada antes do schema, que exige a Signature. -->
+  <ItemGroup>
+    <Compile Include="../Compartilhado/**/*.cs" LinkBase="Compartilhado" />
+  </ItemGroup>
+
 </Project>
