@@ -1,9 +1,32 @@
 #nullable enable
+OpenDFe.NFe.Adicao
+OpenDFe.NFe.Adicao.Adicao() -> void
+OpenDFe.NFe.Adicao.CodigoFabricante.get -> string?
+OpenDFe.NFe.Adicao.CodigoFabricante.set -> void
+OpenDFe.NFe.Adicao.Desconto.get -> decimal?
+OpenDFe.NFe.Adicao.Desconto.set -> void
+OpenDFe.NFe.Adicao.Drawback.get -> string?
+OpenDFe.NFe.Adicao.Drawback.set -> void
+OpenDFe.NFe.Adicao.Numero.get -> int?
+OpenDFe.NFe.Adicao.Numero.set -> void
+OpenDFe.NFe.Adicao.Sequencial.get -> int?
+OpenDFe.NFe.Adicao.Sequencial.set -> void
 OpenDFe.NFe.Agropecuario
 OpenDFe.NFe.Agropecuario.Agropecuario() -> void
 OpenDFe.NFe.Agropecuario.Defensivos.get -> System.Collections.Generic.IList<OpenDFe.NFe.Defensivo!>!
 OpenDFe.NFe.Agropecuario.GuiaTransito.get -> OpenDFe.NFe.GuiaTransito?
 OpenDFe.NFe.Agropecuario.GuiaTransito.set -> void
+OpenDFe.NFe.AjusteCompetencia
+OpenDFe.NFe.AjusteCompetencia.AjusteCompetencia() -> void
+OpenDFe.NFe.AjusteCompetencia.Competencia.get -> string?
+OpenDFe.NFe.AjusteCompetencia.Competencia.set -> void
+OpenDFe.NFe.AjusteCompetencia.ValorCbs.get -> decimal?
+OpenDFe.NFe.AjusteCompetencia.ValorCbs.set -> void
+OpenDFe.NFe.AjusteCompetencia.ValorIbs.get -> decimal?
+OpenDFe.NFe.AjusteCompetencia.ValorIbs.set -> void
+OpenDFe.NFe.AplicacaoAliquotaZeroCbs
+OpenDFe.NFe.AplicacaoAliquotaZeroCbs.AreaIncentivada = 1 -> OpenDFe.NFe.AplicacaoAliquotaZeroCbs
+OpenDFe.NFe.AplicacaoAliquotaZeroCbs.ProcessoSuframa = 2 -> OpenDFe.NFe.AplicacaoAliquotaZeroCbs
 OpenDFe.NFe.AquisicaoCana
 OpenDFe.NFe.AquisicaoCana.AquisicaoCana() -> void
 OpenDFe.NFe.AquisicaoCana.Deducoes.get -> System.Collections.Generic.IList<OpenDFe.NFe.Deducao!>!
@@ -24,6 +47,16 @@ OpenDFe.NFe.AquisicaoCana.ValorFornecimentos.get -> decimal?
 OpenDFe.NFe.AquisicaoCana.ValorFornecimentos.set -> void
 OpenDFe.NFe.AquisicaoCana.ValorLiquido.get -> decimal?
 OpenDFe.NFe.AquisicaoCana.ValorLiquido.set -> void
+OpenDFe.NFe.Arma
+OpenDFe.NFe.Arma.Arma() -> void
+OpenDFe.NFe.Arma.Descricao.get -> string?
+OpenDFe.NFe.Arma.Descricao.set -> void
+OpenDFe.NFe.Arma.Serie.get -> string?
+OpenDFe.NFe.Arma.Serie.set -> void
+OpenDFe.NFe.Arma.SerieCano.get -> string?
+OpenDFe.NFe.Arma.SerieCano.set -> void
+OpenDFe.NFe.Arma.Tipo.get -> OpenDFe.NFe.TipoArma?
+OpenDFe.NFe.Arma.Tipo.set -> void
 OpenDFe.NFe.AssinaturaProvedor
 OpenDFe.NFe.AssinaturaProvedor.AssinaturaProvedor() -> void
 OpenDFe.NFe.AssinaturaProvedor.ChavePublica.get -> OpenDFe.NFe.ChavePublicaRsa!
@@ -45,17 +78,131 @@ OpenDFe.NFe.CTeReferenciado
 OpenDFe.NFe.CTeReferenciado.CTeReferenciado() -> void
 OpenDFe.NFe.CTeReferenciado.Chave.get -> string?
 OpenDFe.NFe.CTeReferenciado.Chave.set -> void
+OpenDFe.NFe.Cbs
+OpenDFe.NFe.Cbs.Aliquota.get -> decimal?
+OpenDFe.NFe.Cbs.Aliquota.set -> void
+OpenDFe.NFe.Cbs.AreaIncentivada.get -> OpenDFe.NFe.CbsAreaIncentivada?
+OpenDFe.NFe.Cbs.AreaIncentivada.set -> void
+OpenDFe.NFe.Cbs.Cbs() -> void
+OpenDFe.NFe.Cbs.Devolucao.get -> OpenDFe.NFe.DevolucaoTributo?
+OpenDFe.NFe.Cbs.Devolucao.set -> void
+OpenDFe.NFe.Cbs.Diferimento.get -> OpenDFe.NFe.Diferimento?
+OpenDFe.NFe.Cbs.Diferimento.set -> void
+OpenDFe.NFe.Cbs.Reducao.get -> OpenDFe.NFe.ReducaoAliquota?
+OpenDFe.NFe.Cbs.Reducao.set -> void
+OpenDFe.NFe.Cbs.Valor.get -> decimal?
+OpenDFe.NFe.Cbs.Valor.set -> void
+OpenDFe.NFe.CbsAreaIncentivada
+OpenDFe.NFe.CbsAreaIncentivada.AliquotaEfetiva.get -> decimal?
+OpenDFe.NFe.CbsAreaIncentivada.AliquotaEfetiva.set -> void
+OpenDFe.NFe.CbsAreaIncentivada.CbsAreaIncentivada() -> void
+OpenDFe.NFe.CbsAreaIncentivada.ProcessoSuframa.get -> string?
+OpenDFe.NFe.CbsAreaIncentivada.ProcessoSuframa.set -> void
+OpenDFe.NFe.CbsAreaIncentivada.Tipo.get -> OpenDFe.NFe.AplicacaoAliquotaZeroCbs?
+OpenDFe.NFe.CbsAreaIncentivada.Tipo.set -> void
+OpenDFe.NFe.CbsAreaIncentivada.Valor.get -> decimal?
+OpenDFe.NFe.CbsAreaIncentivada.Valor.set -> void
 OpenDFe.NFe.ChavePublicaRsa
 OpenDFe.NFe.ChavePublicaRsa.ChavePublicaRsa() -> void
 OpenDFe.NFe.ChavePublicaRsa.Expoente.get -> string?
 OpenDFe.NFe.ChavePublicaRsa.Expoente.set -> void
 OpenDFe.NFe.ChavePublicaRsa.Modulo.get -> string?
 OpenDFe.NFe.ChavePublicaRsa.Modulo.set -> void
+OpenDFe.NFe.Cide
+OpenDFe.NFe.Cide.Aliquota.get -> decimal?
+OpenDFe.NFe.Cide.Aliquota.set -> void
+OpenDFe.NFe.Cide.BaseCalculo.get -> decimal?
+OpenDFe.NFe.Cide.BaseCalculo.set -> void
+OpenDFe.NFe.Cide.Cide() -> void
+OpenDFe.NFe.Cide.Valor.get -> decimal?
+OpenDFe.NFe.Cide.Valor.set -> void
+OpenDFe.NFe.ClassificacaoCreditoPresumidoZfm
+OpenDFe.NFe.ClassificacaoCreditoPresumidoZfm.BensCapital = 2 -> OpenDFe.NFe.ClassificacaoCreditoPresumidoZfm
+OpenDFe.NFe.ClassificacaoCreditoPresumidoZfm.BensConsumoFinal = 1 -> OpenDFe.NFe.ClassificacaoCreditoPresumidoZfm
+OpenDFe.NFe.ClassificacaoCreditoPresumidoZfm.BensInformatica = 4 -> OpenDFe.NFe.ClassificacaoCreditoPresumidoZfm
+OpenDFe.NFe.ClassificacaoCreditoPresumidoZfm.BensIntermediarios = 3 -> OpenDFe.NFe.ClassificacaoCreditoPresumidoZfm
+OpenDFe.NFe.ClassificacaoCreditoPresumidoZfm.Nenhum = 0 -> OpenDFe.NFe.ClassificacaoCreditoPresumidoZfm
 OpenDFe.NFe.Cobranca
 OpenDFe.NFe.Cobranca.Cobranca() -> void
 OpenDFe.NFe.Cobranca.Duplicatas.get -> System.Collections.Generic.IList<OpenDFe.NFe.Duplicata!>!
 OpenDFe.NFe.Cobranca.Fatura.get -> OpenDFe.NFe.Fatura?
 OpenDFe.NFe.Cobranca.Fatura.set -> void
+OpenDFe.NFe.Cofins
+OpenDFe.NFe.Cofins.Cst.get -> OpenDFe.NFe.CstPisCofins?
+OpenDFe.NFe.Cofins.Cst.set -> void
+OpenDFe.NFe.CofinsAliquota
+OpenDFe.NFe.CofinsAliquota.Aliquota.get -> decimal?
+OpenDFe.NFe.CofinsAliquota.Aliquota.set -> void
+OpenDFe.NFe.CofinsAliquota.BaseCalculo.get -> decimal?
+OpenDFe.NFe.CofinsAliquota.BaseCalculo.set -> void
+OpenDFe.NFe.CofinsAliquota.CofinsAliquota() -> void
+OpenDFe.NFe.CofinsAliquota.Valor.get -> decimal?
+OpenDFe.NFe.CofinsAliquota.Valor.set -> void
+OpenDFe.NFe.CofinsNaoTributado
+OpenDFe.NFe.CofinsNaoTributado.CofinsNaoTributado() -> void
+OpenDFe.NFe.CofinsOutros
+OpenDFe.NFe.CofinsOutros.Aliquota.get -> decimal?
+OpenDFe.NFe.CofinsOutros.Aliquota.set -> void
+OpenDFe.NFe.CofinsOutros.AliquotaUnidade.get -> decimal?
+OpenDFe.NFe.CofinsOutros.AliquotaUnidade.set -> void
+OpenDFe.NFe.CofinsOutros.BaseCalculo.get -> decimal?
+OpenDFe.NFe.CofinsOutros.BaseCalculo.set -> void
+OpenDFe.NFe.CofinsOutros.CofinsOutros() -> void
+OpenDFe.NFe.CofinsOutros.Quantidade.get -> decimal?
+OpenDFe.NFe.CofinsOutros.Quantidade.set -> void
+OpenDFe.NFe.CofinsOutros.Valor.get -> decimal?
+OpenDFe.NFe.CofinsOutros.Valor.set -> void
+OpenDFe.NFe.CofinsQuantidade
+OpenDFe.NFe.CofinsQuantidade.AliquotaUnidade.get -> decimal?
+OpenDFe.NFe.CofinsQuantidade.AliquotaUnidade.set -> void
+OpenDFe.NFe.CofinsQuantidade.CofinsQuantidade() -> void
+OpenDFe.NFe.CofinsQuantidade.Quantidade.get -> decimal?
+OpenDFe.NFe.CofinsQuantidade.Quantidade.set -> void
+OpenDFe.NFe.CofinsQuantidade.Valor.get -> decimal?
+OpenDFe.NFe.CofinsQuantidade.Valor.set -> void
+OpenDFe.NFe.CofinsSt
+OpenDFe.NFe.CofinsSt.Aliquota.get -> decimal?
+OpenDFe.NFe.CofinsSt.Aliquota.set -> void
+OpenDFe.NFe.CofinsSt.AliquotaUnidade.get -> decimal?
+OpenDFe.NFe.CofinsSt.AliquotaUnidade.set -> void
+OpenDFe.NFe.CofinsSt.BaseCalculo.get -> decimal?
+OpenDFe.NFe.CofinsSt.BaseCalculo.set -> void
+OpenDFe.NFe.CofinsSt.CofinsSt() -> void
+OpenDFe.NFe.CofinsSt.Quantidade.get -> decimal?
+OpenDFe.NFe.CofinsSt.Quantidade.set -> void
+OpenDFe.NFe.CofinsSt.Totalizacao.get -> OpenDFe.NFe.IndicadorTotal?
+OpenDFe.NFe.CofinsSt.Totalizacao.set -> void
+OpenDFe.NFe.CofinsSt.Valor.get -> decimal?
+OpenDFe.NFe.CofinsSt.Valor.set -> void
+OpenDFe.NFe.Combustivel
+OpenDFe.NFe.Combustivel.Cide.get -> OpenDFe.NFe.Cide?
+OpenDFe.NFe.Combustivel.Cide.set -> void
+OpenDFe.NFe.Combustivel.Codif.get -> string?
+OpenDFe.NFe.Combustivel.Codif.set -> void
+OpenDFe.NFe.Combustivel.CodigoAnp.get -> string?
+OpenDFe.NFe.Combustivel.CodigoAnp.set -> void
+OpenDFe.NFe.Combustivel.Combustivel() -> void
+OpenDFe.NFe.Combustivel.DescricaoAnp.get -> string?
+OpenDFe.NFe.Combustivel.DescricaoAnp.set -> void
+OpenDFe.NFe.Combustivel.Encerrante.get -> OpenDFe.NFe.Encerrante?
+OpenDFe.NFe.Combustivel.Encerrante.set -> void
+OpenDFe.NFe.Combustivel.Exterior.get -> bool
+OpenDFe.NFe.Combustivel.Exterior.set -> void
+OpenDFe.NFe.Combustivel.Origens.get -> System.Collections.Generic.IList<OpenDFe.NFe.OrigemCombustivel!>!
+OpenDFe.NFe.Combustivel.PercentualBiodiesel.get -> decimal?
+OpenDFe.NFe.Combustivel.PercentualBiodiesel.set -> void
+OpenDFe.NFe.Combustivel.PercentualGasImportado.get -> decimal?
+OpenDFe.NFe.Combustivel.PercentualGasImportado.set -> void
+OpenDFe.NFe.Combustivel.PercentualGasNacional.get -> decimal?
+OpenDFe.NFe.Combustivel.PercentualGasNacional.set -> void
+OpenDFe.NFe.Combustivel.PercentualGlp.get -> decimal?
+OpenDFe.NFe.Combustivel.PercentualGlp.set -> void
+OpenDFe.NFe.Combustivel.QuantidadeTemperaturaAmbiente.get -> decimal?
+OpenDFe.NFe.Combustivel.QuantidadeTemperaturaAmbiente.set -> void
+OpenDFe.NFe.Combustivel.UFConsumo.get -> OpenDFe.UF?
+OpenDFe.NFe.Combustivel.UFConsumo.set -> void
+OpenDFe.NFe.Combustivel.ValorPartida.get -> decimal?
+OpenDFe.NFe.Combustivel.ValorPartida.set -> void
 OpenDFe.NFe.Compra
 OpenDFe.NFe.Compra.Compra() -> void
 OpenDFe.NFe.Compra.Contrato.get -> string?
@@ -73,6 +220,123 @@ OpenDFe.NFe.CompraGovernamental.Operacao.get -> OpenDFe.NFe.OperacaoGovernamenta
 OpenDFe.NFe.CompraGovernamental.Operacao.set -> void
 OpenDFe.NFe.CompraGovernamental.PercentualReducao.get -> decimal?
 OpenDFe.NFe.CompraGovernamental.PercentualReducao.set -> void
+OpenDFe.NFe.CondicaoVeiculo
+OpenDFe.NFe.CondicaoVeiculo.Acabado = 1 -> OpenDFe.NFe.CondicaoVeiculo
+OpenDFe.NFe.CondicaoVeiculo.Inacabado = 2 -> OpenDFe.NFe.CondicaoVeiculo
+OpenDFe.NFe.CondicaoVeiculo.SemiAcabado = 3 -> OpenDFe.NFe.CondicaoVeiculo
+OpenDFe.NFe.CondicaoVin
+OpenDFe.NFe.CondicaoVin.Normal = 2 -> OpenDFe.NFe.CondicaoVin
+OpenDFe.NFe.CondicaoVin.Remarcado = 1 -> OpenDFe.NFe.CondicaoVin
+OpenDFe.NFe.CreditoPresumidoIbsCbs
+OpenDFe.NFe.CreditoPresumidoIbsCbs.CreditoPresumidoIbsCbs() -> void
+OpenDFe.NFe.CreditoPresumidoIbsCbs.Percentual.get -> decimal?
+OpenDFe.NFe.CreditoPresumidoIbsCbs.Percentual.set -> void
+OpenDFe.NFe.CreditoPresumidoIbsCbs.Valor.get -> decimal?
+OpenDFe.NFe.CreditoPresumidoIbsCbs.Valor.set -> void
+OpenDFe.NFe.CreditoPresumidoIbsCbs.ValorCondicaoSuspensiva.get -> decimal?
+OpenDFe.NFe.CreditoPresumidoIbsCbs.ValorCondicaoSuspensiva.set -> void
+OpenDFe.NFe.CreditoPresumidoIcms
+OpenDFe.NFe.CreditoPresumidoIcms.Codigo.get -> string?
+OpenDFe.NFe.CreditoPresumidoIcms.Codigo.set -> void
+OpenDFe.NFe.CreditoPresumidoIcms.CreditoPresumidoIcms() -> void
+OpenDFe.NFe.CreditoPresumidoIcms.Percentual.get -> decimal?
+OpenDFe.NFe.CreditoPresumidoIcms.Percentual.set -> void
+OpenDFe.NFe.CreditoPresumidoIcms.Valor.get -> decimal?
+OpenDFe.NFe.CreditoPresumidoIcms.Valor.set -> void
+OpenDFe.NFe.CreditoPresumidoOperacao
+OpenDFe.NFe.CreditoPresumidoOperacao.BaseCalculo.get -> decimal?
+OpenDFe.NFe.CreditoPresumidoOperacao.BaseCalculo.set -> void
+OpenDFe.NFe.CreditoPresumidoOperacao.Cbs.get -> OpenDFe.NFe.CreditoPresumidoIbsCbs?
+OpenDFe.NFe.CreditoPresumidoOperacao.Cbs.set -> void
+OpenDFe.NFe.CreditoPresumidoOperacao.Codigo.get -> string?
+OpenDFe.NFe.CreditoPresumidoOperacao.Codigo.set -> void
+OpenDFe.NFe.CreditoPresumidoOperacao.CreditoPresumidoOperacao() -> void
+OpenDFe.NFe.CreditoPresumidoOperacao.Ibs.get -> OpenDFe.NFe.CreditoPresumidoIbsCbs?
+OpenDFe.NFe.CreditoPresumidoOperacao.Ibs.set -> void
+OpenDFe.NFe.CreditoPresumidoZfm
+OpenDFe.NFe.CreditoPresumidoZfm.Classificacao.get -> OpenDFe.NFe.ClassificacaoCreditoPresumidoZfm?
+OpenDFe.NFe.CreditoPresumidoZfm.Classificacao.set -> void
+OpenDFe.NFe.CreditoPresumidoZfm.Competencia.get -> string?
+OpenDFe.NFe.CreditoPresumidoZfm.Competencia.set -> void
+OpenDFe.NFe.CreditoPresumidoZfm.CreditoPresumidoZfm() -> void
+OpenDFe.NFe.CreditoPresumidoZfm.Valor.get -> decimal?
+OpenDFe.NFe.CreditoPresumidoZfm.Valor.set -> void
+OpenDFe.NFe.CsosnIcms
+OpenDFe.NFe.CsosnIcms.CobradoAnteriormente = 500 -> OpenDFe.NFe.CsosnIcms
+OpenDFe.NFe.CsosnIcms.Imune = 300 -> OpenDFe.NFe.CsosnIcms
+OpenDFe.NFe.CsosnIcms.IsencaoFaixaReceita = 103 -> OpenDFe.NFe.CsosnIcms
+OpenDFe.NFe.CsosnIcms.IsencaoFaixaReceitaSubstituicao = 203 -> OpenDFe.NFe.CsosnIcms
+OpenDFe.NFe.CsosnIcms.NaoPermiteCredito = 102 -> OpenDFe.NFe.CsosnIcms
+OpenDFe.NFe.CsosnIcms.NaoPermiteCreditoSubstituicao = 202 -> OpenDFe.NFe.CsosnIcms
+OpenDFe.NFe.CsosnIcms.NaoTributada = 400 -> OpenDFe.NFe.CsosnIcms
+OpenDFe.NFe.CsosnIcms.Outros = 900 -> OpenDFe.NFe.CsosnIcms
+OpenDFe.NFe.CsosnIcms.PermiteCredito = 101 -> OpenDFe.NFe.CsosnIcms
+OpenDFe.NFe.CsosnIcms.PermiteCreditoSubstituicao = 201 -> OpenDFe.NFe.CsosnIcms
+OpenDFe.NFe.CstIcms
+OpenDFe.NFe.CstIcms.CobradoAnteriormente = 60 -> OpenDFe.NFe.CstIcms
+OpenDFe.NFe.CstIcms.Diferimento = 51 -> OpenDFe.NFe.CstIcms
+OpenDFe.NFe.CstIcms.Isenta = 40 -> OpenDFe.NFe.CstIcms
+OpenDFe.NFe.CstIcms.IsentaSubstituicao = 30 -> OpenDFe.NFe.CstIcms
+OpenDFe.NFe.CstIcms.MonofasicaCobradaAnteriormente = 61 -> OpenDFe.NFe.CstIcms
+OpenDFe.NFe.CstIcms.MonofasicaDiferida = 53 -> OpenDFe.NFe.CstIcms
+OpenDFe.NFe.CstIcms.MonofasicaPropria = 2 -> OpenDFe.NFe.CstIcms
+OpenDFe.NFe.CstIcms.MonofasicaPropriaRetencao = 15 -> OpenDFe.NFe.CstIcms
+OpenDFe.NFe.CstIcms.NaoTributada = 41 -> OpenDFe.NFe.CstIcms
+OpenDFe.NFe.CstIcms.Outras = 90 -> OpenDFe.NFe.CstIcms
+OpenDFe.NFe.CstIcms.ReducaoBase = 20 -> OpenDFe.NFe.CstIcms
+OpenDFe.NFe.CstIcms.ReducaoBaseSubstituicao = 70 -> OpenDFe.NFe.CstIcms
+OpenDFe.NFe.CstIcms.Suspensao = 50 -> OpenDFe.NFe.CstIcms
+OpenDFe.NFe.CstIcms.Tributada = 0 -> OpenDFe.NFe.CstIcms
+OpenDFe.NFe.CstIcms.TributadaSubstituicao = 10 -> OpenDFe.NFe.CstIcms
+OpenDFe.NFe.CstIpi
+OpenDFe.NFe.CstIpi.EntradaAliquotaZero = 1 -> OpenDFe.NFe.CstIpi
+OpenDFe.NFe.CstIpi.EntradaImune = 4 -> OpenDFe.NFe.CstIpi
+OpenDFe.NFe.CstIpi.EntradaIsenta = 2 -> OpenDFe.NFe.CstIpi
+OpenDFe.NFe.CstIpi.EntradaNaoTributada = 3 -> OpenDFe.NFe.CstIpi
+OpenDFe.NFe.CstIpi.EntradaRecuperacaoCredito = 0 -> OpenDFe.NFe.CstIpi
+OpenDFe.NFe.CstIpi.EntradaSuspensao = 5 -> OpenDFe.NFe.CstIpi
+OpenDFe.NFe.CstIpi.OutrasEntradas = 49 -> OpenDFe.NFe.CstIpi
+OpenDFe.NFe.CstIpi.OutrasSaidas = 99 -> OpenDFe.NFe.CstIpi
+OpenDFe.NFe.CstIpi.SaidaAliquotaZero = 51 -> OpenDFe.NFe.CstIpi
+OpenDFe.NFe.CstIpi.SaidaImune = 54 -> OpenDFe.NFe.CstIpi
+OpenDFe.NFe.CstIpi.SaidaIsenta = 52 -> OpenDFe.NFe.CstIpi
+OpenDFe.NFe.CstIpi.SaidaNaoTributada = 53 -> OpenDFe.NFe.CstIpi
+OpenDFe.NFe.CstIpi.SaidaSuspensao = 55 -> OpenDFe.NFe.CstIpi
+OpenDFe.NFe.CstIpi.SaidaTributada = 50 -> OpenDFe.NFe.CstIpi
+OpenDFe.NFe.CstPisCofins
+OpenDFe.NFe.CstPisCofins.AliquotaBasica = 1 -> OpenDFe.NFe.CstPisCofins
+OpenDFe.NFe.CstPisCofins.AliquotaDiferenciada = 2 -> OpenDFe.NFe.CstPisCofins
+OpenDFe.NFe.CstPisCofins.AliquotaUnidade = 3 -> OpenDFe.NFe.CstPisCofins
+OpenDFe.NFe.CstPisCofins.AliquotaZero = 6 -> OpenDFe.NFe.CstPisCofins
+OpenDFe.NFe.CstPisCofins.AquisicaoAliquotaZero = 73 -> OpenDFe.NFe.CstPisCofins
+OpenDFe.NFe.CstPisCofins.AquisicaoCreditoVedado = 70 -> OpenDFe.NFe.CstPisCofins
+OpenDFe.NFe.CstPisCofins.AquisicaoIsencao = 71 -> OpenDFe.NFe.CstPisCofins
+OpenDFe.NFe.CstPisCofins.AquisicaoNaoIncidencia = 74 -> OpenDFe.NFe.CstPisCofins
+OpenDFe.NFe.CstPisCofins.AquisicaoSubstituicao = 75 -> OpenDFe.NFe.CstPisCofins
+OpenDFe.NFe.CstPisCofins.AquisicaoSuspensao = 72 -> OpenDFe.NFe.CstPisCofins
+OpenDFe.NFe.CstPisCofins.CreditoPresumidoOutras = 67 -> OpenDFe.NFe.CstPisCofins
+OpenDFe.NFe.CstPisCofins.CreditoPresumidoReceitaExportacao = 62 -> OpenDFe.NFe.CstPisCofins
+OpenDFe.NFe.CstPisCofins.CreditoPresumidoReceitaNaoTributada = 61 -> OpenDFe.NFe.CstPisCofins
+OpenDFe.NFe.CstPisCofins.CreditoPresumidoReceitaTributada = 60 -> OpenDFe.NFe.CstPisCofins
+OpenDFe.NFe.CstPisCofins.CreditoPresumidoReceitasMercadoInterno = 63 -> OpenDFe.NFe.CstPisCofins
+OpenDFe.NFe.CstPisCofins.CreditoPresumidoReceitasNaoTributadaExportacao = 65 -> OpenDFe.NFe.CstPisCofins
+OpenDFe.NFe.CstPisCofins.CreditoPresumidoReceitasTodas = 66 -> OpenDFe.NFe.CstPisCofins
+OpenDFe.NFe.CstPisCofins.CreditoPresumidoReceitasTributadaExportacao = 64 -> OpenDFe.NFe.CstPisCofins
+OpenDFe.NFe.CstPisCofins.CreditoReceitaExportacao = 52 -> OpenDFe.NFe.CstPisCofins
+OpenDFe.NFe.CstPisCofins.CreditoReceitaNaoTributada = 51 -> OpenDFe.NFe.CstPisCofins
+OpenDFe.NFe.CstPisCofins.CreditoReceitaTributada = 50 -> OpenDFe.NFe.CstPisCofins
+OpenDFe.NFe.CstPisCofins.CreditoReceitasMercadoInterno = 53 -> OpenDFe.NFe.CstPisCofins
+OpenDFe.NFe.CstPisCofins.CreditoReceitasNaoTributadaExportacao = 55 -> OpenDFe.NFe.CstPisCofins
+OpenDFe.NFe.CstPisCofins.CreditoReceitasTodas = 56 -> OpenDFe.NFe.CstPisCofins
+OpenDFe.NFe.CstPisCofins.CreditoReceitasTributadaExportacao = 54 -> OpenDFe.NFe.CstPisCofins
+OpenDFe.NFe.CstPisCofins.Isenta = 7 -> OpenDFe.NFe.CstPisCofins
+OpenDFe.NFe.CstPisCofins.MonofasicaRevendaAliquotaZero = 4 -> OpenDFe.NFe.CstPisCofins
+OpenDFe.NFe.CstPisCofins.NaoIncidencia = 8 -> OpenDFe.NFe.CstPisCofins
+OpenDFe.NFe.CstPisCofins.Outras = 99 -> OpenDFe.NFe.CstPisCofins
+OpenDFe.NFe.CstPisCofins.OutrasEntradas = 98 -> OpenDFe.NFe.CstPisCofins
+OpenDFe.NFe.CstPisCofins.OutrasSaidas = 49 -> OpenDFe.NFe.CstPisCofins
+OpenDFe.NFe.CstPisCofins.SubstituicaoTributaria = 5 -> OpenDFe.NFe.CstPisCofins
+OpenDFe.NFe.CstPisCofins.Suspensao = 9 -> OpenDFe.NFe.CstPisCofins
 OpenDFe.NFe.CupomFiscalReferenciado
 OpenDFe.NFe.CupomFiscalReferenciado.Coo.get -> int?
 OpenDFe.NFe.CupomFiscalReferenciado.Coo.set -> void
@@ -81,6 +345,33 @@ OpenDFe.NFe.CupomFiscalReferenciado.Modelo.get -> OpenDFe.NFe.ModeloCupomFiscal?
 OpenDFe.NFe.CupomFiscalReferenciado.Modelo.set -> void
 OpenDFe.NFe.CupomFiscalReferenciado.NumeroEcf.get -> int?
 OpenDFe.NFe.CupomFiscalReferenciado.NumeroEcf.set -> void
+OpenDFe.NFe.DeclaracaoImportacao
+OpenDFe.NFe.DeclaracaoImportacao.Adicoes.get -> System.Collections.Generic.IList<OpenDFe.NFe.Adicao!>!
+OpenDFe.NFe.DeclaracaoImportacao.Cnpj.get -> string?
+OpenDFe.NFe.DeclaracaoImportacao.Cnpj.set -> void
+OpenDFe.NFe.DeclaracaoImportacao.CodigoExportador.get -> string?
+OpenDFe.NFe.DeclaracaoImportacao.CodigoExportador.set -> void
+OpenDFe.NFe.DeclaracaoImportacao.Cpf.get -> string?
+OpenDFe.NFe.DeclaracaoImportacao.Cpf.set -> void
+OpenDFe.NFe.DeclaracaoImportacao.Data.get -> System.DateOnly?
+OpenDFe.NFe.DeclaracaoImportacao.Data.set -> void
+OpenDFe.NFe.DeclaracaoImportacao.DataDesembaraco.get -> System.DateOnly?
+OpenDFe.NFe.DeclaracaoImportacao.DataDesembaraco.set -> void
+OpenDFe.NFe.DeclaracaoImportacao.DeclaracaoImportacao() -> void
+OpenDFe.NFe.DeclaracaoImportacao.FormaImportacao.get -> OpenDFe.NFe.FormaImportacao?
+OpenDFe.NFe.DeclaracaoImportacao.FormaImportacao.set -> void
+OpenDFe.NFe.DeclaracaoImportacao.LocalDesembaraco.get -> string?
+OpenDFe.NFe.DeclaracaoImportacao.LocalDesembaraco.set -> void
+OpenDFe.NFe.DeclaracaoImportacao.Numero.get -> string?
+OpenDFe.NFe.DeclaracaoImportacao.Numero.set -> void
+OpenDFe.NFe.DeclaracaoImportacao.UFDesembaraco.get -> OpenDFe.UF?
+OpenDFe.NFe.DeclaracaoImportacao.UFDesembaraco.set -> void
+OpenDFe.NFe.DeclaracaoImportacao.UFTerceiro.get -> OpenDFe.UF?
+OpenDFe.NFe.DeclaracaoImportacao.UFTerceiro.set -> void
+OpenDFe.NFe.DeclaracaoImportacao.ValorAfrmm.get -> decimal?
+OpenDFe.NFe.DeclaracaoImportacao.ValorAfrmm.set -> void
+OpenDFe.NFe.DeclaracaoImportacao.ViaTransporte.get -> OpenDFe.NFe.ViaTransporteInternacional?
+OpenDFe.NFe.DeclaracaoImportacao.ViaTransporte.set -> void
 OpenDFe.NFe.Deducao
 OpenDFe.NFe.Deducao.Deducao() -> void
 OpenDFe.NFe.Deducao.Descricao.get -> string?
@@ -115,6 +406,24 @@ OpenDFe.NFe.Destinatario.InscricaoSuframa.get -> string?
 OpenDFe.NFe.Destinatario.InscricaoSuframa.set -> void
 OpenDFe.NFe.Destinatario.Nome.get -> string?
 OpenDFe.NFe.Destinatario.Nome.set -> void
+OpenDFe.NFe.DetalheExportacao
+OpenDFe.NFe.DetalheExportacao.DetalheExportacao() -> void
+OpenDFe.NFe.DetalheExportacao.Drawback.get -> string?
+OpenDFe.NFe.DetalheExportacao.Drawback.set -> void
+OpenDFe.NFe.DetalheExportacao.Indireta.get -> OpenDFe.NFe.ExportacaoIndireta?
+OpenDFe.NFe.DetalheExportacao.Indireta.set -> void
+OpenDFe.NFe.DevolucaoTributo
+OpenDFe.NFe.DevolucaoTributo.DevolucaoTributo() -> void
+OpenDFe.NFe.DevolucaoTributo.Percentual.get -> decimal?
+OpenDFe.NFe.DevolucaoTributo.Percentual.set -> void
+OpenDFe.NFe.DevolucaoTributo.Valor.get -> decimal?
+OpenDFe.NFe.DevolucaoTributo.Valor.set -> void
+OpenDFe.NFe.Diferimento
+OpenDFe.NFe.Diferimento.Diferimento() -> void
+OpenDFe.NFe.Diferimento.Percentual.get -> decimal?
+OpenDFe.NFe.Diferimento.Percentual.set -> void
+OpenDFe.NFe.Diferimento.Valor.get -> decimal?
+OpenDFe.NFe.Diferimento.Valor.set -> void
 OpenDFe.NFe.DocumentoReferenciado
 OpenDFe.NFe.Duplicata
 OpenDFe.NFe.Duplicata.Duplicata() -> void
@@ -124,6 +433,14 @@ OpenDFe.NFe.Duplicata.Valor.get -> decimal?
 OpenDFe.NFe.Duplicata.Valor.set -> void
 OpenDFe.NFe.Duplicata.Vencimento.get -> System.DateOnly?
 OpenDFe.NFe.Duplicata.Vencimento.set -> void
+OpenDFe.NFe.EmbalagemProduto
+OpenDFe.NFe.EmbalagemProduto.Descricao.get -> string?
+OpenDFe.NFe.EmbalagemProduto.Descricao.set -> void
+OpenDFe.NFe.EmbalagemProduto.EmbalagemProduto() -> void
+OpenDFe.NFe.EmbalagemProduto.Unidade.get -> string?
+OpenDFe.NFe.EmbalagemProduto.Unidade.set -> void
+OpenDFe.NFe.EmbalagemProduto.Volume.get -> decimal?
+OpenDFe.NFe.EmbalagemProduto.Volume.set -> void
 OpenDFe.NFe.Emitente
 OpenDFe.NFe.Emitente.Cnae.get -> string?
 OpenDFe.NFe.Emitente.Cnae.set -> void
@@ -148,6 +465,18 @@ OpenDFe.NFe.Emitente.NomeFantasia.get -> string?
 OpenDFe.NFe.Emitente.NomeFantasia.set -> void
 OpenDFe.NFe.Emitente.RegimeTributario.get -> OpenDFe.NFe.RegimeTributario?
 OpenDFe.NFe.Emitente.RegimeTributario.set -> void
+OpenDFe.NFe.Encerrante
+OpenDFe.NFe.Encerrante.Bico.get -> int?
+OpenDFe.NFe.Encerrante.Bico.set -> void
+OpenDFe.NFe.Encerrante.Bomba.get -> int?
+OpenDFe.NFe.Encerrante.Bomba.set -> void
+OpenDFe.NFe.Encerrante.Encerrante() -> void
+OpenDFe.NFe.Encerrante.Final.get -> decimal?
+OpenDFe.NFe.Encerrante.Final.set -> void
+OpenDFe.NFe.Encerrante.Inicial.get -> decimal?
+OpenDFe.NFe.Encerrante.Inicial.set -> void
+OpenDFe.NFe.Encerrante.Tanque.get -> int?
+OpenDFe.NFe.Encerrante.Tanque.set -> void
 OpenDFe.NFe.EnderecoDestinatario
 OpenDFe.NFe.EnderecoDestinatario.Bairro.get -> string?
 OpenDFe.NFe.EnderecoDestinatario.Bairro.set -> void
@@ -205,6 +534,20 @@ OpenDFe.NFe.EnteGovernamental.DistritoFederal = 3 -> OpenDFe.NFe.EnteGovernament
 OpenDFe.NFe.EnteGovernamental.Estado = 2 -> OpenDFe.NFe.EnteGovernamental
 OpenDFe.NFe.EnteGovernamental.Municipio = 4 -> OpenDFe.NFe.EnteGovernamental
 OpenDFe.NFe.EnteGovernamental.Uniao = 1 -> OpenDFe.NFe.EnteGovernamental
+OpenDFe.NFe.EstornoCredito
+OpenDFe.NFe.EstornoCredito.EstornoCredito() -> void
+OpenDFe.NFe.EstornoCredito.ValorCbs.get -> decimal?
+OpenDFe.NFe.EstornoCredito.ValorCbs.set -> void
+OpenDFe.NFe.EstornoCredito.ValorIbs.get -> decimal?
+OpenDFe.NFe.EstornoCredito.ValorIbs.set -> void
+OpenDFe.NFe.ExigibilidadeIss
+OpenDFe.NFe.ExigibilidadeIss.Exigivel = 1 -> OpenDFe.NFe.ExigibilidadeIss
+OpenDFe.NFe.ExigibilidadeIss.Exportacao = 4 -> OpenDFe.NFe.ExigibilidadeIss
+OpenDFe.NFe.ExigibilidadeIss.Imunidade = 5 -> OpenDFe.NFe.ExigibilidadeIss
+OpenDFe.NFe.ExigibilidadeIss.Isencao = 3 -> OpenDFe.NFe.ExigibilidadeIss
+OpenDFe.NFe.ExigibilidadeIss.NaoIncidencia = 2 -> OpenDFe.NFe.ExigibilidadeIss
+OpenDFe.NFe.ExigibilidadeIss.SuspensaAdministrativa = 7 -> OpenDFe.NFe.ExigibilidadeIss
+OpenDFe.NFe.ExigibilidadeIss.SuspensaJudicial = 6 -> OpenDFe.NFe.ExigibilidadeIss
 OpenDFe.NFe.Exportacao
 OpenDFe.NFe.Exportacao.Exportacao() -> void
 OpenDFe.NFe.Exportacao.LocalDespacho.get -> string?
@@ -213,6 +556,14 @@ OpenDFe.NFe.Exportacao.LocalEmbarque.get -> string?
 OpenDFe.NFe.Exportacao.LocalEmbarque.set -> void
 OpenDFe.NFe.Exportacao.UFSaida.get -> OpenDFe.UF?
 OpenDFe.NFe.Exportacao.UFSaida.set -> void
+OpenDFe.NFe.ExportacaoIndireta
+OpenDFe.NFe.ExportacaoIndireta.Chave.get -> string?
+OpenDFe.NFe.ExportacaoIndireta.Chave.set -> void
+OpenDFe.NFe.ExportacaoIndireta.ExportacaoIndireta() -> void
+OpenDFe.NFe.ExportacaoIndireta.Quantidade.get -> decimal?
+OpenDFe.NFe.ExportacaoIndireta.Quantidade.set -> void
+OpenDFe.NFe.ExportacaoIndireta.RegistroExportacao.get -> string?
+OpenDFe.NFe.ExportacaoIndireta.RegistroExportacao.set -> void
 OpenDFe.NFe.Fatura
 OpenDFe.NFe.Fatura.Desconto.get -> decimal?
 OpenDFe.NFe.Fatura.Desconto.set -> void
@@ -254,6 +605,10 @@ OpenDFe.NFe.FiscoEmitente.UF.get -> OpenDFe.UF?
 OpenDFe.NFe.FiscoEmitente.UF.set -> void
 OpenDFe.NFe.FiscoEmitente.ValorDar.get -> decimal?
 OpenDFe.NFe.FiscoEmitente.ValorDar.set -> void
+OpenDFe.NFe.FormaImportacao
+OpenDFe.NFe.FormaImportacao.ContaOrdem = 2 -> OpenDFe.NFe.FormaImportacao
+OpenDFe.NFe.FormaImportacao.ContaPropria = 1 -> OpenDFe.NFe.FormaImportacao
+OpenDFe.NFe.FormaImportacao.Encomenda = 3 -> OpenDFe.NFe.FormaImportacao
 OpenDFe.NFe.FormaPagamento
 OpenDFe.NFe.FormaPagamento.CnpjTransacao.get -> string?
 OpenDFe.NFe.FormaPagamento.CnpjTransacao.set -> void
@@ -296,6 +651,621 @@ OpenDFe.NFe.GuiaTransito.Tipo.get -> OpenDFe.NFe.TipoGuiaTransito?
 OpenDFe.NFe.GuiaTransito.Tipo.set -> void
 OpenDFe.NFe.GuiaTransito.UF.get -> OpenDFe.UF?
 OpenDFe.NFe.GuiaTransito.UF.set -> void
+OpenDFe.NFe.IbsCbs
+OpenDFe.NFe.IbsCbs.AjusteCompetencia.get -> OpenDFe.NFe.AjusteCompetencia?
+OpenDFe.NFe.IbsCbs.AjusteCompetencia.set -> void
+OpenDFe.NFe.IbsCbs.ClassificacaoTributaria.get -> string?
+OpenDFe.NFe.IbsCbs.ClassificacaoTributaria.set -> void
+OpenDFe.NFe.IbsCbs.CreditoPresumido.get -> OpenDFe.NFe.CreditoPresumidoOperacao?
+OpenDFe.NFe.IbsCbs.CreditoPresumido.set -> void
+OpenDFe.NFe.IbsCbs.CreditoPresumidoZfm.get -> OpenDFe.NFe.CreditoPresumidoZfm?
+OpenDFe.NFe.IbsCbs.CreditoPresumidoZfm.set -> void
+OpenDFe.NFe.IbsCbs.Cst.get -> string?
+OpenDFe.NFe.IbsCbs.Cst.set -> void
+OpenDFe.NFe.IbsCbs.Doacao.get -> OpenDFe.NFe.IndicadorDoacao?
+OpenDFe.NFe.IbsCbs.Doacao.set -> void
+OpenDFe.NFe.IbsCbs.EstornoCredito.get -> OpenDFe.NFe.EstornoCredito?
+OpenDFe.NFe.IbsCbs.EstornoCredito.set -> void
+OpenDFe.NFe.IbsCbs.IbsCbs() -> void
+OpenDFe.NFe.IbsCbs.Monofasia.get -> OpenDFe.NFe.MonofasiaIbsCbs?
+OpenDFe.NFe.IbsCbs.Monofasia.set -> void
+OpenDFe.NFe.IbsCbs.TransferenciaCredito.get -> OpenDFe.NFe.TransferenciaCredito?
+OpenDFe.NFe.IbsCbs.TransferenciaCredito.set -> void
+OpenDFe.NFe.IbsCbs.Tributacao.get -> OpenDFe.NFe.TributacaoIbsCbs?
+OpenDFe.NFe.IbsCbs.Tributacao.set -> void
+OpenDFe.NFe.IbsMunicipio
+OpenDFe.NFe.IbsMunicipio.Aliquota.get -> decimal?
+OpenDFe.NFe.IbsMunicipio.Aliquota.set -> void
+OpenDFe.NFe.IbsMunicipio.Devolucao.get -> OpenDFe.NFe.DevolucaoTributo?
+OpenDFe.NFe.IbsMunicipio.Devolucao.set -> void
+OpenDFe.NFe.IbsMunicipio.Diferimento.get -> OpenDFe.NFe.Diferimento?
+OpenDFe.NFe.IbsMunicipio.Diferimento.set -> void
+OpenDFe.NFe.IbsMunicipio.IbsMunicipio() -> void
+OpenDFe.NFe.IbsMunicipio.Reducao.get -> OpenDFe.NFe.ReducaoAliquota?
+OpenDFe.NFe.IbsMunicipio.Reducao.set -> void
+OpenDFe.NFe.IbsMunicipio.Valor.get -> decimal?
+OpenDFe.NFe.IbsMunicipio.Valor.set -> void
+OpenDFe.NFe.IbsUF
+OpenDFe.NFe.IbsUF.Aliquota.get -> decimal?
+OpenDFe.NFe.IbsUF.Aliquota.set -> void
+OpenDFe.NFe.IbsUF.Devolucao.get -> OpenDFe.NFe.DevolucaoTributo?
+OpenDFe.NFe.IbsUF.Devolucao.set -> void
+OpenDFe.NFe.IbsUF.Diferimento.get -> OpenDFe.NFe.Diferimento?
+OpenDFe.NFe.IbsUF.Diferimento.set -> void
+OpenDFe.NFe.IbsUF.IbsUF() -> void
+OpenDFe.NFe.IbsUF.Reducao.get -> OpenDFe.NFe.ReducaoAliquota?
+OpenDFe.NFe.IbsUF.Reducao.set -> void
+OpenDFe.NFe.IbsUF.Valor.get -> decimal?
+OpenDFe.NFe.IbsUF.Valor.set -> void
+OpenDFe.NFe.Icms
+OpenDFe.NFe.Icms.Origem.get -> OpenDFe.NFe.OrigemMercadoria?
+OpenDFe.NFe.Icms.Origem.set -> void
+OpenDFe.NFe.Icms00
+OpenDFe.NFe.Icms00.Aliquota.get -> decimal?
+OpenDFe.NFe.Icms00.Aliquota.set -> void
+OpenDFe.NFe.Icms00.BaseCalculo.get -> decimal?
+OpenDFe.NFe.Icms00.BaseCalculo.set -> void
+OpenDFe.NFe.Icms00.Cst.get -> OpenDFe.NFe.CstIcms?
+OpenDFe.NFe.Icms00.Cst.set -> void
+OpenDFe.NFe.Icms00.Icms00() -> void
+OpenDFe.NFe.Icms00.ModalidadeBaseCalculo.get -> OpenDFe.NFe.ModalidadeBaseCalculo?
+OpenDFe.NFe.Icms00.ModalidadeBaseCalculo.set -> void
+OpenDFe.NFe.Icms00.PercentualFcp.get -> decimal?
+OpenDFe.NFe.Icms00.PercentualFcp.set -> void
+OpenDFe.NFe.Icms00.Valor.get -> decimal?
+OpenDFe.NFe.Icms00.Valor.set -> void
+OpenDFe.NFe.Icms00.ValorFcp.get -> decimal?
+OpenDFe.NFe.Icms00.ValorFcp.set -> void
+OpenDFe.NFe.Icms02
+OpenDFe.NFe.Icms02.AliquotaAdRem.get -> decimal?
+OpenDFe.NFe.Icms02.AliquotaAdRem.set -> void
+OpenDFe.NFe.Icms02.Cst.get -> OpenDFe.NFe.CstIcms?
+OpenDFe.NFe.Icms02.Cst.set -> void
+OpenDFe.NFe.Icms02.Icms02() -> void
+OpenDFe.NFe.Icms02.QuantidadeBaseMonofasico.get -> decimal?
+OpenDFe.NFe.Icms02.QuantidadeBaseMonofasico.set -> void
+OpenDFe.NFe.Icms02.ValorMonofasico.get -> decimal?
+OpenDFe.NFe.Icms02.ValorMonofasico.set -> void
+OpenDFe.NFe.Icms10
+OpenDFe.NFe.Icms10.Aliquota.get -> decimal?
+OpenDFe.NFe.Icms10.Aliquota.set -> void
+OpenDFe.NFe.Icms10.AliquotaSt.get -> decimal?
+OpenDFe.NFe.Icms10.AliquotaSt.set -> void
+OpenDFe.NFe.Icms10.BaseCalculo.get -> decimal?
+OpenDFe.NFe.Icms10.BaseCalculo.set -> void
+OpenDFe.NFe.Icms10.BaseCalculoFcp.get -> decimal?
+OpenDFe.NFe.Icms10.BaseCalculoFcp.set -> void
+OpenDFe.NFe.Icms10.BaseCalculoFcpSt.get -> decimal?
+OpenDFe.NFe.Icms10.BaseCalculoFcpSt.set -> void
+OpenDFe.NFe.Icms10.BaseCalculoSt.get -> decimal?
+OpenDFe.NFe.Icms10.BaseCalculoSt.set -> void
+OpenDFe.NFe.Icms10.Cst.get -> OpenDFe.NFe.CstIcms?
+OpenDFe.NFe.Icms10.Cst.set -> void
+OpenDFe.NFe.Icms10.Icms10() -> void
+OpenDFe.NFe.Icms10.ModalidadeBaseCalculo.get -> OpenDFe.NFe.ModalidadeBaseCalculo?
+OpenDFe.NFe.Icms10.ModalidadeBaseCalculo.set -> void
+OpenDFe.NFe.Icms10.ModalidadeBaseCalculoSt.get -> OpenDFe.NFe.ModalidadeBaseCalculoSt?
+OpenDFe.NFe.Icms10.ModalidadeBaseCalculoSt.set -> void
+OpenDFe.NFe.Icms10.MotivoDesoneracaoSt.get -> OpenDFe.NFe.MotivoDesoneracao?
+OpenDFe.NFe.Icms10.MotivoDesoneracaoSt.set -> void
+OpenDFe.NFe.Icms10.PercentualFcp.get -> decimal?
+OpenDFe.NFe.Icms10.PercentualFcp.set -> void
+OpenDFe.NFe.Icms10.PercentualFcpSt.get -> decimal?
+OpenDFe.NFe.Icms10.PercentualFcpSt.set -> void
+OpenDFe.NFe.Icms10.PercentualMargemSt.get -> decimal?
+OpenDFe.NFe.Icms10.PercentualMargemSt.set -> void
+OpenDFe.NFe.Icms10.PercentualReducaoBaseSt.get -> decimal?
+OpenDFe.NFe.Icms10.PercentualReducaoBaseSt.set -> void
+OpenDFe.NFe.Icms10.Valor.get -> decimal?
+OpenDFe.NFe.Icms10.Valor.set -> void
+OpenDFe.NFe.Icms10.ValorFcp.get -> decimal?
+OpenDFe.NFe.Icms10.ValorFcp.set -> void
+OpenDFe.NFe.Icms10.ValorFcpSt.get -> decimal?
+OpenDFe.NFe.Icms10.ValorFcpSt.set -> void
+OpenDFe.NFe.Icms10.ValorSt.get -> decimal?
+OpenDFe.NFe.Icms10.ValorSt.set -> void
+OpenDFe.NFe.Icms10.ValorStDesonerado.get -> decimal?
+OpenDFe.NFe.Icms10.ValorStDesonerado.set -> void
+OpenDFe.NFe.Icms15
+OpenDFe.NFe.Icms15.AliquotaAdRem.get -> decimal?
+OpenDFe.NFe.Icms15.AliquotaAdRem.set -> void
+OpenDFe.NFe.Icms15.AliquotaAdRemRetencao.get -> decimal?
+OpenDFe.NFe.Icms15.AliquotaAdRemRetencao.set -> void
+OpenDFe.NFe.Icms15.Cst.get -> OpenDFe.NFe.CstIcms?
+OpenDFe.NFe.Icms15.Cst.set -> void
+OpenDFe.NFe.Icms15.Icms15() -> void
+OpenDFe.NFe.Icms15.MotivoReducaoAdRem.get -> OpenDFe.NFe.MotivoReducaoAdRem?
+OpenDFe.NFe.Icms15.MotivoReducaoAdRem.set -> void
+OpenDFe.NFe.Icms15.PercentualReducaoAdRem.get -> decimal?
+OpenDFe.NFe.Icms15.PercentualReducaoAdRem.set -> void
+OpenDFe.NFe.Icms15.QuantidadeBaseMonofasico.get -> decimal?
+OpenDFe.NFe.Icms15.QuantidadeBaseMonofasico.set -> void
+OpenDFe.NFe.Icms15.QuantidadeBaseRetencao.get -> decimal?
+OpenDFe.NFe.Icms15.QuantidadeBaseRetencao.set -> void
+OpenDFe.NFe.Icms15.ValorMonofasico.get -> decimal?
+OpenDFe.NFe.Icms15.ValorMonofasico.set -> void
+OpenDFe.NFe.Icms15.ValorMonofasicoRetencao.get -> decimal?
+OpenDFe.NFe.Icms15.ValorMonofasicoRetencao.set -> void
+OpenDFe.NFe.Icms20
+OpenDFe.NFe.Icms20.Aliquota.get -> decimal?
+OpenDFe.NFe.Icms20.Aliquota.set -> void
+OpenDFe.NFe.Icms20.BaseCalculo.get -> decimal?
+OpenDFe.NFe.Icms20.BaseCalculo.set -> void
+OpenDFe.NFe.Icms20.BaseCalculoFcp.get -> decimal?
+OpenDFe.NFe.Icms20.BaseCalculoFcp.set -> void
+OpenDFe.NFe.Icms20.Cst.get -> OpenDFe.NFe.CstIcms?
+OpenDFe.NFe.Icms20.Cst.set -> void
+OpenDFe.NFe.Icms20.DeducaoDesoneracao.get -> OpenDFe.NFe.IndicadorDeducaoDesoneracao?
+OpenDFe.NFe.Icms20.DeducaoDesoneracao.set -> void
+OpenDFe.NFe.Icms20.Icms20() -> void
+OpenDFe.NFe.Icms20.ModalidadeBaseCalculo.get -> OpenDFe.NFe.ModalidadeBaseCalculo?
+OpenDFe.NFe.Icms20.ModalidadeBaseCalculo.set -> void
+OpenDFe.NFe.Icms20.MotivoDesoneracao.get -> OpenDFe.NFe.MotivoDesoneracao?
+OpenDFe.NFe.Icms20.MotivoDesoneracao.set -> void
+OpenDFe.NFe.Icms20.PercentualFcp.get -> decimal?
+OpenDFe.NFe.Icms20.PercentualFcp.set -> void
+OpenDFe.NFe.Icms20.PercentualReducaoBase.get -> decimal?
+OpenDFe.NFe.Icms20.PercentualReducaoBase.set -> void
+OpenDFe.NFe.Icms20.Valor.get -> decimal?
+OpenDFe.NFe.Icms20.Valor.set -> void
+OpenDFe.NFe.Icms20.ValorDesonerado.get -> decimal?
+OpenDFe.NFe.Icms20.ValorDesonerado.set -> void
+OpenDFe.NFe.Icms20.ValorFcp.get -> decimal?
+OpenDFe.NFe.Icms20.ValorFcp.set -> void
+OpenDFe.NFe.Icms30
+OpenDFe.NFe.Icms30.AliquotaSt.get -> decimal?
+OpenDFe.NFe.Icms30.AliquotaSt.set -> void
+OpenDFe.NFe.Icms30.BaseCalculoFcpSt.get -> decimal?
+OpenDFe.NFe.Icms30.BaseCalculoFcpSt.set -> void
+OpenDFe.NFe.Icms30.BaseCalculoSt.get -> decimal?
+OpenDFe.NFe.Icms30.BaseCalculoSt.set -> void
+OpenDFe.NFe.Icms30.Cst.get -> OpenDFe.NFe.CstIcms?
+OpenDFe.NFe.Icms30.Cst.set -> void
+OpenDFe.NFe.Icms30.DeducaoDesoneracao.get -> OpenDFe.NFe.IndicadorDeducaoDesoneracao?
+OpenDFe.NFe.Icms30.DeducaoDesoneracao.set -> void
+OpenDFe.NFe.Icms30.Icms30() -> void
+OpenDFe.NFe.Icms30.ModalidadeBaseCalculoSt.get -> OpenDFe.NFe.ModalidadeBaseCalculoSt?
+OpenDFe.NFe.Icms30.ModalidadeBaseCalculoSt.set -> void
+OpenDFe.NFe.Icms30.MotivoDesoneracao.get -> OpenDFe.NFe.MotivoDesoneracao?
+OpenDFe.NFe.Icms30.MotivoDesoneracao.set -> void
+OpenDFe.NFe.Icms30.PercentualFcpSt.get -> decimal?
+OpenDFe.NFe.Icms30.PercentualFcpSt.set -> void
+OpenDFe.NFe.Icms30.PercentualMargemSt.get -> decimal?
+OpenDFe.NFe.Icms30.PercentualMargemSt.set -> void
+OpenDFe.NFe.Icms30.PercentualReducaoBaseSt.get -> decimal?
+OpenDFe.NFe.Icms30.PercentualReducaoBaseSt.set -> void
+OpenDFe.NFe.Icms30.ValorDesonerado.get -> decimal?
+OpenDFe.NFe.Icms30.ValorDesonerado.set -> void
+OpenDFe.NFe.Icms30.ValorFcpSt.get -> decimal?
+OpenDFe.NFe.Icms30.ValorFcpSt.set -> void
+OpenDFe.NFe.Icms30.ValorSt.get -> decimal?
+OpenDFe.NFe.Icms30.ValorSt.set -> void
+OpenDFe.NFe.Icms40
+OpenDFe.NFe.Icms40.Cst.get -> OpenDFe.NFe.CstIcms?
+OpenDFe.NFe.Icms40.Cst.set -> void
+OpenDFe.NFe.Icms40.DeducaoDesoneracao.get -> OpenDFe.NFe.IndicadorDeducaoDesoneracao?
+OpenDFe.NFe.Icms40.DeducaoDesoneracao.set -> void
+OpenDFe.NFe.Icms40.Icms40() -> void
+OpenDFe.NFe.Icms40.MotivoDesoneracao.get -> OpenDFe.NFe.MotivoDesoneracao?
+OpenDFe.NFe.Icms40.MotivoDesoneracao.set -> void
+OpenDFe.NFe.Icms40.ValorDesonerado.get -> decimal?
+OpenDFe.NFe.Icms40.ValorDesonerado.set -> void
+OpenDFe.NFe.Icms51
+OpenDFe.NFe.Icms51.Aliquota.get -> decimal?
+OpenDFe.NFe.Icms51.Aliquota.set -> void
+OpenDFe.NFe.Icms51.BaseCalculo.get -> decimal?
+OpenDFe.NFe.Icms51.BaseCalculo.set -> void
+OpenDFe.NFe.Icms51.BaseCalculoFcp.get -> decimal?
+OpenDFe.NFe.Icms51.BaseCalculoFcp.set -> void
+OpenDFe.NFe.Icms51.CodigoBeneficioReducao.get -> string?
+OpenDFe.NFe.Icms51.CodigoBeneficioReducao.set -> void
+OpenDFe.NFe.Icms51.Cst.get -> OpenDFe.NFe.CstIcms?
+OpenDFe.NFe.Icms51.Cst.set -> void
+OpenDFe.NFe.Icms51.Icms51() -> void
+OpenDFe.NFe.Icms51.ModalidadeBaseCalculo.get -> OpenDFe.NFe.ModalidadeBaseCalculo?
+OpenDFe.NFe.Icms51.ModalidadeBaseCalculo.set -> void
+OpenDFe.NFe.Icms51.PercentualDiferimento.get -> decimal?
+OpenDFe.NFe.Icms51.PercentualDiferimento.set -> void
+OpenDFe.NFe.Icms51.PercentualDiferimentoFcp.get -> decimal?
+OpenDFe.NFe.Icms51.PercentualDiferimentoFcp.set -> void
+OpenDFe.NFe.Icms51.PercentualFcp.get -> decimal?
+OpenDFe.NFe.Icms51.PercentualFcp.set -> void
+OpenDFe.NFe.Icms51.PercentualReducaoBase.get -> decimal?
+OpenDFe.NFe.Icms51.PercentualReducaoBase.set -> void
+OpenDFe.NFe.Icms51.Valor.get -> decimal?
+OpenDFe.NFe.Icms51.Valor.set -> void
+OpenDFe.NFe.Icms51.ValorDiferido.get -> decimal?
+OpenDFe.NFe.Icms51.ValorDiferido.set -> void
+OpenDFe.NFe.Icms51.ValorFcp.get -> decimal?
+OpenDFe.NFe.Icms51.ValorFcp.set -> void
+OpenDFe.NFe.Icms51.ValorFcpDiferido.get -> decimal?
+OpenDFe.NFe.Icms51.ValorFcpDiferido.set -> void
+OpenDFe.NFe.Icms51.ValorFcpEfetivo.get -> decimal?
+OpenDFe.NFe.Icms51.ValorFcpEfetivo.set -> void
+OpenDFe.NFe.Icms51.ValorOperacao.get -> decimal?
+OpenDFe.NFe.Icms51.ValorOperacao.set -> void
+OpenDFe.NFe.Icms53
+OpenDFe.NFe.Icms53.AliquotaAdRem.get -> decimal?
+OpenDFe.NFe.Icms53.AliquotaAdRem.set -> void
+OpenDFe.NFe.Icms53.AliquotaAdRemDiferida.get -> decimal?
+OpenDFe.NFe.Icms53.AliquotaAdRemDiferida.set -> void
+OpenDFe.NFe.Icms53.Cst.get -> OpenDFe.NFe.CstIcms?
+OpenDFe.NFe.Icms53.Cst.set -> void
+OpenDFe.NFe.Icms53.Icms53() -> void
+OpenDFe.NFe.Icms53.PercentualDiferimento.get -> decimal?
+OpenDFe.NFe.Icms53.PercentualDiferimento.set -> void
+OpenDFe.NFe.Icms53.QuantidadeBaseDiferida.get -> decimal?
+OpenDFe.NFe.Icms53.QuantidadeBaseDiferida.set -> void
+OpenDFe.NFe.Icms53.QuantidadeBaseMonofasico.get -> decimal?
+OpenDFe.NFe.Icms53.QuantidadeBaseMonofasico.set -> void
+OpenDFe.NFe.Icms53.ValorMonofasico.get -> decimal?
+OpenDFe.NFe.Icms53.ValorMonofasico.set -> void
+OpenDFe.NFe.Icms53.ValorMonofasicoDiferido.get -> decimal?
+OpenDFe.NFe.Icms53.ValorMonofasicoDiferido.set -> void
+OpenDFe.NFe.Icms53.ValorMonofasicoOperacao.get -> decimal?
+OpenDFe.NFe.Icms53.ValorMonofasicoOperacao.set -> void
+OpenDFe.NFe.Icms60
+OpenDFe.NFe.Icms60.AliquotaConsumidorFinal.get -> decimal?
+OpenDFe.NFe.Icms60.AliquotaConsumidorFinal.set -> void
+OpenDFe.NFe.Icms60.AliquotaEfetiva.get -> decimal?
+OpenDFe.NFe.Icms60.AliquotaEfetiva.set -> void
+OpenDFe.NFe.Icms60.BaseCalculoEfetiva.get -> decimal?
+OpenDFe.NFe.Icms60.BaseCalculoEfetiva.set -> void
+OpenDFe.NFe.Icms60.BaseCalculoFcpStRetido.get -> decimal?
+OpenDFe.NFe.Icms60.BaseCalculoFcpStRetido.set -> void
+OpenDFe.NFe.Icms60.BaseCalculoStRetido.get -> decimal?
+OpenDFe.NFe.Icms60.BaseCalculoStRetido.set -> void
+OpenDFe.NFe.Icms60.Cst.get -> OpenDFe.NFe.CstIcms?
+OpenDFe.NFe.Icms60.Cst.set -> void
+OpenDFe.NFe.Icms60.Icms60() -> void
+OpenDFe.NFe.Icms60.PercentualFcpStRetido.get -> decimal?
+OpenDFe.NFe.Icms60.PercentualFcpStRetido.set -> void
+OpenDFe.NFe.Icms60.PercentualReducaoBaseEfetiva.get -> decimal?
+OpenDFe.NFe.Icms60.PercentualReducaoBaseEfetiva.set -> void
+OpenDFe.NFe.Icms60.ValorEfetivo.get -> decimal?
+OpenDFe.NFe.Icms60.ValorEfetivo.set -> void
+OpenDFe.NFe.Icms60.ValorFcpStRetido.get -> decimal?
+OpenDFe.NFe.Icms60.ValorFcpStRetido.set -> void
+OpenDFe.NFe.Icms60.ValorStRetido.get -> decimal?
+OpenDFe.NFe.Icms60.ValorStRetido.set -> void
+OpenDFe.NFe.Icms60.ValorSubstituto.get -> decimal?
+OpenDFe.NFe.Icms60.ValorSubstituto.set -> void
+OpenDFe.NFe.Icms61
+OpenDFe.NFe.Icms61.AliquotaAdRemRetida.get -> decimal?
+OpenDFe.NFe.Icms61.AliquotaAdRemRetida.set -> void
+OpenDFe.NFe.Icms61.Cst.get -> OpenDFe.NFe.CstIcms?
+OpenDFe.NFe.Icms61.Cst.set -> void
+OpenDFe.NFe.Icms61.Icms61() -> void
+OpenDFe.NFe.Icms61.QuantidadeBaseRetida.get -> decimal?
+OpenDFe.NFe.Icms61.QuantidadeBaseRetida.set -> void
+OpenDFe.NFe.Icms61.ValorMonofasicoRetido.get -> decimal?
+OpenDFe.NFe.Icms61.ValorMonofasicoRetido.set -> void
+OpenDFe.NFe.Icms70
+OpenDFe.NFe.Icms70.Aliquota.get -> decimal?
+OpenDFe.NFe.Icms70.Aliquota.set -> void
+OpenDFe.NFe.Icms70.AliquotaSt.get -> decimal?
+OpenDFe.NFe.Icms70.AliquotaSt.set -> void
+OpenDFe.NFe.Icms70.BaseCalculo.get -> decimal?
+OpenDFe.NFe.Icms70.BaseCalculo.set -> void
+OpenDFe.NFe.Icms70.BaseCalculoFcp.get -> decimal?
+OpenDFe.NFe.Icms70.BaseCalculoFcp.set -> void
+OpenDFe.NFe.Icms70.BaseCalculoFcpSt.get -> decimal?
+OpenDFe.NFe.Icms70.BaseCalculoFcpSt.set -> void
+OpenDFe.NFe.Icms70.BaseCalculoSt.get -> decimal?
+OpenDFe.NFe.Icms70.BaseCalculoSt.set -> void
+OpenDFe.NFe.Icms70.Cst.get -> OpenDFe.NFe.CstIcms?
+OpenDFe.NFe.Icms70.Cst.set -> void
+OpenDFe.NFe.Icms70.DeducaoDesoneracao.get -> OpenDFe.NFe.IndicadorDeducaoDesoneracao?
+OpenDFe.NFe.Icms70.DeducaoDesoneracao.set -> void
+OpenDFe.NFe.Icms70.Icms70() -> void
+OpenDFe.NFe.Icms70.ModalidadeBaseCalculo.get -> OpenDFe.NFe.ModalidadeBaseCalculo?
+OpenDFe.NFe.Icms70.ModalidadeBaseCalculo.set -> void
+OpenDFe.NFe.Icms70.ModalidadeBaseCalculoSt.get -> OpenDFe.NFe.ModalidadeBaseCalculoSt?
+OpenDFe.NFe.Icms70.ModalidadeBaseCalculoSt.set -> void
+OpenDFe.NFe.Icms70.MotivoDesoneracao.get -> OpenDFe.NFe.MotivoDesoneracao?
+OpenDFe.NFe.Icms70.MotivoDesoneracao.set -> void
+OpenDFe.NFe.Icms70.MotivoDesoneracaoSt.get -> OpenDFe.NFe.MotivoDesoneracao?
+OpenDFe.NFe.Icms70.MotivoDesoneracaoSt.set -> void
+OpenDFe.NFe.Icms70.PercentualFcp.get -> decimal?
+OpenDFe.NFe.Icms70.PercentualFcp.set -> void
+OpenDFe.NFe.Icms70.PercentualFcpSt.get -> decimal?
+OpenDFe.NFe.Icms70.PercentualFcpSt.set -> void
+OpenDFe.NFe.Icms70.PercentualMargemSt.get -> decimal?
+OpenDFe.NFe.Icms70.PercentualMargemSt.set -> void
+OpenDFe.NFe.Icms70.PercentualReducaoBase.get -> decimal?
+OpenDFe.NFe.Icms70.PercentualReducaoBase.set -> void
+OpenDFe.NFe.Icms70.PercentualReducaoBaseSt.get -> decimal?
+OpenDFe.NFe.Icms70.PercentualReducaoBaseSt.set -> void
+OpenDFe.NFe.Icms70.Valor.get -> decimal?
+OpenDFe.NFe.Icms70.Valor.set -> void
+OpenDFe.NFe.Icms70.ValorDesonerado.get -> decimal?
+OpenDFe.NFe.Icms70.ValorDesonerado.set -> void
+OpenDFe.NFe.Icms70.ValorFcp.get -> decimal?
+OpenDFe.NFe.Icms70.ValorFcp.set -> void
+OpenDFe.NFe.Icms70.ValorFcpSt.get -> decimal?
+OpenDFe.NFe.Icms70.ValorFcpSt.set -> void
+OpenDFe.NFe.Icms70.ValorSt.get -> decimal?
+OpenDFe.NFe.Icms70.ValorSt.set -> void
+OpenDFe.NFe.Icms70.ValorStDesonerado.get -> decimal?
+OpenDFe.NFe.Icms70.ValorStDesonerado.set -> void
+OpenDFe.NFe.Icms90
+OpenDFe.NFe.Icms90.Aliquota.get -> decimal?
+OpenDFe.NFe.Icms90.Aliquota.set -> void
+OpenDFe.NFe.Icms90.AliquotaSt.get -> decimal?
+OpenDFe.NFe.Icms90.AliquotaSt.set -> void
+OpenDFe.NFe.Icms90.BaseCalculo.get -> decimal?
+OpenDFe.NFe.Icms90.BaseCalculo.set -> void
+OpenDFe.NFe.Icms90.BaseCalculoFcp.get -> decimal?
+OpenDFe.NFe.Icms90.BaseCalculoFcp.set -> void
+OpenDFe.NFe.Icms90.BaseCalculoFcpSt.get -> decimal?
+OpenDFe.NFe.Icms90.BaseCalculoFcpSt.set -> void
+OpenDFe.NFe.Icms90.BaseCalculoSt.get -> decimal?
+OpenDFe.NFe.Icms90.BaseCalculoSt.set -> void
+OpenDFe.NFe.Icms90.CodigoBeneficioReducao.get -> string?
+OpenDFe.NFe.Icms90.CodigoBeneficioReducao.set -> void
+OpenDFe.NFe.Icms90.Cst.get -> OpenDFe.NFe.CstIcms?
+OpenDFe.NFe.Icms90.Cst.set -> void
+OpenDFe.NFe.Icms90.DeducaoDesoneracao.get -> OpenDFe.NFe.IndicadorDeducaoDesoneracao?
+OpenDFe.NFe.Icms90.DeducaoDesoneracao.set -> void
+OpenDFe.NFe.Icms90.Icms90() -> void
+OpenDFe.NFe.Icms90.ModalidadeBaseCalculo.get -> OpenDFe.NFe.ModalidadeBaseCalculo?
+OpenDFe.NFe.Icms90.ModalidadeBaseCalculo.set -> void
+OpenDFe.NFe.Icms90.ModalidadeBaseCalculoSt.get -> OpenDFe.NFe.ModalidadeBaseCalculoSt?
+OpenDFe.NFe.Icms90.ModalidadeBaseCalculoSt.set -> void
+OpenDFe.NFe.Icms90.MotivoDesoneracao.get -> OpenDFe.NFe.MotivoDesoneracao?
+OpenDFe.NFe.Icms90.MotivoDesoneracao.set -> void
+OpenDFe.NFe.Icms90.MotivoDesoneracaoSt.get -> OpenDFe.NFe.MotivoDesoneracao?
+OpenDFe.NFe.Icms90.MotivoDesoneracaoSt.set -> void
+OpenDFe.NFe.Icms90.PercentualDiferimento.get -> decimal?
+OpenDFe.NFe.Icms90.PercentualDiferimento.set -> void
+OpenDFe.NFe.Icms90.PercentualDiferimentoFcp.get -> decimal?
+OpenDFe.NFe.Icms90.PercentualDiferimentoFcp.set -> void
+OpenDFe.NFe.Icms90.PercentualFcp.get -> decimal?
+OpenDFe.NFe.Icms90.PercentualFcp.set -> void
+OpenDFe.NFe.Icms90.PercentualFcpSt.get -> decimal?
+OpenDFe.NFe.Icms90.PercentualFcpSt.set -> void
+OpenDFe.NFe.Icms90.PercentualMargemSt.get -> decimal?
+OpenDFe.NFe.Icms90.PercentualMargemSt.set -> void
+OpenDFe.NFe.Icms90.PercentualReducaoBase.get -> decimal?
+OpenDFe.NFe.Icms90.PercentualReducaoBase.set -> void
+OpenDFe.NFe.Icms90.PercentualReducaoBaseSt.get -> decimal?
+OpenDFe.NFe.Icms90.PercentualReducaoBaseSt.set -> void
+OpenDFe.NFe.Icms90.Valor.get -> decimal?
+OpenDFe.NFe.Icms90.Valor.set -> void
+OpenDFe.NFe.Icms90.ValorDesonerado.get -> decimal?
+OpenDFe.NFe.Icms90.ValorDesonerado.set -> void
+OpenDFe.NFe.Icms90.ValorDiferido.get -> decimal?
+OpenDFe.NFe.Icms90.ValorDiferido.set -> void
+OpenDFe.NFe.Icms90.ValorFcp.get -> decimal?
+OpenDFe.NFe.Icms90.ValorFcp.set -> void
+OpenDFe.NFe.Icms90.ValorFcpDiferido.get -> decimal?
+OpenDFe.NFe.Icms90.ValorFcpDiferido.set -> void
+OpenDFe.NFe.Icms90.ValorFcpEfetivo.get -> decimal?
+OpenDFe.NFe.Icms90.ValorFcpEfetivo.set -> void
+OpenDFe.NFe.Icms90.ValorFcpSt.get -> decimal?
+OpenDFe.NFe.Icms90.ValorFcpSt.set -> void
+OpenDFe.NFe.Icms90.ValorOperacao.get -> decimal?
+OpenDFe.NFe.Icms90.ValorOperacao.set -> void
+OpenDFe.NFe.Icms90.ValorSt.get -> decimal?
+OpenDFe.NFe.Icms90.ValorSt.set -> void
+OpenDFe.NFe.Icms90.ValorStDesonerado.get -> decimal?
+OpenDFe.NFe.Icms90.ValorStDesonerado.set -> void
+OpenDFe.NFe.IcmsPartilha
+OpenDFe.NFe.IcmsPartilha.Aliquota.get -> decimal?
+OpenDFe.NFe.IcmsPartilha.Aliquota.set -> void
+OpenDFe.NFe.IcmsPartilha.AliquotaSt.get -> decimal?
+OpenDFe.NFe.IcmsPartilha.AliquotaSt.set -> void
+OpenDFe.NFe.IcmsPartilha.BaseCalculo.get -> decimal?
+OpenDFe.NFe.IcmsPartilha.BaseCalculo.set -> void
+OpenDFe.NFe.IcmsPartilha.BaseCalculoFcpSt.get -> decimal?
+OpenDFe.NFe.IcmsPartilha.BaseCalculoFcpSt.set -> void
+OpenDFe.NFe.IcmsPartilha.BaseCalculoSt.get -> decimal?
+OpenDFe.NFe.IcmsPartilha.BaseCalculoSt.set -> void
+OpenDFe.NFe.IcmsPartilha.Cst.get -> OpenDFe.NFe.CstIcms?
+OpenDFe.NFe.IcmsPartilha.Cst.set -> void
+OpenDFe.NFe.IcmsPartilha.DeducaoDesoneracao.get -> OpenDFe.NFe.IndicadorDeducaoDesoneracao?
+OpenDFe.NFe.IcmsPartilha.DeducaoDesoneracao.set -> void
+OpenDFe.NFe.IcmsPartilha.Exterior.get -> bool
+OpenDFe.NFe.IcmsPartilha.Exterior.set -> void
+OpenDFe.NFe.IcmsPartilha.IcmsPartilha() -> void
+OpenDFe.NFe.IcmsPartilha.ModalidadeBaseCalculo.get -> OpenDFe.NFe.ModalidadeBaseCalculo?
+OpenDFe.NFe.IcmsPartilha.ModalidadeBaseCalculo.set -> void
+OpenDFe.NFe.IcmsPartilha.ModalidadeBaseCalculoSt.get -> OpenDFe.NFe.ModalidadeBaseCalculoSt?
+OpenDFe.NFe.IcmsPartilha.ModalidadeBaseCalculoSt.set -> void
+OpenDFe.NFe.IcmsPartilha.MotivoDesoneracao.get -> OpenDFe.NFe.MotivoDesoneracao?
+OpenDFe.NFe.IcmsPartilha.MotivoDesoneracao.set -> void
+OpenDFe.NFe.IcmsPartilha.PercentualBaseOperacao.get -> decimal?
+OpenDFe.NFe.IcmsPartilha.PercentualBaseOperacao.set -> void
+OpenDFe.NFe.IcmsPartilha.PercentualFcpSt.get -> decimal?
+OpenDFe.NFe.IcmsPartilha.PercentualFcpSt.set -> void
+OpenDFe.NFe.IcmsPartilha.PercentualMargemSt.get -> decimal?
+OpenDFe.NFe.IcmsPartilha.PercentualMargemSt.set -> void
+OpenDFe.NFe.IcmsPartilha.PercentualReducaoBase.get -> decimal?
+OpenDFe.NFe.IcmsPartilha.PercentualReducaoBase.set -> void
+OpenDFe.NFe.IcmsPartilha.PercentualReducaoBaseSt.get -> decimal?
+OpenDFe.NFe.IcmsPartilha.PercentualReducaoBaseSt.set -> void
+OpenDFe.NFe.IcmsPartilha.UFSt.get -> OpenDFe.UF?
+OpenDFe.NFe.IcmsPartilha.UFSt.set -> void
+OpenDFe.NFe.IcmsPartilha.Valor.get -> decimal?
+OpenDFe.NFe.IcmsPartilha.Valor.set -> void
+OpenDFe.NFe.IcmsPartilha.ValorDesonerado.get -> decimal?
+OpenDFe.NFe.IcmsPartilha.ValorDesonerado.set -> void
+OpenDFe.NFe.IcmsPartilha.ValorFcpSt.get -> decimal?
+OpenDFe.NFe.IcmsPartilha.ValorFcpSt.set -> void
+OpenDFe.NFe.IcmsPartilha.ValorSt.get -> decimal?
+OpenDFe.NFe.IcmsPartilha.ValorSt.set -> void
+OpenDFe.NFe.IcmsRepasse
+OpenDFe.NFe.IcmsRepasse.AliquotaConsumidorFinal.get -> decimal?
+OpenDFe.NFe.IcmsRepasse.AliquotaConsumidorFinal.set -> void
+OpenDFe.NFe.IcmsRepasse.AliquotaEfetiva.get -> decimal?
+OpenDFe.NFe.IcmsRepasse.AliquotaEfetiva.set -> void
+OpenDFe.NFe.IcmsRepasse.BaseCalculoEfetiva.get -> decimal?
+OpenDFe.NFe.IcmsRepasse.BaseCalculoEfetiva.set -> void
+OpenDFe.NFe.IcmsRepasse.BaseCalculoFcpStRetido.get -> decimal?
+OpenDFe.NFe.IcmsRepasse.BaseCalculoFcpStRetido.set -> void
+OpenDFe.NFe.IcmsRepasse.BaseCalculoStDestino.get -> decimal?
+OpenDFe.NFe.IcmsRepasse.BaseCalculoStDestino.set -> void
+OpenDFe.NFe.IcmsRepasse.BaseCalculoStRetido.get -> decimal?
+OpenDFe.NFe.IcmsRepasse.BaseCalculoStRetido.set -> void
+OpenDFe.NFe.IcmsRepasse.Cst.get -> OpenDFe.NFe.CstIcms?
+OpenDFe.NFe.IcmsRepasse.Cst.set -> void
+OpenDFe.NFe.IcmsRepasse.IcmsRepasse() -> void
+OpenDFe.NFe.IcmsRepasse.PercentualFcpStRetido.get -> decimal?
+OpenDFe.NFe.IcmsRepasse.PercentualFcpStRetido.set -> void
+OpenDFe.NFe.IcmsRepasse.PercentualReducaoBaseEfetiva.get -> decimal?
+OpenDFe.NFe.IcmsRepasse.PercentualReducaoBaseEfetiva.set -> void
+OpenDFe.NFe.IcmsRepasse.ValorEfetivo.get -> decimal?
+OpenDFe.NFe.IcmsRepasse.ValorEfetivo.set -> void
+OpenDFe.NFe.IcmsRepasse.ValorFcpStRetido.get -> decimal?
+OpenDFe.NFe.IcmsRepasse.ValorFcpStRetido.set -> void
+OpenDFe.NFe.IcmsRepasse.ValorStDestino.get -> decimal?
+OpenDFe.NFe.IcmsRepasse.ValorStDestino.set -> void
+OpenDFe.NFe.IcmsRepasse.ValorStRetido.get -> decimal?
+OpenDFe.NFe.IcmsRepasse.ValorStRetido.set -> void
+OpenDFe.NFe.IcmsRepasse.ValorSubstituto.get -> decimal?
+OpenDFe.NFe.IcmsRepasse.ValorSubstituto.set -> void
+OpenDFe.NFe.IcmsSn101
+OpenDFe.NFe.IcmsSn101.AliquotaCredito.get -> decimal?
+OpenDFe.NFe.IcmsSn101.AliquotaCredito.set -> void
+OpenDFe.NFe.IcmsSn101.Csosn.get -> OpenDFe.NFe.CsosnIcms?
+OpenDFe.NFe.IcmsSn101.Csosn.set -> void
+OpenDFe.NFe.IcmsSn101.IcmsSn101() -> void
+OpenDFe.NFe.IcmsSn101.ValorCredito.get -> decimal?
+OpenDFe.NFe.IcmsSn101.ValorCredito.set -> void
+OpenDFe.NFe.IcmsSn102
+OpenDFe.NFe.IcmsSn102.Csosn.get -> OpenDFe.NFe.CsosnIcms?
+OpenDFe.NFe.IcmsSn102.Csosn.set -> void
+OpenDFe.NFe.IcmsSn102.IcmsSn102() -> void
+OpenDFe.NFe.IcmsSn201
+OpenDFe.NFe.IcmsSn201.AliquotaCredito.get -> decimal?
+OpenDFe.NFe.IcmsSn201.AliquotaCredito.set -> void
+OpenDFe.NFe.IcmsSn201.AliquotaSt.get -> decimal?
+OpenDFe.NFe.IcmsSn201.AliquotaSt.set -> void
+OpenDFe.NFe.IcmsSn201.BaseCalculoFcpSt.get -> decimal?
+OpenDFe.NFe.IcmsSn201.BaseCalculoFcpSt.set -> void
+OpenDFe.NFe.IcmsSn201.BaseCalculoSt.get -> decimal?
+OpenDFe.NFe.IcmsSn201.BaseCalculoSt.set -> void
+OpenDFe.NFe.IcmsSn201.Csosn.get -> OpenDFe.NFe.CsosnIcms?
+OpenDFe.NFe.IcmsSn201.Csosn.set -> void
+OpenDFe.NFe.IcmsSn201.IcmsSn201() -> void
+OpenDFe.NFe.IcmsSn201.ModalidadeBaseCalculoSt.get -> OpenDFe.NFe.ModalidadeBaseCalculoSt?
+OpenDFe.NFe.IcmsSn201.ModalidadeBaseCalculoSt.set -> void
+OpenDFe.NFe.IcmsSn201.PercentualFcpSt.get -> decimal?
+OpenDFe.NFe.IcmsSn201.PercentualFcpSt.set -> void
+OpenDFe.NFe.IcmsSn201.PercentualMargemSt.get -> decimal?
+OpenDFe.NFe.IcmsSn201.PercentualMargemSt.set -> void
+OpenDFe.NFe.IcmsSn201.PercentualReducaoBaseSt.get -> decimal?
+OpenDFe.NFe.IcmsSn201.PercentualReducaoBaseSt.set -> void
+OpenDFe.NFe.IcmsSn201.ValorCredito.get -> decimal?
+OpenDFe.NFe.IcmsSn201.ValorCredito.set -> void
+OpenDFe.NFe.IcmsSn201.ValorFcpSt.get -> decimal?
+OpenDFe.NFe.IcmsSn201.ValorFcpSt.set -> void
+OpenDFe.NFe.IcmsSn201.ValorSt.get -> decimal?
+OpenDFe.NFe.IcmsSn201.ValorSt.set -> void
+OpenDFe.NFe.IcmsSn202
+OpenDFe.NFe.IcmsSn202.AliquotaSt.get -> decimal?
+OpenDFe.NFe.IcmsSn202.AliquotaSt.set -> void
+OpenDFe.NFe.IcmsSn202.BaseCalculoFcpSt.get -> decimal?
+OpenDFe.NFe.IcmsSn202.BaseCalculoFcpSt.set -> void
+OpenDFe.NFe.IcmsSn202.BaseCalculoSt.get -> decimal?
+OpenDFe.NFe.IcmsSn202.BaseCalculoSt.set -> void
+OpenDFe.NFe.IcmsSn202.Csosn.get -> OpenDFe.NFe.CsosnIcms?
+OpenDFe.NFe.IcmsSn202.Csosn.set -> void
+OpenDFe.NFe.IcmsSn202.IcmsSn202() -> void
+OpenDFe.NFe.IcmsSn202.ModalidadeBaseCalculoSt.get -> OpenDFe.NFe.ModalidadeBaseCalculoSt?
+OpenDFe.NFe.IcmsSn202.ModalidadeBaseCalculoSt.set -> void
+OpenDFe.NFe.IcmsSn202.PercentualFcpSt.get -> decimal?
+OpenDFe.NFe.IcmsSn202.PercentualFcpSt.set -> void
+OpenDFe.NFe.IcmsSn202.PercentualMargemSt.get -> decimal?
+OpenDFe.NFe.IcmsSn202.PercentualMargemSt.set -> void
+OpenDFe.NFe.IcmsSn202.PercentualReducaoBaseSt.get -> decimal?
+OpenDFe.NFe.IcmsSn202.PercentualReducaoBaseSt.set -> void
+OpenDFe.NFe.IcmsSn202.ValorFcpSt.get -> decimal?
+OpenDFe.NFe.IcmsSn202.ValorFcpSt.set -> void
+OpenDFe.NFe.IcmsSn202.ValorSt.get -> decimal?
+OpenDFe.NFe.IcmsSn202.ValorSt.set -> void
+OpenDFe.NFe.IcmsSn500
+OpenDFe.NFe.IcmsSn500.AliquotaConsumidorFinal.get -> decimal?
+OpenDFe.NFe.IcmsSn500.AliquotaConsumidorFinal.set -> void
+OpenDFe.NFe.IcmsSn500.AliquotaEfetiva.get -> decimal?
+OpenDFe.NFe.IcmsSn500.AliquotaEfetiva.set -> void
+OpenDFe.NFe.IcmsSn500.BaseCalculoEfetiva.get -> decimal?
+OpenDFe.NFe.IcmsSn500.BaseCalculoEfetiva.set -> void
+OpenDFe.NFe.IcmsSn500.BaseCalculoFcpStRetido.get -> decimal?
+OpenDFe.NFe.IcmsSn500.BaseCalculoFcpStRetido.set -> void
+OpenDFe.NFe.IcmsSn500.BaseCalculoStRetido.get -> decimal?
+OpenDFe.NFe.IcmsSn500.BaseCalculoStRetido.set -> void
+OpenDFe.NFe.IcmsSn500.Csosn.get -> OpenDFe.NFe.CsosnIcms?
+OpenDFe.NFe.IcmsSn500.Csosn.set -> void
+OpenDFe.NFe.IcmsSn500.IcmsSn500() -> void
+OpenDFe.NFe.IcmsSn500.PercentualFcpStRetido.get -> decimal?
+OpenDFe.NFe.IcmsSn500.PercentualFcpStRetido.set -> void
+OpenDFe.NFe.IcmsSn500.PercentualReducaoBaseEfetiva.get -> decimal?
+OpenDFe.NFe.IcmsSn500.PercentualReducaoBaseEfetiva.set -> void
+OpenDFe.NFe.IcmsSn500.ValorEfetivo.get -> decimal?
+OpenDFe.NFe.IcmsSn500.ValorEfetivo.set -> void
+OpenDFe.NFe.IcmsSn500.ValorFcpStRetido.get -> decimal?
+OpenDFe.NFe.IcmsSn500.ValorFcpStRetido.set -> void
+OpenDFe.NFe.IcmsSn500.ValorStRetido.get -> decimal?
+OpenDFe.NFe.IcmsSn500.ValorStRetido.set -> void
+OpenDFe.NFe.IcmsSn500.ValorSubstituto.get -> decimal?
+OpenDFe.NFe.IcmsSn500.ValorSubstituto.set -> void
+OpenDFe.NFe.IcmsSn900
+OpenDFe.NFe.IcmsSn900.Aliquota.get -> decimal?
+OpenDFe.NFe.IcmsSn900.Aliquota.set -> void
+OpenDFe.NFe.IcmsSn900.AliquotaCredito.get -> decimal?
+OpenDFe.NFe.IcmsSn900.AliquotaCredito.set -> void
+OpenDFe.NFe.IcmsSn900.AliquotaSt.get -> decimal?
+OpenDFe.NFe.IcmsSn900.AliquotaSt.set -> void
+OpenDFe.NFe.IcmsSn900.BaseCalculo.get -> decimal?
+OpenDFe.NFe.IcmsSn900.BaseCalculo.set -> void
+OpenDFe.NFe.IcmsSn900.BaseCalculoFcpSt.get -> decimal?
+OpenDFe.NFe.IcmsSn900.BaseCalculoFcpSt.set -> void
+OpenDFe.NFe.IcmsSn900.BaseCalculoSt.get -> decimal?
+OpenDFe.NFe.IcmsSn900.BaseCalculoSt.set -> void
+OpenDFe.NFe.IcmsSn900.Csosn.get -> OpenDFe.NFe.CsosnIcms?
+OpenDFe.NFe.IcmsSn900.Csosn.set -> void
+OpenDFe.NFe.IcmsSn900.IcmsSn900() -> void
+OpenDFe.NFe.IcmsSn900.ModalidadeBaseCalculo.get -> OpenDFe.NFe.ModalidadeBaseCalculo?
+OpenDFe.NFe.IcmsSn900.ModalidadeBaseCalculo.set -> void
+OpenDFe.NFe.IcmsSn900.ModalidadeBaseCalculoSt.get -> OpenDFe.NFe.ModalidadeBaseCalculoSt?
+OpenDFe.NFe.IcmsSn900.ModalidadeBaseCalculoSt.set -> void
+OpenDFe.NFe.IcmsSn900.PercentualFcpSt.get -> decimal?
+OpenDFe.NFe.IcmsSn900.PercentualFcpSt.set -> void
+OpenDFe.NFe.IcmsSn900.PercentualMargemSt.get -> decimal?
+OpenDFe.NFe.IcmsSn900.PercentualMargemSt.set -> void
+OpenDFe.NFe.IcmsSn900.PercentualReducaoBase.get -> decimal?
+OpenDFe.NFe.IcmsSn900.PercentualReducaoBase.set -> void
+OpenDFe.NFe.IcmsSn900.PercentualReducaoBaseSt.get -> decimal?
+OpenDFe.NFe.IcmsSn900.PercentualReducaoBaseSt.set -> void
+OpenDFe.NFe.IcmsSn900.Valor.get -> decimal?
+OpenDFe.NFe.IcmsSn900.Valor.set -> void
+OpenDFe.NFe.IcmsSn900.ValorCredito.get -> decimal?
+OpenDFe.NFe.IcmsSn900.ValorCredito.set -> void
+OpenDFe.NFe.IcmsSn900.ValorFcpSt.get -> decimal?
+OpenDFe.NFe.IcmsSn900.ValorFcpSt.set -> void
+OpenDFe.NFe.IcmsSn900.ValorSt.get -> decimal?
+OpenDFe.NFe.IcmsSn900.ValorSt.set -> void
+OpenDFe.NFe.IcmsUFDestino
+OpenDFe.NFe.IcmsUFDestino.AliquotaInterestadual.get -> decimal?
+OpenDFe.NFe.IcmsUFDestino.AliquotaInterestadual.set -> void
+OpenDFe.NFe.IcmsUFDestino.AliquotaInterna.get -> decimal?
+OpenDFe.NFe.IcmsUFDestino.AliquotaInterna.set -> void
+OpenDFe.NFe.IcmsUFDestino.BaseCalculo.get -> decimal?
+OpenDFe.NFe.IcmsUFDestino.BaseCalculo.set -> void
+OpenDFe.NFe.IcmsUFDestino.BaseCalculoFcp.get -> decimal?
+OpenDFe.NFe.IcmsUFDestino.BaseCalculoFcp.set -> void
+OpenDFe.NFe.IcmsUFDestino.IcmsUFDestino() -> void
+OpenDFe.NFe.IcmsUFDestino.PercentualFcp.get -> decimal?
+OpenDFe.NFe.IcmsUFDestino.PercentualFcp.set -> void
+OpenDFe.NFe.IcmsUFDestino.PercentualPartilha.get -> decimal?
+OpenDFe.NFe.IcmsUFDestino.PercentualPartilha.set -> void
+OpenDFe.NFe.IcmsUFDestino.ValorDestino.get -> decimal?
+OpenDFe.NFe.IcmsUFDestino.ValorDestino.set -> void
+OpenDFe.NFe.IcmsUFDestino.ValorFcp.get -> decimal?
+OpenDFe.NFe.IcmsUFDestino.ValorFcp.set -> void
+OpenDFe.NFe.IcmsUFDestino.ValorRemetente.get -> decimal?
+OpenDFe.NFe.IcmsUFDestino.ValorRemetente.set -> void
 OpenDFe.NFe.Identificacao
 OpenDFe.NFe.Identificacao.Ambiente.get -> OpenDFe.Ambiente?
 OpenDFe.NFe.Identificacao.Ambiente.set -> void
@@ -357,19 +1327,98 @@ OpenDFe.NFe.Identificacao.UF.get -> OpenDFe.UF?
 OpenDFe.NFe.Identificacao.UF.set -> void
 OpenDFe.NFe.Identificacao.VersaoAplicativo.get -> string?
 OpenDFe.NFe.Identificacao.VersaoAplicativo.set -> void
+OpenDFe.NFe.Imposto
+OpenDFe.NFe.Imposto.Cofins.get -> OpenDFe.NFe.Cofins?
+OpenDFe.NFe.Imposto.Cofins.set -> void
+OpenDFe.NFe.Imposto.CofinsSt.get -> OpenDFe.NFe.CofinsSt?
+OpenDFe.NFe.Imposto.CofinsSt.set -> void
+OpenDFe.NFe.Imposto.IbsCbs.get -> OpenDFe.NFe.IbsCbs?
+OpenDFe.NFe.Imposto.IbsCbs.set -> void
+OpenDFe.NFe.Imposto.Icms.get -> OpenDFe.NFe.Icms?
+OpenDFe.NFe.Imposto.Icms.set -> void
+OpenDFe.NFe.Imposto.IcmsUFDestino.get -> OpenDFe.NFe.IcmsUFDestino?
+OpenDFe.NFe.Imposto.IcmsUFDestino.set -> void
+OpenDFe.NFe.Imposto.Imposto() -> void
+OpenDFe.NFe.Imposto.ImpostoImportacao.get -> OpenDFe.NFe.ImpostoImportacao?
+OpenDFe.NFe.Imposto.ImpostoImportacao.set -> void
+OpenDFe.NFe.Imposto.ImpostoSeletivo.get -> OpenDFe.NFe.ImpostoSeletivo?
+OpenDFe.NFe.Imposto.ImpostoSeletivo.set -> void
+OpenDFe.NFe.Imposto.Ipi.get -> OpenDFe.NFe.Ipi?
+OpenDFe.NFe.Imposto.Ipi.set -> void
+OpenDFe.NFe.Imposto.Issqn.get -> OpenDFe.NFe.Issqn?
+OpenDFe.NFe.Imposto.Issqn.set -> void
+OpenDFe.NFe.Imposto.Pis.get -> OpenDFe.NFe.Pis?
+OpenDFe.NFe.Imposto.Pis.set -> void
+OpenDFe.NFe.Imposto.PisSt.get -> OpenDFe.NFe.PisSt?
+OpenDFe.NFe.Imposto.PisSt.set -> void
+OpenDFe.NFe.Imposto.ValorTotalTributos.get -> decimal?
+OpenDFe.NFe.Imposto.ValorTotalTributos.set -> void
+OpenDFe.NFe.ImpostoDevolvido
+OpenDFe.NFe.ImpostoDevolvido.ImpostoDevolvido() -> void
+OpenDFe.NFe.ImpostoDevolvido.Ipi.get -> OpenDFe.NFe.IpiDevolvido!
+OpenDFe.NFe.ImpostoDevolvido.Ipi.set -> void
+OpenDFe.NFe.ImpostoDevolvido.Percentual.get -> decimal?
+OpenDFe.NFe.ImpostoDevolvido.Percentual.set -> void
+OpenDFe.NFe.ImpostoImportacao
+OpenDFe.NFe.ImpostoImportacao.BaseCalculo.get -> decimal?
+OpenDFe.NFe.ImpostoImportacao.BaseCalculo.set -> void
+OpenDFe.NFe.ImpostoImportacao.DespesasAduaneiras.get -> decimal?
+OpenDFe.NFe.ImpostoImportacao.DespesasAduaneiras.set -> void
+OpenDFe.NFe.ImpostoImportacao.ImpostoImportacao() -> void
+OpenDFe.NFe.ImpostoImportacao.Iof.get -> decimal?
+OpenDFe.NFe.ImpostoImportacao.Iof.set -> void
+OpenDFe.NFe.ImpostoImportacao.Valor.get -> decimal?
+OpenDFe.NFe.ImpostoImportacao.Valor.set -> void
+OpenDFe.NFe.ImpostoSeletivo
+OpenDFe.NFe.ImpostoSeletivo.Aliquota.get -> decimal?
+OpenDFe.NFe.ImpostoSeletivo.Aliquota.set -> void
+OpenDFe.NFe.ImpostoSeletivo.AliquotaEspecifica.get -> decimal?
+OpenDFe.NFe.ImpostoSeletivo.AliquotaEspecifica.set -> void
+OpenDFe.NFe.ImpostoSeletivo.BaseCalculo.get -> decimal?
+OpenDFe.NFe.ImpostoSeletivo.BaseCalculo.set -> void
+OpenDFe.NFe.ImpostoSeletivo.ClassificacaoTributaria.get -> string?
+OpenDFe.NFe.ImpostoSeletivo.ClassificacaoTributaria.set -> void
+OpenDFe.NFe.ImpostoSeletivo.Cst.get -> string?
+OpenDFe.NFe.ImpostoSeletivo.Cst.set -> void
+OpenDFe.NFe.ImpostoSeletivo.ImpostoSeletivo() -> void
+OpenDFe.NFe.ImpostoSeletivo.QuantidadeTributavel.get -> decimal?
+OpenDFe.NFe.ImpostoSeletivo.QuantidadeTributavel.set -> void
+OpenDFe.NFe.ImpostoSeletivo.UnidadeTributavel.get -> string?
+OpenDFe.NFe.ImpostoSeletivo.UnidadeTributavel.set -> void
+OpenDFe.NFe.ImpostoSeletivo.Valor.get -> decimal?
+OpenDFe.NFe.ImpostoSeletivo.Valor.set -> void
+OpenDFe.NFe.IndicadorBemMovelUsado
+OpenDFe.NFe.IndicadorBemMovelUsado.Usado = 1 -> OpenDFe.NFe.IndicadorBemMovelUsado
 OpenDFe.NFe.IndicadorConsumidorFinal
 OpenDFe.NFe.IndicadorConsumidorFinal.ConsumidorFinal = 1 -> OpenDFe.NFe.IndicadorConsumidorFinal
 OpenDFe.NFe.IndicadorConsumidorFinal.Normal = 0 -> OpenDFe.NFe.IndicadorConsumidorFinal
+OpenDFe.NFe.IndicadorDeducaoDesoneracao
+OpenDFe.NFe.IndicadorDeducaoDesoneracao.Deduz = 1 -> OpenDFe.NFe.IndicadorDeducaoDesoneracao
+OpenDFe.NFe.IndicadorDeducaoDesoneracao.NaoDeduz = 0 -> OpenDFe.NFe.IndicadorDeducaoDesoneracao
+OpenDFe.NFe.IndicadorDoacao
+OpenDFe.NFe.IndicadorDoacao.Doacao = 1 -> OpenDFe.NFe.IndicadorDoacao
+OpenDFe.NFe.IndicadorEscala
+OpenDFe.NFe.IndicadorEscala.NaoRelevante = 2 -> OpenDFe.NFe.IndicadorEscala
+OpenDFe.NFe.IndicadorEscala.Relevante = 1 -> OpenDFe.NFe.IndicadorEscala
 OpenDFe.NFe.IndicadorIEDestinatario
 OpenDFe.NFe.IndicadorIEDestinatario.Contribuinte = 1 -> OpenDFe.NFe.IndicadorIEDestinatario
 OpenDFe.NFe.IndicadorIEDestinatario.ContribuinteIsento = 2 -> OpenDFe.NFe.IndicadorIEDestinatario
 OpenDFe.NFe.IndicadorIEDestinatario.NaoContribuinte = 9 -> OpenDFe.NFe.IndicadorIEDestinatario
+OpenDFe.NFe.IndicadorImportacao
+OpenDFe.NFe.IndicadorImportacao.Importado = 1 -> OpenDFe.NFe.IndicadorImportacao
+OpenDFe.NFe.IndicadorImportacao.Nacional = 0 -> OpenDFe.NFe.IndicadorImportacao
+OpenDFe.NFe.IndicadorIncentivo
+OpenDFe.NFe.IndicadorIncentivo.Nao = 2 -> OpenDFe.NFe.IndicadorIncentivo
+OpenDFe.NFe.IndicadorIncentivo.Sim = 1 -> OpenDFe.NFe.IndicadorIncentivo
 OpenDFe.NFe.IndicadorIntermediador
 OpenDFe.NFe.IndicadorIntermediador.PlataformaPropria = 0 -> OpenDFe.NFe.IndicadorIntermediador
 OpenDFe.NFe.IndicadorIntermediador.PlataformaTerceiros = 1 -> OpenDFe.NFe.IndicadorIntermediador
 OpenDFe.NFe.IndicadorPagamento
 OpenDFe.NFe.IndicadorPagamento.Prazo = 1 -> OpenDFe.NFe.IndicadorPagamento
 OpenDFe.NFe.IndicadorPagamento.Vista = 0 -> OpenDFe.NFe.IndicadorPagamento
+OpenDFe.NFe.IndicadorTotal
+OpenDFe.NFe.IndicadorTotal.Compoe = 1 -> OpenDFe.NFe.IndicadorTotal
+OpenDFe.NFe.IndicadorTotal.NaoCompoe = 0 -> OpenDFe.NFe.IndicadorTotal
 OpenDFe.NFe.InformacoesAdicionais
 OpenDFe.NFe.InformacoesAdicionais.Complementares.get -> string?
 OpenDFe.NFe.InformacoesAdicionais.Complementares.set -> void
@@ -391,8 +1440,98 @@ OpenDFe.NFe.Intermediador.Cnpj.set -> void
 OpenDFe.NFe.Intermediador.Identificador.get -> string?
 OpenDFe.NFe.Intermediador.Identificador.set -> void
 OpenDFe.NFe.Intermediador.Intermediador() -> void
+OpenDFe.NFe.Ipi
+OpenDFe.NFe.Ipi.CnpjProdutor.get -> string?
+OpenDFe.NFe.Ipi.CnpjProdutor.set -> void
+OpenDFe.NFe.Ipi.CodigoEnquadramento.get -> string?
+OpenDFe.NFe.Ipi.CodigoEnquadramento.set -> void
+OpenDFe.NFe.Ipi.CodigoSelo.get -> string?
+OpenDFe.NFe.Ipi.CodigoSelo.set -> void
+OpenDFe.NFe.Ipi.Ipi() -> void
+OpenDFe.NFe.Ipi.NaoTributado.get -> OpenDFe.NFe.IpiNaoTributado?
+OpenDFe.NFe.Ipi.NaoTributado.set -> void
+OpenDFe.NFe.Ipi.QuantidadeSelo.get -> long?
+OpenDFe.NFe.Ipi.QuantidadeSelo.set -> void
+OpenDFe.NFe.Ipi.Tributado.get -> OpenDFe.NFe.IpiTributado?
+OpenDFe.NFe.Ipi.Tributado.set -> void
+OpenDFe.NFe.IpiDevolvido
+OpenDFe.NFe.IpiDevolvido.IpiDevolvido() -> void
+OpenDFe.NFe.IpiDevolvido.Valor.get -> decimal?
+OpenDFe.NFe.IpiDevolvido.Valor.set -> void
+OpenDFe.NFe.IpiNaoTributado
+OpenDFe.NFe.IpiNaoTributado.Cst.get -> OpenDFe.NFe.CstIpi?
+OpenDFe.NFe.IpiNaoTributado.Cst.set -> void
+OpenDFe.NFe.IpiNaoTributado.IpiNaoTributado() -> void
+OpenDFe.NFe.IpiTributado
+OpenDFe.NFe.IpiTributado.Aliquota.get -> decimal?
+OpenDFe.NFe.IpiTributado.Aliquota.set -> void
+OpenDFe.NFe.IpiTributado.BaseCalculo.get -> decimal?
+OpenDFe.NFe.IpiTributado.BaseCalculo.set -> void
+OpenDFe.NFe.IpiTributado.Cst.get -> OpenDFe.NFe.CstIpi?
+OpenDFe.NFe.IpiTributado.Cst.set -> void
+OpenDFe.NFe.IpiTributado.IpiTributado() -> void
+OpenDFe.NFe.IpiTributado.Quantidade.get -> decimal?
+OpenDFe.NFe.IpiTributado.Quantidade.set -> void
+OpenDFe.NFe.IpiTributado.Valor.get -> decimal?
+OpenDFe.NFe.IpiTributado.Valor.set -> void
+OpenDFe.NFe.IpiTributado.ValorUnidade.get -> decimal?
+OpenDFe.NFe.IpiTributado.ValorUnidade.set -> void
+OpenDFe.NFe.Issqn
+OpenDFe.NFe.Issqn.Aliquota.get -> decimal?
+OpenDFe.NFe.Issqn.Aliquota.set -> void
+OpenDFe.NFe.Issqn.BaseCalculo.get -> decimal?
+OpenDFe.NFe.Issqn.BaseCalculo.set -> void
+OpenDFe.NFe.Issqn.CodigoPais.get -> int?
+OpenDFe.NFe.Issqn.CodigoPais.set -> void
+OpenDFe.NFe.Issqn.CodigoServico.get -> string?
+OpenDFe.NFe.Issqn.CodigoServico.set -> void
+OpenDFe.NFe.Issqn.Deducao.get -> decimal?
+OpenDFe.NFe.Issqn.Deducao.set -> void
+OpenDFe.NFe.Issqn.DescontoCondicionado.get -> decimal?
+OpenDFe.NFe.Issqn.DescontoCondicionado.set -> void
+OpenDFe.NFe.Issqn.DescontoIncondicionado.get -> decimal?
+OpenDFe.NFe.Issqn.DescontoIncondicionado.set -> void
+OpenDFe.NFe.Issqn.Exigibilidade.get -> OpenDFe.NFe.ExigibilidadeIss?
+OpenDFe.NFe.Issqn.Exigibilidade.set -> void
+OpenDFe.NFe.Issqn.IncentivoFiscal.get -> OpenDFe.NFe.IndicadorIncentivo?
+OpenDFe.NFe.Issqn.IncentivoFiscal.set -> void
+OpenDFe.NFe.Issqn.Issqn() -> void
+OpenDFe.NFe.Issqn.ItemListaServico.get -> string?
+OpenDFe.NFe.Issqn.ItemListaServico.set -> void
+OpenDFe.NFe.Issqn.MunicipioFatoGerador.get -> int?
+OpenDFe.NFe.Issqn.MunicipioFatoGerador.set -> void
+OpenDFe.NFe.Issqn.MunicipioIncidencia.get -> int?
+OpenDFe.NFe.Issqn.MunicipioIncidencia.set -> void
+OpenDFe.NFe.Issqn.OutrasRetencoes.get -> decimal?
+OpenDFe.NFe.Issqn.OutrasRetencoes.set -> void
+OpenDFe.NFe.Issqn.Processo.get -> string?
+OpenDFe.NFe.Issqn.Processo.set -> void
+OpenDFe.NFe.Issqn.Retencao.get -> decimal?
+OpenDFe.NFe.Issqn.Retencao.set -> void
+OpenDFe.NFe.Issqn.Valor.get -> decimal?
+OpenDFe.NFe.Issqn.Valor.set -> void
 OpenDFe.NFe.Item
+OpenDFe.NFe.Item.Imposto.get -> OpenDFe.NFe.Imposto!
+OpenDFe.NFe.Item.Imposto.set -> void
+OpenDFe.NFe.Item.ImpostoDevolvido.get -> OpenDFe.NFe.ImpostoDevolvido?
+OpenDFe.NFe.Item.ImpostoDevolvido.set -> void
+OpenDFe.NFe.Item.InformacoesAdicionais.get -> string?
+OpenDFe.NFe.Item.InformacoesAdicionais.set -> void
 OpenDFe.NFe.Item.Item() -> void
+OpenDFe.NFe.Item.Observacoes.get -> OpenDFe.NFe.ObservacoesItem?
+OpenDFe.NFe.Item.Observacoes.set -> void
+OpenDFe.NFe.Item.Produto.get -> OpenDFe.NFe.Produto!
+OpenDFe.NFe.Item.Produto.set -> void
+OpenDFe.NFe.Item.Referencia.get -> OpenDFe.NFe.ItemReferenciado?
+OpenDFe.NFe.Item.Referencia.set -> void
+OpenDFe.NFe.Item.ValorTotal.get -> decimal?
+OpenDFe.NFe.Item.ValorTotal.set -> void
+OpenDFe.NFe.ItemReferenciado
+OpenDFe.NFe.ItemReferenciado.Chave.get -> string?
+OpenDFe.NFe.ItemReferenciado.Chave.set -> void
+OpenDFe.NFe.ItemReferenciado.ItemReferenciado() -> void
+OpenDFe.NFe.ItemReferenciado.NumeroItem.get -> int?
+OpenDFe.NFe.ItemReferenciado.NumeroItem.set -> void
 OpenDFe.NFe.Lacre
 OpenDFe.NFe.Lacre.Lacre() -> void
 OpenDFe.NFe.Lacre.Numero.get -> string?
@@ -437,6 +1576,14 @@ OpenDFe.NFe.LocalDestino
 OpenDFe.NFe.LocalDestino.Exterior = 3 -> OpenDFe.NFe.LocalDestino
 OpenDFe.NFe.LocalDestino.Interestadual = 2 -> OpenDFe.NFe.LocalDestino
 OpenDFe.NFe.LocalDestino.Interna = 1 -> OpenDFe.NFe.LocalDestino
+OpenDFe.NFe.Medicamento
+OpenDFe.NFe.Medicamento.CodigoAnvisa.get -> string?
+OpenDFe.NFe.Medicamento.CodigoAnvisa.set -> void
+OpenDFe.NFe.Medicamento.Medicamento() -> void
+OpenDFe.NFe.Medicamento.MotivoIsencao.get -> string?
+OpenDFe.NFe.Medicamento.MotivoIsencao.set -> void
+OpenDFe.NFe.Medicamento.PrecoMaximoConsumidor.get -> decimal?
+OpenDFe.NFe.Medicamento.PrecoMaximoConsumidor.set -> void
 OpenDFe.NFe.MeioPagamento
 OpenDFe.NFe.MeioPagamento.BoletoBancario = 15 -> OpenDFe.NFe.MeioPagamento
 OpenDFe.NFe.MeioPagamento.CartaoCredito = 3 -> OpenDFe.NFe.MeioPagamento
@@ -461,6 +1608,19 @@ OpenDFe.NFe.MeioPagamento.ValeAlimentacao = 10 -> OpenDFe.NFe.MeioPagamento
 OpenDFe.NFe.MeioPagamento.ValeCombustivel = 13 -> OpenDFe.NFe.MeioPagamento
 OpenDFe.NFe.MeioPagamento.ValePresente = 12 -> OpenDFe.NFe.MeioPagamento
 OpenDFe.NFe.MeioPagamento.ValeRefeicao = 11 -> OpenDFe.NFe.MeioPagamento
+OpenDFe.NFe.ModalidadeBaseCalculo
+OpenDFe.NFe.ModalidadeBaseCalculo.MargemValorAgregado = 0 -> OpenDFe.NFe.ModalidadeBaseCalculo
+OpenDFe.NFe.ModalidadeBaseCalculo.Pauta = 1 -> OpenDFe.NFe.ModalidadeBaseCalculo
+OpenDFe.NFe.ModalidadeBaseCalculo.PrecoTabeladoMaximo = 2 -> OpenDFe.NFe.ModalidadeBaseCalculo
+OpenDFe.NFe.ModalidadeBaseCalculo.ValorOperacao = 3 -> OpenDFe.NFe.ModalidadeBaseCalculo
+OpenDFe.NFe.ModalidadeBaseCalculoSt
+OpenDFe.NFe.ModalidadeBaseCalculoSt.ListaNegativa = 1 -> OpenDFe.NFe.ModalidadeBaseCalculoSt
+OpenDFe.NFe.ModalidadeBaseCalculoSt.ListaNeutra = 3 -> OpenDFe.NFe.ModalidadeBaseCalculoSt
+OpenDFe.NFe.ModalidadeBaseCalculoSt.ListaPositiva = 2 -> OpenDFe.NFe.ModalidadeBaseCalculoSt
+OpenDFe.NFe.ModalidadeBaseCalculoSt.MargemValorAgregado = 4 -> OpenDFe.NFe.ModalidadeBaseCalculoSt
+OpenDFe.NFe.ModalidadeBaseCalculoSt.Pauta = 5 -> OpenDFe.NFe.ModalidadeBaseCalculoSt
+OpenDFe.NFe.ModalidadeBaseCalculoSt.PrecoTabelado = 0 -> OpenDFe.NFe.ModalidadeBaseCalculoSt
+OpenDFe.NFe.ModalidadeBaseCalculoSt.ValorOperacao = 6 -> OpenDFe.NFe.ModalidadeBaseCalculoSt
 OpenDFe.NFe.ModalidadeFrete
 OpenDFe.NFe.ModalidadeFrete.Destinatario = 1 -> OpenDFe.NFe.ModalidadeFrete
 OpenDFe.NFe.ModalidadeFrete.NenhumTransporte = 9 -> OpenDFe.NFe.ModalidadeFrete
@@ -478,6 +1638,167 @@ OpenDFe.NFe.ModeloNotaProdutor.NotaProdutor = 4 -> OpenDFe.NFe.ModeloNotaProduto
 OpenDFe.NFe.ModeloNotaReferenciada
 OpenDFe.NFe.ModeloNotaReferenciada.Modelo1 = 1 -> OpenDFe.NFe.ModeloNotaReferenciada
 OpenDFe.NFe.ModeloNotaReferenciada.Modelo2 = 2 -> OpenDFe.NFe.ModeloNotaReferenciada
+OpenDFe.NFe.MonofasiaCbsAdRem
+OpenDFe.NFe.MonofasiaCbsAdRem.Biocombustivel.get -> OpenDFe.NFe.MonofasiaCbsBiocombustivel?
+OpenDFe.NFe.MonofasiaCbsAdRem.Biocombustivel.set -> void
+OpenDFe.NFe.MonofasiaCbsAdRem.MonofasiaCbsAdRem() -> void
+OpenDFe.NFe.MonofasiaCbsAdRem.Padrao.get -> OpenDFe.NFe.MonofasiaCbsAdRemPadrao?
+OpenDFe.NFe.MonofasiaCbsAdRem.Padrao.set -> void
+OpenDFe.NFe.MonofasiaCbsAdRem.Retencao.get -> OpenDFe.NFe.MonofasiaCbsAdRemRetencao?
+OpenDFe.NFe.MonofasiaCbsAdRem.Retencao.set -> void
+OpenDFe.NFe.MonofasiaCbsAdRem.Retido.get -> OpenDFe.NFe.MonofasiaCbsRetido?
+OpenDFe.NFe.MonofasiaCbsAdRem.Retido.set -> void
+OpenDFe.NFe.MonofasiaCbsAdRemPadrao
+OpenDFe.NFe.MonofasiaCbsAdRemPadrao.AliquotaAdRem.get -> decimal?
+OpenDFe.NFe.MonofasiaCbsAdRemPadrao.AliquotaAdRem.set -> void
+OpenDFe.NFe.MonofasiaCbsAdRemPadrao.MonofasiaCbsAdRemPadrao() -> void
+OpenDFe.NFe.MonofasiaCbsAdRemPadrao.Quantidade.get -> decimal?
+OpenDFe.NFe.MonofasiaCbsAdRemPadrao.Quantidade.set -> void
+OpenDFe.NFe.MonofasiaCbsAdRemPadrao.Valor.get -> decimal?
+OpenDFe.NFe.MonofasiaCbsAdRemPadrao.Valor.set -> void
+OpenDFe.NFe.MonofasiaCbsAdRemRetencao
+OpenDFe.NFe.MonofasiaCbsAdRemRetencao.AliquotaAdRem.get -> decimal?
+OpenDFe.NFe.MonofasiaCbsAdRemRetencao.AliquotaAdRem.set -> void
+OpenDFe.NFe.MonofasiaCbsAdRemRetencao.MonofasiaCbsAdRemRetencao() -> void
+OpenDFe.NFe.MonofasiaCbsAdRemRetencao.Quantidade.get -> decimal?
+OpenDFe.NFe.MonofasiaCbsAdRemRetencao.Quantidade.set -> void
+OpenDFe.NFe.MonofasiaCbsAdRemRetencao.Valor.get -> decimal?
+OpenDFe.NFe.MonofasiaCbsAdRemRetencao.Valor.set -> void
+OpenDFe.NFe.MonofasiaCbsAdValorem
+OpenDFe.NFe.MonofasiaCbsAdValorem.Biocombustivel.get -> OpenDFe.NFe.MonofasiaCbsBiocombustivel?
+OpenDFe.NFe.MonofasiaCbsAdValorem.Biocombustivel.set -> void
+OpenDFe.NFe.MonofasiaCbsAdValorem.MonofasiaCbsAdValorem() -> void
+OpenDFe.NFe.MonofasiaCbsAdValorem.Padrao.get -> OpenDFe.NFe.MonofasiaCbsAdValoremPadrao?
+OpenDFe.NFe.MonofasiaCbsAdValorem.Padrao.set -> void
+OpenDFe.NFe.MonofasiaCbsAdValorem.Retencao.get -> OpenDFe.NFe.MonofasiaCbsAdValoremRetencao?
+OpenDFe.NFe.MonofasiaCbsAdValorem.Retencao.set -> void
+OpenDFe.NFe.MonofasiaCbsAdValorem.Retido.get -> OpenDFe.NFe.MonofasiaCbsRetido?
+OpenDFe.NFe.MonofasiaCbsAdValorem.Retido.set -> void
+OpenDFe.NFe.MonofasiaCbsAdValoremPadrao
+OpenDFe.NFe.MonofasiaCbsAdValoremPadrao.Aliquota.get -> decimal?
+OpenDFe.NFe.MonofasiaCbsAdValoremPadrao.Aliquota.set -> void
+OpenDFe.NFe.MonofasiaCbsAdValoremPadrao.BaseCalculo.get -> decimal?
+OpenDFe.NFe.MonofasiaCbsAdValoremPadrao.BaseCalculo.set -> void
+OpenDFe.NFe.MonofasiaCbsAdValoremPadrao.MonofasiaCbsAdValoremPadrao() -> void
+OpenDFe.NFe.MonofasiaCbsAdValoremPadrao.Valor.get -> decimal?
+OpenDFe.NFe.MonofasiaCbsAdValoremPadrao.Valor.set -> void
+OpenDFe.NFe.MonofasiaCbsAdValoremRetencao
+OpenDFe.NFe.MonofasiaCbsAdValoremRetencao.Aliquota.get -> decimal?
+OpenDFe.NFe.MonofasiaCbsAdValoremRetencao.Aliquota.set -> void
+OpenDFe.NFe.MonofasiaCbsAdValoremRetencao.BaseCalculo.get -> decimal?
+OpenDFe.NFe.MonofasiaCbsAdValoremRetencao.BaseCalculo.set -> void
+OpenDFe.NFe.MonofasiaCbsAdValoremRetencao.MonofasiaCbsAdValoremRetencao() -> void
+OpenDFe.NFe.MonofasiaCbsAdValoremRetencao.Valor.get -> decimal?
+OpenDFe.NFe.MonofasiaCbsAdValoremRetencao.Valor.set -> void
+OpenDFe.NFe.MonofasiaCbsBiocombustivel
+OpenDFe.NFe.MonofasiaCbsBiocombustivel.MonofasiaCbsBiocombustivel() -> void
+OpenDFe.NFe.MonofasiaCbsBiocombustivel.Quantidade.get -> decimal?
+OpenDFe.NFe.MonofasiaCbsBiocombustivel.Quantidade.set -> void
+OpenDFe.NFe.MonofasiaCbsBiocombustivel.Valor.get -> decimal?
+OpenDFe.NFe.MonofasiaCbsBiocombustivel.Valor.set -> void
+OpenDFe.NFe.MonofasiaCbsRetido
+OpenDFe.NFe.MonofasiaCbsRetido.MonofasiaCbsRetido() -> void
+OpenDFe.NFe.MonofasiaCbsRetido.Valor.get -> decimal?
+OpenDFe.NFe.MonofasiaCbsRetido.Valor.set -> void
+OpenDFe.NFe.MonofasiaIbsAdRem
+OpenDFe.NFe.MonofasiaIbsAdRem.Biocombustivel.get -> OpenDFe.NFe.MonofasiaIbsBiocombustivel?
+OpenDFe.NFe.MonofasiaIbsAdRem.Biocombustivel.set -> void
+OpenDFe.NFe.MonofasiaIbsAdRem.MonofasiaIbsAdRem() -> void
+OpenDFe.NFe.MonofasiaIbsAdRem.Padrao.get -> OpenDFe.NFe.MonofasiaIbsAdRemPadrao?
+OpenDFe.NFe.MonofasiaIbsAdRem.Padrao.set -> void
+OpenDFe.NFe.MonofasiaIbsAdRem.Retencao.get -> OpenDFe.NFe.MonofasiaIbsAdRemRetencao?
+OpenDFe.NFe.MonofasiaIbsAdRem.Retencao.set -> void
+OpenDFe.NFe.MonofasiaIbsAdRem.Retido.get -> OpenDFe.NFe.MonofasiaIbsRetido?
+OpenDFe.NFe.MonofasiaIbsAdRem.Retido.set -> void
+OpenDFe.NFe.MonofasiaIbsAdRemPadrao
+OpenDFe.NFe.MonofasiaIbsAdRemPadrao.AliquotaAdRem.get -> decimal?
+OpenDFe.NFe.MonofasiaIbsAdRemPadrao.AliquotaAdRem.set -> void
+OpenDFe.NFe.MonofasiaIbsAdRemPadrao.MonofasiaIbsAdRemPadrao() -> void
+OpenDFe.NFe.MonofasiaIbsAdRemPadrao.Quantidade.get -> decimal?
+OpenDFe.NFe.MonofasiaIbsAdRemPadrao.Quantidade.set -> void
+OpenDFe.NFe.MonofasiaIbsAdRemPadrao.Valor.get -> decimal?
+OpenDFe.NFe.MonofasiaIbsAdRemPadrao.Valor.set -> void
+OpenDFe.NFe.MonofasiaIbsAdRemRetencao
+OpenDFe.NFe.MonofasiaIbsAdRemRetencao.AliquotaAdRem.get -> decimal?
+OpenDFe.NFe.MonofasiaIbsAdRemRetencao.AliquotaAdRem.set -> void
+OpenDFe.NFe.MonofasiaIbsAdRemRetencao.MonofasiaIbsAdRemRetencao() -> void
+OpenDFe.NFe.MonofasiaIbsAdRemRetencao.Quantidade.get -> decimal?
+OpenDFe.NFe.MonofasiaIbsAdRemRetencao.Quantidade.set -> void
+OpenDFe.NFe.MonofasiaIbsAdRemRetencao.Valor.get -> decimal?
+OpenDFe.NFe.MonofasiaIbsAdRemRetencao.Valor.set -> void
+OpenDFe.NFe.MonofasiaIbsAdValorem
+OpenDFe.NFe.MonofasiaIbsAdValorem.Biocombustivel.get -> OpenDFe.NFe.MonofasiaIbsBiocombustivel?
+OpenDFe.NFe.MonofasiaIbsAdValorem.Biocombustivel.set -> void
+OpenDFe.NFe.MonofasiaIbsAdValorem.MonofasiaIbsAdValorem() -> void
+OpenDFe.NFe.MonofasiaIbsAdValorem.Padrao.get -> OpenDFe.NFe.MonofasiaIbsAdValoremPadrao?
+OpenDFe.NFe.MonofasiaIbsAdValorem.Padrao.set -> void
+OpenDFe.NFe.MonofasiaIbsAdValorem.Retencao.get -> OpenDFe.NFe.MonofasiaIbsAdValoremRetencao?
+OpenDFe.NFe.MonofasiaIbsAdValorem.Retencao.set -> void
+OpenDFe.NFe.MonofasiaIbsAdValorem.Retido.get -> OpenDFe.NFe.MonofasiaIbsRetido?
+OpenDFe.NFe.MonofasiaIbsAdValorem.Retido.set -> void
+OpenDFe.NFe.MonofasiaIbsAdValoremPadrao
+OpenDFe.NFe.MonofasiaIbsAdValoremPadrao.AliquotaMunicipio.get -> decimal?
+OpenDFe.NFe.MonofasiaIbsAdValoremPadrao.AliquotaMunicipio.set -> void
+OpenDFe.NFe.MonofasiaIbsAdValoremPadrao.AliquotaUF.get -> decimal?
+OpenDFe.NFe.MonofasiaIbsAdValoremPadrao.AliquotaUF.set -> void
+OpenDFe.NFe.MonofasiaIbsAdValoremPadrao.BaseCalculo.get -> decimal?
+OpenDFe.NFe.MonofasiaIbsAdValoremPadrao.BaseCalculo.set -> void
+OpenDFe.NFe.MonofasiaIbsAdValoremPadrao.MonofasiaIbsAdValoremPadrao() -> void
+OpenDFe.NFe.MonofasiaIbsAdValoremPadrao.Valor.get -> decimal?
+OpenDFe.NFe.MonofasiaIbsAdValoremPadrao.Valor.set -> void
+OpenDFe.NFe.MonofasiaIbsAdValoremPadrao.ValorMunicipio.get -> decimal?
+OpenDFe.NFe.MonofasiaIbsAdValoremPadrao.ValorMunicipio.set -> void
+OpenDFe.NFe.MonofasiaIbsAdValoremPadrao.ValorUF.get -> decimal?
+OpenDFe.NFe.MonofasiaIbsAdValoremPadrao.ValorUF.set -> void
+OpenDFe.NFe.MonofasiaIbsAdValoremRetencao
+OpenDFe.NFe.MonofasiaIbsAdValoremRetencao.Aliquota.get -> decimal?
+OpenDFe.NFe.MonofasiaIbsAdValoremRetencao.Aliquota.set -> void
+OpenDFe.NFe.MonofasiaIbsAdValoremRetencao.BaseCalculo.get -> decimal?
+OpenDFe.NFe.MonofasiaIbsAdValoremRetencao.BaseCalculo.set -> void
+OpenDFe.NFe.MonofasiaIbsAdValoremRetencao.MonofasiaIbsAdValoremRetencao() -> void
+OpenDFe.NFe.MonofasiaIbsAdValoremRetencao.Valor.get -> decimal?
+OpenDFe.NFe.MonofasiaIbsAdValoremRetencao.Valor.set -> void
+OpenDFe.NFe.MonofasiaIbsBiocombustivel
+OpenDFe.NFe.MonofasiaIbsBiocombustivel.MonofasiaIbsBiocombustivel() -> void
+OpenDFe.NFe.MonofasiaIbsBiocombustivel.Quantidade.get -> decimal?
+OpenDFe.NFe.MonofasiaIbsBiocombustivel.Quantidade.set -> void
+OpenDFe.NFe.MonofasiaIbsBiocombustivel.Valor.get -> decimal?
+OpenDFe.NFe.MonofasiaIbsBiocombustivel.Valor.set -> void
+OpenDFe.NFe.MonofasiaIbsCbs
+OpenDFe.NFe.MonofasiaIbsCbs.CbsAdRem.get -> OpenDFe.NFe.MonofasiaCbsAdRem?
+OpenDFe.NFe.MonofasiaIbsCbs.CbsAdRem.set -> void
+OpenDFe.NFe.MonofasiaIbsCbs.CbsAdValorem.get -> OpenDFe.NFe.MonofasiaCbsAdValorem?
+OpenDFe.NFe.MonofasiaIbsCbs.CbsAdValorem.set -> void
+OpenDFe.NFe.MonofasiaIbsCbs.IbsAdRem.get -> OpenDFe.NFe.MonofasiaIbsAdRem?
+OpenDFe.NFe.MonofasiaIbsCbs.IbsAdRem.set -> void
+OpenDFe.NFe.MonofasiaIbsCbs.IbsAdValorem.get -> OpenDFe.NFe.MonofasiaIbsAdValorem?
+OpenDFe.NFe.MonofasiaIbsCbs.IbsAdValorem.set -> void
+OpenDFe.NFe.MonofasiaIbsCbs.MonofasiaIbsCbs() -> void
+OpenDFe.NFe.MonofasiaIbsCbs.TotalCbs.get -> decimal?
+OpenDFe.NFe.MonofasiaIbsCbs.TotalCbs.set -> void
+OpenDFe.NFe.MonofasiaIbsCbs.TotalIbs.get -> decimal?
+OpenDFe.NFe.MonofasiaIbsCbs.TotalIbs.set -> void
+OpenDFe.NFe.MonofasiaIbsRetido
+OpenDFe.NFe.MonofasiaIbsRetido.MonofasiaIbsRetido() -> void
+OpenDFe.NFe.MonofasiaIbsRetido.Valor.get -> decimal?
+OpenDFe.NFe.MonofasiaIbsRetido.Valor.set -> void
+OpenDFe.NFe.MotivoDesoneracao
+OpenDFe.NFe.MotivoDesoneracao.Agropecuaria = 3 -> OpenDFe.NFe.MotivoDesoneracao
+OpenDFe.NFe.MotivoDesoneracao.DeficienteCondutor = 10 -> OpenDFe.NFe.MotivoDesoneracao
+OpenDFe.NFe.MotivoDesoneracao.DeficienteNaoCondutor = 11 -> OpenDFe.NFe.MotivoDesoneracao
+OpenDFe.NFe.MotivoDesoneracao.DiplomaticoConsular = 5 -> OpenDFe.NFe.MotivoDesoneracao
+OpenDFe.NFe.MotivoDesoneracao.FomentoAgropecuario = 12 -> OpenDFe.NFe.MotivoDesoneracao
+OpenDFe.NFe.MotivoDesoneracao.FrotistaLocadora = 4 -> OpenDFe.NFe.MotivoDesoneracao
+OpenDFe.NFe.MotivoDesoneracao.OlimpiadasRio2016 = 16 -> OpenDFe.NFe.MotivoDesoneracao
+OpenDFe.NFe.MotivoDesoneracao.OrgaoPublico = 8 -> OpenDFe.NFe.MotivoDesoneracao
+OpenDFe.NFe.MotivoDesoneracao.Outros = 9 -> OpenDFe.NFe.MotivoDesoneracao
+OpenDFe.NFe.MotivoDesoneracao.SolicitadoFisco = 90 -> OpenDFe.NFe.MotivoDesoneracao
+OpenDFe.NFe.MotivoDesoneracao.Suframa = 7 -> OpenDFe.NFe.MotivoDesoneracao
+OpenDFe.NFe.MotivoDesoneracao.Taxi = 1 -> OpenDFe.NFe.MotivoDesoneracao
+OpenDFe.NFe.MotivoDesoneracao.UtilitariosMotocicletasAmazonia = 6 -> OpenDFe.NFe.MotivoDesoneracao
+OpenDFe.NFe.MotivoReducaoAdRem
+OpenDFe.NFe.MotivoReducaoAdRem.Outros = 9 -> OpenDFe.NFe.MotivoReducaoAdRem
+OpenDFe.NFe.MotivoReducaoAdRem.TransporteColetivo = 1 -> OpenDFe.NFe.MotivoReducaoAdRem
 OpenDFe.NFe.NFeReferenciada
 OpenDFe.NFe.NFeReferenciada.Chave.get -> string?
 OpenDFe.NFe.NFeReferenciada.Chave.set -> void
@@ -568,11 +1889,35 @@ OpenDFe.NFe.Observacao.Campo.set -> void
 OpenDFe.NFe.Observacao.Observacao() -> void
 OpenDFe.NFe.Observacao.Texto.get -> string?
 OpenDFe.NFe.Observacao.Texto.set -> void
+OpenDFe.NFe.ObservacoesItem
+OpenDFe.NFe.ObservacoesItem.Contribuinte.get -> OpenDFe.NFe.Observacao?
+OpenDFe.NFe.ObservacoesItem.Contribuinte.set -> void
+OpenDFe.NFe.ObservacoesItem.Fisco.get -> OpenDFe.NFe.Observacao?
+OpenDFe.NFe.ObservacoesItem.Fisco.set -> void
+OpenDFe.NFe.ObservacoesItem.ObservacoesItem() -> void
 OpenDFe.NFe.OperacaoGovernamental
 OpenDFe.NFe.OperacaoGovernamental.FornecimentoPagamentoPosterior = 1 -> OpenDFe.NFe.OperacaoGovernamental
 OpenDFe.NFe.OperacaoGovernamental.FornecimentoPagamentoRealizado = 3 -> OpenDFe.NFe.OperacaoGovernamental
 OpenDFe.NFe.OperacaoGovernamental.RecebimentoFornecimentoPosterior = 4 -> OpenDFe.NFe.OperacaoGovernamental
 OpenDFe.NFe.OperacaoGovernamental.RecebimentoFornecimentoRealizado = 2 -> OpenDFe.NFe.OperacaoGovernamental
+OpenDFe.NFe.OrigemCombustivel
+OpenDFe.NFe.OrigemCombustivel.Importacao.get -> OpenDFe.NFe.IndicadorImportacao?
+OpenDFe.NFe.OrigemCombustivel.Importacao.set -> void
+OpenDFe.NFe.OrigemCombustivel.OrigemCombustivel() -> void
+OpenDFe.NFe.OrigemCombustivel.Percentual.get -> decimal?
+OpenDFe.NFe.OrigemCombustivel.Percentual.set -> void
+OpenDFe.NFe.OrigemCombustivel.UF.get -> OpenDFe.UF?
+OpenDFe.NFe.OrigemCombustivel.UF.set -> void
+OpenDFe.NFe.OrigemMercadoria
+OpenDFe.NFe.OrigemMercadoria.EstrangeiraImportacaoDireta = 1 -> OpenDFe.NFe.OrigemMercadoria
+OpenDFe.NFe.OrigemMercadoria.EstrangeiraImportacaoDiretaCamex = 6 -> OpenDFe.NFe.OrigemMercadoria
+OpenDFe.NFe.OrigemMercadoria.EstrangeiraMercadoInterno = 2 -> OpenDFe.NFe.OrigemMercadoria
+OpenDFe.NFe.OrigemMercadoria.EstrangeiraMercadoInternoCamex = 7 -> OpenDFe.NFe.OrigemMercadoria
+OpenDFe.NFe.OrigemMercadoria.Nacional = 0 -> OpenDFe.NFe.OrigemMercadoria
+OpenDFe.NFe.OrigemMercadoria.NacionalConteudoImportacaoAlto = 8 -> OpenDFe.NFe.OrigemMercadoria
+OpenDFe.NFe.OrigemMercadoria.NacionalConteudoImportacaoBaixo = 5 -> OpenDFe.NFe.OrigemMercadoria
+OpenDFe.NFe.OrigemMercadoria.NacionalConteudoImportacaoMedio = 3 -> OpenDFe.NFe.OrigemMercadoria
+OpenDFe.NFe.OrigemMercadoria.NacionalProcessoProdutivoBasico = 4 -> OpenDFe.NFe.OrigemMercadoria
 OpenDFe.NFe.OrigemProcesso
 OpenDFe.NFe.OrigemProcesso.Confaz = 4 -> OpenDFe.NFe.OrigemProcesso
 OpenDFe.NFe.OrigemProcesso.JusticaEstadual = 2 -> OpenDFe.NFe.OrigemProcesso
@@ -594,6 +1939,53 @@ OpenDFe.NFe.PessoaAutorizada.Cnpj.set -> void
 OpenDFe.NFe.PessoaAutorizada.Cpf.get -> string?
 OpenDFe.NFe.PessoaAutorizada.Cpf.set -> void
 OpenDFe.NFe.PessoaAutorizada.PessoaAutorizada() -> void
+OpenDFe.NFe.Pis
+OpenDFe.NFe.Pis.Cst.get -> OpenDFe.NFe.CstPisCofins?
+OpenDFe.NFe.Pis.Cst.set -> void
+OpenDFe.NFe.PisAliquota
+OpenDFe.NFe.PisAliquota.Aliquota.get -> decimal?
+OpenDFe.NFe.PisAliquota.Aliquota.set -> void
+OpenDFe.NFe.PisAliquota.BaseCalculo.get -> decimal?
+OpenDFe.NFe.PisAliquota.BaseCalculo.set -> void
+OpenDFe.NFe.PisAliquota.PisAliquota() -> void
+OpenDFe.NFe.PisAliquota.Valor.get -> decimal?
+OpenDFe.NFe.PisAliquota.Valor.set -> void
+OpenDFe.NFe.PisNaoTributado
+OpenDFe.NFe.PisNaoTributado.PisNaoTributado() -> void
+OpenDFe.NFe.PisOutros
+OpenDFe.NFe.PisOutros.Aliquota.get -> decimal?
+OpenDFe.NFe.PisOutros.Aliquota.set -> void
+OpenDFe.NFe.PisOutros.AliquotaUnidade.get -> decimal?
+OpenDFe.NFe.PisOutros.AliquotaUnidade.set -> void
+OpenDFe.NFe.PisOutros.BaseCalculo.get -> decimal?
+OpenDFe.NFe.PisOutros.BaseCalculo.set -> void
+OpenDFe.NFe.PisOutros.PisOutros() -> void
+OpenDFe.NFe.PisOutros.Quantidade.get -> decimal?
+OpenDFe.NFe.PisOutros.Quantidade.set -> void
+OpenDFe.NFe.PisOutros.Valor.get -> decimal?
+OpenDFe.NFe.PisOutros.Valor.set -> void
+OpenDFe.NFe.PisQuantidade
+OpenDFe.NFe.PisQuantidade.AliquotaUnidade.get -> decimal?
+OpenDFe.NFe.PisQuantidade.AliquotaUnidade.set -> void
+OpenDFe.NFe.PisQuantidade.PisQuantidade() -> void
+OpenDFe.NFe.PisQuantidade.Quantidade.get -> decimal?
+OpenDFe.NFe.PisQuantidade.Quantidade.set -> void
+OpenDFe.NFe.PisQuantidade.Valor.get -> decimal?
+OpenDFe.NFe.PisQuantidade.Valor.set -> void
+OpenDFe.NFe.PisSt
+OpenDFe.NFe.PisSt.Aliquota.get -> decimal?
+OpenDFe.NFe.PisSt.Aliquota.set -> void
+OpenDFe.NFe.PisSt.AliquotaUnidade.get -> decimal?
+OpenDFe.NFe.PisSt.AliquotaUnidade.set -> void
+OpenDFe.NFe.PisSt.BaseCalculo.get -> decimal?
+OpenDFe.NFe.PisSt.BaseCalculo.set -> void
+OpenDFe.NFe.PisSt.PisSt() -> void
+OpenDFe.NFe.PisSt.Quantidade.get -> decimal?
+OpenDFe.NFe.PisSt.Quantidade.set -> void
+OpenDFe.NFe.PisSt.Totalizacao.get -> OpenDFe.NFe.IndicadorTotal?
+OpenDFe.NFe.PisSt.Totalizacao.set -> void
+OpenDFe.NFe.PisSt.Valor.get -> decimal?
+OpenDFe.NFe.PisSt.Valor.set -> void
 OpenDFe.NFe.PresencaComprador
 OpenDFe.NFe.PresencaComprador.NaoAplicavel = 0 -> OpenDFe.NFe.PresencaComprador
 OpenDFe.NFe.PresencaComprador.NaoPresencialEntrega = 4 -> OpenDFe.NFe.PresencaComprador
@@ -616,12 +2008,123 @@ OpenDFe.NFe.ProcessoReferenciado.Origem.set -> void
 OpenDFe.NFe.ProcessoReferenciado.ProcessoReferenciado() -> void
 OpenDFe.NFe.ProcessoReferenciado.TipoAto.get -> OpenDFe.NFe.TipoAtoConcessorio?
 OpenDFe.NFe.ProcessoReferenciado.TipoAto.set -> void
+OpenDFe.NFe.Produto
+OpenDFe.NFe.Produto.Armas.get -> System.Collections.Generic.IList<OpenDFe.NFe.Arma!>!
+OpenDFe.NFe.Produto.BemMovelUsado.get -> OpenDFe.NFe.IndicadorBemMovelUsado?
+OpenDFe.NFe.Produto.BemMovelUsado.set -> void
+OpenDFe.NFe.Produto.Cest.get -> string?
+OpenDFe.NFe.Produto.Cest.set -> void
+OpenDFe.NFe.Produto.Cfop.get -> int?
+OpenDFe.NFe.Produto.Cfop.set -> void
+OpenDFe.NFe.Produto.ClassificacaoZfm.get -> OpenDFe.NFe.ClassificacaoCreditoPresumidoZfm?
+OpenDFe.NFe.Produto.ClassificacaoZfm.set -> void
+OpenDFe.NFe.Produto.CnpjFabricante.get -> string?
+OpenDFe.NFe.Produto.CnpjFabricante.set -> void
+OpenDFe.NFe.Produto.Codigo.get -> string?
+OpenDFe.NFe.Produto.Codigo.set -> void
+OpenDFe.NFe.Produto.CodigoBarras.get -> string?
+OpenDFe.NFe.Produto.CodigoBarras.set -> void
+OpenDFe.NFe.Produto.CodigoBarrasTributavel.get -> string?
+OpenDFe.NFe.Produto.CodigoBarrasTributavel.set -> void
+OpenDFe.NFe.Produto.CodigoBeneficio.get -> string?
+OpenDFe.NFe.Produto.CodigoBeneficio.set -> void
+OpenDFe.NFe.Produto.Combustivel.get -> OpenDFe.NFe.Combustivel?
+OpenDFe.NFe.Produto.Combustivel.set -> void
+OpenDFe.NFe.Produto.CreditosPresumidos.get -> System.Collections.Generic.IList<OpenDFe.NFe.CreditoPresumidoIcms!>!
+OpenDFe.NFe.Produto.Desconto.get -> decimal?
+OpenDFe.NFe.Produto.Desconto.set -> void
+OpenDFe.NFe.Produto.Descricao.get -> string?
+OpenDFe.NFe.Produto.Descricao.set -> void
+OpenDFe.NFe.Produto.Embalagem.get -> OpenDFe.NFe.EmbalagemProduto?
+OpenDFe.NFe.Produto.Embalagem.set -> void
+OpenDFe.NFe.Produto.Escala.get -> OpenDFe.NFe.IndicadorEscala?
+OpenDFe.NFe.Produto.Escala.set -> void
+OpenDFe.NFe.Produto.ExTipi.get -> string?
+OpenDFe.NFe.Produto.ExTipi.set -> void
+OpenDFe.NFe.Produto.Exportacoes.get -> System.Collections.Generic.IList<OpenDFe.NFe.DetalheExportacao!>!
+OpenDFe.NFe.Produto.Frete.get -> decimal?
+OpenDFe.NFe.Produto.Frete.set -> void
+OpenDFe.NFe.Produto.Gtin.get -> string?
+OpenDFe.NFe.Produto.Gtin.set -> void
+OpenDFe.NFe.Produto.GtinTributavel.get -> string?
+OpenDFe.NFe.Produto.GtinTributavel.set -> void
+OpenDFe.NFe.Produto.Importacoes.get -> System.Collections.Generic.IList<OpenDFe.NFe.DeclaracaoImportacao!>!
+OpenDFe.NFe.Produto.ItemPedido.get -> string?
+OpenDFe.NFe.Produto.ItemPedido.set -> void
+OpenDFe.NFe.Produto.Medicamento.get -> OpenDFe.NFe.Medicamento?
+OpenDFe.NFe.Produto.Medicamento.set -> void
+OpenDFe.NFe.Produto.Ncm.get -> string?
+OpenDFe.NFe.Produto.Ncm.set -> void
+OpenDFe.NFe.Produto.Nff.get -> OpenDFe.NFe.ProdutoNff?
+OpenDFe.NFe.Produto.Nff.set -> void
+OpenDFe.NFe.Produto.NumeroFci.get -> string?
+OpenDFe.NFe.Produto.NumeroFci.set -> void
+OpenDFe.NFe.Produto.Nve.get -> System.Collections.Generic.IList<string!>!
+OpenDFe.NFe.Produto.OutrasDespesas.get -> decimal?
+OpenDFe.NFe.Produto.OutrasDespesas.set -> void
+OpenDFe.NFe.Produto.Pedido.get -> string?
+OpenDFe.NFe.Produto.Pedido.set -> void
+OpenDFe.NFe.Produto.Produto() -> void
+OpenDFe.NFe.Produto.QuantidadeComercial.get -> decimal?
+OpenDFe.NFe.Produto.QuantidadeComercial.set -> void
+OpenDFe.NFe.Produto.QuantidadeTributavel.get -> decimal?
+OpenDFe.NFe.Produto.QuantidadeTributavel.set -> void
+OpenDFe.NFe.Produto.Rastros.get -> System.Collections.Generic.IList<OpenDFe.NFe.Rastro!>!
+OpenDFe.NFe.Produto.Recopi.get -> string?
+OpenDFe.NFe.Produto.Recopi.set -> void
+OpenDFe.NFe.Produto.Seguro.get -> decimal?
+OpenDFe.NFe.Produto.Seguro.set -> void
+OpenDFe.NFe.Produto.Totalizacao.get -> OpenDFe.NFe.IndicadorTotal?
+OpenDFe.NFe.Produto.Totalizacao.set -> void
+OpenDFe.NFe.Produto.UnidadeComercial.get -> string?
+OpenDFe.NFe.Produto.UnidadeComercial.set -> void
+OpenDFe.NFe.Produto.UnidadeTributavel.get -> string?
+OpenDFe.NFe.Produto.UnidadeTributavel.set -> void
+OpenDFe.NFe.Produto.Valor.get -> decimal?
+OpenDFe.NFe.Produto.Valor.set -> void
+OpenDFe.NFe.Produto.ValorUnitarioComercial.get -> decimal?
+OpenDFe.NFe.Produto.ValorUnitarioComercial.set -> void
+OpenDFe.NFe.Produto.ValorUnitarioTributavel.get -> decimal?
+OpenDFe.NFe.Produto.ValorUnitarioTributavel.set -> void
+OpenDFe.NFe.Produto.VeiculoNovo.get -> OpenDFe.NFe.VeiculoNovo?
+OpenDFe.NFe.Produto.VeiculoNovo.set -> void
+OpenDFe.NFe.ProdutoNff
+OpenDFe.NFe.ProdutoNff.CodigoFisco.get -> string?
+OpenDFe.NFe.ProdutoNff.CodigoFisco.set -> void
+OpenDFe.NFe.ProdutoNff.CodigoOperacao.get -> int?
+OpenDFe.NFe.ProdutoNff.CodigoOperacao.set -> void
+OpenDFe.NFe.ProdutoNff.ProdutoNff() -> void
 OpenDFe.NFe.ProvedorAssinatura
 OpenDFe.NFe.ProvedorAssinatura.Assinatura.get -> OpenDFe.NFe.AssinaturaProvedor!
 OpenDFe.NFe.ProvedorAssinatura.Assinatura.set -> void
 OpenDFe.NFe.ProvedorAssinatura.Cnpj.get -> string?
 OpenDFe.NFe.ProvedorAssinatura.Cnpj.set -> void
 OpenDFe.NFe.ProvedorAssinatura.ProvedorAssinatura() -> void
+OpenDFe.NFe.Rastro
+OpenDFe.NFe.Rastro.CodigoAgregacao.get -> string?
+OpenDFe.NFe.Rastro.CodigoAgregacao.set -> void
+OpenDFe.NFe.Rastro.Fabricacao.get -> System.DateOnly?
+OpenDFe.NFe.Rastro.Fabricacao.set -> void
+OpenDFe.NFe.Rastro.Lote.get -> string?
+OpenDFe.NFe.Rastro.Lote.set -> void
+OpenDFe.NFe.Rastro.Quantidade.get -> decimal?
+OpenDFe.NFe.Rastro.Quantidade.set -> void
+OpenDFe.NFe.Rastro.Rastro() -> void
+OpenDFe.NFe.Rastro.Validade.get -> System.DateOnly?
+OpenDFe.NFe.Rastro.Validade.set -> void
+OpenDFe.NFe.ReducaoAliquota
+OpenDFe.NFe.ReducaoAliquota.AliquotaEfetiva.get -> decimal?
+OpenDFe.NFe.ReducaoAliquota.AliquotaEfetiva.set -> void
+OpenDFe.NFe.ReducaoAliquota.Percentual.get -> decimal?
+OpenDFe.NFe.ReducaoAliquota.Percentual.set -> void
+OpenDFe.NFe.ReducaoAliquota.ReducaoAliquota() -> void
+OpenDFe.NFe.RegimeEspecialTributacao
+OpenDFe.NFe.RegimeEspecialTributacao.Cooperativa = 4 -> OpenDFe.NFe.RegimeEspecialTributacao
+OpenDFe.NFe.RegimeEspecialTributacao.Estimativa = 2 -> OpenDFe.NFe.RegimeEspecialTributacao
+OpenDFe.NFe.RegimeEspecialTributacao.Mei = 5 -> OpenDFe.NFe.RegimeEspecialTributacao
+OpenDFe.NFe.RegimeEspecialTributacao.MicroempresaMunicipal = 1 -> OpenDFe.NFe.RegimeEspecialTributacao
+OpenDFe.NFe.RegimeEspecialTributacao.MicroempresaPequenoPorte = 6 -> OpenDFe.NFe.RegimeEspecialTributacao
+OpenDFe.NFe.RegimeEspecialTributacao.SociedadeProfissionais = 3 -> OpenDFe.NFe.RegimeEspecialTributacao
 OpenDFe.NFe.RegimeTributario
 OpenDFe.NFe.RegimeTributario.Mei = 4 -> OpenDFe.NFe.RegimeTributario
 OpenDFe.NFe.RegimeTributario.Normal = 3 -> OpenDFe.NFe.RegimeTributario
@@ -641,6 +2144,13 @@ OpenDFe.NFe.ResponsavelTecnico.IdCsrt.set -> void
 OpenDFe.NFe.ResponsavelTecnico.ResponsavelTecnico() -> void
 OpenDFe.NFe.ResponsavelTecnico.Telefone.get -> string?
 OpenDFe.NFe.ResponsavelTecnico.Telefone.set -> void
+OpenDFe.NFe.RestricaoVeiculo
+OpenDFe.NFe.RestricaoVeiculo.AlienacaoFiduciaria = 1 -> OpenDFe.NFe.RestricaoVeiculo
+OpenDFe.NFe.RestricaoVeiculo.ArrendamentoMercantil = 2 -> OpenDFe.NFe.RestricaoVeiculo
+OpenDFe.NFe.RestricaoVeiculo.Nenhuma = 0 -> OpenDFe.NFe.RestricaoVeiculo
+OpenDFe.NFe.RestricaoVeiculo.Outras = 9 -> OpenDFe.NFe.RestricaoVeiculo
+OpenDFe.NFe.RestricaoVeiculo.PenhorVeiculos = 4 -> OpenDFe.NFe.RestricaoVeiculo
+OpenDFe.NFe.RestricaoVeiculo.ReservaDominio = 3 -> OpenDFe.NFe.RestricaoVeiculo
 OpenDFe.NFe.RetencaoIcmsTransporte
 OpenDFe.NFe.RetencaoIcmsTransporte.Aliquota.get -> decimal?
 OpenDFe.NFe.RetencaoIcmsTransporte.Aliquota.set -> void
@@ -655,10 +2165,29 @@ OpenDFe.NFe.RetencaoIcmsTransporte.Valor.get -> decimal?
 OpenDFe.NFe.RetencaoIcmsTransporte.Valor.set -> void
 OpenDFe.NFe.RetencaoIcmsTransporte.ValorServico.get -> decimal?
 OpenDFe.NFe.RetencaoIcmsTransporte.ValorServico.set -> void
+OpenDFe.NFe.RetencaoTributos
+OpenDFe.NFe.RetencaoTributos.BaseCalculoIrrf.get -> decimal?
+OpenDFe.NFe.RetencaoTributos.BaseCalculoIrrf.set -> void
+OpenDFe.NFe.RetencaoTributos.BaseCalculoPrevidencia.get -> decimal?
+OpenDFe.NFe.RetencaoTributos.BaseCalculoPrevidencia.set -> void
+OpenDFe.NFe.RetencaoTributos.Cofins.get -> decimal?
+OpenDFe.NFe.RetencaoTributos.Cofins.set -> void
+OpenDFe.NFe.RetencaoTributos.Csll.get -> decimal?
+OpenDFe.NFe.RetencaoTributos.Csll.set -> void
+OpenDFe.NFe.RetencaoTributos.Irrf.get -> decimal?
+OpenDFe.NFe.RetencaoTributos.Irrf.set -> void
+OpenDFe.NFe.RetencaoTributos.Pis.get -> decimal?
+OpenDFe.NFe.RetencaoTributos.Pis.set -> void
+OpenDFe.NFe.RetencaoTributos.Previdencia.get -> decimal?
+OpenDFe.NFe.RetencaoTributos.Previdencia.set -> void
+OpenDFe.NFe.RetencaoTributos.RetencaoTributos() -> void
 OpenDFe.NFe.SolicitacaoNff
 OpenDFe.NFe.SolicitacaoNff.SolicitacaoNff() -> void
 OpenDFe.NFe.SolicitacaoNff.Texto.get -> string?
 OpenDFe.NFe.SolicitacaoNff.Texto.set -> void
+OpenDFe.NFe.TipoArma
+OpenDFe.NFe.TipoArma.UsoPermitido = 0 -> OpenDFe.NFe.TipoArma
+OpenDFe.NFe.TipoArma.UsoRestrito = 1 -> OpenDFe.NFe.TipoArma
 OpenDFe.NFe.TipoAtoConcessorio
 OpenDFe.NFe.TipoAtoConcessorio.AjusteSinief = 14 -> OpenDFe.NFe.TipoAtoConcessorio
 OpenDFe.NFe.TipoAtoConcessorio.AutorizacaoEspecifica = 12 -> OpenDFe.NFe.TipoAtoConcessorio
@@ -695,8 +2224,181 @@ OpenDFe.NFe.TipoNotaDebito.PagamentoAntecipado = 6 -> OpenDFe.NFe.TipoNotaDebito
 OpenDFe.NFe.TipoNotaDebito.PerdaEstoque = 7 -> OpenDFe.NFe.TipoNotaDebito
 OpenDFe.NFe.TipoNotaDebito.TransferenciaCreditoCooperativa = 1 -> OpenDFe.NFe.TipoNotaDebito
 OpenDFe.NFe.TipoNotaDebito.TransferenciaCreditoSucessao = 5 -> OpenDFe.NFe.TipoNotaDebito
+OpenDFe.NFe.TipoOperacaoVeiculo
+OpenDFe.NFe.TipoOperacaoVeiculo.FaturamentoDireto = 2 -> OpenDFe.NFe.TipoOperacaoVeiculo
+OpenDFe.NFe.TipoOperacaoVeiculo.Outros = 0 -> OpenDFe.NFe.TipoOperacaoVeiculo
+OpenDFe.NFe.TipoOperacaoVeiculo.VendaConcessionaria = 1 -> OpenDFe.NFe.TipoOperacaoVeiculo
+OpenDFe.NFe.TipoOperacaoVeiculo.VendaDireta = 3 -> OpenDFe.NFe.TipoOperacaoVeiculo
 OpenDFe.NFe.Total
+OpenDFe.NFe.Total.IbsCbs.get -> OpenDFe.NFe.TotalIbsCbs?
+OpenDFe.NFe.Total.IbsCbs.set -> void
+OpenDFe.NFe.Total.Icms.get -> OpenDFe.NFe.TotalIcms!
+OpenDFe.NFe.Total.Icms.set -> void
+OpenDFe.NFe.Total.ImpostoSeletivo.get -> OpenDFe.NFe.TotalImpostoSeletivo?
+OpenDFe.NFe.Total.ImpostoSeletivo.set -> void
+OpenDFe.NFe.Total.Issqn.get -> OpenDFe.NFe.TotalIssqn?
+OpenDFe.NFe.Total.Issqn.set -> void
+OpenDFe.NFe.Total.Retencao.get -> OpenDFe.NFe.RetencaoTributos?
+OpenDFe.NFe.Total.Retencao.set -> void
 OpenDFe.NFe.Total.Total() -> void
+OpenDFe.NFe.Total.ValorTotalNota.get -> decimal?
+OpenDFe.NFe.Total.ValorTotalNota.set -> void
+OpenDFe.NFe.TotalCbs
+OpenDFe.NFe.TotalCbs.CreditoPresumido.get -> decimal?
+OpenDFe.NFe.TotalCbs.CreditoPresumido.set -> void
+OpenDFe.NFe.TotalCbs.CreditoPresumidoCondicaoSuspensiva.get -> decimal?
+OpenDFe.NFe.TotalCbs.CreditoPresumidoCondicaoSuspensiva.set -> void
+OpenDFe.NFe.TotalCbs.Devolucao.get -> decimal?
+OpenDFe.NFe.TotalCbs.Devolucao.set -> void
+OpenDFe.NFe.TotalCbs.Diferimento.get -> decimal?
+OpenDFe.NFe.TotalCbs.Diferimento.set -> void
+OpenDFe.NFe.TotalCbs.TotalCbs() -> void
+OpenDFe.NFe.TotalCbs.Valor.get -> decimal?
+OpenDFe.NFe.TotalCbs.Valor.set -> void
+OpenDFe.NFe.TotalIbs
+OpenDFe.NFe.TotalIbs.CreditoPresumido.get -> decimal?
+OpenDFe.NFe.TotalIbs.CreditoPresumido.set -> void
+OpenDFe.NFe.TotalIbs.CreditoPresumidoCondicaoSuspensiva.get -> decimal?
+OpenDFe.NFe.TotalIbs.CreditoPresumidoCondicaoSuspensiva.set -> void
+OpenDFe.NFe.TotalIbs.Municipio.get -> OpenDFe.NFe.TotalIbsMunicipio!
+OpenDFe.NFe.TotalIbs.Municipio.set -> void
+OpenDFe.NFe.TotalIbs.TotalIbs() -> void
+OpenDFe.NFe.TotalIbs.UF.get -> OpenDFe.NFe.TotalIbsUF!
+OpenDFe.NFe.TotalIbs.UF.set -> void
+OpenDFe.NFe.TotalIbs.Valor.get -> decimal?
+OpenDFe.NFe.TotalIbs.Valor.set -> void
+OpenDFe.NFe.TotalIbsCbs
+OpenDFe.NFe.TotalIbsCbs.BaseCalculo.get -> decimal?
+OpenDFe.NFe.TotalIbsCbs.BaseCalculo.set -> void
+OpenDFe.NFe.TotalIbsCbs.Cbs.get -> OpenDFe.NFe.TotalCbs?
+OpenDFe.NFe.TotalIbsCbs.Cbs.set -> void
+OpenDFe.NFe.TotalIbsCbs.EstornoCredito.get -> OpenDFe.NFe.EstornoCredito?
+OpenDFe.NFe.TotalIbsCbs.EstornoCredito.set -> void
+OpenDFe.NFe.TotalIbsCbs.Ibs.get -> OpenDFe.NFe.TotalIbs?
+OpenDFe.NFe.TotalIbsCbs.Ibs.set -> void
+OpenDFe.NFe.TotalIbsCbs.Monofasia.get -> OpenDFe.NFe.TotalMonofasia?
+OpenDFe.NFe.TotalIbsCbs.Monofasia.set -> void
+OpenDFe.NFe.TotalIbsCbs.TotalIbsCbs() -> void
+OpenDFe.NFe.TotalIbsMunicipio
+OpenDFe.NFe.TotalIbsMunicipio.Devolucao.get -> decimal?
+OpenDFe.NFe.TotalIbsMunicipio.Devolucao.set -> void
+OpenDFe.NFe.TotalIbsMunicipio.Diferimento.get -> decimal?
+OpenDFe.NFe.TotalIbsMunicipio.Diferimento.set -> void
+OpenDFe.NFe.TotalIbsMunicipio.TotalIbsMunicipio() -> void
+OpenDFe.NFe.TotalIbsMunicipio.Valor.get -> decimal?
+OpenDFe.NFe.TotalIbsMunicipio.Valor.set -> void
+OpenDFe.NFe.TotalIbsUF
+OpenDFe.NFe.TotalIbsUF.Devolucao.get -> decimal?
+OpenDFe.NFe.TotalIbsUF.Devolucao.set -> void
+OpenDFe.NFe.TotalIbsUF.Diferimento.get -> decimal?
+OpenDFe.NFe.TotalIbsUF.Diferimento.set -> void
+OpenDFe.NFe.TotalIbsUF.TotalIbsUF() -> void
+OpenDFe.NFe.TotalIbsUF.Valor.get -> decimal?
+OpenDFe.NFe.TotalIbsUF.Valor.set -> void
+OpenDFe.NFe.TotalIcms
+OpenDFe.NFe.TotalIcms.BaseCalculo.get -> decimal?
+OpenDFe.NFe.TotalIcms.BaseCalculo.set -> void
+OpenDFe.NFe.TotalIcms.BaseCalculoSt.get -> decimal?
+OpenDFe.NFe.TotalIcms.BaseCalculoSt.set -> void
+OpenDFe.NFe.TotalIcms.Desconto.get -> decimal?
+OpenDFe.NFe.TotalIcms.Desconto.set -> void
+OpenDFe.NFe.TotalIcms.Frete.get -> decimal?
+OpenDFe.NFe.TotalIcms.Frete.set -> void
+OpenDFe.NFe.TotalIcms.OutrasDespesas.get -> decimal?
+OpenDFe.NFe.TotalIcms.OutrasDespesas.set -> void
+OpenDFe.NFe.TotalIcms.QuantidadeBaseMonofasico.get -> decimal?
+OpenDFe.NFe.TotalIcms.QuantidadeBaseMonofasico.set -> void
+OpenDFe.NFe.TotalIcms.QuantidadeBaseRetencao.get -> decimal?
+OpenDFe.NFe.TotalIcms.QuantidadeBaseRetencao.set -> void
+OpenDFe.NFe.TotalIcms.QuantidadeBaseRetida.get -> decimal?
+OpenDFe.NFe.TotalIcms.QuantidadeBaseRetida.set -> void
+OpenDFe.NFe.TotalIcms.Seguro.get -> decimal?
+OpenDFe.NFe.TotalIcms.Seguro.set -> void
+OpenDFe.NFe.TotalIcms.TotalIcms() -> void
+OpenDFe.NFe.TotalIcms.Valor.get -> decimal?
+OpenDFe.NFe.TotalIcms.Valor.set -> void
+OpenDFe.NFe.TotalIcms.ValorCofins.get -> decimal?
+OpenDFe.NFe.TotalIcms.ValorCofins.set -> void
+OpenDFe.NFe.TotalIcms.ValorDesonerado.get -> decimal?
+OpenDFe.NFe.TotalIcms.ValorDesonerado.set -> void
+OpenDFe.NFe.TotalIcms.ValorFcp.get -> decimal?
+OpenDFe.NFe.TotalIcms.ValorFcp.set -> void
+OpenDFe.NFe.TotalIcms.ValorFcpSt.get -> decimal?
+OpenDFe.NFe.TotalIcms.ValorFcpSt.set -> void
+OpenDFe.NFe.TotalIcms.ValorFcpStRetido.get -> decimal?
+OpenDFe.NFe.TotalIcms.ValorFcpStRetido.set -> void
+OpenDFe.NFe.TotalIcms.ValorFcpUFDestino.get -> decimal?
+OpenDFe.NFe.TotalIcms.ValorFcpUFDestino.set -> void
+OpenDFe.NFe.TotalIcms.ValorIcmsUFDestino.get -> decimal?
+OpenDFe.NFe.TotalIcms.ValorIcmsUFDestino.set -> void
+OpenDFe.NFe.TotalIcms.ValorIcmsUFRemetente.get -> decimal?
+OpenDFe.NFe.TotalIcms.ValorIcmsUFRemetente.set -> void
+OpenDFe.NFe.TotalIcms.ValorImpostoImportacao.get -> decimal?
+OpenDFe.NFe.TotalIcms.ValorImpostoImportacao.set -> void
+OpenDFe.NFe.TotalIcms.ValorIpi.get -> decimal?
+OpenDFe.NFe.TotalIcms.ValorIpi.set -> void
+OpenDFe.NFe.TotalIcms.ValorIpiDevolvido.get -> decimal?
+OpenDFe.NFe.TotalIcms.ValorIpiDevolvido.set -> void
+OpenDFe.NFe.TotalIcms.ValorMonofasico.get -> decimal?
+OpenDFe.NFe.TotalIcms.ValorMonofasico.set -> void
+OpenDFe.NFe.TotalIcms.ValorMonofasicoRetencao.get -> decimal?
+OpenDFe.NFe.TotalIcms.ValorMonofasicoRetencao.set -> void
+OpenDFe.NFe.TotalIcms.ValorMonofasicoRetido.get -> decimal?
+OpenDFe.NFe.TotalIcms.ValorMonofasicoRetido.set -> void
+OpenDFe.NFe.TotalIcms.ValorNota.get -> decimal?
+OpenDFe.NFe.TotalIcms.ValorNota.set -> void
+OpenDFe.NFe.TotalIcms.ValorPis.get -> decimal?
+OpenDFe.NFe.TotalIcms.ValorPis.set -> void
+OpenDFe.NFe.TotalIcms.ValorProdutos.get -> decimal?
+OpenDFe.NFe.TotalIcms.ValorProdutos.set -> void
+OpenDFe.NFe.TotalIcms.ValorSt.get -> decimal?
+OpenDFe.NFe.TotalIcms.ValorSt.set -> void
+OpenDFe.NFe.TotalIcms.ValorTotalTributos.get -> decimal?
+OpenDFe.NFe.TotalIcms.ValorTotalTributos.set -> void
+OpenDFe.NFe.TotalImpostoSeletivo
+OpenDFe.NFe.TotalImpostoSeletivo.TotalImpostoSeletivo() -> void
+OpenDFe.NFe.TotalImpostoSeletivo.Valor.get -> decimal?
+OpenDFe.NFe.TotalImpostoSeletivo.Valor.set -> void
+OpenDFe.NFe.TotalIssqn
+OpenDFe.NFe.TotalIssqn.BaseCalculo.get -> decimal?
+OpenDFe.NFe.TotalIssqn.BaseCalculo.set -> void
+OpenDFe.NFe.TotalIssqn.Competencia.get -> System.DateOnly?
+OpenDFe.NFe.TotalIssqn.Competencia.set -> void
+OpenDFe.NFe.TotalIssqn.Deducao.get -> decimal?
+OpenDFe.NFe.TotalIssqn.Deducao.set -> void
+OpenDFe.NFe.TotalIssqn.DescontoCondicionado.get -> decimal?
+OpenDFe.NFe.TotalIssqn.DescontoCondicionado.set -> void
+OpenDFe.NFe.TotalIssqn.DescontoIncondicionado.get -> decimal?
+OpenDFe.NFe.TotalIssqn.DescontoIncondicionado.set -> void
+OpenDFe.NFe.TotalIssqn.OutrasRetencoes.get -> decimal?
+OpenDFe.NFe.TotalIssqn.OutrasRetencoes.set -> void
+OpenDFe.NFe.TotalIssqn.RegimeEspecial.get -> OpenDFe.NFe.RegimeEspecialTributacao?
+OpenDFe.NFe.TotalIssqn.RegimeEspecial.set -> void
+OpenDFe.NFe.TotalIssqn.Retencao.get -> decimal?
+OpenDFe.NFe.TotalIssqn.Retencao.set -> void
+OpenDFe.NFe.TotalIssqn.TotalIssqn() -> void
+OpenDFe.NFe.TotalIssqn.Valor.get -> decimal?
+OpenDFe.NFe.TotalIssqn.Valor.set -> void
+OpenDFe.NFe.TotalIssqn.ValorCofins.get -> decimal?
+OpenDFe.NFe.TotalIssqn.ValorCofins.set -> void
+OpenDFe.NFe.TotalIssqn.ValorPis.get -> decimal?
+OpenDFe.NFe.TotalIssqn.ValorPis.set -> void
+OpenDFe.NFe.TotalIssqn.ValorServicos.get -> decimal?
+OpenDFe.NFe.TotalIssqn.ValorServicos.set -> void
+OpenDFe.NFe.TotalMonofasia
+OpenDFe.NFe.TotalMonofasia.Cbs.get -> decimal?
+OpenDFe.NFe.TotalMonofasia.Cbs.set -> void
+OpenDFe.NFe.TotalMonofasia.CbsRetencao.get -> decimal?
+OpenDFe.NFe.TotalMonofasia.CbsRetencao.set -> void
+OpenDFe.NFe.TotalMonofasia.CbsRetido.get -> decimal?
+OpenDFe.NFe.TotalMonofasia.CbsRetido.set -> void
+OpenDFe.NFe.TotalMonofasia.Ibs.get -> decimal?
+OpenDFe.NFe.TotalMonofasia.Ibs.set -> void
+OpenDFe.NFe.TotalMonofasia.IbsRetencao.get -> decimal?
+OpenDFe.NFe.TotalMonofasia.IbsRetencao.set -> void
+OpenDFe.NFe.TotalMonofasia.IbsRetido.get -> decimal?
+OpenDFe.NFe.TotalMonofasia.IbsRetido.set -> void
+OpenDFe.NFe.TotalMonofasia.TotalMonofasia() -> void
 OpenDFe.NFe.TransacaoEletronica
 OpenDFe.NFe.TransacaoEletronica.Autorizacao.get -> string?
 OpenDFe.NFe.TransacaoEletronica.Autorizacao.set -> void
@@ -711,6 +2413,12 @@ OpenDFe.NFe.TransacaoEletronica.Integracao.set -> void
 OpenDFe.NFe.TransacaoEletronica.Terminal.get -> string?
 OpenDFe.NFe.TransacaoEletronica.Terminal.set -> void
 OpenDFe.NFe.TransacaoEletronica.TransacaoEletronica() -> void
+OpenDFe.NFe.TransferenciaCredito
+OpenDFe.NFe.TransferenciaCredito.TransferenciaCredito() -> void
+OpenDFe.NFe.TransferenciaCredito.ValorCbs.get -> decimal?
+OpenDFe.NFe.TransferenciaCredito.ValorCbs.set -> void
+OpenDFe.NFe.TransferenciaCredito.ValorIbs.get -> decimal?
+OpenDFe.NFe.TransferenciaCredito.ValorIbs.set -> void
 OpenDFe.NFe.Transportador
 OpenDFe.NFe.Transportador.Cnpj.get -> string?
 OpenDFe.NFe.Transportador.Cnpj.set -> void
@@ -745,6 +2453,54 @@ OpenDFe.NFe.Transporte.Vagao.set -> void
 OpenDFe.NFe.Transporte.Veiculo.get -> OpenDFe.NFe.Veiculo?
 OpenDFe.NFe.Transporte.Veiculo.set -> void
 OpenDFe.NFe.Transporte.Volumes.get -> System.Collections.Generic.IList<OpenDFe.NFe.Volume!>!
+OpenDFe.NFe.TributacaoCompraGovernamental
+OpenDFe.NFe.TributacaoCompraGovernamental.AliquotaCbs.get -> decimal?
+OpenDFe.NFe.TributacaoCompraGovernamental.AliquotaCbs.set -> void
+OpenDFe.NFe.TributacaoCompraGovernamental.AliquotaIbsMunicipio.get -> decimal?
+OpenDFe.NFe.TributacaoCompraGovernamental.AliquotaIbsMunicipio.set -> void
+OpenDFe.NFe.TributacaoCompraGovernamental.AliquotaIbsUF.get -> decimal?
+OpenDFe.NFe.TributacaoCompraGovernamental.AliquotaIbsUF.set -> void
+OpenDFe.NFe.TributacaoCompraGovernamental.TributacaoCompraGovernamental() -> void
+OpenDFe.NFe.TributacaoCompraGovernamental.ValorCbs.get -> decimal?
+OpenDFe.NFe.TributacaoCompraGovernamental.ValorCbs.set -> void
+OpenDFe.NFe.TributacaoCompraGovernamental.ValorIbsMunicipio.get -> decimal?
+OpenDFe.NFe.TributacaoCompraGovernamental.ValorIbsMunicipio.set -> void
+OpenDFe.NFe.TributacaoCompraGovernamental.ValorIbsUF.get -> decimal?
+OpenDFe.NFe.TributacaoCompraGovernamental.ValorIbsUF.set -> void
+OpenDFe.NFe.TributacaoIbsCbs
+OpenDFe.NFe.TributacaoIbsCbs.BaseCalculo.get -> decimal?
+OpenDFe.NFe.TributacaoIbsCbs.BaseCalculo.set -> void
+OpenDFe.NFe.TributacaoIbsCbs.Cbs.get -> OpenDFe.NFe.Cbs!
+OpenDFe.NFe.TributacaoIbsCbs.Cbs.set -> void
+OpenDFe.NFe.TributacaoIbsCbs.CompraGovernamental.get -> OpenDFe.NFe.TributacaoCompraGovernamental?
+OpenDFe.NFe.TributacaoIbsCbs.CompraGovernamental.set -> void
+OpenDFe.NFe.TributacaoIbsCbs.IbsMunicipio.get -> OpenDFe.NFe.IbsMunicipio!
+OpenDFe.NFe.TributacaoIbsCbs.IbsMunicipio.set -> void
+OpenDFe.NFe.TributacaoIbsCbs.IbsUF.get -> OpenDFe.NFe.IbsUF!
+OpenDFe.NFe.TributacaoIbsCbs.IbsUF.set -> void
+OpenDFe.NFe.TributacaoIbsCbs.TributacaoIbsCbs() -> void
+OpenDFe.NFe.TributacaoIbsCbs.TributacaoRegular.get -> OpenDFe.NFe.TributacaoRegular?
+OpenDFe.NFe.TributacaoIbsCbs.TributacaoRegular.set -> void
+OpenDFe.NFe.TributacaoIbsCbs.ValorIbs.get -> decimal?
+OpenDFe.NFe.TributacaoIbsCbs.ValorIbs.set -> void
+OpenDFe.NFe.TributacaoRegular
+OpenDFe.NFe.TributacaoRegular.AliquotaCbs.get -> decimal?
+OpenDFe.NFe.TributacaoRegular.AliquotaCbs.set -> void
+OpenDFe.NFe.TributacaoRegular.AliquotaIbsMunicipio.get -> decimal?
+OpenDFe.NFe.TributacaoRegular.AliquotaIbsMunicipio.set -> void
+OpenDFe.NFe.TributacaoRegular.AliquotaIbsUF.get -> decimal?
+OpenDFe.NFe.TributacaoRegular.AliquotaIbsUF.set -> void
+OpenDFe.NFe.TributacaoRegular.ClassificacaoTributaria.get -> string?
+OpenDFe.NFe.TributacaoRegular.ClassificacaoTributaria.set -> void
+OpenDFe.NFe.TributacaoRegular.Cst.get -> string?
+OpenDFe.NFe.TributacaoRegular.Cst.set -> void
+OpenDFe.NFe.TributacaoRegular.TributacaoRegular() -> void
+OpenDFe.NFe.TributacaoRegular.ValorCbs.get -> decimal?
+OpenDFe.NFe.TributacaoRegular.ValorCbs.set -> void
+OpenDFe.NFe.TributacaoRegular.ValorIbsMunicipio.get -> decimal?
+OpenDFe.NFe.TributacaoRegular.ValorIbsMunicipio.set -> void
+OpenDFe.NFe.TributacaoRegular.ValorIbsUF.get -> decimal?
+OpenDFe.NFe.TributacaoRegular.ValorIbsUF.set -> void
 OpenDFe.NFe.Veiculo
 OpenDFe.NFe.Veiculo.Exterior.get -> bool
 OpenDFe.NFe.Veiculo.Exterior.set -> void
@@ -755,6 +2511,70 @@ OpenDFe.NFe.Veiculo.Rntc.set -> void
 OpenDFe.NFe.Veiculo.UF.get -> OpenDFe.UF?
 OpenDFe.NFe.Veiculo.UF.set -> void
 OpenDFe.NFe.Veiculo.Veiculo() -> void
+OpenDFe.NFe.VeiculoNovo
+OpenDFe.NFe.VeiculoNovo.AnoFabricacao.get -> int?
+OpenDFe.NFe.VeiculoNovo.AnoFabricacao.set -> void
+OpenDFe.NFe.VeiculoNovo.AnoModelo.get -> int?
+OpenDFe.NFe.VeiculoNovo.AnoModelo.set -> void
+OpenDFe.NFe.VeiculoNovo.CapacidadeTracao.get -> string?
+OpenDFe.NFe.VeiculoNovo.CapacidadeTracao.set -> void
+OpenDFe.NFe.VeiculoNovo.Chassi.get -> string?
+OpenDFe.NFe.VeiculoNovo.Chassi.set -> void
+OpenDFe.NFe.VeiculoNovo.Cilindrada.get -> string?
+OpenDFe.NFe.VeiculoNovo.Cilindrada.set -> void
+OpenDFe.NFe.VeiculoNovo.CodigoCor.get -> string?
+OpenDFe.NFe.VeiculoNovo.CodigoCor.set -> void
+OpenDFe.NFe.VeiculoNovo.Condicao.get -> OpenDFe.NFe.CondicaoVeiculo?
+OpenDFe.NFe.VeiculoNovo.Condicao.set -> void
+OpenDFe.NFe.VeiculoNovo.Cor.get -> string?
+OpenDFe.NFe.VeiculoNovo.Cor.set -> void
+OpenDFe.NFe.VeiculoNovo.CorDenatran.get -> string?
+OpenDFe.NFe.VeiculoNovo.CorDenatran.set -> void
+OpenDFe.NFe.VeiculoNovo.DistanciaEixos.get -> string?
+OpenDFe.NFe.VeiculoNovo.DistanciaEixos.set -> void
+OpenDFe.NFe.VeiculoNovo.EspecieVeiculo.get -> int?
+OpenDFe.NFe.VeiculoNovo.EspecieVeiculo.set -> void
+OpenDFe.NFe.VeiculoNovo.Lotacao.get -> int?
+OpenDFe.NFe.VeiculoNovo.Lotacao.set -> void
+OpenDFe.NFe.VeiculoNovo.MarcaModelo.get -> string?
+OpenDFe.NFe.VeiculoNovo.MarcaModelo.set -> void
+OpenDFe.NFe.VeiculoNovo.Motor.get -> string?
+OpenDFe.NFe.VeiculoNovo.Motor.set -> void
+OpenDFe.NFe.VeiculoNovo.PesoBruto.get -> string?
+OpenDFe.NFe.VeiculoNovo.PesoBruto.set -> void
+OpenDFe.NFe.VeiculoNovo.PesoLiquido.get -> string?
+OpenDFe.NFe.VeiculoNovo.PesoLiquido.set -> void
+OpenDFe.NFe.VeiculoNovo.Potencia.get -> string?
+OpenDFe.NFe.VeiculoNovo.Potencia.set -> void
+OpenDFe.NFe.VeiculoNovo.Restricao.get -> OpenDFe.NFe.RestricaoVeiculo?
+OpenDFe.NFe.VeiculoNovo.Restricao.set -> void
+OpenDFe.NFe.VeiculoNovo.Serie.get -> string?
+OpenDFe.NFe.VeiculoNovo.Serie.set -> void
+OpenDFe.NFe.VeiculoNovo.TipoCombustivel.get -> string?
+OpenDFe.NFe.VeiculoNovo.TipoCombustivel.set -> void
+OpenDFe.NFe.VeiculoNovo.TipoOperacao.get -> OpenDFe.NFe.TipoOperacaoVeiculo?
+OpenDFe.NFe.VeiculoNovo.TipoOperacao.set -> void
+OpenDFe.NFe.VeiculoNovo.TipoPintura.get -> string?
+OpenDFe.NFe.VeiculoNovo.TipoPintura.set -> void
+OpenDFe.NFe.VeiculoNovo.TipoVeiculo.get -> string?
+OpenDFe.NFe.VeiculoNovo.TipoVeiculo.set -> void
+OpenDFe.NFe.VeiculoNovo.VeiculoNovo() -> void
+OpenDFe.NFe.VeiculoNovo.Vin.get -> OpenDFe.NFe.CondicaoVin?
+OpenDFe.NFe.VeiculoNovo.Vin.set -> void
+OpenDFe.NFe.ViaTransporteInternacional
+OpenDFe.NFe.ViaTransporteInternacional.Aerea = 4 -> OpenDFe.NFe.ViaTransporteInternacional
+OpenDFe.NFe.ViaTransporteInternacional.Conduto = 8 -> OpenDFe.NFe.ViaTransporteInternacional
+OpenDFe.NFe.ViaTransporteInternacional.Courier = 11 -> OpenDFe.NFe.ViaTransporteInternacional
+OpenDFe.NFe.ViaTransporteInternacional.EntregaMaos = 12 -> OpenDFe.NFe.ViaTransporteInternacional
+OpenDFe.NFe.ViaTransporteInternacional.Ferroviaria = 6 -> OpenDFe.NFe.ViaTransporteInternacional
+OpenDFe.NFe.ViaTransporteInternacional.Ficta = 10 -> OpenDFe.NFe.ViaTransporteInternacional
+OpenDFe.NFe.ViaTransporteInternacional.Fluvial = 2 -> OpenDFe.NFe.ViaTransporteInternacional
+OpenDFe.NFe.ViaTransporteInternacional.Lacustre = 3 -> OpenDFe.NFe.ViaTransporteInternacional
+OpenDFe.NFe.ViaTransporteInternacional.Maritima = 1 -> OpenDFe.NFe.ViaTransporteInternacional
+OpenDFe.NFe.ViaTransporteInternacional.MeiosProprios = 9 -> OpenDFe.NFe.ViaTransporteInternacional
+OpenDFe.NFe.ViaTransporteInternacional.Postal = 5 -> OpenDFe.NFe.ViaTransporteInternacional
+OpenDFe.NFe.ViaTransporteInternacional.Reboque = 13 -> OpenDFe.NFe.ViaTransporteInternacional
+OpenDFe.NFe.ViaTransporteInternacional.Rodoviaria = 7 -> OpenDFe.NFe.ViaTransporteInternacional
 OpenDFe.NFe.Volume
 OpenDFe.NFe.Volume.Especie.get -> string?
 OpenDFe.NFe.Volume.Especie.set -> void

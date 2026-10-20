@@ -6,10 +6,10 @@ using OpenDFe.NFe;
 
 namespace OpenDFe.Testes;
 
-// O modelo da etapa 2.2 (docs/MODELO.md) contra o XSD do pacote embutido no leiaute: cada [Tag] existe no lugar
-// certo, todo campo do XSD tem propriedade (fora do que fica para a 2.3 e do que não é do modelo), a ocorrência do
-// XSD bate com o grupo inicializado ou nulo, o Exterior está onde a UF aceita EX e as enumerações têm os valores
-// do XSD. E as regras de forma (MODELO.md 3).
+// O modelo das etapas 2.2 e 2.3 (docs/MODELO.md) contra o XSD do pacote embutido no leiaute: cada [Tag] existe no
+// lugar certo, todo campo do XSD tem propriedade (fora do que não é do modelo), a ocorrência do XSD bate com o grupo
+// inicializado ou nulo, o Exterior está onde a UF aceita EX e as enumerações têm os valores do XSD. E as regras de
+// forma (MODELO.md 3 e 11.9).
 public class ModeloNFeTestes
 {
     private const string Ns = "http://www.portalfiscal.inf.br/nfe";
@@ -21,8 +21,28 @@ public class ModeloNFeTestes
     // As enumerações cujo campo o XSD declara só pelo padrão ([0-9]{2}): a lista vem de tabela do Portal Nacional.
     private static readonly string[] EnumeracoesTabela = [nameof(MeioPagamento), nameof(BandeiraCartao)];
 
-    // O valor do XML que não é número (MODELO.md, decisão 8).
-    private static readonly Dictionary<int, string> ModelosCupom = new() { [1] = "2B", [2] = "2C", [3] = "2D" };
+    // Os valores do XML que não são número (MODELO.md, decisões 8 e 31).
+    private static readonly Dictionary<Type, Dictionary<int, string>> NaoNumericos = new()
+    {
+        [typeof(ModeloCupomFiscal)] = new() { [1] = "2B", [2] = "2C", [3] = "2D" },
+        [typeof(IndicadorEscala)] = new() { [1] = "S", [2] = "N" },
+        [typeof(CondicaoVin)] = new() { [1] = "R", [2] = "N" },
+    };
+
+    // As classes compartilhadas, com o [Tag] só com a tag nos campos (MODELO.md, decisões 12 e 29).
+    private static readonly Type[] Compartilhadas =
+    [
+        typeof(CreditoPresumidoIbsCbs), typeof(DevolucaoTributo), typeof(Diferimento), typeof(EstornoCredito), typeof(Local),
+        typeof(MonofasiaCbsBiocombustivel), typeof(MonofasiaCbsRetido), typeof(MonofasiaIbsBiocombustivel),
+        typeof(MonofasiaIbsRetido), typeof(Observacao), typeof(ReducaoAliquota), typeof(Veiculo),
+    ];
+
+    // As alternativas de uma escolha que são propriedades exclusivas de um pai e repetem o identificador do MOC
+    // (MODELO.md, decisão 30); as subclasses de uma base fechada entram sem lista.
+    private static readonly Type[][] AlternativasExclusivas = [[typeof(IpiTributado), typeof(IpiNaoTributado)]];
+
+    // A repetição dentro de um grupo que a NT 2023.001 v1.60 traz no ICMS53 (MODELO.md, decisão 30).
+    private static readonly string[] RepetidosIcms53 = ["N41a", "N42"];
 
     private sealed record Filho(string Nome, XmlSchemaType? Tipo, bool Atributo, bool Opcional, bool Repete);
 
@@ -33,6 +53,9 @@ public class ModeloNFeTestes
         public HashSet<Type> Visitadas { get; } = [];
 
         public List<string> EnumeracaoAusente { get; } = [];
+
+        // Os valores do XSD de cada enumeração, somados em todos os lugares em que ela aparece.
+        public Dictionary<Type, HashSet<string>> ValoresXsd { get; } = [];
     }
 
     // O leiaute embute os XSDs; o teste os copia para uma pasta e os compila pelo XmlSchemaSet, sem o SchemaXml
@@ -73,7 +96,13 @@ public class ModeloNFeTestes
         {
             case XmlSchemaElement elemento:
                 var nome = elemento.QualifiedName.Name;
-                Assert.False(filhos.ContainsKey(nome), $"A tag {nome} aparece duas vezes no mesmo grupo do XSD.");
+                if (filhos.TryGetValue(nome, out var repetido))
+                {
+                    // O IPI está nos dois ramos da escolha do imposto (ICMS ou ISSQN): o mesmo elemento, opcional.
+                    Assert.True(repetido.Tipo == elemento.ElementSchemaType, $"A tag {nome} aparece duas vezes no mesmo grupo do XSD, com tipos diferentes.");
+                    filhos[nome] = repetido with { Opcional = true };
+                    break;
+                }
                 filhos[nome] = new(nome, elemento.ElementSchemaType, false, opcional || elemento.MinOccurs == 0, elemento.MaxOccurs > 1);
                 break;
             case XmlSchemaSequence sequencia:
@@ -95,13 +124,17 @@ public class ModeloNFeTestes
     private static PropertyInfo[] Propriedades(Type classe) =>
         classe.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
 
+    // Com as herdadas da base fechada (a Origem do ICMS, o CST do PIS e da COFINS).
+    private static PropertyInfo[] PropriedadesTodas(Type classe) =>
+        classe.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+
     // Confere a classe contra os filhos do grupo do XSD; devolve as tags que ela mapeou.
     private static HashSet<string> Conferir(Type classe, Dictionary<string, Filho> filhos, string caminho, Conferencia conferencia)
     {
         conferencia.Visitadas.Add(classe);
         var usadas = new HashSet<string>();
         var instancia = classe.IsAbstract ? null : Activator.CreateInstance(classe);
-        foreach (var propriedade in Propriedades(classe))
+        foreach (var propriedade in PropriedadesTodas(classe))
         {
             var tag = propriedade.GetCustomAttribute<TagAttribute>();
             if (tag is null)
@@ -139,11 +172,6 @@ public class ModeloNFeTestes
 
     private static void ConferirGrupo(Type tipo, Filho filho, string caminho, Conferencia conferencia)
     {
-        if (tipo == typeof(Item) || tipo == typeof(Total))
-        {
-            conferencia.Visitadas.Add(tipo);   // o conteúdo é da 2.3
-            return;
-        }
         var filhos = Filhos(filho.Tipo);
         var usadas = new HashSet<string>();
         if (tipo.IsAbstract)
@@ -171,7 +199,9 @@ public class ModeloNFeTestes
         {
             usadas = Conferir(tipo, filhos, caminho, conferencia);
         }
-        Sobras(filhos, usadas, tipo == typeof(Identificacao) ? ["cDV"] : [], caminho, conferencia);
+        // O cDV é calculado (decisão 6); o nItem é a posição na lista (decisão 21).
+        string[] fora = tipo == typeof(Identificacao) ? ["cDV"] : tipo == typeof(Item) ? ["nItem"] : [];
+        Sobras(filhos, usadas, fora, caminho, conferencia);
     }
 
     private static void Sobras(Dictionary<string, Filho> filhos, HashSet<string> usadas, string[] fora, string caminho, Conferencia conferencia)
@@ -205,14 +235,20 @@ public class ModeloNFeTestes
             conferencia.EnumeracaoAusente.Add(tipo.Name);
             return;
         }
-        var valores = Enum.GetValues(tipo).Cast<object>().Select(Convert.ToInt32)
-            .Select(v => tipo == typeof(ModeloCupomFiscal) ? ModelosCupom[v] : v.ToString(System.Globalization.CultureInfo.InvariantCulture));
-        var xsd = enumeracao.Select(v => tipo == typeof(ModeloCupomFiscal) ? v : int.Parse(v, System.Globalization.CultureInfo.InvariantCulture).ToString(System.Globalization.CultureInfo.InvariantCulture));
-        var faltam = xsd.Except(valores).ToList();
-        var sobram = valores.Except(xsd).ToList();
-        if (faltam.Count > 0 || sobram.Count > 0)
-            conferencia.Falhas.Add($"{caminho}: {tipo.Name} diverge do XSD (faltam {string.Join(",", faltam)}; sobram {string.Join(",", sobram)}).");
+        // Uma enumeração serve a vários grupos (o CST, o motivo da desoneração: decisão 24): cada lugar aceita uma
+        // parte, que precisa estar nela; o que ela tem a mais que a soma dos lugares é conferido no fim.
+        var xsd = enumeracao.Select(v => NaoNumericos.ContainsKey(tipo) ? v : int.Parse(v, System.Globalization.CultureInfo.InvariantCulture).ToString(System.Globalization.CultureInfo.InvariantCulture)).ToList();
+        var faltam = xsd.Except(ValoresEnumeracao(tipo)).ToList();
+        if (faltam.Count > 0)
+            conferencia.Falhas.Add($"{caminho}: {tipo.Name} não tem os valores {string.Join(",", faltam)} do XSD.");
+        if (!conferencia.ValoresXsd.TryGetValue(tipo, out var soma))
+            conferencia.ValoresXsd[tipo] = soma = [];
+        soma.UnionWith(xsd);
     }
+
+    private static IEnumerable<string> ValoresEnumeracao(Type tipo) =>
+        Enum.GetValues(tipo).Cast<object>().Select(Convert.ToInt32)
+            .Select(v => NaoNumericos.TryGetValue(tipo, out var texto) ? texto[v] : v.ToString(System.Globalization.CultureInfo.InvariantCulture));
 
     // Os valores enumerados do tipo simples, subindo pelos tipos base até achar.
     private static HashSet<string> Enumeracao(XmlSchemaType? tipo)
@@ -241,6 +277,12 @@ public class ModeloNFeTestes
             filhos.Add(nome, filho);
         var usadas = Conferir(typeof(NotaFiscal), filhos, "NFe", conferencia);
         Sobras(filhos, usadas, ["infNFe", "Id", "versao", "Signature"], "NFe", conferencia);
+        foreach (var (tipo, soma) in conferencia.ValoresXsd)
+        {
+            var sobram = ValoresEnumeracao(tipo).Except(soma).ToList();
+            if (sobram.Count > 0)
+                conferencia.Falhas.Add($"{tipo.Name}: os valores {string.Join(",", sobram)} não estão em nenhum lugar do XSD.");
+        }
         return conferencia;
     }
 
@@ -280,15 +322,30 @@ public class ModeloNFeTestes
     }
 
     [Fact]
-    public void IdentificadoresDoMocNaoSeRepetem()
+    public void IdentificadoresDoMocSoSeRepetemEntreAlternativas()
     {
-        var identificadores = Modelo.GetExportedTypes()
-            .SelectMany(t => Propriedades(t).Select(p => p.GetCustomAttribute<TagAttribute>()).Append(t.GetCustomAttribute<TagAttribute>()))
-            .Select(t => t?.Identificador)
-            .OfType<string>()
-            .ToList();
+        // O MOC repete o identificador do mesmo campo nas alternativas de uma escolha (o N15 em 13 grupos de ICMS, o
+        // O09 no IPITrib e no IPINT); fora disso, cada identificador é de um campo só (decisão 30).
+        var repetidos = Modelo.GetExportedTypes()
+            .SelectMany(t => Propriedades(t).Select(p => (Dono: t, Tag: p.GetCustomAttribute<TagAttribute>()))
+                .Append((Dono: t, Tag: t.GetCustomAttribute<TagAttribute>())))
+            .Where(u => u.Tag?.Identificador is not null)
+            .GroupBy(u => u.Tag!.Identificador!)
+            .Where(g => g.Count() > 1);
 
-        Assert.Empty(identificadores.GroupBy(i => i).Where(g => g.Count() > 1).Select(g => g.Key));
+        var indevidos = new List<string>();
+        foreach (var grupo in repetidos)
+        {
+            var donos = grupo.Select(u => u.Dono).ToList();
+            var distintos = donos.Distinct().Count() == donos.Count;
+            var subclasses = donos.All(d => d.BaseType is { IsAbstract: true } && d.BaseType == donos[0].BaseType);
+            var exclusivas = AlternativasExclusivas.Any(a => donos.All(a.Contains));
+            var icms53 = RepetidosIcms53.Contains(grupo.Key) && donos.Count == 2 && donos.All(d => d == typeof(Icms53));
+            if (!(distintos && (subclasses || exclusivas)) && !icms53)
+                indevidos.Add($"{grupo.Key}: {string.Join(", ", donos.Select(d => d.Name))}");
+        }
+
+        Assert.Empty(indevidos);
     }
 
     [Fact]
@@ -299,8 +356,8 @@ public class ModeloNFeTestes
             .Select(t => t.Name)
             .Order();
 
-        Assert.Equal([nameof(Local), nameof(Observacao), nameof(Veiculo)], semIdentificador);
-        Assert.All(new[] { typeof(Local), typeof(Observacao), typeof(Veiculo) }, t =>
+        Assert.Equal(Compartilhadas.Select(t => t.Name).Order(), semIdentificador);
+        Assert.All(Compartilhadas, t =>
             Assert.All(Propriedades(t), p => Assert.Null(p.GetCustomAttribute<TagAttribute>()?.Identificador)));
     }
 
@@ -314,15 +371,27 @@ public class ModeloNFeTestes
         }
     }
 
-    [Fact]
-    public void ADocumentoReferenciadoEFechada()
+    [Theory]
+    [InlineData(typeof(DocumentoReferenciado), 6)]
+    [InlineData(typeof(Icms), 21)]
+    [InlineData(typeof(Pis), 4)]
+    [InlineData(typeof(Cofins), 4)]
+    public void ABaseDeEscolhaEFechada(Type tipo, int subclasses)
     {
-        var construtores = typeof(DocumentoReferenciado).GetConstructors(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+        var construtores = tipo.GetConstructors(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
 
-        Assert.True(typeof(DocumentoReferenciado).IsAbstract);
+        Assert.True(tipo.IsAbstract);
         var construtor = Assert.Single(construtores);
         Assert.True(construtor.IsFamilyAndAssembly);   // private protected: só a lib deriva
-        Assert.Equal(6, Modelo.GetExportedTypes().Count(t => t.BaseType == typeof(DocumentoReferenciado)));
+        Assert.Equal(subclasses, Modelo.GetExportedTypes().Count(t => t.BaseType == tipo));
+    }
+
+    [Fact]
+    public void SoAsEscolhasPorSubclasseSaoAbstratas()
+    {
+        var abstratas = Modelo.GetExportedTypes().Where(t => t.IsClass && t.IsAbstract).Select(t => t.Name).Order();
+
+        Assert.Equal([nameof(Cofins), nameof(DocumentoReferenciado), nameof(Icms), nameof(Pis)], abstratas);
     }
 
     [Fact]
@@ -347,7 +416,7 @@ public class ModeloNFeTestes
         var nulidade = new NullabilityInfoContext();
         foreach (var classe in Modelo.GetExportedTypes().Where(t => t.IsClass && !t.IsAbstract))
         {
-            foreach (var propriedade in Propriedades(classe).Where(p => ItemLista(p.PropertyType) is null))
+            foreach (var propriedade in PropriedadesTodas(classe).Where(p => ItemLista(p.PropertyType) is null))
             {
                 var nome = $"{classe.Name}.{propriedade.Name}";
                 Assert.True(propriedade.SetMethod?.IsPublic, nome);
@@ -382,6 +451,77 @@ public class ModeloNFeTestes
         Assert.Null(nota.Identificacao.Numero);
         Assert.Null(nota.Identificacao.UF);
         Assert.Empty(nota.Itens);
+        Assert.NotNull(nota.Total.Icms);
+        Assert.Null(nota.Total.IbsCbs);
+    }
+
+    [Fact]
+    public void OItemNovoTemSoOsGruposObrigatorios()
+    {
+        var item = new Item();
+
+        Assert.NotNull(item.Produto);
+        Assert.NotNull(item.Imposto);
+        Assert.Null(item.Imposto.Icms);
+        Assert.Null(item.Imposto.Pis);
+        Assert.Null(item.Imposto.IbsCbs);
+        Assert.Null(item.ImpostoDevolvido);
+        Assert.Empty(item.Produto.Armas);
+        Assert.Null(item.Produto.Combustivel);
+        Assert.NotNull(new TributacaoIbsCbs().IbsUF);
+        Assert.NotNull(new ImpostoDevolvido().Ipi);
+    }
+
+    [Fact]
+    public void MontaOItemDoExemploDoDesenho()
+    {
+        // O exemplo de docs/MODELO.md 11.11.
+        var nota = new NotaFiscal();
+        var item = new Item
+        {
+            Produto =
+            {
+                Codigo = "123", Gtin = "SEM GTIN", Descricao = "CAFE TORRADO 500G", Ncm = "09012100", Cfop = 5102,
+                UnidadeComercial = "UN", QuantidadeComercial = 2m, ValorUnitarioComercial = 25.00m, Valor = 50.00m,
+                GtinTributavel = "SEM GTIN", UnidadeTributavel = "UN", QuantidadeTributavel = 2m, ValorUnitarioTributavel = 25.00m,
+                Totalizacao = IndicadorTotal.Compoe,
+            },
+            Imposto =
+            {
+                Icms = new IcmsSn102 { Origem = OrigemMercadoria.Nacional, Csosn = CsosnIcms.NaoPermiteCredito },
+                Pis = new PisOutros { Cst = CstPisCofins.OutrasSaidas, BaseCalculo = 0m, Aliquota = 0m, Valor = 0m },
+                Cofins = new CofinsOutros { Cst = CstPisCofins.OutrasSaidas, BaseCalculo = 0m, Aliquota = 0m, Valor = 0m },
+                IbsCbs = new IbsCbs
+                {
+                    Cst = "000", ClassificacaoTributaria = "000001",
+                    Tributacao = new TributacaoIbsCbs
+                    {
+                        BaseCalculo = 50.00m, ValorIbs = 0.05m,
+                        IbsUF = { Aliquota = 0.10m, Valor = 0.05m },
+                        IbsMunicipio = { Aliquota = 0m, Valor = 0m },
+                        Cbs = { Aliquota = 0.90m, Valor = 0.45m },
+                    },
+                },
+            },
+        };
+        nota.Itens.Add(item);
+        nota.Total.Icms.ValorProdutos = 50.00m;
+        nota.Total.Icms.ValorNota = 50.00m;
+
+        var lido = Assert.Single(nota.Itens);
+        var baseIcms = lido.Imposto.Icms switch
+        {
+            Icms00 i => i.BaseCalculo,
+            Icms20 i => i.BaseCalculo,
+            IcmsSn900 i => i.BaseCalculo,
+            _ => null,
+        };
+
+        Assert.Equal(OrigemMercadoria.Nacional, lido.Imposto.Icms?.Origem);   // na base, sem switch
+        Assert.Equal(CstPisCofins.OutrasSaidas, lido.Imposto.Pis?.Cst);
+        Assert.Null(baseIcms);
+        Assert.Equal(0.45m, lido.Imposto.IbsCbs?.Tributacao?.Cbs.Valor);
+        Assert.Null(new Icms00().Cst);   // nulo: o único valor do grupo, na escrita (decisão 24)
     }
 
     [Fact]
