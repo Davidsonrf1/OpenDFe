@@ -4,8 +4,8 @@ using System.Xml.Linq;
 
 namespace OpenDFe.SefazEmulada;
 
-// A rota /_controle (PROJETO.md 13.5), aceita só do próprio computador, na porta dos Web Services e na do painel
-// (E.6). Toda mudança (o que não é GET) avisa o painel pelo fluxo. As rotas:
+// A rota /_controle (PROJETO.md 13.5), aceita só do próprio computador (ou de qualquer um, com --controle rede), na
+// porta dos Web Services e na do painel (E.6). Toda mudança (o que não é GET) avisa o painel pelo fluxo. As rotas:
 //   GET    /_controle/emulador      o ac.crt, o endereço, o painel, as URLs e quantos pedidos ficam guardados
 //   GET    /_controle/ac.crt        o certificado da AC de teste, em PEM
 //   GET    /_controle/autorizadores os autorizadores: as UFs, os serviços, a consulta cadastro e a SVC de cada UF
@@ -45,7 +45,7 @@ internal static class RotasControle
         var grupo = app.MapGroup("/_controle").AddEndpointFilter(async (contexto, proximo) =>
         {
             var http = contexto.HttpContext;
-            if (!Local(http.Connection.RemoteIpAddress))
+            if (!http.RequestServices.GetRequiredService<OpcoesEmulador>().ControleDaRede && !Local(http.Connection.RemoteIpAddress))
                 return Results.StatusCode(StatusCodes.Status403Forbidden);
             var resultado = await proximo(contexto);
             if (!HttpMethods.IsGet(http.Request.Method))

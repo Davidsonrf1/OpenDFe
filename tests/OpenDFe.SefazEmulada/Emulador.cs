@@ -122,9 +122,10 @@ internal sealed class Emulador : IAsyncDisposable
                 });
             });
             // O painel: o navegador não fala com a porta do TLS mútuo, que exige o certificado do cliente e usa a AC de
-            // teste. Só no loopback, mesmo com o --endereco de outra rede.
+            // teste. Só no loopback, mesmo com o --endereco de outra rede; com --controle rede (o contêiner), no
+            // --endereco, e o compose publica a porta só no loopback.
             if (opcoes.Painel is { } painel)
-                kestrel.Listen(IPAddress.Loopback, painel, escuta => escuta.Protocols = HttpProtocols.Http1);
+                kestrel.Listen(opcoes.ControleDaRede ? opcoes.Endereco : IPAddress.Loopback, painel, escuta => escuta.Protocols = HttpProtocols.Http1);
         });
 
         var app = construtor.Build();

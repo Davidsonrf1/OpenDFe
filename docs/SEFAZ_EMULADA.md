@@ -9,7 +9,7 @@ Fontes: MOC 7.0, Visão Geral (3.2, 4.2.2, 4.3.1 a 4.3.6, 4.4.1 e 5.1 a 5.11), A
 ## Como rodar
 
 ```
-dotnet run --project tests/OpenDFe.SefazEmulada [-- --porta 5443 --pasta <pasta> --endereco 127.0.0.1 --nome 127.0.0.1 --painel 5444 --pedidos 100]
+dotnet run --project tests/OpenDFe.SefazEmulada [-- --porta 5443 --pasta <pasta> --endereco 127.0.0.1 --nome 127.0.0.1 --painel 5444 --pedidos 100 --controle local]
 ```
 
 | Opção | Padrão | O que é |
@@ -20,6 +20,23 @@ dotnet run --project tests/OpenDFe.SefazEmulada [-- --porta 5443 --pasta <pasta>
 | `--nome` | `127.0.0.1` | O nome usado nas URLs listadas, que também entra no certificado do servidor. O padrão é o IP porque, no Windows, `localhost` tenta o `::1` antes, e o emulador não escuta nele. |
 | `--painel` | 5444 | A porta do painel (abaixo, em "Painel"), em HTTP e só no loopback. `0` desliga. Nos testes, o padrão é sem painel. |
 | `--pedidos` | 100 | Quantos pedidos recentes o emulador guarda, com o XML (ao menos 1). |
+| `--controle` | `local` | De onde o `/_controle` e o painel são aceitos: `local`, só do próprio computador; `rede`, de qualquer endereço, com o painel escutando no `--endereco`. O `rede` é o do contêiner (abaixo), em que o pedido do computador chega pela rede do Docker. |
+
+### No Docker
+
+```
+docker compose -f tests/OpenDFe.SefazEmulada/compose.yaml up -d --build
+```
+
+A imagem (`opendfe/sefaz-emulada:dev`, do `Dockerfile` da pasta do projeto, com a raiz do repositório como contexto) roda o emulador com `--pasta /dados --endereco 0.0.0.0 --controle rede`. O compose publica as duas portas só no loopback, `127.0.0.1:5443` (os Web Services) e `127.0.0.1:5444` (o painel), e por isso o `/_controle` e o painel continuam valendo só para o próprio computador, como no `dotnet run`: quem usa não percebe a diferença, e as URLs listadas e o certificado do servidor são os mesmos. O `Host` do painel continua conferido (127.0.0.1, `localhost` ou `[::1]`).
+
+| Variável | Padrão | O que é |
+|---|---|---|
+| `SEFAZ_EMULADA_PORTA` | 5443 | A porta dos Web Services no computador. |
+| `SEFAZ_EMULADA_PAINEL` | 5444 | A porta do painel no computador. |
+| `SEFAZ_EMULADA_PASTA` | `tests/OpenDFe.SefazEmulada/dados` (fora do git) | A pasta da AC de teste no computador, montada em `/dados`. Apontada para a do `dotnet run` (`%LOCALAPPDATA%\OpenDFe.SefazEmulada`), as duas formas usam a mesma AC. |
+
+O `ac.crt` em que o cliente confia é o da pasta montada (o caminho que o emulador mostra e o `GET /` devolve, `/dados/ac.crt`, é o de dentro do contêiner; o painel o oferece para baixar na aba Conexão). Para os testes de homologação contra o contêiner: `OPENDFE_EMULADOR=https://127.0.0.1:5443` e `OPENDFE_EMULADOR_AC=<pasta>/ac.crt`. Outro contêiner na mesma rede chega pelo nome do serviço, `sefaz-emulada:5443`, mas o certificado do servidor não leva esse nome: ou o emulador sobe com `--nome sefaz-emulada`, ou o cliente conecta pelo nome `127.0.0.1` redirecionado ao serviço.
 
 Ao subir, o emulador mostra o endereço, o caminho do `ac.crt`, a URL do controle e a do painel, e registra cada pedido numa linha (`MG/NFeStatusServico4: cStat 107`). Nos testes ele sobe pela classe `Emulador` (`Emulador.IniciarAsync`), numa porta livre e sem registrar nada.
 
@@ -427,7 +444,7 @@ Em memória, vazio a cada partida (ou depois do `DELETE /_controle/notas`): as n
 
 ## Painel (E.6)
 
-Uma página para comandar e acompanhar o emulador pelo navegador, em `http://127.0.0.1:5444/` (`--painel`). O navegador não fala com a porta dos Web Services, que exige o certificado do cliente no handshake e usa a AC de teste; o painel tem a sua porta, **HTTP sem TLS e só no loopback** (mesmo com o `--endereco` de outra rede), com a página e as mesmas rotas `/_controle`, pelo mesmo código. A porta dos Web Services e o TLS mútuo não mudam.
+Uma página para comandar e acompanhar o emulador pelo navegador, em `http://127.0.0.1:5444/` (`--painel`). O navegador não fala com a porta dos Web Services, que exige o certificado do cliente no handshake e usa a AC de teste; o painel tem a sua porta, **HTTP sem TLS e só no loopback** (mesmo com o `--endereco` de outra rede; no contêiner, com `--controle rede`, no `--endereco`, e o compose publica só no loopback), com a página e as mesmas rotas `/_controle`, pelo mesmo código. A porta dos Web Services e o TLS mútuo não mudam.
 
 - **Na porta do painel** só valem a página (`/`, `/painel.js`, `/painel.css`) e o `/_controle`: o resto é 404, também os Web Services. O `Host` do pedido tem de ser `127.0.0.1`, `localhost` ou `[::1]` (403 nos outros), contra o DNS rebinding: um site de fora que aponta o próprio nome para o 127.0.0.1 não lê nem comanda o emulador. As respostas levam a CSP que só aceita o próprio painel (`default-src 'none'; script-src 'self'; ...`), o `nosniff` e o `no-store`. As mudanças do controle são `POST` em JSON e `DELETE`, que um formulário de outro site não consegue mandar.
 - **Na porta do TLS**, a página não existe (404) e o `GET /` continua a lista das URLs.
@@ -451,7 +468,7 @@ Uma página para comandar e acompanhar o emulador pelo navegador, em `http://127
 
 ## Falhas comandadas
 
-Elas são comandadas pela rota `/_controle`, aceita só do próprio computador (loopback, também o IPv4 mapeado em IPv6; de fora, HTTP 403). A rota passa pelo mesmo TLS mútuo. O estado fica em memória e volta vazio a cada partida.
+Elas são comandadas pela rota `/_controle`, aceita só do próprio computador (loopback, também o IPv4 mapeado em IPv6; de fora, HTTP 403), salvo com `--controle rede` (o contêiner). A rota passa pelo mesmo TLS mútuo. O estado fica em memória e volta vazio a cada partida.
 
 | Rota | O que faz |
 |---|---|

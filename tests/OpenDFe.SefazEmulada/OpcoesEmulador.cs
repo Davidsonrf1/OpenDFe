@@ -3,7 +3,7 @@ using System.Net;
 
 namespace OpenDFe.SefazEmulada;
 
-// Como o emulador sobe. Pela linha de comando: --porta, --pasta, --endereco, --nome, --painel e --pedidos.
+// Como o emulador sobe. Pela linha de comando: --porta, --pasta, --endereco, --nome, --painel, --pedidos e --controle.
 internal sealed record OpcoesEmulador
 {
     public const int PortaPadrao = 5443;
@@ -37,6 +37,11 @@ internal sealed record OpcoesEmulador
     // Quantos pedidos recentes o emulador guarda, com o XML (PedidosRecentes).
     public int Pedidos { get; init; } = PedidosPadrao;
 
+    // O /_controle e o painel aceitos de qualquer endereço (--controle rede), e não só do próprio computador, com o
+    // painel escutando no Endereco. É o caso do contêiner, em que o pedido do computador chega pela rede do Docker;
+    // o compose publica as portas só no loopback.
+    public bool ControleDaRede { get; init; }
+
     public static OpcoesEmulador Ler(IReadOnlyList<string> argumentos)
     {
         ArgumentNullException.ThrowIfNull(argumentos);
@@ -55,7 +60,16 @@ internal sealed record OpcoesEmulador
                 {
                     Pedidos = int.Parse(valor, CultureInfo.InvariantCulture) is var pedidos and > 0 ? pedidos : throw new ArgumentException("--pedidos é ao menos 1."),
                 },
-                _ => throw new ArgumentException($"Opção desconhecida: {argumentos[i]}. As opções: --porta, --pasta, --endereco, --nome, --painel, --pedidos."),
+                "--controle" => opcoes with
+                {
+                    ControleDaRede = valor switch
+                    {
+                        "local" => false,
+                        "rede" => true,
+                        _ => throw new ArgumentException($"O --controle é local ou rede, não {valor}."),
+                    },
+                },
+                _ => throw new ArgumentException($"Opção desconhecida: {argumentos[i]}. As opções: --porta, --pasta, --endereco, --nome, --painel, --pedidos, --controle."),
             };
             i++;
         }
