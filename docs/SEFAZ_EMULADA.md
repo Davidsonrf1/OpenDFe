@@ -4,7 +4,7 @@ Um servidor local que responde como os autorizadores da NF-e, **só para testes 
 
 Este documento registra o que o emulador implementa: os serviços, as regras com os códigos do MOC e as falhas que dá para comandar. Cada etapa da trilha (`PLANO.md`, "Trilha paralela") acrescenta a sua parte.
 
-Fontes: MOC 7.0, Visão Geral (4.2.2, 4.3.1 a 4.3.6, 4.4.1, 5.1 a 5.5 e 5.8 a 5.10), Anexo I (4.1, grupos A, B, D, DA, DB, E, F e K; 4.2.1, os grupos A, B e ZX, o 1C17, o 2B08 da duplicidade, o 3B08 e o 5E17; 4.4.1 e 4.4.2, os textos dos motivos) e Anexo III (2.1.3, a SVC); a NT 2020.005 v1.21 (a numeração inutilizada na autorização), a NT 2023.002 v1.01 (o emitente CPF na NFC-e), a NT 2024.001 v1.20 (o fim da denegação), a NT 2025.001 v1.02 (QR Code versão 3, o 452 e o prazo de 7 dias), a NT 2026.001 v1.02b (as séries do PAA) e a NT 2026.002 v1.11 (emissão offline e DANFE Simplificado Tipo 2); o Manual de Padrões Técnicos do DANFE NFC-e e QR Code 6.0 (o hash e a assinatura do QR Code); os XSDs do pacote de liberação embutido no leiaute (`docs/NTS.md`) e a "Relação de Serviços Web" do Portal Nacional, conferidos em 2026-10-19 e 2026-10-20. Quando uma NT muda uma regra do MOC, vale a NT.
+Fontes: MOC 7.0, Visão Geral (3.2, 4.2.2, 4.3.1 a 4.3.6, 4.4.1 e 5.1 a 5.11), Anexo I (4.1, grupos A, B, D, DA, DB, E, F e K; 4.2.1, os grupos A, B e ZX, o 1C17, o 2B08 da duplicidade, o 3B08 e o 5E17; 4.4.1 e 4.4.2, os textos dos motivos) e Anexo III (2.1.3, a SVC); a NT 2020.005 v1.21 (a numeração inutilizada na autorização), a NT 2023.002 v1.01 (o emitente CPF na NFC-e), a NT 2024.001 v1.20 (o fim da denegação), a NT 2025.001 v1.02 (QR Code versão 3, o 452 e o prazo de 7 dias), a NT 2026.001 v1.02b (as séries do PAA), a NT 2026.002 v1.11 (emissão offline e DANFE Simplificado Tipo 2), a NT 2014.002 v1.40 (a distribuição DF-e) e a NT 2020.001 v1.60 (a manifestação do destinatário); o Manual de Padrões Técnicos do DANFE NFC-e e QR Code 6.0 (o hash e a assinatura do QR Code); os XSDs do pacote de liberação embutido no leiaute (`docs/NTS.md`) e a "Relação de Serviços Web" do Portal Nacional, conferidos de 2026-10-19 a 2026-10-21. Quando uma NT muda uma regra do MOC, vale a NT.
 
 ## Como rodar
 
@@ -36,7 +36,9 @@ Ao subir, o emulador mostra o endereço, o caminho do `ac.crt` e a URL do contro
 | `POST /<destino>/<serviço>` | O Web Service, como `/MG/NFeStatusServico4`. Destino e serviço não distinguem maiúsculas. |
 | `GET /` | Em JSON, o `ac.crt` e as URLs prontas para trocar (`PROJETO.md` 8.4): `{ "autoridade": "...", "urls": [ { "destino": "MG", "servico": "NFeStatusServico4", "url": "https://127.0.0.1:5443/MG/NFeStatusServico4" }, ... ] }`. A lista traz cada serviço implementado em cada autorizador que o tem. |
 | `/_controle/falhas` | As falhas comandadas (abaixo). |
-| `/_controle/notas` | As notas autorizadas: `GET` lista, na ordem (`chave`, `numeracao`, `protocolo`, `recibo`, `recebimento`, `autorizador`, `situacao`, que é o 100 ou o 150 da autorização, e `cancelada`); `DELETE` esquece as notas, os lotes, os eventos e as faixas inutilizadas (204). Só do próprio computador, como as falhas. |
+| `/_controle/notas` | As notas autorizadas: `GET` lista, na ordem (`chave`, `numeracao`, `protocolo`, `recibo`, `recebimento`, `autorizador`, `situacao`, que é o 100 ou o 150 da autorização, e `cancelada`); `DELETE` esquece as notas, os lotes, os eventos, as faixas inutilizadas e a distribuição, com o consumo de cada interessado (204). Só do próprio computador, como as falhas. |
+| `/_controle/distribuicao` | `GET`: o que o AN distribui a cada interessado, em ordem: `[ { "interessado": "11222333000181", "documentos": [ { "nsu": 1, "chave": "...", "schema": "resNFe_v1.01.xsd", "recebimento": "..." } ] } ]`. Só do próprio computador. |
+| `/_controle/cadastros` | Os contribuintes da consulta cadastro (abaixo, em "CadConsultaCadastro4"). Só do próprio computador. |
 | `/_controle/csc` | Os CSCs da NFC-e (abaixo, em "CSC"). Só do próprio computador. |
 | `/_controle/irregulares` | Os CNPJs e CPFs em situação irregular (abaixo, em "Irregulares"). Só do próprio computador. |
 
@@ -51,13 +53,15 @@ A tabela é do próprio emulador, sem o `Atendimento` da lib: se ele reaproveita
 | SVRS | AC, AL, AP, CE, DF, ES, PA, PB, PI, RJ, RN, RO, RR, SC, SE, TO | 43 |
 | SVC-AN | AC, AL, AP, CE, DF, ES, MG, PA, PB, PI, RJ, RN, RO, RR, RS, SC, SE, SP, TO | 91 |
 | SVC-RS | AM, BA, GO, MA, MS, MT, PE, PR (sem o `NFeInutilizacao4`) | 43 |
-| AN | nenhuma: só `NFeDistribuicaoDFe` e `NFeRecepcaoEvento4` | 91 |
+| AN | nenhuma: só `NFeDistribuicaoDFe` e `NFeRecepcaoEvento4` (a manifestação) | 91 |
 
-O emulador responde só os serviços que já implementa. Os outros dão 404, mesmo os que o autorizador tem. A SVC-AN tem o `NFeInutilizacao4` na lista do Portal, mas a SVC não oferece a inutilização (Anexo III, 2.1.3, e): no emulador, 404 nas duas SVC. O `NFeRecepcaoEvento4` do AN (a manifestação e a EPEC) chega na E.5; até lá, 404.
+O `CadConsultaCadastro4` está nas 10 UFs (o da própria UF) e na SVRS, que consulta só o cadastro do AC, do ES, do RN, da PB e de SC ("Relação de Serviços Web", conferida em 2026-10-21); a SVAN e as duas SVC não o têm. O emulador responde só os serviços que já implementa. Os outros dão 404, mesmo os que o autorizador tem. A SVC-AN tem o `NFeInutilizacao4` na lista do Portal, mas a SVC não oferece a inutilização (Anexo III, 2.1.3, e): no emulador, 404 nas duas SVC. A EPEC, no `NFeRecepcaoEvento4` do AN, não é implementada (491).
 
 ### Envelope SOAP 1.2
 
 O emulador lê e escreve o envelope à mão. A área de dados vem dentro do `nfeDadosMsg`, no namespace do WSDL do serviço (`http://www.portalfiscal.inf.br/nfe/wsdl/<serviço>`), e o retorno vai dentro do `nfeResultMsg`, no mesmo namespace. O espaço em branco da área de dados é guardado como veio, porque faz parte do que a nota assina; para o schema e a assinatura, a área de dados (e cada nota) é tirada do envelope sozinha, sem as declarações de namespace dele, que o C14N levaria para dentro do que é assinado. O `nfeCabecMsg` saiu no leiaute 4.00 e, se vier no `Header`, é ignorado. A resposta sai em `application/soap+xml; charset=utf-8`, em UTF-8 e sem BOM.
+
+O `NFeDistribuicaoDFe` é diferente (NT 2014.002, 5 e 6): o `nfeDadosMsg` vem dentro da operação, `nfeDistDFeInteresse`, no namespace `http://www.portalfiscal.inf.br/nfe/wsdl/NFeDistribuicaoDFe`, e o retorno vai em `nfeDistDFeInteresseResponse/nfeDistDFeInteresseResult`. O `nfeDadosMsg` direto no `Body` é falha `soap:Sender`. Os exemplos da NT estão em SOAP 1.1; o emulador, como nos outros serviços, só aceita o 1.2.
 
 | Pedido | Resposta |
 |---|---|
@@ -67,6 +71,7 @@ O emulador lê e escreve o envelope à mão. A área de dados vem dentro do `nfe
 | XML mal formado, com DTD, fora de um `Envelope` SOAP 1.2, sem `Body` ou sem `nfeDadosMsg` no namespace do serviço | HTTP 400, falha `soap:Sender` |
 | Corpo inteiro acima de 500 KB (B01) | HTTP 200, `cStat` 214 |
 | `nfeDadosMsg` vazio | HTTP 200, `cStat` 516 (565 na autorização) |
+| Na distribuição, corpo inteiro acima de 10 KB (NT 2014.002, 3.9, B01) | HTTP 200, `cStat` 214 |
 
 A ligação HTTP das falhas segue o SOAP 1.2, parte 2, 7.5.1: `Sender` é 400; os outros são 500.
 
@@ -277,6 +282,7 @@ Depois, as do cancelamento e do cancelamento por substituição (Tabela 5-38):
 | 2P13-10 | 577 | O `dhEvento` antes da emissão. |
 | 2P13-14 | 579 | Na nota da emissão normal, o `dhEvento` mais de 5 minutos antes da autorização. |
 | 2P23-10 | 222 | O `nProt` não é o da autorização. |
+| 4P15-14 | 221 | Na NF-e, a última manifestação conclusiva do destinatário (abaixo) é a confirmação (210200). Depois dela, o desconhecimento ou a operação não realizada deixam cancelar; a ciência não impede. |
 | 5P31-10 a 5P31-40 | 912 a 919 | No 110112, a substituta (pela chave): inexistente (912), cancelada (913), emitida mais de 2 horas depois da cancelada (914), com outro valor total (915), outro ICMS (916), outro destinatário (917: o CNPJ, o CPF ou o `idEstrangeiro`, e a IE), outra quantidade de itens (918) ou um item diferente (919: `cProd`, `cEAN`, `xProd`, `NCM`, `CFOP`, `uCom`, `indTot` como texto; `qCom`, `vUnCom`, `vProd` como número). |
 | 5P31-44 | 921 | No 110112, a substituta da emissão normal (`tpEmis` 1). |
 | | 135 | Registrado e vinculado à nota: a nota passa a cancelada. |
@@ -285,7 +291,91 @@ E as da carta de correção (Tabela 5-40): a sequência acima de 20 (GA03, 594),
 
 O `retEvento` (Tabela 5-33, R10 a R31) sai sem o `Id` e sem a assinatura (a critério da UF): `tpAmb`, `verAplic`, `cOrgao` (o do evento), `cStat`, `xMotivo`, `chNFe`, `tpEvento`, `xEvento` (só no 135: "Cancelamento homologado" ou "Carta de Correção registrada"), `nSeqEvento`, o `cOrgaoAutor` (só no 110112 registrado), o `CNPJDest` ou o `CPFDest` e o `emailDest` da nota (só no 110111 registrado, quando a nota os tem), `dhRegEvento` (o recebimento, também na rejeição) e `nProt` (só no 135, formado como o da nota, com o cUF da chave). O evento registrado guarda o `procEventoNFe` (o `evento` como chegou e o `retEvento`), que a consulta devolve.
 
-Não aplicadas: o 408 (P11-20, o autor CPF na NFC-e), porque a NT 2023.002 permite a NFC-e do emitente CPF e o seu cancelamento; o 203 e o 240 do cadastro além do autor irregular; o 221, o 690, o 219, o 304, o 939, o 940 e o 811, que dependem de eventos de outros autores (a manifestação, o CT-e, o MDF-e, a passagem, a SUFRAMA, a averbação, os financeiros, a prorrogação), que o emulador não registra.
+Não aplicadas: o 408 (P11-20, o autor CPF na NFC-e), porque a NT 2023.002 permite a NFC-e do emitente CPF e o seu cancelamento; o 203 e o 240 do cadastro além do autor irregular; o 690, o 219, o 304, o 939, o 940 e o 811, que dependem de eventos de outros autores (o CT-e, o MDF-e, a passagem, a SUFRAMA, a averbação, os financeiros, a prorrogação), que o emulador não registra.
+
+### Manifestação do destinatário (E.5)
+
+No `NFeRecepcaoEvento4` do **AN**, pela NT 2020.001 v1.60 (que juntou a 2012.002 e a 2013.001; MOC 7.0, Visão Geral, 3.2 e 5.11): a **confirmação da operação** (210200), a **ciência da emissão** (210210), o **desconhecimento da operação** (210220) e a **operação não realizada** (210240, com o `xJust`). O autor é o destinatário da nota, pelo CNPJ ou pelo CPF, e a assinatura é de um certificado com a raiz do CNPJ ou o CPF dele: a filial manifesta com o certificado da matriz. O lote e o retorno são os mesmos dos outros eventos (acima), com o `cOrgao` 91. Os autorizadores das UFs não recebem a manifestação (491), e o AN só recebe ela (491 para o cancelamento e a CC-e; a EPEC também não está implementada).
+
+Valem as regras da parte geral acima, com três diferenças: o `cOrgao` tem de ser 91 (250), o autor não é comparado ao emitente da chave (sem o 574) e o autor irregular não é recusado (sem o 240, que a NT não lista). Depois, na ordem:
+
+| Regra | cStat | Motivo |
+|---|---|---|
+| | 494 | A nota não está na base, pela chave. |
+| 2P21-10 | 575 | O CNPJ ou o CPF do autor não é o do destinatário da nota (o documento inteiro), ou a nota não tem destinatário. |
+| 2P13-10 | 577 | O `dhEvento` antes da emissão. |
+| 2P13-14 | 579 | Na nota da emissão normal, o `dhEvento` mais de 5 minutos antes da autorização. |
+| H02 | 594 | A ciência com o `nSeqEvento` diferente de 1, ou a manifestação conclusiva acima de 2 (o Ajuste SINIEF 43/23 permite retificar uma vez). |
+| H03 | 596 | Fora do prazo, contado da autorização: 10 dias na ciência e 90 nas conclusivas (Ajuste SINIEF 14/26, que mudou de 180 para 90). O motivo leva o prazo: `Rejeição: Evento apresentado fora do prazo: 90 dias`. |
+| H04 | 650 | A ciência da nota cancelada. |
+| H05 | 651 | O desconhecimento da nota cancelada. A confirmação e a operação não realizada da nota cancelada são registradas. |
+| H06 | 655 | A ciência depois de uma manifestação conclusiva. |
+| H08 | 496 | A chave com o `tpEmis` fora de 1 a 7 (o 9 da NF-e offline). |
+| | 135 | Registrada e vinculada à nota. |
+
+O H01 (595, a operação não realizada sem justificativa) não sai: o `e210240` exige o `xJust`, e a falta dele é 493. O H07 (658, a UF do destinatário contra a do Web Service) não vale no AN.
+
+O `retEvento` do 135 leva o `xEvento` da NT (`Confirmacao de Operacao registrada`, `Ciencia da Operacao registrada`, `Desconhecimento da Operacao registrada`, `Operacao nao Realizada registrada`), sem o `CNPJDest`, o `CPFDest` e o `emailDest`, e o `nProt` com o tipo de autorizador 2 e o 91 no lugar da UF (`291` + ano + sequência). A manifestação vale para o cancelamento (o 221 acima, só da confirmação, valendo a última conclusiva), para a consulta da nota (o `procEventoNFe` dela vem com os outros) e para a distribuição (abaixo).
+
+### NFeDistribuicaoDFe (E.5)
+
+No **AN**, pela NT 2014.002 v1.40 (MOC 7.0, Visão Geral, 5.7). Pedido `distDFeInt` 1.01 (`tpAmb`, `cUFAutor` opcional, o `CNPJ` ou o `CPF` do interessado e uma das três consultas), retorno `retDistDFeInt` 1.01 na ordem da Tabela 5-27: `tpAmb`, `verAplic`, `cStat`, `xMotivo`, `dhResp`, `ultNSU`, `maxNSU` (os dois obrigatórios no schema) e o `loteDistDFeInt` com até 50 `docZip`. Cada `docZip` é um documento em UTF-8, compactado em gzip e em base64, com o `schema` (`resNFe_v1.01.xsd`, `procNFe_v4.00.xsd`, `resEvento_v1.01.xsd` ou `procEventoNFe_v1.00.xsd`) e o `NSU`.
+
+**O que cada um recebe**, só da NF-e (a NFC-e não é distribuída), pela tabela do item 3 da NT, cada interessado com a sua sequência de NSU, sem lacunas, na ordem em que o AN recebeu (cada estabelecimento, pelas 14 posições do CNPJ, tem a sua):
+
+| Ator | Recebe |
+|---|---|
+| Destinatário (`dest`) | Na autorização, o `resNFe`. O cancelamento sempre: como `resEvento` antes da manifestação e como `procEventoNFe` depois. A ciência, a confirmação ou a operação não realizada (o desconhecimento não) liberam o download: o `nfeProc` (a nota com o `protNFe`) e as cartas de correção já registradas, como `procEventoNFe`; as seguintes chegam do mesmo jeito. |
+| Transportador (`transporta`) e autorizados (`autXML`) | Na autorização, o `nfeProc`; o `procEventoNFe` do cancelamento e da carta de correção. Os autorizados, também o da manifestação. O que também é o destinatário da nota recebe só como destinatário. |
+| Emitente | O `procEventoNFe` da manifestação do destinatário. A própria nota, não. |
+
+O `resNFe` (Tabela 5-30) leva a chave, o CNPJ ou o CPF, o nome e a IE do emitente (`ISENTO` sem a IE, que o schema exige), o `dhEmi`, o `tpNF`, o `vNF`, o `digVal` e o `dhRecbto` e o `nProt` da autorização, e o `cSitNFe` 1. O `resEvento` (Tabela 5-31) leva o `cOrgao`, o autor, a chave, o `dhEvento`, o tipo, a sequência, o `xEvento`, o registro e o protocolo.
+
+As regras do pedido, na ordem: a raiz (516, 404, 517, 239), o schema (215), o ambiente (H01, 252), o CNPJ (H02, 489) ou o CPF (H03, 490) do interessado, a raiz do CNPJ do certificado do TLS contra a do CNPJ consultado (H04, 593: a matriz consulta as filiais) ou o CPF dele contra o CPF consultado (H05, 472), a paralisação (108, 109) e o bloqueio do uso indevido (656, abaixo). Depois, por consulta:
+
+| Consulta | Regras e resposta |
+|---|---|
+| `distNSU` (`ultNSU`) | O NSU acima do maior do interessado (H06, 589). O uso indevido (abaixo). Os documentos com NSU acima do `ultNSU`, até 50, recebidos há menos de 90 dias: 138 "Documento(s) localizado(s)", com o `ultNSU` do último do lote e o `maxNSU`; nenhum: 137 "Nenhum documento localizado", com o `ultNSU` e o `maxNSU` iguais ao maior. |
+| `consNSU` (`NSU`) | O limite das consultas pontuais (656, abaixo), o NSU acima do maior (589) e o documento daquele NSU, se ainda guardado: 138 "Documento localizado" com ele, ou 137. O `ultNSU` é o NSU pedido. |
+| `consChNFe` (`chNFe`) | O limite das consultas pontuais; a chave (H07 a H13: 236, 614, 615, 616, 617, 618, aqui só o modelo 55, com o texto da NT, e 619); a nota na base (H14, 217, "NF-e inexistente para a chave de acesso informada"); o prazo de 90 dias da autorização (H15, 632); o emitente (H17, 641, conferido antes do H16, que senão o cobriria); o interessado que não é o destinatário, o transportador nem um autorizado, pela raiz do CNPJ ou pelo CPF (H16, 640); a nota cancelada (H18, 653). Achada, 138 com a nota: o `nfeProc` ou, ao destinatário que ainda não liberou o download, o `resNFe`; sem os eventos, sem o `NSU` no `docZip` (facultativo desde a v1.15) e com o `ultNSU` zerado. |
+
+**O uso indevido** (3.11.4), por CNPJ (as 14 posições) ou CPF da requisição, com o bloqueio de uma hora; quem consulta no bloqueio recomeça a hora e recebe o 656 de novo (no `distNSU`, com o `ultNSU` do último devolvido):
+
+| Situação | `xMotivo` |
+|---|---|
+| Um `distNSU` em menos de uma hora depois do 137 | `Rejeição: Consumo Indevido. Deve ser aguardado 1 hora para efetuar nova solicitação caso não existam mais documentos a serem pesquisados. Tente após 1 hora` |
+| Um `distNSU` com outro `ultNSU` que não o último devolvido (também o zero, recomeçando) | `Rejeição: Consumo Indevido. Deve ser utilizado o ultNSU nas solicitações subsequentes. Tente após 1 hora` |
+| A 21ª consulta pontual (`consNSU` ou `consChNFe`) na última hora | `Rejeição: Consumo Indevido - ultrapassou o limite de 20 consultas por hora` |
+
+Não aplicados: o 654 (a nota denegada, que não existe mais desde a NT 2024.001) e a geração do NSU só para quem usou o serviço nos últimos 60 dias (3.4, a partir da v1.10): no emulador, todo interessado ganha o NSU desde a primeira nota. O "Ator Interessado" (110150), a EPEC e os eventos do fisco, da SUFRAMA, do CT-e e do MDF-e não são distribuídos, porque o emulador não os registra.
+
+### CadConsultaCadastro4 (E.5)
+
+Pelo MOC 7.0, Visão Geral, 5.6. Pedido `ConsCad` 2.00 (`xServ` `CONS-CAD`, a `UF` e a `IE`, o `CNPJ` ou o `CPF`; sem o `tpAmb`), retorno `retConsCad` 2.00 na ordem da Tabela 5-22: o `infCons` com o `verAplic`, o `cStat`, o `xMotivo`, a `UF` e o argumento como vieram, o `dhCons` (no horário de Brasília) e o `cUF` da casa do autorizador, e um `infCad` por contribuinte achado. O schema é o `consCad_v2.00.xsd` do leiaute, da subpasta `CadConsultaCadastro/` (`docs/NTS.md`). Na rejeição antes de ler o pedido, a UF é a da casa e o argumento vai como um CNPJ zerado (o schema do retorno exige um).
+
+As regras, na ordem: a raiz (516, 404, 517, 239), o schema (215), a UF da consulta que não é uma das do Web Service (K01, 265; também o `SU` da SUFRAMA), a paralisação (108, 109), o solicitante (K02, 257: o transmissor, pelo certificado do TLS, em situação irregular, em "Irregulares") e, pelo argumento: o CNPJ com o DV errado (K03, 258) ou que não está no cadastro da UF (K04, 259); a IE que não tem de 2 a 14 algarismos, toda zero ou `ISENTO` (K05, 260; o DV, que cada UF calcula do seu jeito, não é conferido) ou que não está no cadastro (K06, 261); o CPF com o DV errado ou com menos de 11 algarismos (K08, 263) ou que não está no cadastro (K09, 264). Achado, 111 "Consulta cadastro com uma ocorrência" ou 112 "Consulta cadastro com mais de uma ocorrência": pelo CNPJ ou pelo CPF, cada IE dele na UF; pela IE, o contribuinte dela e os que a têm como IE única. O K07 (262, a UF que não consulta pelo CPF) não sai: todas consultam.
+
+O `infCad` (GR07 a GR29) leva a IE, o CNPJ ou o CPF, a UF, o `cSit` (1 habilitado; 0 no contribuinte cadastrado como não habilitado e no CNPJ ou CPF irregular, como a autorização o trata), o `indCredNFe` e o `indCredCTe`, o `xNome` e, quando cadastrados, o `xFant`, o `xRegApur`, o `CNAE`, as datas (`dIniAtiv`, `dUltSit`, `dBaixa`), a `IEUnica`, a `IEAtual` e o `ender`.
+
+O cadastro, pela rota de controle, um contribuinte por UF e IE:
+
+| Rota | O que faz |
+|---|---|
+| `POST /_controle/cadastros` | Cadastra, em JSON, ou troca o da mesma UF e IE. Devolve 201 com o contribuinte e o `Location` (`/_controle/cadastros/MG/0623079040081`), 200 quando trocou, ou 400 com `{ "erro": "..." }`. |
+| `GET /_controle/cadastros` | Os contribuintes, por UF e IE. |
+| `DELETE /_controle/cadastros/{uf}/{ie}` | Tira um: 204, ou 404 se não está. |
+| `DELETE /_controle/cadastros` | Tira todos: 204. |
+
+```json
+{ "uf": "MG", "ie": "0623079040081", "cnpj": "98765432000198", "nome": "CONTRIBUINTE DE TESTE LTDA",
+  "fantasia": "TESTE", "regimeApuracao": "NORMAL", "cnae": "4751201", "inicioAtividade": "2010-03-01",
+  "ultimaSituacao": null, "baixa": null, "ieUnica": null, "ieAtual": null,
+  "endereco": { "logradouro": "RUA DE TESTE", "numero": "100", "complemento": null, "bairro": "CENTRO",
+                "codigoMunicipio": "3106200", "municipio": "BELO HORIZONTE", "cep": "30110000" },
+  "habilitado": true, "credenciadoNFe": "1", "credenciadoCTe": "4" }
+```
+
+Obrigatórios: a `uf` (a sigla, sem o `SU`), a `ie` (de 2 a 14 algarismos, não toda zero), o `cnpj` ou o `cpf` (um dos dois, com o DV certo) e o `nome` (até 60). Os outros são opcionais; o `habilitado` é `true`, o `credenciadoNFe` é 1 e o `credenciadoCTe` é 4 (a SEFAZ não fornece) quando omitidos.
 
 ### Irregulares (E.4)
 
@@ -330,7 +420,7 @@ O tipo de autorizador é 1 nos autorizadores de UF, 2 na SVC-AN (a Receita, que 
 
 ### O que o emulador guarda
 
-Em memória, vazio a cada partida (ou depois do `DELETE /_controle/notas`): as notas autorizadas (a chave, a numeração da duplicidade, o protocolo, o recibo do lote, o recebimento, o autorizador, a situação, o `protNFe`, para a consulta, a nota como chegou, para os eventos, e se está cancelada), os lotes assíncronos (o recibo, o transmissor, os protocolos e as consultas que ainda respondem 105), os eventos registrados (o `procEventoNFe` de cada um) e as faixas inutilizadas (com o protocolo). Um lote é processado de uma vez, sem outro no meio: as notas do mesmo lote e de lotes simultâneos se veem na ordem. Os CSCs cadastrados e revogados e os irregulares ficam à parte, também em memória (`DELETE /_controle/csc`, `DELETE /_controle/irregulares`).
+Em memória, vazio a cada partida (ou depois do `DELETE /_controle/notas`): as notas autorizadas (a chave, a numeração da duplicidade, o protocolo, o recibo do lote, o recebimento, o autorizador, a situação, o `protNFe`, para a consulta, a nota como chegou, para os eventos, e se está cancelada), os lotes assíncronos (o recibo, o transmissor, os protocolos e as consultas que ainda respondem 105), os eventos registrados (o `procEventoNFe` de cada um) e as faixas inutilizadas (com o protocolo). Um lote é processado de uma vez, sem outro no meio: as notas do mesmo lote e de lotes simultâneos se veem na ordem. A distribuição (os documentos de cada interessado, com o NSU, e o consumo de cada CNPJ ou CPF da requisição) fica com as notas e é esquecida com elas. Os CSCs cadastrados e revogados, os irregulares e os contribuintes da consulta cadastro ficam à parte, também em memória (`DELETE /_controle/csc`, `DELETE /_controle/irregulares`, `DELETE /_controle/cadastros`).
 
 ## Falhas comandadas
 

@@ -5,7 +5,8 @@ using System.Xml.Linq;
 namespace OpenDFe.SefazEmulada;
 
 // O que o emulador guarda entre os pedidos (PROJETO.md 13.5): as notas autorizadas, para a duplicidade, os
-// lotes recebidos, para a consulta do recibo, os eventos registrados e as faixas inutilizadas. Em memória,
+// lotes recebidos, para a consulta do recibo, os eventos registrados, as faixas inutilizadas e o que o Ambiente
+// Nacional distribui a cada interessado (Interessados). Em memória,
 // vazio a cada partida. Quem processa um lote segura
 // a Trava do começo ao fim, para que as notas do mesmo lote e de lotes simultâneos se vejam na ordem.
 internal sealed class Repositorio
@@ -19,6 +20,9 @@ internal sealed class Repositorio
     private long _sequencia;
 
     public Lock Trava { get; } = new();
+
+    // Os documentos distribuídos e o consumo de cada interessado (NFeDistribuicaoDFe).
+    public Interessados Interessados { get; } = new();
 
     // As consultas abaixo são chamadas com a Trava.
 
@@ -90,6 +94,13 @@ internal sealed class Repositorio
             return [.. _ordem];
     }
 
+    // O que o AN distribui a cada interessado, para o GET /_controle/distribuicao.
+    public IReadOnlyList<DistribuicaoInteressado> Distribuidos()
+    {
+        lock (Trava)
+            return Interessados.Listar();
+    }
+
     public void Limpar()
     {
         lock (Trava)
@@ -100,6 +111,7 @@ internal sealed class Repositorio
             _lotes.Clear();
             _eventos.Clear();
             _faixas.Clear();
+            Interessados.Limpar();
         }
     }
 

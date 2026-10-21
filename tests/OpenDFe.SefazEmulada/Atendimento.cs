@@ -6,12 +6,16 @@ namespace OpenDFe.SefazEmulada;
 
 // O atendimento de POST /<destino>/<serviço>: as falhas de transporte comandadas, o envelope SOAP 1.2, o
 // limite de tamanho (Anexo I, B01, 214) e o serviço.
-internal sealed partial class Atendimento(Controle controle, Repositorio repositorio, CodigosSeguranca codigos, Irregulares irregulares, OpcoesEmulador opcoes, IHostApplicationLifetime vida, ILogger<Atendimento> registro)
+internal sealed partial class Atendimento(Controle controle, Repositorio repositorio, CodigosSeguranca codigos, Irregulares irregulares, Cadastros cadastros, OpcoesEmulador opcoes, IHostApplicationLifetime vida, ILogger<Atendimento> registro)
 {
-    // B01: o XML de dados até 500 KB. Medido no corpo inteiro do pedido, com o envelope.
+    // B01: o XML de dados até 500 KB, o padrão dos serviços (Servico.Limite). Medido no corpo inteiro do
+    // pedido, com o envelope.
     public const int LimiteDados = 500 * 1024;
 
-    public static IReadOnlyList<Servico> Servicos { get; } = [new StatusServico(), new Autorizacao(), new RetAutorizacao(), new ConsultaProtocolo(), new Inutilizacao(), new RecepcaoEvento()];
+    public static IReadOnlyList<Servico> Servicos { get; } = [
+        new StatusServico(), new Autorizacao(), new RetAutorizacao(), new ConsultaProtocolo(), new Inutilizacao(), new RecepcaoEvento(),
+        new Distribuicao(), new ConsultaCadastro(),
+    ];
 
     public static Servico? Procurar(Autorizador autorizador, string nome) =>
         Servicos.FirstOrDefault(s => string.Equals(s.Nome, nome, StringComparison.OrdinalIgnoreCase)
@@ -43,7 +47,7 @@ internal sealed partial class Atendimento(Controle controle, Repositorio reposit
         MarcaFalha? marca;
         try
         {
-            marca = servico.Nome == Servico.NomeAutorizacao && corpo.Length <= LimiteDados ? Marca.Ler(corpo) : null;
+            marca = servico.Nome == Servico.NomeAutorizacao && corpo.Length <= servico.Limite ? Marca.Ler(corpo) : null;
         }
         catch (FalhaSoapException falha)
         {
@@ -83,7 +87,8 @@ internal sealed partial class Atendimento(Controle controle, Repositorio reposit
             Processando: processamento is not null,
             Pendentes: marca?.Pendentes ?? 0,
             Codigos: codigos,
-            Irregulares: irregulares);
+            Irregulares: irregulares,
+            Cadastros: cadastros);
         var (status, resposta, situacao) = Responder(corpo, servico, pedido);
         switch (transporte?.Tipo)
         {
@@ -128,18 +133,19 @@ internal sealed partial class Atendimento(Controle controle, Repositorio reposit
         try
         {
             XElement retorno;
-            if (corpo.Length > LimiteDados)
+            if (corpo.Length > servico.Limite)
             {
                 retorno = servico.Rejeitar(Motivos.TamanhoExcedido, pedido);
             }
             else
             {
-                var dados = EnvelopeSoap.LerDados(corpo, servico.NamespaceWsdl).Elements().FirstOrDefault();
+                var dados = EnvelopeSoap.LerDados(corpo, servico.NamespaceWsdl, servico.Operacao).Elements().FirstOrDefault();
                 pedido = pedido with { Prefixo = EnvelopeSoap.UsaPrefixo(corpo, servico.NamespaceWsdl) };
                 retorno = dados is null ? servico.Rejeitar(servico.RaizAusente, pedido) : servico.Processar(dados, pedido);
             }
-            var codigo = retorno.Element(Servico.NamespaceNFe + "cStat")?.Value;
-            return (StatusCodes.Status200OK, EnvelopeSoap.Resultado(servico.NamespaceWsdl, retorno), "cStat " + codigo);
+            // O cStat da raiz ou, na consulta cadastro, o do infCons.
+            var codigo = retorno.Descendants(Servico.NamespaceNFe + "cStat").FirstOrDefault()?.Value;
+            return (StatusCodes.Status200OK, EnvelopeSoap.Resultado(servico.NamespaceWsdl, servico.Operacao, retorno), "cStat " + codigo);
         }
         catch (FalhaSoapException falha)
         {

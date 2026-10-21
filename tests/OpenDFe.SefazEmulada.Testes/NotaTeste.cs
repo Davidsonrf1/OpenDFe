@@ -57,6 +57,12 @@ internal sealed record NotaTeste
     // O CPF (11 posições) ou o CNPJ (14) do destinatário; "EX" para o estrangeiro. Nulo: sem destinatário.
     public string? Destinatario { get; init; }
 
+    // O CPF ou o CNPJ do transportador (X03; nulo: sem transporta, com o modFrete 9) e os autorizados a baixar o
+    // XML (GA01): os atores da distribuição (NT 2014.002, 2).
+    public string? Transportador { get; init; }
+
+    public IReadOnlyList<string> Autorizados { get; init; } = [];
+
     // A versão do QR Code ("2", "3" ou "100"). Nula: a 3 na NFC-e e na NF-e com tpImp 6, nenhuma na outra NF-e.
     public string? VersaoQrCode { get; init; }
 
@@ -120,6 +126,11 @@ internal sealed record NotaTeste
             _ => $"<dest><CNPJ>{Destinatario}</CNPJ><indIEDest>9</indIEDest></dest>",
         };
         var informacoes = Observacao is null ? "" : $"<infAdic><infCpl>{Observacao}</infCpl></infAdic>";
+        static string Documento(string documento) => documento.Length == 11 ? $"<CPF>{documento}</CPF>" : $"<CNPJ>{documento}</CNPJ>";
+        var autorizados = string.Concat(Autorizados.Select(a => $"<autXML>{Documento(a)}</autXML>"));
+        var transporte = Transportador is null
+            ? "<transp><modFrete>9</modFrete></transp>"
+            : $"<transp><modFrete>0</modFrete><transporta>{Documento(Transportador)}<xNome>TRANSPORTADORA DE TESTE</xNome></transporta></transp>";
         var icmsItem = Math.Round(ValorItem * AliquotaIcms / 100, 2, MidpointRounding.AwayFromZero);
         var (valor, icms) = (Decimal(ValorItem * Itens), Decimal(icmsItem * Itens));
         var itens = string.Concat(Enumerable.Range(1, Itens).Select(i =>
@@ -140,13 +151,13 @@ internal sealed record NotaTeste
                 + contingencia + "</ide>",
             $"<emit>{emitente}<xNome>EMPRESA DE TESTE LTDA</xNome><enderEmit><xLgr>RUA DE TESTE</xLgr><nro>1</nro><xBairro>CENTRO</xBairro>"
                 + "<cMun>3106200</cMun><xMun>BELO HORIZONTE</xMun><UF>MG</UF><CEP>30110000</CEP></enderEmit><IE>0623079040081</IE><CRT>3</CRT></emit>"
-                + destinatario,
+                + destinatario + autorizados,
             itens,
             $"<total><ICMSTot><vBC>{valor}</vBC><vICMS>{icms}</vICMS><vICMSDeson>0.00</vICMSDeson><vFCP>0.00</vFCP><vBCST>0.00</vBCST><vST>0.00</vST>"
                 + $"<vFCPST>0.00</vFCPST><vFCPSTRet>0.00</vFCPSTRet><vProd>{valor}</vProd><vFrete>0.00</vFrete><vSeg>0.00</vSeg><vDesc>0.00</vDesc>"
                 + "<vII>0.00</vII><vIPI>0.00</vIPI><vIPIDevol>0.00</vIPIDevol><vPIS>0.00</vPIS><vCOFINS>0.00</vCOFINS><vOutro>0.00</vOutro>"
                 + $"<vNF>{valor}</vNF></ICMSTot></total>",
-            $"<transp><modFrete>9</modFrete></transp><pag><detPag><tPag>01</tPag><vPag>{valor}</vPag></detPag></pag>" + informacoes,
+            transporte + $"<pag><detPag><tPag>01</tPag><vPag>{valor}</vPag></detPag></pag>" + informacoes,
             "</infNFe>",
             "</NFe>",
         ];

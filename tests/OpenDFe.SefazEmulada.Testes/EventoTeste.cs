@@ -3,14 +3,28 @@ using System.Security.Cryptography.X509Certificates;
 
 namespace OpenDFe.Testes;
 
-// Um evento da NF-e (MOC 7.0, Visão Geral, 5.8 a 5.10), escrito em texto e assinado no infEvento pelo SignedXml
+// Um evento da NF-e (MOC 7.0, Visão Geral, 5.8 a 5.11), escrito em texto e assinado no infEvento pelo SignedXml
 // do .NET, sem a lib, como a NotaTeste: o cancelamento (110111, o padrão), o cancelamento por substituição
-// (110112) ou a carta de correção (110110), com os campos que os testes trocam.
+// (110112), a carta de correção (110110) ou a manifestação do destinatário (210200, 210210, 210220, 210240; NT
+// 2020.001), com os campos que os testes trocam.
 internal sealed record EventoTeste
 {
     public const string Cancelamento = "110111";
     public const string Substituicao = "110112";
     public const string CartaCorrecao = "110110";
+    public const string Confirmacao = "210200";
+    public const string Ciencia = "210210";
+    public const string Desconhecimento = "210220";
+    public const string NaoRealizada = "210240";
+
+    // O descEvento de cada manifestação, como o schema do evento o enumera.
+    private static readonly Dictionary<string, string> Manifestacoes = new()
+    {
+        [Confirmacao] = "Confirmacao da Operacao",
+        [Ciencia] = "Ciencia da Operacao",
+        [Desconhecimento] = "Desconhecimento da Operacao",
+        [NaoRealizada] = "Operacao nao Realizada",
+    };
 
     // O xCondUso sem acentuação, como o schema e110110 o enumera.
     public const string CondicaoUso = "A Carta de Correcao e disciplinada pelo paragrafo 1o-A do art. 7o do Convenio S/N, de 15 de dezembro "
@@ -23,7 +37,7 @@ internal sealed record EventoTeste
 
     public string Tipo { get; init; } = Cancelamento;
 
-    // Nulo: a UF da chave.
+    // Nulo: a UF da chave; na manifestação, o 91 do Ambiente Nacional.
     public string? Orgao { get; init; }
 
     public string Ambiente { get; init; } = "2";
@@ -41,7 +55,9 @@ internal sealed record EventoTeste
     // O nProt da nota, no cancelamento.
     public string Protocolo { get; init; } = "000000000000000";
 
-    public string Justificativa { get; init; } = "CANCELAMENTO DE TESTE DO EMULADOR";
+    // A justificativa do cancelamento e da operação não realizada (nula: sem o xJust, que a operação não realizada
+    // exige no schema).
+    public string? Justificativa { get; init; } = "CANCELAMENTO DE TESTE DO EMULADOR";
 
     // O chNFeRef e o cOrgaoAutor (nulo: a UF da chave) do cancelamento por substituição.
     public string? Referencia { get; init; }
@@ -65,15 +81,19 @@ internal sealed record EventoTeste
     {
         var id = Id ?? "ID" + Tipo + Chave + Sequencia.ToString("D2", CultureInfo.InvariantCulture);
         var autor = Cnpj is not null ? $"<CNPJ>{Cnpj}</CNPJ>" : $"<CPF>{Cpf}</CPF>";
+        var justificativa = Justificativa is null ? "" : $"<xJust>{Justificativa}</xJust>";
         var detalhe = Detalhe ?? Tipo switch
         {
+            Confirmacao or Ciencia or Desconhecimento => $"<detEvento versao=\"1.00\"><descEvento>{Manifestacoes[Tipo]}</descEvento></detEvento>",
+            NaoRealizada => $"<detEvento versao=\"1.00\"><descEvento>{Manifestacoes[Tipo]}</descEvento>{justificativa}</detEvento>",
             CartaCorrecao => $"<detEvento versao=\"1.00\"><descEvento>{DescricaoCarta}</descEvento><xCorrecao>{Correcao}</xCorrecao><xCondUso>{CondicaoUso}</xCondUso></detEvento>",
             Substituicao => "<detEvento versao=\"1.00\"><descEvento>Cancelamento por substituicao</descEvento>"
                 + $"<cOrgaoAutor>{OrgaoAutor ?? Chave[..2]}</cOrgaoAutor><tpAutor>1</tpAutor><verAplic>TESTE 1.0</verAplic>"
-                + $"<nProt>{Protocolo}</nProt><xJust>{Justificativa}</xJust><chNFeRef>{Referencia}</chNFeRef></detEvento>",
-            _ => $"<detEvento versao=\"1.00\"><descEvento>Cancelamento</descEvento><nProt>{Protocolo}</nProt><xJust>{Justificativa}</xJust></detEvento>",
+                + $"<nProt>{Protocolo}</nProt>{justificativa}<chNFeRef>{Referencia}</chNFeRef></detEvento>",
+            _ => $"<detEvento versao=\"1.00\"><descEvento>Cancelamento</descEvento><nProt>{Protocolo}</nProt>{justificativa}</detEvento>",
         };
-        var xml = $"<evento xmlns=\"{Mensagens.NamespaceNFe}\" versao=\"1.00\"><infEvento Id=\"{id}\"><cOrgao>{Orgao ?? Chave[..2]}</cOrgao>"
+        var orgao = Orgao ?? (Manifestacoes.ContainsKey(Tipo) ? "91" : Chave[..2]);
+        var xml = $"<evento xmlns=\"{Mensagens.NamespaceNFe}\" versao=\"1.00\"><infEvento Id=\"{id}\"><cOrgao>{orgao}</cOrgao>"
             + $"<tpAmb>{Ambiente}</tpAmb>{autor}<chNFe>{Chave}</chNFe>"
             + $"<dhEvento>{Data.ToString("yyyy-MM-ddTHH:mm:sszzz", CultureInfo.InvariantCulture)}</dhEvento>"
             + $"<tpEvento>{Tipo}</tpEvento><nSeqEvento>{Sequencia}</nSeqEvento><verEvento>{VersaoEvento}</verEvento>{detalhe}</infEvento></evento>";

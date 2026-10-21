@@ -8,7 +8,8 @@ namespace OpenDFe.SefazEmulada;
 //   DELETE /_controle/falhas/{id}   remove uma; 404 se não existe
 //   DELETE /_controle/falhas        remove todas
 //   GET    /_controle/notas         as notas autorizadas, na ordem
-//   DELETE /_controle/notas         esquece as notas, os lotes, os eventos e as faixas inutilizadas
+//   DELETE /_controle/notas         esquece as notas, os lotes, os eventos, as faixas inutilizadas e a distribuição
+//   GET    /_controle/distribuicao  os documentos que o AN distribui a cada interessado, com o NSU
 //   GET    /_controle/csc           os CSCs cadastrados e revogados
 //   POST   /_controle/csc           cadastra um (PedidoCsc em JSON); 201 com o CSC, 400 com o motivo
 //   DELETE /_controle/csc/{uf}/{cnpj}/{id}   revoga um; 404 se não existe
@@ -17,6 +18,11 @@ namespace OpenDFe.SefazEmulada;
 //   POST   /_controle/irregulares   cadastra um (PedidoIrregular em JSON); 201 com o documento, 400 com o motivo
 //   DELETE /_controle/irregulares/{documento}   tira um; 404 se não está
 //   DELETE /_controle/irregulares   tira todos
+//   GET    /_controle/cadastros     os contribuintes da consulta cadastro
+//   POST   /_controle/cadastros     cadastra um (Contribuinte em JSON) ou troca o da mesma UF e IE; 201 ou 200 com
+//                                   ele, 400 com o motivo
+//   DELETE /_controle/cadastros/{uf}/{ie}   tira um; 404 se não está
+//   DELETE /_controle/cadastros     tira todos
 internal static class RotasControle
 {
     public static void Mapear(WebApplication app)
@@ -52,6 +58,7 @@ internal static class RotasControle
             repositorio.Limpar();
             return Results.NoContent();
         });
+        grupo.MapGet("/distribuicao", (Repositorio repositorio) => repositorio.Distribuidos());
         grupo.MapGet("/csc", (CodigosSeguranca codigos) => codigos.Listar());
         grupo.MapPost("/csc", (PedidoCsc pedido, CodigosSeguranca codigos) =>
         {
@@ -99,6 +106,27 @@ internal static class RotasControle
         grupo.MapDelete("/irregulares", (Irregulares irregulares) =>
         {
             irregulares.Limpar();
+            return Results.NoContent();
+        });
+        grupo.MapGet("/cadastros", (Cadastros cadastros) => cadastros.Listar());
+        grupo.MapPost("/cadastros", (Contribuinte contribuinte, Cadastros cadastros) =>
+        {
+            try
+            {
+                var novo = cadastros.Cadastrar(contribuinte);
+                var gravado = cadastros.Procurar(contribuinte.Uf!.ToUpperInvariant(), contribuinte.Ie, null, null).First(c => c.Ie == contribuinte.Ie);
+                return novo ? Results.Created($"/_controle/cadastros/{gravado.Uf}/{gravado.Ie}", gravado) : Results.Ok(gravado);
+            }
+            catch (ArgumentException erro)
+            {
+                return Results.BadRequest(new { erro = MensagemLimpa(erro) });
+            }
+        });
+        grupo.MapDelete("/cadastros/{uf}/{ie}", (string uf, string ie, Cadastros cadastros) =>
+            cadastros.Remover(uf, ie) ? Results.NoContent() : Results.NotFound());
+        grupo.MapDelete("/cadastros", (Cadastros cadastros) =>
+        {
+            cadastros.Limpar();
             return Results.NoContent();
         });
     }

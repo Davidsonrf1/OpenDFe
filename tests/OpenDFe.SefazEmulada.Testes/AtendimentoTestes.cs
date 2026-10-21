@@ -10,9 +10,12 @@ public class AtendimentoTestes(EmuladorFixture fixture) : IClassFixture<Emulador
 
     [Theory]
     [InlineData("XX", Servico.NomeStatus)]
-    [InlineData("MG", "NFeDistribuicaoDFe")]
-    [InlineData("AN", "NFeDistribuicaoDFe")]
-    [InlineData("AN", Servico.NomeRecepcaoEvento)]
+    [InlineData("MG", Servico.NomeDistribuicao)]
+    [InlineData("SVRS", Servico.NomeDistribuicao)]
+    [InlineData("SVAN", Servico.NomeConsultaCadastro)]
+    [InlineData("SVC-AN", Servico.NomeConsultaCadastro)]
+    [InlineData("SVC-RS", Servico.NomeConsultaCadastro)]
+    [InlineData("AN", Servico.NomeConsultaCadastro)]
     [InlineData("SVC-AN", Servico.NomeInutilizacao)]
     [InlineData("SVC-RS", Servico.NomeInutilizacao)]
     [InlineData("AN", Servico.NomeAutorizacao)]
@@ -83,13 +86,18 @@ public class AtendimentoTestes(EmuladorFixture fixture) : IClassFixture<Emulador
         var urls = json.RootElement.GetProperty("urls").EnumerateArray()
             .Select(u => (Destino: u.GetProperty("destino").GetString(), Servico: u.GetProperty("servico").GetString(), Url: u.GetProperty("url").GetString()))
             .ToList();
-        // O status, a autorização, o recibo, a consulta e os eventos nos 14 autorizadores que os têm; a
-        // inutilização nos 12 que não são a SVC (Anexo III, 2.1.3, e); o AN, só com a E.5.
-        Assert.Equal(82, urls.Count);
-        foreach (var servico in (string[])[Servico.NomeStatus, Servico.NomeAutorizacao, Servico.NomeRetAutorizacao, Servico.NomeConsultaProtocolo, Servico.NomeRecepcaoEvento])
+        // O status, a autorização, o recibo e a consulta nos 14 autorizadores que os têm; os eventos nos 14 e no
+        // AN (a manifestação); a inutilização nos 12 que não são a SVC (Anexo III, 2.1.3, e); a consulta cadastro
+        // nas 10 UFs e na SVRS; a distribuição só no AN.
+        Assert.Equal(95, urls.Count);
+        foreach (var servico in (string[])[Servico.NomeStatus, Servico.NomeAutorizacao, Servico.NomeRetAutorizacao, Servico.NomeConsultaProtocolo])
             Assert.Equal(14, urls.Count(u => u.Servico == servico));
+        Assert.Equal(15, urls.Count(u => u.Servico == Servico.NomeRecepcaoEvento));
         Assert.Equal(12, urls.Count(u => u.Servico == Servico.NomeInutilizacao));
-        Assert.DoesNotContain(urls, u => u.Destino == "AN");
+        Assert.Equal(11, urls.Count(u => u.Servico == Servico.NomeConsultaCadastro));
+        Assert.Equal(["AN/NFeDistribuicaoDFe", "AN/NFeRecepcaoEvento4"],
+            urls.Where(u => u.Destino == "AN").Select(u => u.Destino + "/" + u.Servico).Order(StringComparer.Ordinal));
+        Assert.DoesNotContain(urls, u => u.Destino is "SVAN" or "SVC-AN" or "SVC-RS" && u.Servico == Servico.NomeConsultaCadastro);
         Assert.DoesNotContain(urls, u => u.Destino is "SVC-AN" or "SVC-RS" && u.Servico == Servico.NomeInutilizacao);
         Assert.Contains(urls, u => u.Destino == "MG" && u.Url == new Uri(fixture.Emulador.Endereco, "MG/NFeStatusServico4").ToString());
         Assert.Contains(urls, u => u.Destino == "SVC-RS" && u.Servico == Servico.NomeRetAutorizacao);

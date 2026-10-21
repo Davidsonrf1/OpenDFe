@@ -29,6 +29,7 @@ internal sealed class Emulador : IAsyncDisposable
         Repositorio = app.Services.GetRequiredService<Repositorio>();
         Codigos = app.Services.GetRequiredService<CodigosSeguranca>();
         Irregulares = app.Services.GetRequiredService<Irregulares>();
+        Cadastros = app.Services.GetRequiredService<Cadastros>();
         Urls = [.. Listar(endereco)];
     }
 
@@ -51,6 +52,9 @@ internal sealed class Emulador : IAsyncDisposable
 
     // Os CNPJs e CPFs em situação irregular.
     public Irregulares Irregulares { get; }
+
+    // Os contribuintes da consulta cadastro.
+    public Cadastros Cadastros { get; }
 
     public IReadOnlyList<UrlServico> Urls { get; }
 
@@ -75,6 +79,7 @@ internal sealed class Emulador : IAsyncDisposable
         construtor.Services.AddSingleton<Repositorio>();
         construtor.Services.AddSingleton<CodigosSeguranca>();
         construtor.Services.AddSingleton<Irregulares>();
+        construtor.Services.AddSingleton<Cadastros>();
         construtor.Services.AddSingleton<Atendimento>();
         construtor.Services.ConfigureHttpJsonOptions(o =>
         {

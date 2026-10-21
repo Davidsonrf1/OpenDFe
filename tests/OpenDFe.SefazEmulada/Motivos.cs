@@ -6,7 +6,9 @@ namespace OpenDFe.SefazEmulada;
 // em 4.1.3; o mesmo com o 491, o 492 e o 493 (regras D04 a D06) e o 921 (Visão Geral, Tabela 5-38). Os
 // códigos que as NTs criaram ou mudaram depois do MOC 7.0 levam o texto da NT: a 2025.001 v1.02 (444, 452,
 // 583), a 2026.002 v1.11 (672, 704, 711) e a 2024.001 v1.20 (302, que deixou de ser denegação, e 781). O 910 e
-// o 911 levam o nome do campo entre parênteses, que quem monta o retorno acrescenta. O travessão e as aspas
+// o 911 levam o nome do campo entre parênteses, que quem monta o retorno acrescenta. A distribuição (137, 138,
+// 589, 593, 632, 640, 641, 653, 656) e a manifestação (496, 575, 596, 650, 651, 655) levam o texto da NT 2014.002
+// v1.40 e da NT 2020.001 v1.60; o 221, o da Tabela 5-38. O travessão e as aspas
 // curvas do MOC (516, 517, 565, 568, 572, 903) vão como o hífen e as aspas retas: o TString do schema dos
 // retornos só aceita caracteres até o ÿ.
 internal static class Motivos
@@ -131,6 +133,35 @@ internal static class Motivos
     public const string SubstituicaoTipoEmissao = "920";
     public const string SubstitutaTipoEmissao = "921";
 
+    // E.5: a distribuição, a manifestação e a consulta cadastro.
+    public const string CadastroUmaOcorrencia = "111";
+    public const string CadastroOcorrencias = "112";
+    public const string NenhumDocumento = "137";
+    public const string DocumentoLocalizado = "138";
+    public const string RecebimentoConfirmado = "221";
+    public const string SolicitanteInabilitado = "257";
+    public const string CnpjConsultaInvalido = "258";
+    public const string CnpjNaoCadastrado = "259";
+    public const string IeConsultaInvalida = "260";
+    public const string IeNaoCadastrada = "261";
+    public const string CpfConsultaInvalido = "263";
+    public const string CpfNaoCadastrado = "264";
+    public const string UFConsultaDivergente = "265";
+    public const string CpfCertificadoDivergente = "472";
+    public const string TipoEmissaoChaveInvalido = "496";
+    public const string AutorDestinatarioDivergente = "575";
+    public const string NsuSuperior = "589";
+    public const string CnpjBaseCertificadoDivergente = "593";
+    public const string EventoForaPrazo = "596";
+    public const string DownloadForaPrazo = "632";
+    public const string InteressadoNaoPermitido = "640";
+    public const string IndisponivelEmitente = "641";
+    public const string CienciaNotaCancelada = "650";
+    public const string DesconhecimentoNotaCancelada = "651";
+    public const string DownloadNotaCancelada = "653";
+    public const string CienciaDepoisManifestacao = "655";
+    public const string ConsumoIndevido = "656";
+
     private static readonly Dictionary<string, string> Textos = new(StringComparer.Ordinal)
     {
         [Autorizado] = "Autorizado o uso da NF-e",
@@ -250,6 +281,33 @@ internal static class Motivos
         [SubstitutaItem] = "Rejeição: Item da NF-e Substituta difere do mesmo item da NF-e a ser cancelada.",
         [SubstituicaoTipoEmissao] = "Rejeição: Tipo de Emissão inválido no Cancelamento por Substituição",
         [SubstitutaTipoEmissao] = "Rejeição: Tipo de emissão da NF-e substituta deve ser de contingência",
+        [CadastroUmaOcorrencia] = "Consulta cadastro com uma ocorrência",
+        [CadastroOcorrencias] = "Consulta cadastro com mais de uma ocorrência",
+        [NenhumDocumento] = "Nenhum documento localizado",
+        [DocumentoLocalizado] = "Documento localizado",
+        [RecebimentoConfirmado] = "Rejeição: Confirmado o recebimento da NF-e pelo destinatário",
+        [SolicitanteInabilitado] = "Rejeição: Solicitante não habilitado para emissão da NF-e",
+        [CnpjConsultaInvalido] = "Rejeição: CNPJ da consulta inválido",
+        [CnpjNaoCadastrado] = "Rejeição: CNPJ da consulta não cadastrado como contribuinte na UF",
+        [IeConsultaInvalida] = "Rejeição: IE da consulta inválida",
+        [IeNaoCadastrada] = "Rejeição: IE da consulta não cadastrada como contribuinte na UF",
+        [CpfConsultaInvalido] = "Rejeição: CPF da consulta inválido",
+        [CpfNaoCadastrado] = "Rejeição: CPF da consulta não cadastrado como contribuinte na UF",
+        [UFConsultaDivergente] = "Rejeição: Sigla da UF da consulta difere da UF do Web Service",
+        [CpfCertificadoDivergente] = "Rejeição: CPF consultado difere do CPF do Certificado Digital",
+        [TipoEmissaoChaveInvalido] = "Rejeição: A chave de acesso da NF-e informada no evento está com código de tpEmis inválido.",
+        [AutorDestinatarioDivergente] = "Rejeição: O autor do evento diverge do destinatário da NF-e",
+        [NsuSuperior] = "Rejeição: Número do NSU informado superior ao maior NSU do Ambiente Nacional",
+        [CnpjBaseCertificadoDivergente] = "Rejeição: CNPJ-Base consultado difere do CNPJ-Base do Certificado Digital",
+        [EventoForaPrazo] = "Rejeição: Evento apresentado fora do prazo",
+        [DownloadForaPrazo] = "Rejeição: Solicitação fora de prazo, a NF-e não está mais disponível para download",
+        [InteressadoNaoPermitido] = "Rejeição: CNPJ/CPF do interessado não possui permissão para consultar esta NF-e",
+        [IndisponivelEmitente] = "Rejeição: NF-e indisponível para o emitente",
+        [CienciaNotaCancelada] = "Rejeição: Evento de \"Ciência da Emissão\" para NF-e Cancelada ou Denegada",
+        [DesconhecimentoNotaCancelada] = "Rejeição: Evento de \"Desconhecimento da Operação\" para NF-e Cancelada ou Denegada",
+        [DownloadNotaCancelada] = "Rejeição: NF-e Cancelada, arquivo indisponível para download",
+        [CienciaDepoisManifestacao] = "Rejeição: Evento de Ciência da Emissão informado após a manifestação final do destinatário",
+        [ConsumoIndevido] = "Rejeição: Consumo Indevido",
     };
 
     public static string Texto(string codigo) => Textos[codigo];

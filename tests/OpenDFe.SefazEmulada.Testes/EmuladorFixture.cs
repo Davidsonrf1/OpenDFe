@@ -141,6 +141,24 @@ internal static class Clientes
         return Mensagens.Retorno(await resposta.Content.ReadAsStringAsync(cancellationToken));
     }
 
+    // A distribuição: o distDFeInt dentro do nfeDistDFeInteresse, HTTP 200 e o retDistDFeInt.
+    public static async Task<XElement> DistribuirAsync(
+        this HttpClient http, Uri url, string pedido, CancellationToken cancellationToken)
+    {
+        using var resposta = await http.EnviarAsync(url, Mensagens.EnvelopeDistribuicao(pedido), cancellationToken);
+        Assert.Equal(System.Net.HttpStatusCode.OK, resposta.StatusCode);
+        return Mensagens.RetornoDistribuicao(await resposta.Content.ReadAsStringAsync(cancellationToken));
+    }
+
+    // A consulta cadastro: o ConsCad, HTTP 200 e o retConsCad.
+    public static async Task<XElement> ConsultarCadastroAsync(
+        this HttpClient http, Uri url, string pedido, CancellationToken cancellationToken)
+    {
+        using var resposta = await http.EnviarAsync(url, Mensagens.Envelope(pedido, Servico.NomeConsultaCadastro), cancellationToken);
+        Assert.Equal(System.Net.HttpStatusCode.OK, resposta.StatusCode);
+        return Mensagens.Retorno(await resposta.Content.ReadAsStringAsync(cancellationToken));
+    }
+
     // A inutilização: o inutNFe assinado, HTTP 200 e o retInutNFe.
     public static async Task<XElement> InutilizarAsync(
         this HttpClient http, Uri url, string pedido, CancellationToken cancellationToken)
@@ -179,6 +197,51 @@ internal static class Mensagens
     // O lote de eventos (Tabela 5-32), com os eventos já assinados.
     public static string Eventos(params string[] eventos) =>
         $"<envEvento xmlns=\"{NamespaceNFe}\" versao=\"1.00\"><idLote>7</idLote>{string.Concat(eventos)}</envEvento>";
+
+    // O pedido da distribuição (NT 2014.002, 3.1 e os exemplos do item 5): o interessado e uma das consultas
+    // (DistribuirNsu, ConsultarNsu, ConsultarChave).
+    public static string Distribuicao(string consulta, string? cnpj = "11222333000181", string? cpf = null, string ambiente = "2", string? uf = "31") =>
+        $"<distDFeInt xmlns=\"{NamespaceNFe}\" versao=\"1.01\"><tpAmb>{ambiente}</tpAmb>{(uf is null ? "" : $"<cUFAutor>{uf}</cUFAutor>")}"
+        + (cnpj is not null ? $"<CNPJ>{cnpj}</CNPJ>" : $"<CPF>{cpf}</CPF>") + consulta + "</distDFeInt>";
+
+    public static string DistribuirNsu(long ultimo) =>
+        $"<distNSU><ultNSU>{ultimo.ToString("D15", System.Globalization.CultureInfo.InvariantCulture)}</ultNSU></distNSU>";
+
+    public static string ConsultarNsu(long nsu) =>
+        $"<consNSU><NSU>{nsu.ToString("D15", System.Globalization.CultureInfo.InvariantCulture)}</NSU></consNSU>";
+
+    public static string ConsultarChave(string chave) => $"<consChNFe><chNFe>{chave}</chNFe></consChNFe>";
+
+    // O pedido da consulta cadastro (Visão Geral, Tabela 5-21), com o argumento (<CNPJ>, <IE> ou <CPF>) pronto.
+    public static string Cadastro(string uf, string argumento, string servico = "CONS-CAD") =>
+        $"<ConsCad xmlns=\"{NamespaceNFe}\" versao=\"2.00\"><infCons><xServ>{servico}</xServ><UF>{uf}</UF>{argumento}</infCons></ConsCad>";
+
+    // O envelope da distribuição, com a operação no Body (NT 2014.002, 5), em SOAP 1.2.
+    public static string EnvelopeDistribuicao(string dados) =>
+        "<?xml version=\"1.0\" encoding=\"utf-8\"?>"
+        + $"<soap12:Envelope xmlns:soap12=\"{NamespaceSoap}\"><soap12:Body>"
+        + $"<nfeDistDFeInteresse xmlns=\"http://www.portalfiscal.inf.br/nfe/wsdl/{Servico.NomeDistribuicao}\">"
+        + $"<nfeDadosMsg>{dados}</nfeDadosMsg></nfeDistDFeInteresse>"
+        + "</soap12:Body></soap12:Envelope>";
+
+    // A área de dados do nfeDistDFeInteresseResponse/nfeDistDFeInteresseResult.
+    public static XElement RetornoDistribuicao(string envelope)
+    {
+        var corpo = XDocument.Parse(envelope).Root!.Element(Soap + "Body")!;
+        var resposta = Assert.Single(corpo.Elements());
+        Assert.Equal("nfeDistDFeInteresseResponse", resposta.Name.LocalName);
+        var resultado = Assert.Single(resposta.Elements());
+        Assert.Equal("nfeDistDFeInteresseResult", resultado.Name.LocalName);
+        return Assert.Single(resultado.Elements());
+    }
+
+    // O documento de um docZip: o base64 descompactado do gzip, em UTF-8.
+    public static XElement Descompactar(XElement documento)
+    {
+        using var compactado = new MemoryStream(Convert.FromBase64String(documento.Value));
+        using var gzip = new System.IO.Compression.GZipStream(compactado, System.IO.Compression.CompressionMode.Decompress);
+        return XDocument.Load(gzip).Root!;
+    }
 
     public static string Envelope(string dados, string servico = Servico.NomeStatus) =>
         "<?xml version=\"1.0\" encoding=\"utf-8\"?>"

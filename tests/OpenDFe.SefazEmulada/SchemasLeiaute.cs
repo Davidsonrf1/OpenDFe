@@ -12,6 +12,8 @@ internal static class SchemasLeiaute
     private static readonly Lazy<SchemaXml> SchemaConsulta = Preparar("consSitNFe_v4.00.xsd");
     private static readonly Lazy<SchemaXml> SchemaInutilizacao = Preparar("inutNFe_v4.00.xsd");
     private static readonly Lazy<SchemaXml> SchemaEvento = Preparar("envEvento_v1.00.xsd");
+    private static readonly Lazy<SchemaXml> SchemaDistribuicao = Preparar("distDFeInt_v1.01.xsd");
+    private static readonly Lazy<SchemaXml> SchemaCadastro = Preparar("consCad_v2.00.xsd");
 
     // O detEvento de cada tipo de evento (Anexo I, D06), pelo tpEvento.
     private static readonly Dictionary<string, Lazy<SchemaXml>> SchemasDetalhe = new(StringComparer.Ordinal)
@@ -19,6 +21,10 @@ internal static class SchemasLeiaute
         ["110110"] = Preparar("e110110_v1.00.xsd"),
         ["110111"] = Preparar("e110111_v1.00.xsd"),
         ["110112"] = Preparar("e110112_v1.00.xsd"),
+        ["210200"] = Preparar("e210200_v1.00.xsd"),
+        ["210210"] = Preparar("e210210_v1.00.xsd"),
+        ["210220"] = Preparar("e210220_v1.00.xsd"),
+        ["210240"] = Preparar("e210240_v1.00.xsd"),
     };
 
     // O enviNFe, com as notas dentro (NFeAutorizacao4).
@@ -36,7 +42,13 @@ internal static class SchemasLeiaute
     // O envEvento genérico, com o detEvento livre (NFeRecepcaoEvento4).
     public static SchemaXml Evento => SchemaEvento.Value;
 
-    // O detEvento do tipo de evento (e110110, e110111, e110112).
+    // O distDFeInt (NFeDistribuicaoDFe).
+    public static SchemaXml Distribuicao => SchemaDistribuicao.Value;
+
+    // O ConsCad (CadConsultaCadastro4), na subpasta CadConsultaCadastro/ do pacote, com o tiposBasico_v1.03 dele.
+    public static SchemaXml Cadastro => SchemaCadastro.Value;
+
+    // O detEvento do tipo de evento (e110110, e110111, e110112 e os da manifestação, e210200 a e210240).
     public static SchemaXml Detalhe(string tipo) => SchemasDetalhe[tipo].Value;
 
     private static Lazy<SchemaXml> Preparar(string arquivo) => new(() =>

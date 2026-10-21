@@ -75,8 +75,10 @@ internal sealed class Autorizacao : Servico
             return Protocolo(pedido, chave, null, resumo, codigo, Motivos.Texto(codigo) + complemento);
         var protocolo = repositorio.NovoProtocolo(pedido.Autorizador, Ide(nota, "cUF"), pedido.Recebimento);
         var retorno = Protocolo(pedido, chave, protocolo, resumo, codigo, Motivos.Texto(codigo));
-        repositorio.Registrar(new NotaRegistrada(chave, NotaRegistrada.Numerar(chave), protocolo, recibo, pedido.Recebimento,
-            pedido.Autorizador.Sigla, codigo, new XElement(retorno), new XElement(nota)));
+        var registrada = new NotaRegistrada(chave, NotaRegistrada.Numerar(chave), protocolo, recibo, pedido.Recebimento,
+            pedido.Autorizador.Sigla, codigo, new XElement(retorno), new XElement(nota));
+        repositorio.Registrar(registrada);
+        repositorio.Interessados.Autorizada(registrada, pedido.Recebimento);
         return retorno;
     }
 
