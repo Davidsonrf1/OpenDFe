@@ -4,8 +4,10 @@ using System.Xml.Linq;
 
 namespace OpenDFe.SefazEmulada;
 
-// O que o emulador guarda entre os pedidos (PROJETO.md 13.5): as notas autorizadas, para a duplicidade, e os
-// lotes recebidos, para a consulta do recibo. Em memória, vazio a cada partida. Quem processa um lote segura
+// O que o emulador guarda entre os pedidos (PROJETO.md 13.5): as notas autorizadas, para a duplicidade, os
+// lotes recebidos, para a consulta do recibo, os eventos registrados, as faixas inutilizadas e o que o Ambiente
+// Nacional distribui a cada interessado (Interessados). Em memória,
+// vazio a cada partida. Quem processa um lote segura
 // a Trava do começo ao fim, para que as notas do mesmo lote e de lotes simultâneos se vejam na ordem.
 internal sealed class Repositorio
 {
@@ -13,9 +15,14 @@ internal sealed class Repositorio
     private readonly List<NotaRegistrada> _ordem = [];
     private readonly Dictionary<string, string> _numeracoes = new(StringComparer.Ordinal);
     private readonly Dictionary<(string Autorizador, string Recibo), LoteRecebido> _lotes = [];
+    private readonly Dictionary<string, List<EventoRegistrado>> _eventos = new(StringComparer.Ordinal);
+    private readonly List<FaixaInutilizada> _faixas = [];
     private long _sequencia;
 
     public Lock Trava { get; } = new();
+
+    // Os documentos distribuídos e o consumo de cada interessado (NFeDistribuicaoDFe).
+    public Interessados Interessados { get; } = new();
 
     // As consultas abaixo são chamadas com a Trava.
 
@@ -30,6 +37,41 @@ internal sealed class Repositorio
         _numeracoes.Add(nota.Numeracao, nota.Chave);
         _ordem.Add(nota);
     }
+
+    // A nota passa a cancelada (o evento de cancelamento registrado).
+    public void Cancelar(string chave)
+    {
+        var cancelada = _notas[chave] with { Cancelada = true };
+        _notas[chave] = cancelada;
+        _ordem[_ordem.FindIndex(n => n.Chave == chave)] = cancelada;
+    }
+
+    // Os eventos da nota, na ordem do registro.
+    public IReadOnlyList<EventoRegistrado> Eventos(string chave) =>
+        _eventos.TryGetValue(chave, out var eventos) ? eventos : [];
+
+    public void Registrar(EventoRegistrado evento)
+    {
+        if (!_eventos.TryGetValue(evento.Chave, out var eventos))
+            _eventos[evento.Chave] = eventos = [];
+        eventos.Add(evento);
+    }
+
+    // A faixa com a mesma numeração (I07: CNPJ, modelo, série, início e fim, na UF).
+    public FaixaInutilizada? Faixa(string uf, string cnpj, string modelo, int serie, long inicio, long fim) =>
+        _faixas.FirstOrDefault(f => f.Uf == uf && f.Cnpj == cnpj && f.Modelo == modelo && f.Serie == serie && f.Inicio == inicio && f.Fim == fim);
+
+    // Se algum número entre o início e o fim já está numa faixa inutilizada (I07a, e 3B08-100 com um número só).
+    public bool Inutilizado(string uf, string documento, string modelo, int serie, long inicio, long fim) =>
+        _faixas.Any(f => f.Uf == uf && f.Cnpj == documento && f.Modelo == modelo && f.Serie == serie && f.Inicio <= fim && inicio <= f.Fim);
+
+    // Se alguma nota autorizada usa um número entre o início e o fim (I08), tirado da chave.
+    public bool Utilizado(string uf, string documento, string modelo, int serie, long inicio, long fim) =>
+        _ordem.Any(n => n.Chave[..2] == uf && n.Chave[6..20] == documento.PadLeft(14, '0') && n.Chave[20..22] == modelo
+            && int.Parse(n.Chave[22..25], CultureInfo.InvariantCulture) == serie
+            && long.Parse(n.Chave[25..34], CultureInfo.InvariantCulture) is var numero && numero >= inicio && numero <= fim);
+
+    public void Registrar(FaixaInutilizada faixa) => _faixas.Add(faixa);
 
     public LoteRecebido? Lote(string autorizador, string recibo) => _lotes.GetValueOrDefault((autorizador, recibo));
 
@@ -52,6 +94,34 @@ internal sealed class Repositorio
             return [.. _ordem];
     }
 
+    // Os eventos registrados, na ordem do registro, para o GET /_controle/eventos.
+    public IReadOnlyList<EventoRegistrado> EventosRegistrados()
+    {
+        lock (Trava)
+            return [.. _eventos.Values.SelectMany(e => e).OrderBy(e => e.Registro).ThenBy(e => e.Protocolo, StringComparer.Ordinal)];
+    }
+
+    // As faixas inutilizadas, na ordem, para o GET /_controle/inutilizacoes.
+    public IReadOnlyList<FaixaInutilizada> Faixas()
+    {
+        lock (Trava)
+            return [.. _faixas];
+    }
+
+    // A nota com os eventos, para o GET /_controle/notas/{chave}; nula se não está na base.
+    public (NotaRegistrada Nota, IReadOnlyList<EventoRegistrado> Eventos)? Detalhe(string chave)
+    {
+        lock (Trava)
+            return _notas.GetValueOrDefault(chave) is { } nota ? (nota, [.. Eventos(chave)]) : null;
+    }
+
+    // O que o AN distribui a cada interessado, para o GET /_controle/distribuicao.
+    public IReadOnlyList<DistribuicaoInteressado> Distribuidos()
+    {
+        lock (Trava)
+            return Interessados.Listar();
+    }
+
     public void Limpar()
     {
         lock (Trava)
@@ -60,6 +130,9 @@ internal sealed class Repositorio
             _numeracoes.Clear();
             _ordem.Clear();
             _lotes.Clear();
+            _eventos.Clear();
+            _faixas.Clear();
+            Interessados.Limpar();
         }
     }
 
@@ -68,7 +141,9 @@ internal sealed class Repositorio
 
 // Uma nota autorizada. Numeracao: o que a duplicidade compara (Numerar). Recibo: o do lote assíncrono que a
 // autorizou; nulo na autorização síncrona. Autorizador: a sigla de quem autorizou (a SVC só consulta as suas).
-// Situacao: o cStat da autorização, 100 ou 150. ProtocoloXml: o protNFe como saiu, para a consulta.
+// Situacao: o cStat da autorização, 100 ou 150. ProtocoloXml: o protNFe como saiu, para a consulta. Xml: a NFe
+// como chegou, para os eventos (o destinatário, os valores e os itens do cancelamento por substituição).
+// Cancelada: o evento de cancelamento registrado (a consulta responde 101; a duplicidade, 218).
 internal sealed record NotaRegistrada(
     string Chave,
     string Numeracao,
@@ -77,7 +152,9 @@ internal sealed record NotaRegistrada(
     DateTimeOffset Recebimento,
     string Autorizador,
     string Situacao,
-    [property: JsonIgnore] XElement ProtocoloXml)
+    [property: JsonIgnore] XElement ProtocoloXml,
+    [property: JsonIgnore] XElement Xml,
+    bool Cancelada = false)
 {
     // O que a duplicidade compara (Anexo I, 2B08-10) e a consulta procura (Visão Geral, 5.4.4, J03): modelo,
     // UF, CNPJ ou CPF do emitente, série e número; na NFC-e, também o tipo de emissão. Tirado da chave, que a
@@ -105,3 +182,26 @@ internal sealed class LoteRecebido(string autorizador, string recibo, string tra
     // Mudado com a Trava do repositório.
     public int Pendentes { get; set; } = pendentes;
 }
+
+// Um evento registrado (135). Processado: o procEventoNFe, com o evento como chegou e o retEvento, para a
+// consulta do protocolo.
+internal sealed record EventoRegistrado(
+    string Chave,
+    string Tipo,
+    int Sequencia,
+    string Protocolo,
+    DateTimeOffset Registro,
+    string Autorizador,
+    [property: JsonIgnore] XElement Processado);
+
+// Uma faixa inutilizada (102): a UF, o CNPJ, o modelo, a série, o início e o fim, com o protocolo.
+internal sealed record FaixaInutilizada(
+    string Uf,
+    string Cnpj,
+    string Modelo,
+    int Serie,
+    long Inicio,
+    long Fim,
+    string Protocolo,
+    DateTimeOffset Registro,
+    string Autorizador);

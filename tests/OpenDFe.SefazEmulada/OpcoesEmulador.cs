@@ -3,10 +3,12 @@ using System.Net;
 
 namespace OpenDFe.SefazEmulada;
 
-// Como o emulador sobe. Pela linha de comando: --porta, --pasta, --endereco e --nome.
+// Como o emulador sobe. Pela linha de comando: --porta, --pasta, --endereco, --nome, --painel e --pedidos.
 internal sealed record OpcoesEmulador
 {
     public const int PortaPadrao = 5443;
+    public const int PortaPainelPadrao = 5444;
+    public const int PedidosPadrao = 100;
 
     // Onde a AC de teste fica (ac.pfx e ac.crt). O padrão é fora do repositório, no perfil do usuário.
     public string Pasta { get; init; } = Path.Combine(
@@ -27,10 +29,18 @@ internal sealed record OpcoesEmulador
     // Registra cada pedido no console (o dotnet run); os testes sobem calados.
     public bool Registrar { get; init; }
 
+    // A porta do painel (E.6): HTTP sem TLS, só no loopback, com a página e as rotas /_controle. Nula: sem painel,
+    // o padrão aqui (os testes); zero: uma porta livre. Na linha de comando, o padrão é a PortaPainelPadrao, e
+    // --painel 0 desliga.
+    public int? Painel { get; init; }
+
+    // Quantos pedidos recentes o emulador guarda, com o XML (PedidosRecentes).
+    public int Pedidos { get; init; } = PedidosPadrao;
+
     public static OpcoesEmulador Ler(IReadOnlyList<string> argumentos)
     {
         ArgumentNullException.ThrowIfNull(argumentos);
-        var opcoes = new OpcoesEmulador();
+        var opcoes = new OpcoesEmulador { Painel = PortaPainelPadrao };
         for (var i = 0; i < argumentos.Count; i++)
         {
             var valor = i + 1 < argumentos.Count ? argumentos[i + 1] : throw new ArgumentException($"Falta o valor de {argumentos[i]}.");
@@ -40,7 +50,12 @@ internal sealed record OpcoesEmulador
                 "--pasta" => opcoes with { Pasta = Path.GetFullPath(valor) },
                 "--endereco" => opcoes with { Endereco = IPAddress.Parse(valor) },
                 "--nome" => opcoes with { Nome = valor },
-                _ => throw new ArgumentException($"Opção desconhecida: {argumentos[i]}. As opções: --porta, --pasta, --endereco, --nome."),
+                "--painel" => opcoes with { Painel = int.Parse(valor, CultureInfo.InvariantCulture) is var painel and > 0 ? painel : null },
+                "--pedidos" => opcoes with
+                {
+                    Pedidos = int.Parse(valor, CultureInfo.InvariantCulture) is var pedidos and > 0 ? pedidos : throw new ArgumentException("--pedidos é ao menos 1."),
+                },
+                _ => throw new ArgumentException($"Opção desconhecida: {argumentos[i]}. As opções: --porta, --pasta, --endereco, --nome, --painel, --pedidos."),
             };
             i++;
         }

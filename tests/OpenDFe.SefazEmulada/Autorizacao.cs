@@ -75,8 +75,10 @@ internal sealed class Autorizacao : Servico
             return Protocolo(pedido, chave, null, resumo, codigo, Motivos.Texto(codigo) + complemento);
         var protocolo = repositorio.NovoProtocolo(pedido.Autorizador, Ide(nota, "cUF"), pedido.Recebimento);
         var retorno = Protocolo(pedido, chave, protocolo, resumo, codigo, Motivos.Texto(codigo));
-        repositorio.Registrar(new NotaRegistrada(chave, NotaRegistrada.Numerar(chave), protocolo, recibo, pedido.Recebimento,
-            pedido.Autorizador.Sigla, codigo, new XElement(retorno)));
+        var registrada = new NotaRegistrada(chave, NotaRegistrada.Numerar(chave), protocolo, recibo, pedido.Recebimento,
+            pedido.Autorizador.Sigla, codigo, new XElement(retorno), new XElement(nota));
+        repositorio.Registrar(registrada);
+        repositorio.Interessados.Autorizada(registrada, pedido.Recebimento);
         return retorno;
     }
 
@@ -99,8 +101,9 @@ internal sealed class Autorizacao : Servico
     // As regras da nota, na ordem: o documento do emitente (207, 401), a assinatura e o titular (grupos E e F:
     // 290, 292, 297, 298, 213, 227), a chave contra os campos (502) e o DV (253), o ambiente (252), a UF
     // autorizadora (226) e a do lote (476), o tipo de emissão (711, 570, 783, 713), a data de emissão (703,
-    // 228, 704 e o 150 da autorização fora de prazo), o QR Code (grupo ZX) e a duplicidade (539, 204). O
-    // complemento vai depois do texto do motivo.
+    // 228, 704 e o 150 da autorização fora de prazo), o QR Code (grupo ZX), o emitente irregular (1C17-38, 781),
+    // a duplicidade (539, 204 e 218 da nota cancelada), a numeração inutilizada (3B08-100, 206) e o destinatário
+    // irregular da NF-e (5E17-40, 302). O complemento vai depois do texto do motivo.
     private static (string Codigo, string Complemento) Conferir(XElement nota, string chave, string primeira, Pedido pedido, Repositorio repositorio)
     {
         var emitente = nota.Element(NamespaceNFe + "infNFe")!.Element(NamespaceNFe + "emit")!;
@@ -181,13 +184,31 @@ internal sealed class Autorizacao : Servico
         if (QrCode.Conferir(nota, chave, pedido.Codigos!) is { } qrCode)
             return qrCode;
 
+        // Os irregulares (NT 2024.001: sem denegação), pelo cadastro ou pela marca da própria nota.
+        var marca = Marca.Irregular(nota);
+        if (marca.Emitente || pedido.Irregulares!.Contem(documento))
+            return (Motivos.EmissorNaoHabilitado, "");
+
         if (repositorio.NotaNumeracao(NotaRegistrada.Numerar(chave)) is { } registrada)
         {
             var lote = registrada.Recibo is null ? "" : $"[nRec:{registrada.Recibo}]";
-            return registrada.Chave == chave
-                ? (Motivos.Duplicidade, lote.Length == 0 ? "" : " " + lote)
-                : (Motivos.DuplicidadeChaveDiferente, $" [chNFe:{registrada.Chave}]{lote}");
+            if (registrada.Chave != chave)
+                return (Motivos.DuplicidadeChaveDiferente, $" [chNFe:{registrada.Chave}]{lote}");
+            return (registrada.Cancelada ? Motivos.NotaCancelada : Motivos.Duplicidade, lote.Length == 0 ? "" : " " + lote);
         }
+
+        // 3B08-100 (NT 2020.005): a numeração inutilizada, na emissão normal e na SVC; em SP, também na FS-IA, na
+        // EPEC e na FS-DA. A NFC-e offline (9) não é conferida.
+        var numero = long.Parse(Ide(nota, "nNF"), CultureInfo.InvariantCulture);
+        if ((tipoEmissao is "1" or "6" or "7" || (uf == "35" && tipoEmissao is "2" or "4" or "5"))
+            && repositorio.Inutilizado(uf, chave[6..20], modelo, int.Parse(Ide(nota, "serie"), CultureInfo.InvariantCulture), numero, numero))
+            return (Motivos.NumeracaoInutilizada, "");
+
+        // 5E17-40 (NT 2024.001): o destinatário irregular da NF-e, rejeitado, e não mais denegado.
+        var destinatario = nota.Element(NamespaceNFe + "infNFe")!.Element(NamespaceNFe + "dest");
+        var documentoDestinatario = destinatario?.Element(NamespaceNFe + "CNPJ")?.Value ?? destinatario?.Element(NamespaceNFe + "CPF")?.Value;
+        if (modelo == "55" && (marca.Destinatario || pedido.Irregulares!.Contem(documentoDestinatario)))
+            return (Motivos.DestinatarioIrregular, "");
         return (situacao, "");
     }
 

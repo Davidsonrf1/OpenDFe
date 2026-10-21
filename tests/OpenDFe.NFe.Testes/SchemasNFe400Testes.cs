@@ -34,6 +34,28 @@ public class SchemasNFe400Testes
         { "retConsStatServ_v4.00.xsd", "337ceed7f74c0764edbc8a18feacaf8c33f66aa951c46b4b29b561cda7c2f7fb" },
         { "retEnviNFe_v4.00.xsd", "d58b700f849ea7df9f1d35580ae0de425dfa1e295408c02609b81905b04ce4ce" },
         { "retInutNFe_v4.00.xsd", "8b5590f79c157510c5f65a43c7325008c01677ebf24e14eef26e4817ea2673a1" },
+        { "envEvento_v1.00.xsd", "e4d61ba81582b5f1f9a2a4b135d33f4c1ec1c8f9138a2343a9abfffa02bb2777" },
+        { "leiauteEvento_v1.00.xsd", "9a48df8603f685653dfde27dbda72e0f47b5d3c13be0090952f1e82f8d2bc476" },
+        { "procEventoNFe_v1.00.xsd", "4263ee5d12e7a731efab126310aba4edb25612e5986a1c5dde0c87e6c6173798" },
+        { "retEnvEvento_v1.00.xsd", "5eb93a244c5b26c983c08f725f8eafaa1923664a992181b9d78f60cc8523fa72" },
+        { "tiposBasico_v1.03.xsd", "d89d4fe1136f89abc7878b440d91ac0e770fbc128dd35b483284c961d6c3fd5d" },
+        { "e110110_v1.00.xsd", "0a56d7efa780579eb82f28c2069748bad1bf0fdbae57f3c59b0a198cecf3b718" },
+        { "e110111_v1.00.xsd", "56fcdad336b281a9de5e7aae27850bc2c5bd7714e267c891e1b4d0dc227c65da" },
+        { "e110112_v1.00.xsd", "73c555577c21a10d9f572efaafe56ad52314b86e98d9ba3a8d679a2750ee944e" },
+        { "e210200_v1.00.xsd", "afe48b729cdefbdf122d1dee81382aa7832b9bdf1596ed4de6c5451070071b98" },
+        { "e210210_v1.00.xsd", "ebc9171b9b64192599270cafdf51e13756b09cebce83d2e78ac0140dee4003e7" },
+        { "e210220_v1.00.xsd", "636e742e2f6784b8626a8f3b284d3eac01e2ea28a1fb8a56d9d847e5b92abcfd" },
+        { "e210240_v1.00.xsd", "e7df7243f0a6d5b7b590e5251b83f34a52d0ec3a68a8e6b398bcb4cfc862b14e" },
+        { "distDFeInt_v1.01.xsd", "2d95df1430b0f0e2b04c6f29cf6bb69cdb5a392ac52102987653902b9a34ff7a" },
+        { "retDistDFeInt_v1.01.xsd", "059c4183e190282851337e80725c6ac4e996736a85077246d8711b3b31406236" },
+        { "resNFe_v1.01.xsd", "6ca072e27d72d3a74065d3414af669f7ad525f8883a22af89d22da96095856fa" },
+        { "resEvento_v1.01.xsd", "77bd5c05e336fa2854f8ab71316e07fe30759c5efedf493bb684a77c26af9d55" },
+        { "tiposDistDFe_v1.01.xsd", "0bc215b9bda6422e37c2c28b80590b4c5ba3041f0db85ca17ebba61edadd7547" },
+        // A consulta cadastro numa subpasta, como no PL_010d: o tiposBasico_v1.03 dela não é o dos eventos.
+        { "CadConsultaCadastro/consCad_v2.00.xsd", "8e5cfa3386c1e61999fc290ad0c3cf166258125447c53a342bea5036524b0fc0" },
+        { "CadConsultaCadastro/leiauteConsultaCadastro_v2.00.xsd", "85e613e63109398d79561bd2d7c372c62fdd033bde537c2c74cd2abaed9b5d9d" },
+        { "CadConsultaCadastro/retConsCad_v2.00.xsd", "2662459d90461de342e9aeee5b9b9505d25f698e773e1d5c3a0207d7eb2fc9e2" },
+        { "CadConsultaCadastro/tiposBasico_v1.03.xsd", "0822f1b36b535dc090df244409cd9d8b86628950236e79f5b716ec2b1a208c1a" },
     };
 
     // Os schemas principais: os que declaram o elemento raiz de uma mensagem (os outros são incluídos por eles).
@@ -45,6 +67,13 @@ public class SchemasNFe400Testes
         "consSitNFe_v4.00.xsd", "retConsSitNFe_v4.00.xsd",
         "consStatServ_v4.00.xsd", "retConsStatServ_v4.00.xsd",
         "inutNFe_v4.00.xsd", "retInutNFe_v4.00.xsd", "procInutNFe_v4.00.xsd",
+        "envEvento_v1.00.xsd", "retEnvEvento_v1.00.xsd", "procEventoNFe_v1.00.xsd",
+        // O detEvento de cada evento, validado à parte do evento genérico (MOC 7.0, Anexo I, D06).
+        "e110110_v1.00.xsd", "e110111_v1.00.xsd", "e110112_v1.00.xsd",
+        "e210200_v1.00.xsd", "e210210_v1.00.xsd", "e210220_v1.00.xsd", "e210240_v1.00.xsd",
+        // A distribuição DF-e, com os resumos que vão no docZip, e a consulta cadastro.
+        "distDFeInt_v1.01.xsd", "retDistDFeInt_v1.01.xsd", "resNFe_v1.01.xsd", "resEvento_v1.01.xsd",
+        "CadConsultaCadastro/consCad_v2.00.xsd", "CadConsultaCadastro/retConsCad_v2.00.xsd",
     };
 
     // O nome do recurso com a barra normalizada: no Windows, o RecursiveDir do LogicalName vem com "\" (o
