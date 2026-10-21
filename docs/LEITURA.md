@@ -1,6 +1,6 @@
 # Leitura e detector (etapa 2.5)
 
-Desenho dos tipos públicos da leitura da NF-e e da NFC-e (`PROJETO.md` 5.2 e 5.3) e do detector (`PROJETO.md` 3.3). **Para aprovação (2026-10-21).** As decisões estão na seção 7, cada uma com a recomendação em negrito.
+Desenho dos tipos públicos da leitura da NF-e e da NFC-e (`PROJETO.md` 5.2 e 5.3) e do detector (`PROJETO.md` 3.3). **Aprovado em 2026-10-21:** todas as decisões da seção 7 pela recomendação (a recomendação está em negrito em cada uma; na 15, a (c): os XMLs da escrita e dos manuais já, e os reais quando o usuário os passar).
 
 O critério é o do `CONTRATOS.md` e do `MODELO.md`: a menor superfície pública que atende a caixa de entrada do ErpCore (a nota recebida de um fornecedor) e a autorização da fase 4 (o `nfeProc` e o protocolo), fácil de estender em versão menor (`PROJETO.md` 12.3), com a regra de nomes sem preposição. Ao contrário da escrita (2.4), que ficou interna até a 4.4, **a leitura é pública já nesta etapa**: a caixa de entrada não passa pela SEFAZ e precisa dela sem a fase 4.
 
@@ -231,7 +231,7 @@ O `ErpCore.Fiscal/Nfe/LeitorDeNfe.cs` (lido nesta etapa) lê, do `NFe` ou do `nf
 
 Tudo isso está no modelo (2.2 e 2.3) e na `NotaLida`; o que é regra da caixa de entrada (só modelo 55, só autorizada, `IE` sem `ISENTO`) fica com o ErpCore. A tabela campo a campo entra aqui na implementação, e um teste lê com a lib a NF-e que o teste do ErpCore monta (`ErpCore.Api.Testes/NfeDeTeste.cs`).
 
-## 7. Decisões (para aprovação)
+## 7. Decisões (aprovadas em 2026-10-21)
 
 1. **Onde fica a leitura.** (a) **método público de instância `LeiauteNFe400.Ler(string)`, ao lado da interface**; (b) classe estática pública `LeitorNFe.Ler`; (c) operação local do núcleo (`dfe.Ler(xml)`). Recomendo (a): ler XML de 4.00 é do leiaute 4.00 (o 5.00, se vier, terá o seu), o `Detectar` devolve o leiaute e quem usa chega ao `Ler` por ele; (c) exigiria criar um núcleo, com certificado e conexões, só para ler um arquivo.
 2. **A entrada.** (a) **`string`**; (b) `string` e `Stream`; (c) `byte[]`. Recomendo (a): a NF-e é UTF-8 (MOC), quem tem bytes decodifica (`Encoding.UTF8.GetString`), e a `NotaLida.Xml` devolve exatamente o que entrou (5.3). O `Stream` e os bytes entram depois, em versão menor, se pedidos.

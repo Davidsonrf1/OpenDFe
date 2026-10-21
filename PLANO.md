@@ -374,7 +374,9 @@ Pré-lançamentos (`0.x`) no NuGet.org a partir do fim da fase 5, quando o PDV p
 - **Muda uma regra da 1.1, se aprovada a decisão 9:** a `ChaveAcesso.TentarLer` passaria a aceitar o tipo de emissão 3 (a NFF).
 - **Pede do usuário (decisão 15):** XMLs reais de notas recebidas, para os exemplos anonimizados em `tests/Exemplos/`.
 
-**Próxima: 2.5, a implementação**, depois da aprovação do desenho, com o que a 11.13 deixou para ela (a sequência do `nItem`, o CST fora da lista lido como o número) e a ida e volta contra a escrita da 2.4.
+- **Aprovado em 2026-10-21:** todas as decisões (1 a 15) pela recomendação; na 15, a (c), com os XMLs reais quando o usuário os passar (sem eles, a implementação fecha com os da escrita e dos manuais e deixa os reais pendentes).
+
+**Próxima: 2.5, a implementação** do desenho aprovado (`docs/LEITURA.md`; ler também o `MODELO.md` 13, a escrita, que a leitura espelha), com o que a 11.13 deixou para ela (a sequência do `nItem`, o CST fora da lista lido como o número) e a ida e volta contra a escrita da 2.4.
 
 ### Trilha paralela: SEFAZ emulada (branch `sefaz-emulada`, worktree `../OpenDFe-sefaz-emulada`)
 
