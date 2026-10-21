@@ -61,6 +61,8 @@ Os dois são provados na **etapa 1.7**, com uma chamada de status do serviço em
 
 As fases 1 a 5 e a 7 atendem o PDV (fase 5 dele); a 8, a caixa de entrada do ErpCore.
 
+**Sem o PFX real (decidido em 2026-10-21, `PROJETO.md` 17):** onde a tabela diz "em homologação", vale a SEFAZ emulada até haver o PFX A1 ICP-Brasil. A etapa fecha no emulador, nos dois sistemas, e deixa na situação a homologação real como pendente; quando o PFX chegar, uma etapa própria a roda, junto com o fechamento da 1.7.
+
 ### Fase 0: repositório
 
 - **0.1. Solução.** Os projetos vazios da estrutura, `Directory.Build.props`, `Directory.Packages.props`, `.editorconfig`, `.gitattributes` (fim de linha fixo; hoje o Git avisa LF → CRLF), `LICENSE` (MIT), README com a primeira linha de 14.4 e a nota de propriedade de 14.3.
@@ -366,7 +368,13 @@ Pré-lançamentos (`0.x`) no NuGet.org a partir do fim da fase 5, quando o PDV p
   - **O levantamento do campo não suportado** é o teste de cobertura, com a lista explícita no leiaute, e não um manifesto gerado das propriedades escritas.
   - O `cNF` informado é respeitado mesmo igual ao `nNF` (a regra do MOC é da fase 3).
 
-**Próxima: 2.5. Leitura e detector** (`XmlReader`, `NFe` e `nfeProc`, NTs anteriores, os problemas do que não reconhece, o XML original preservado; a migração do leitor do ErpCore; `DFe.Detectar`), com o que a 11.13 deixou para ela (a sequência do `nItem`, o CST fora da lista lido como o número) e a ida e volta contra a escrita da 2.4.
+**2.5. Leitura e detector. Desenho para aprovação (2026-10-21)** em **`docs/LEITURA.md`**, que nasce aqui: a etapa cria API pública (a leitura, ao contrário da escrita, sai pública já, porque a caixa de entrada do ErpCore não passa pela SEFAZ), então o desenho vem antes do código.
+- **Os tipos:** no núcleo, `DFe.Detectar(xml, params leiautes)` → `DeteccaoDFe?` e a `FormaLeitura` (a raiz e os caminhos da versão e do modelo) declarada por `DeclaracaoLeiaute.DeclararLeitura`; no leiaute, `LeiauteNFe400.Ler(string)` → `NotaLida` (a nota, a chave, o protocolo, o XML recebido e os problemas); no modelo, `Protocolo` e `MensagemSefaz` (o `protNFe`, que a fase 4 reaproveita). Onze códigos de problema `NFE-*` e as 15 decisões da seção 7.
+- **Conferido na fonte (2026-10-21):** os 43 pacotes de schemas do leiaute 4.00 do Portal Nacional (de abril de 2017 ao 010f), baixados e comparados por script com o embutido. **Achado:** o 4.00 é cumulativo; nenhum valor de enumeração saiu, e os campos retirados são o `IPI/clEnq` (2017), o trio `cCredPresumido` (só no 9m, 2024) e as versões preliminares dos grupos da reforma (010a a 010e: crédito presumido, monofasia, `pISEspec`, `vCBSOp`), na `LEITURA.md` 5.
+- **Muda uma regra da 1.1, se aprovada a decisão 9:** a `ChaveAcesso.TentarLer` passaria a aceitar o tipo de emissão 3 (a NFF).
+- **Pede do usuário (decisão 15):** XMLs reais de notas recebidas, para os exemplos anonimizados em `tests/Exemplos/`.
+
+**Próxima: 2.5, a implementação**, depois da aprovação do desenho, com o que a 11.13 deixou para ela (a sequência do `nItem`, o CST fora da lista lido como o número) e a ida e volta contra a escrita da 2.4.
 
 ### Trilha paralela: SEFAZ emulada (branch `sefaz-emulada`, worktree `../OpenDFe-sefaz-emulada`)
 
