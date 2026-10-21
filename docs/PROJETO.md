@@ -275,4 +275,6 @@ As fases 1 a 5 atendem o PDV; a 8, a caixa de entrada do ErpCore.
 
 ## 17. Em aberto
 
-- **"Pronto quando" das fases 4 a 8 com a SEFAZ emulada (13.5):** até haver o PFX real, a etapa fecha contra o emulador e deixa a homologação real registrada como pendente, ou continua esperando a homologação real?
+Nada em aberto agora.
+
+**Decidido em 2026-10-21:** o "pronto quando" das fases 4 a 8 vale **contra a SEFAZ emulada (13.5)** enquanto não houver o PFX real: o usuário não terá o PFX A1 ICP-Brasil de homologação por enquanto. Cada etapa fecha no emulador, nos dois sistemas, e registra na situação dela (`PLANO.md`) a homologação real como pendente, com o que fica por conferir (a cadeia ICP-Brasil no TLS mútuo, o CSC de homologação na NFC-e, as regras que só a SEFAZ real confere). Quando o PFX chegar, uma etapa própria roda o que ficou pendente contra a homologação de MG, junto com o fechamento da 1.7.
