@@ -9,7 +9,7 @@ Fontes: MOC 7.0, Visão Geral (3.2, 4.2.2, 4.3.1 a 4.3.6, 4.4.1 e 5.1 a 5.11), A
 ## Como rodar
 
 ```
-dotnet run --project tests/OpenDFe.SefazEmulada [-- --porta 5443 --pasta <pasta> --endereco 127.0.0.1 --nome 127.0.0.1]
+dotnet run --project tests/OpenDFe.SefazEmulada [-- --porta 5443 --pasta <pasta> --endereco 127.0.0.1 --nome 127.0.0.1 --painel 5444 --pedidos 100]
 ```
 
 | Opção | Padrão | O que é |
@@ -18,8 +18,10 @@ dotnet run --project tests/OpenDFe.SefazEmulada [-- --porta 5443 --pasta <pasta>
 | `--pasta` | `%LOCALAPPDATA%/OpenDFe.SefazEmulada` (`~/.local/share/...` no Linux) | Onde a AC de teste fica guardada. |
 | `--endereco` | `127.0.0.1` | O IP em que o Kestrel escuta. Com outro IP, o emulador atende a rede, mas o `/_controle` continua aceito só do próprio computador. |
 | `--nome` | `127.0.0.1` | O nome usado nas URLs listadas, que também entra no certificado do servidor. O padrão é o IP porque, no Windows, `localhost` tenta o `::1` antes, e o emulador não escuta nele. |
+| `--painel` | 5444 | A porta do painel (abaixo, em "Painel"), em HTTP e só no loopback. `0` desliga. Nos testes, o padrão é sem painel. |
+| `--pedidos` | 100 | Quantos pedidos recentes o emulador guarda, com o XML (ao menos 1). |
 
-Ao subir, o emulador mostra o endereço, o caminho do `ac.crt` e a URL do controle, e registra cada pedido numa linha (`MG/NFeStatusServico4: cStat 107`). Nos testes ele sobe pela classe `Emulador` (`Emulador.IniciarAsync`), numa porta livre e sem registrar nada.
+Ao subir, o emulador mostra o endereço, o caminho do `ac.crt`, a URL do controle e a do painel, e registra cada pedido numa linha (`MG/NFeStatusServico4: cStat 107`). Nos testes ele sobe pela classe `Emulador` (`Emulador.IniciarAsync`), numa porta livre e sem registrar nada.
 
 ## TLS mútuo
 
@@ -39,6 +41,7 @@ Ao subir, o emulador mostra o endereço, o caminho do `ac.crt` e a URL do contro
 | `/_controle/notas` | As notas autorizadas: `GET` lista, na ordem (`chave`, `numeracao`, `protocolo`, `recibo`, `recebimento`, `autorizador`, `situacao`, que é o 100 ou o 150 da autorização, e `cancelada`); `DELETE` esquece as notas, os lotes, os eventos, as faixas inutilizadas e a distribuição, com o consumo de cada interessado (204). Só do próprio computador, como as falhas. |
 | `/_controle/distribuicao` | `GET`: o que o AN distribui a cada interessado, em ordem: `[ { "interessado": "11222333000181", "documentos": [ { "nsu": 1, "chave": "...", "schema": "resNFe_v1.01.xsd", "recebimento": "..." } ] } ]`. Só do próprio computador. |
 | `/_controle/cadastros` | Os contribuintes da consulta cadastro (abaixo, em "CadConsultaCadastro4"). Só do próprio computador. |
+| `/_controle/pedidos`, `/_controle/emulador`, `/_controle/ac.crt`, `/_controle/autorizadores`, `/_controle/eventos`, `/_controle/inutilizacoes`, `/_controle/notas/{chave}`, `DELETE /_controle` | Os pedidos recentes, o que o painel mostra e zerar tudo (abaixo, em "Painel"). Só do próprio computador. |
 | `/_controle/csc` | Os CSCs da NFC-e (abaixo, em "CSC"). Só do próprio computador. |
 | `/_controle/irregulares` | Os CNPJs e CPFs em situação irregular (abaixo, em "Irregulares"). Só do próprio computador. |
 
@@ -421,6 +424,30 @@ O tipo de autorizador é 1 nos autorizadores de UF, 2 na SVC-AN (a Receita, que 
 ### O que o emulador guarda
 
 Em memória, vazio a cada partida (ou depois do `DELETE /_controle/notas`): as notas autorizadas (a chave, a numeração da duplicidade, o protocolo, o recibo do lote, o recebimento, o autorizador, a situação, o `protNFe`, para a consulta, a nota como chegou, para os eventos, e se está cancelada), os lotes assíncronos (o recibo, o transmissor, os protocolos e as consultas que ainda respondem 105), os eventos registrados (o `procEventoNFe` de cada um) e as faixas inutilizadas (com o protocolo). Um lote é processado de uma vez, sem outro no meio: as notas do mesmo lote e de lotes simultâneos se veem na ordem. A distribuição (os documentos de cada interessado, com o NSU, e o consumo de cada CNPJ ou CPF da requisição) fica com as notas e é esquecida com elas. Os CSCs cadastrados e revogados, os irregulares e os contribuintes da consulta cadastro ficam à parte, também em memória (`DELETE /_controle/csc`, `DELETE /_controle/irregulares`, `DELETE /_controle/cadastros`).
+
+## Painel (E.6)
+
+Uma página para comandar e acompanhar o emulador pelo navegador, em `http://127.0.0.1:5444/` (`--painel`). O navegador não fala com a porta dos Web Services, que exige o certificado do cliente no handshake e usa a AC de teste; o painel tem a sua porta, **HTTP sem TLS e só no loopback** (mesmo com o `--endereco` de outra rede), com a página e as mesmas rotas `/_controle`, pelo mesmo código. A porta dos Web Services e o TLS mútuo não mudam.
+
+- **Na porta do painel** só valem a página (`/`, `/painel.js`, `/painel.css`) e o `/_controle`: o resto é 404, também os Web Services. O `Host` do pedido tem de ser `127.0.0.1`, `localhost` ou `[::1]` (403 nos outros), contra o DNS rebinding: um site de fora que aponta o próprio nome para o 127.0.0.1 não lê nem comanda o emulador. As respostas levam a CSP que só aceita o próprio painel (`default-src 'none'; script-src 'self'; ...`), o `nosniff` e o `no-store`. As mudanças do controle são `POST` em JSON e `DELETE`, que um formulário de outro site não consegue mandar.
+- **Na porta do TLS**, a página não existe (404) e o `GET /` continua a lista das URLs.
+- **A página** é HTML, CSS e JS embutidos no assembly (`tests/OpenDFe.SefazEmulada/Painel/`), sem npm nem build e sem o design system do ERP, com o tema claro e o escuro do sistema. As abas: **Autorizadores** (cada um com as UFs e os serviços, paralisar com 108 ou 109 num clique, liberar e, com o autorizador da UF paralisado, a SVC que atende a contingência), **Pedidos** (ao vivo, com o filtro, o XML do pedido e da resposta formatado, e os `docZip` da distribuição descompactados no próprio navegador), **Falhas** (as ativas, com o que falta consumir, e um formulário por tipo), **Notas** (a situação, os eventos e o XML de cada uma; as faixas inutilizadas), **Distribuição** (os documentos de cada interessado, com o NSU), **Cadastros** (os contribuintes, os irregulares e os CSCs) e **Conexão** (o `ac.crt` para baixar e as URLs para copiar). O botão **Zerar tudo** pede confirmação. A aba aberta fica na URL (`#pedidos`).
+
+**Os pedidos recentes** (`--pedidos`): cada `POST /<destino>/<serviço>` fica guardado com o XML do pedido (o corpo inteiro, com o envelope) e o da resposta, o transmissor, o status HTTP, a situação (o `cStat`, ou o que aconteceu) e a duração, numa fila dos últimos N, em memória; também o que o emulador não atende (404, 415) e o que as falhas comandadas fazem (o tempo esgotado e a conexão derrubada antes, sem resposta; a conexão derrubada depois, com a resposta que sairia, que é a que a recuperação precisa achar).
+
+| Rota | O que faz |
+|---|---|
+| `GET /_controle/pedidos[?depois=<id>]` | Os pedidos, sem o XML, do mais antigo ao mais novo: `id`, `recebimento`, `destino`, `servico`, `transmissor`, `status` (ausente sem resposta), `situacao`, `milissegundos`, `tamanhoPedido`, `tamanhoResposta`. Com `depois`, só os mais novos que o id. |
+| `GET /_controle/pedidos/{id}` | Um pedido, com o `pedido` e a `resposta` em texto; 404 se já saiu da fila. |
+| `GET /_controle/pedidos/fluxo` | Os avisos ao vivo, em `text/event-stream`: `event: pedido` com o resumo de cada pedido novo, `event: estado` a cada mudança pelo controle (tudo que não é `GET`) e um comentário a cada 15 segundos. |
+| `DELETE /_controle/pedidos` | Esquece os pedidos: 204. |
+| `GET /_controle/emulador` | O `ac.crt` (`autoridade`), o `endereco` dos Web Services, o `painel`, quantos `pedidos` ficam e as `urls`. |
+| `GET /_controle/ac.crt` | O certificado da AC de teste, em PEM. |
+| `GET /_controle/autorizadores` | Cada autorizador: a `sigla`, a `casa`, o `tipoEmissao` (na SVC), as UFs `atendidas`, as do `cadastro`, os `servicos` que o emulador responde nele e, no autorizador normal, a `contingencia` (`{ uf, svc }`). |
+| `GET /_controle/eventos` | Os eventos registrados, na ordem: `chave`, `tipo`, `sequencia`, `protocolo`, `registro`, `autorizador`. |
+| `GET /_controle/inutilizacoes` | As faixas inutilizadas, na ordem. |
+| `GET /_controle/notas/{chave}` | A nota (como no `GET /_controle/notas`), o `xml` do `nfeProc` e os `eventos`, cada um com o `xml` do `procEventoNFe`; 404 se não está. |
+| `DELETE /_controle` | Zera tudo: as falhas, as notas (com os lotes, os eventos, as faixas e a distribuição), os CSCs, os irregulares, os contribuintes e os pedidos recentes. 204. |
 
 ## Falhas comandadas
 

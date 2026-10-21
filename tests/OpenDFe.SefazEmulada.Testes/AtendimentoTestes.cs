@@ -103,4 +103,10 @@ public class AtendimentoTestes(EmuladorFixture fixture) : IClassFixture<Emulador
         Assert.Contains(urls, u => u.Destino == "SVC-RS" && u.Servico == Servico.NomeRetAutorizacao);
         Assert.Equal(urls.Count, fixture.Emulador.Urls.Count);
     }
+
+    [Fact]
+    public void SemOPainelNaoHaAPortaHttp()
+    {
+        Assert.Null(fixture.Emulador.Painel);
+    }
 }

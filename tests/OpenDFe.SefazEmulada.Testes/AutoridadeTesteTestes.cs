@@ -146,6 +146,22 @@ public class OpcoesEmuladorTestes
         Assert.Equal("127.0.0.1", opcoes.Nome);
         Assert.EndsWith("OpenDFe.SefazEmulada", opcoes.Pasta, StringComparison.Ordinal);
         Assert.False(opcoes.Registrar);
+        Assert.Equal(OpcoesEmulador.PortaPainelPadrao, opcoes.Painel);
+        Assert.Equal(OpcoesEmulador.PedidosPadrao, opcoes.Pedidos);
+    }
+
+    [Fact]
+    public void OPadraoForaDaLinhaDeComandoESemPainel()
+    {
+        Assert.Null(new OpcoesEmulador().Painel);
+    }
+
+    [Theory]
+    [InlineData("0", null)]
+    [InlineData("7000", 7000)]
+    public void OPainelZeroDesliga(string valor, int? painel)
+    {
+        Assert.Equal(painel, OpcoesEmulador.Ler(["--painel", valor]).Painel);
     }
 
     [Fact]
@@ -157,11 +173,13 @@ public class OpcoesEmuladorTestes
         Assert.Equal(Path.GetFullPath("ac"), opcoes.Pasta);
         Assert.Equal(IPAddress.Any, opcoes.Endereco);
         Assert.Equal("sefaz.teste", opcoes.Nome);
+        Assert.Equal(5, OpcoesEmulador.Ler(["--pedidos", "5"]).Pedidos);
     }
 
     [Theory]
     [InlineData("--porta")]
     [InlineData("--desconhecida", "1")]
+    [InlineData("--pedidos", "0")]
     public void RecusaAOpcaoErrada(params string[] argumentos)
     {
         Assert.Throws<ArgumentException>(() => OpcoesEmulador.Ler(argumentos));

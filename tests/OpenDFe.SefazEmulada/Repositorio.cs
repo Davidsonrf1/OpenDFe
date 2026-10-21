@@ -94,6 +94,27 @@ internal sealed class Repositorio
             return [.. _ordem];
     }
 
+    // Os eventos registrados, na ordem do registro, para o GET /_controle/eventos.
+    public IReadOnlyList<EventoRegistrado> EventosRegistrados()
+    {
+        lock (Trava)
+            return [.. _eventos.Values.SelectMany(e => e).OrderBy(e => e.Registro).ThenBy(e => e.Protocolo, StringComparer.Ordinal)];
+    }
+
+    // As faixas inutilizadas, na ordem, para o GET /_controle/inutilizacoes.
+    public IReadOnlyList<FaixaInutilizada> Faixas()
+    {
+        lock (Trava)
+            return [.. _faixas];
+    }
+
+    // A nota com os eventos, para o GET /_controle/notas/{chave}; nula se não está na base.
+    public (NotaRegistrada Nota, IReadOnlyList<EventoRegistrado> Eventos)? Detalhe(string chave)
+    {
+        lock (Trava)
+            return _notas.GetValueOrDefault(chave) is { } nota ? (nota, [.. Eventos(chave)]) : null;
+    }
+
     // O que o AN distribui a cada interessado, para o GET /_controle/distribuicao.
     public IReadOnlyList<DistribuicaoInteressado> Distribuidos()
     {
@@ -171,7 +192,7 @@ internal sealed record EventoRegistrado(
     string Protocolo,
     DateTimeOffset Registro,
     string Autorizador,
-    XElement Processado);
+    [property: JsonIgnore] XElement Processado);
 
 // Uma faixa inutilizada (102): a UF, o CNPJ, o modelo, a série, o início e o fim, com o protocolo.
 internal sealed record FaixaInutilizada(

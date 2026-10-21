@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SEFAZ emulada</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231f5fbf'/%3E%3Cpath d='M9 16.5l4.5 4.5L23 11.5' stroke='white' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/painel.css">
+  <script src="/painel.js" defer></script>
+</head>
+<body>
+  <header class="topo">
+    <div class="marca">
+      <span class="simbolo" aria-hidden="true"></span>
+      <div>
+        <h1>SEFAZ emulada</h1>
+        <p class="sub">Só homologação, só para testes. <span id="endereco" class="mono"></span></p>
+      </div>
+    </div>
+    <div class="acoes-topo">
+      <span id="fluxo" class="fluxo" title="Os avisos ao vivo do emulador">conectando…</span>
+      <button type="button" id="zerar" class="perigo">Zerar tudo</button>
+    </div>
+  </header>
+
+  <nav class="abas" aria-label="Seções">
+    <button type="button" data-aba="autorizadores" aria-current="page">Autorizadores</button>
+    <button type="button" data-aba="pedidos">Pedidos <span id="contagem-pedidos" class="contagem"></span></button>
+    <button type="button" data-aba="falhas">Falhas <span id="contagem-falhas" class="contagem"></span></button>
+    <button type="button" data-aba="notas">Notas <span id="contagem-notas" class="contagem"></span></button>
+    <button type="button" data-aba="distribuicao">Distribuição</button>
+    <button type="button" data-aba="cadastros">Cadastros</button>
+    <button type="button" data-aba="conexao">Conexão</button>
+  </nav>
+
+  <main>
+    <p id="aviso" class="aviso" role="status" hidden></p>
+
+    <section id="autorizadores" class="aba">
+      <div class="cabecalho-secao">
+        <h2>Autorizadores</h2>
+        <p>Paralisar comanda a falha <code>paralisacao</code> em todos os serviços do autorizador, até liberar. Com o autorizador da UF paralisado, a SVC atende a contingência.</p>
+      </div>
+      <div id="lista-autorizadores" class="grade-cartoes"></div>
+    </section>
+
+    <section id="pedidos" class="aba" hidden>
+      <div class="cabecalho-secao">
+        <h2>Pedidos recentes</h2>
+        <p>Os últimos <span id="limite-pedidos"></span> pedidos aos Web Services, com o XML como chegou e como voltou. Atualiza ao vivo.</p>
+      </div>
+      <div class="barra">
+        <input type="search" id="filtro-pedidos" placeholder="Filtrar por destino, serviço ou situação" aria-label="Filtrar os pedidos">
+        <label class="opcao"><input type="checkbox" id="pausar-pedidos"> Pausar</label>
+        <button type="button" id="limpar-pedidos">Esquecer os pedidos</button>
+      </div>
+      <div class="dividido">
+        <div class="tabela-rolavel">
+          <table class="tabela clicavel">
+            <thead><tr><th>#</th><th>Hora</th><th>Destino</th><th>Serviço</th><th>Situação</th><th>HTTP</th><th class="num">ms</th></tr></thead>
+            <tbody id="lista-pedidos"></tbody>
+          </table>
+          <p id="vazio-pedidos" class="vazio">Nenhum pedido ainda.</p>
+        </div>
+        <div id="detalhe-pedido" class="detalhe" hidden></div>
+      </div>
+    </section>
+
+    <section id="falhas" class="aba" hidden>
+      <div class="cabecalho-secao">
+        <h2>Falhas comandadas</h2>
+        <p>Cada pedido consome a primeira falha de transporte, a primeira paralisação e, na consulta do recibo, o primeiro lote em processamento que valem para ele. Sem vezes, a falha vale até ser removida.</p>
+      </div>
+      <h3>Ativas</h3>
+      <div class="tabela-rolavel">
+        <table class="tabela">
+          <thead><tr><th>#</th><th>Tipo</th><th>Destino</th><th>Serviço</th><th>Detalhe</th><th>Restam</th><th></th></tr></thead>
+          <tbody id="lista-falhas"></tbody>
+        </table>
+        <p id="vazio-falhas" class="vazio">Nenhuma falha ativa.</p>
+      </div>
+      <div class="barra"><button type="button" id="remover-falhas">Remover todas</button></div>
+      <h3>Comandar</h3>
+      <div id="formularios-falhas" class="grade-cartoes"></div>
+    </section>
+
+    <section id="notas" class="aba" hidden>
+      <div class="cabecalho-secao">
+        <h2>Notas autorizadas</h2>
+        <p>As notas, os eventos de cada uma e as faixas inutilizadas. Clique numa nota para ver o XML.</p>
+      </div>
+      <div class="barra">
+        <input type="search" id="filtro-notas" placeholder="Filtrar pela chave, pelo protocolo ou pelo autorizador" aria-label="Filtrar as notas">
+        <button type="button" id="esquecer-notas" class="perigo-leve">Esquecer as notas</button>
+      </div>
+      <div class="dividido">
+        <div class="tabela-rolavel">
+          <table class="tabela clicavel">
+            <thead><tr><th>Chave</th><th>Autorizador</th><th>Situação</th><th>Protocolo</th><th>Recebida</th><th class="num">Eventos</th></tr></thead>
+            <tbody id="lista-notas"></tbody>
+          </table>
+          <p id="vazio-notas" class="vazio">Nenhuma nota autorizada.</p>
+        </div>
+        <div id="detalhe-nota" class="detalhe" hidden></div>
+      </div>
+      <h3>Inutilizações</h3>
+      <div class="tabela-rolavel">
+        <table class="tabela">
+          <thead><tr><th>UF</th><th>CNPJ</th><th>Modelo</th><th>Série</th><th>Faixa</th><th>Protocolo</th><th>Autorizador</th><th>Registro</th></tr></thead>
+          <tbody id="lista-inutilizacoes"></tbody>
+        </table>
+        <p id="vazio-inutilizacoes" class="vazio">Nenhuma faixa inutilizada.</p>
+      </div>
+    </section>
+
+    <section id="distribuicao" class="aba" hidden>
+      <div class="cabecalho-secao">
+        <h2>Distribuição DF-e</h2>
+        <p>O que o Ambiente Nacional distribui a cada interessado (o destinatário, o transportador, os autorizados no <code>autXML</code> e o emitente), com o NSU de cada um.</p>
+      </div>
+      <div id="lista-distribuicao"></div>
+      <p id="vazio-distribuicao" class="vazio">Nada a distribuir ainda: a NF-e autorizada com destinatário entra aqui.</p>
+    </section>
+
+    <section id="cadastros" class="aba" hidden>
+      <div class="cabecalho-secao">
+        <h2>Cadastros</h2>
+        <p>O que as regras consultam: os contribuintes da consulta cadastro, os irregulares e os CSCs da NFC-e.</p>
+      </div>
+
+      <h3>Contribuintes (<code>CadConsultaCadastro4</code>)</h3>
+      <form id="form-contribuinte" class="formulario linha">
+        <label>UF <select name="uf" required></select></label>
+        <label>IE <input name="ie" required pattern="[0-9]{2,14}" inputmode="numeric" placeholder="0623079040081"></label>
+        <label>CNPJ ou CPF <input name="documento" required inputmode="numeric" placeholder="98765432000198"></label>
+        <label class="largo">Nome <input name="nome" required maxlength="60"></label>
+        <label>Fantasia <input name="fantasia" maxlength="60"></label>
+        <label class="opcao"><input type="checkbox" name="habilitado" checked> Habilitado</label>
+        <button type="submit">Cadastrar</button>
+      </form>
+      <div class="tabela-rolavel">
+        <table class="tabela">
+          <thead><tr><th>UF</th><th>IE</th><th>CNPJ/CPF</th><th>Nome</th><th>Situação</th><th>NF-e</th><th></th></tr></thead>
+          <tbody id="lista-contribuintes"></tbody>
+        </table>
+        <p id="vazio-contribuintes" class="vazio">Nenhum contribuinte cadastrado.</p>
+      </div>
+
+      <h3>Irregulares</h3>
+      <p class="nota">O emitente irregular é rejeitado com 781 na autorização e com 240 no evento e na inutilização; o destinatário irregular da NF-e, com 302. Na consulta cadastro, sai não habilitado.</p>
+      <form id="form-irregular" class="formulario linha">
+        <label>CNPJ ou CPF <input name="documento" required inputmode="numeric" placeholder="11222333000181"></label>
+        <button type="submit">Cadastrar</button>
+      </form>
+      <ul id="lista-irregulares" class="fichas"></ul>
+      <p id="vazio-irregulares" class="vazio">Nenhum irregular.</p>
+
+      <h3>CSC da NFC-e</h3>
+      <p class="nota">O CSC padrão (id 1, <code>OPENDFE-SEFAZ-EMULADA-CSC-PADRAO</code>) vale para qualquer emitente sem precisar cadastrar.</p>
+      <form id="form-csc" class="formulario linha">
+        <label>UF <select name="uf" required></select></label>
+        <label>Raiz do CNPJ <input name="cnpj" required pattern="[0-9A-Z]{8}" placeholder="11222333"></label>
+        <label>Id <input name="id" required pattern="0|[1-9][0-9]{0,5}" inputmode="numeric" placeholder="2"></label>
+        <label class="largo">CSC <input name="csc" required minlength="16" maxlength="36"></label>
+        <button type="submit">Cadastrar</button>
+      </form>
+      <div class="tabela-rolavel">
+        <table class="tabela">
+          <thead><tr><th>UF</th><th>Raiz</th><th>Id</th><th>CSC</th><th>Revogado em</th><th></th></tr></thead>
+          <tbody id="lista-csc"></tbody>
+        </table>
+        <p id="vazio-csc" class="vazio">Só o padrão.</p>
+      </div>
+    </section>
+
+    <section id="conexao" class="aba" hidden>
+      <div class="cabecalho-secao">
+        <h2>Conexão</h2>
+        <p>Quem usa o emulador confia na AC de teste (o <code>ac.crt</code>) e troca as URLs da SEFAZ pelas daqui. O certificado do cliente é exigido no TLS, e qualquer um serve.</p>
+      </div>
+      <dl class="dados">
+        <dt>AC de teste</dt><dd><span id="arquivo-ac" class="mono"></span> <a href="/_controle/ac.crt" download="ac.crt">Baixar o ac.crt</a></dd>
+        <dt>Web Services</dt><dd id="endereco-ws" class="mono"></dd>
+        <dt>Painel</dt><dd id="endereco-painel" class="mono"></dd>
+      </dl>
+      <div class="barra">
+        <input type="search" id="filtro-urls" placeholder="Filtrar por destino ou serviço" aria-label="Filtrar as URLs">
+      </div>
+      <div class="tabela-rolavel">
+        <table class="tabela">
+          <thead><tr><th>Destino</th><th>Serviço</th><th>URL</th><th></th></tr></thead>
+          <tbody id="lista-urls"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

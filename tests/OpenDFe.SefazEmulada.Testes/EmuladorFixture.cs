@@ -11,7 +11,7 @@ namespace OpenDFe.Testes;
 // confia nela e apresenta o certificado autoassinado dos testes (13.1). As falhas comandadas são limpas
 // por cada classe que as usa. O relógio do emulador anda com o do sistema, mais o avanço que o teste der
 // (o prazo do cancelamento, a emissão da substituta); quem avança volta a zero no fim.
-public sealed class EmuladorFixture : IAsyncLifetime
+public class EmuladorFixture : IAsyncLifetime
 {
     private readonly string _pasta = Path.Combine(Path.GetTempPath(), "OpenDFe.SefazEmulada.Testes", Guid.NewGuid().ToString("N"));
 
@@ -27,12 +27,16 @@ public sealed class EmuladorFixture : IAsyncLifetime
 
     public async ValueTask InitializeAsync()
     {
-        Emulador = await Emulador.IniciarAsync(new OpcoesEmulador { Porta = 0, Pasta = _pasta, Relogio = Relogio });
+        Emulador = await Emulador.IniciarAsync(Configurar(new OpcoesEmulador { Porta = 0, Pasta = _pasta, Relogio = Relogio }));
         Http = Clientes.Criar(Emulador.Autoridade, Clientes.CertificadoCliente);
     }
 
+    // As opções de quem herda (o painel, os pedidos guardados).
+    private protected virtual OpcoesEmulador Configurar(OpcoesEmulador opcoes) => opcoes;
+
     public async ValueTask DisposeAsync()
     {
+        GC.SuppressFinalize(this);
         Http.Dispose();
         await Emulador.DisposeAsync();
         try

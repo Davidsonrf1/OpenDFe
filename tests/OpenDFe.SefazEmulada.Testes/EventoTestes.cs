@@ -367,9 +367,10 @@ public sealed class EventoTestes : IClassFixture<EmuladorFixture>, IDisposable
     [Fact]
     public async Task RecusaOProtocoloQueNaoEODaNota()
     {
-        var (nota, _) = await AutorizarAsync();
+        var (nota, protocolo) = await AutorizarAsync();
+        var outro = protocolo[..^1] + (protocolo[^1] == '9' ? '8' : '9');
 
-        var resultado = Resultado(await EnviarAsync("MG", new EventoTeste { Chave = nota.Chave, Protocolo = "131260000000001" }));
+        var resultado = Resultado(await EnviarAsync("MG", new EventoTeste { Chave = nota.Chave, Protocolo = outro }));
 
         Assert.Equal(("222", "Rejeição: Protocolo de Autorização de Uso difere do cadastrado"), (resultado.Campo("cStat"), resultado.Campo("xMotivo")));
     }
