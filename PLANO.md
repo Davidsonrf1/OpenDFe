@@ -385,7 +385,10 @@ Pré-lançamentos (`0.x`) no NuGet.org a partir do fim da fase 5, quando o PDV p
 - Conferido (Windows): build sem aviso em Debug e Release, `dotnet test --solution OpenDFe.slnx` com código 0 (859 testes, 13 pulados, os de homologação sem variável), `dotnet pack -c Release` e `eng/ConferirPacotes.ps1` aprovando os três pacotes. No Linux (WSL Ubuntu 26.04, .NET 10.0.113), os 207 do `NFe.Testes` e os 451 do `Nucleo.Testes` passam (compilados com `--artifacts-path` e rodados pelo DLL). A regra de nomes sem nada fora dos métodos de teste. Sem dependência nova.
 - **Conferido na fonte (2026-10-21):** os 43 pacotes de schemas do 4.00 no Portal Nacional (`LEITURA.md` 5, registrados em `docs/NTS.md` 1.6).
 
-**Próxima: 2.6. Problema até a propriedade** (o caminho do erro do XSD convertido no caminho do modelo pelo `[Tag]`, `det[3]/prod/vProd` → `Itens[2].Produto.Valor`), que fecha a fase 2. Ler o `MODELO.md` 4 e 11.10 (o mapeamento) e o `LEITURA.md` 9 (o caminho da leitura já sai com a propriedade, e com o índice sempre no elemento de lista).
+**2.6. Problema até a propriedade. Desenho para aprovação (2026-10-22)** em **`docs/MODELO.md` 14**: a etapa cria API pública (o problema do schema é montado no núcleo, que não conhece o modelo), então o desenho vem antes do código.
+- **A conversão**, interna no leiaute (`CaminhoModeloNFe`): o caminho do XML na propriedade do modelo pelas regras das seções 4 e 11.10, pela reflexão sobre o `[Tag]`, com o `nfeProc` (o protocolo como `Protocolo.X`, como a leitura) e os índices do schema (só no que se repete) e da leitura (sempre na lista).
+- **O público:** uma sobrecarga `SchemaXml.Carregar(assembly, recurso, codigo, Func<string, string?> propriedade)`, e o `Validar` preenche o `Problema.Propriedade`; o `SchemasNFe400.Nota` e o `NotaProcessada` passam a carregar com ela. Seis decisões (14.3); o lote fica para a 4.4 (decisão 4).
+
 
 ### Trilha paralela: SEFAZ emulada (branch `sefaz-emulada`, worktree `../OpenDFe-sefaz-emulada`)
 

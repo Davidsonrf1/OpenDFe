@@ -2390,3 +2390,47 @@ A escrita da seção 6, no leiaute (`src/OpenDFe.Leiaute.NFe.v400/`), **toda int
   - `EscritaFormaTestes`: o destinatário no exterior e a contingência SVC-AN, também válidos no schema; a forma do XML; a chave, o `cNF` sorteado sem alterar a nota; a divergência com o núcleo; cada dado que falta à chave; as escolhas; o caractere; o escape; o texto vazio; as casas; o CST do grupo; as traduções; o valor fora da enumeração; o `nItem`; o `infNFeSupl`; o aviso do campo não suportado, com uma lista de teste;
   - `CoberturaEscritaTestes`: as notas preenchidas por reflexão (um valor em cada campo, uma rodada por subclasse de escolha) conferidas no XML campo a campo (o elemento ou atributo da tag, no grupo do pai) e **a ordem dos filhos de cada elemento contra o XSD**, inclusive nos grupos que nenhuma nota válida usa (o combustível, o veículo, a cana, o agropecuário...).
   - **Mutações conferidas:** uma linha tirada do escritor (o `vFrete`), a ordem trocada num grupo coberto por nota válida (`cProd` e `cEAN`) e num grupo só da cobertura (`cProdANP` e `descANP`): cada uma acusada.
+
+## 14. Problema até a propriedade (etapa 2.6): desenho para aprovação (2026-10-22)
+
+O que falta: o problema da **validação pelo schema** sai só com o `Caminho` (`NFe/infNFe/det[3]/prod/vProd`), porque quem valida é o núcleo (`SchemaXml.Validar`, no passo 4 do `ExecutarAsync`, `CONTRATOS.md` 3), e o núcleo não conhece o modelo. A escrita (2.4) e a leitura (2.5) já saem com a `Propriedade`, cada uma pelo caminho que ela mesma abre. A 2.6 dá ao schema a conversão das seções 4 e 11.10, e isso pede **um símbolo público novo no núcleo**: por isso o desenho vem antes.
+
+### 14.1. A conversão (interna, no leiaute)
+
+`CaminhoModeloNFe` (interno no `OpenDFe.Leiaute.NFe.v400`): `string? Propriedade(string caminho)`. Pela reflexão sobre o `[Tag]`, uma vez por tipo, guardada (`ConcurrentDictionary<Type, ...>`), sem a instância.
+
+- **A raiz:** `NFe` é a `NotaFiscal`; o passo `infNFe` não gera passo. No `nfeProc`, o `NFe` segue igual (a propriedade sai a partir da nota, como na leitura) e o `protNFe/infProt` é o `Protocolo` (`Protocolo.Status`), como a leitura já aponta (`Protocolo.Chave`).
+- **Cada passo** acha, no tipo atual, a propriedade com aquela tag; o atributo (`@dia`, `@xCampo`, `@Id` do `infProt`) pela tag sem `@`.
+- **A escolha por subclasse:** o passo que não é propriedade do tipo atual procura entre as subclasses dele (o tipo da propriedade, `Icms`, `DocumentoReferenciado`): a que tem aquele `[Tag]` na classe (`ICMS00`, `refNF`) troca o tipo sem gerar passo; a que tem uma propriedade com aquela tag (`refNFe` → `NFeReferenciada.Chave`) troca o tipo e gera o passo. As propriedades herdadas valem (`orig` → `Icms.Origem`).
+- **Os índices:** na propriedade de lista, `[n]` vira `[n-1]`, e sem índice é `[0]` (o schema só põe o índice no que se repete; a leitura põe sempre); na que não é lista, `[1]` é aceito e some, e outro índice não converte.
+- **Sem propriedade** (`Signature` e o que vem dentro, `@Id` e `@versao` do `infNFe`, `cDV`, `@nItem`, o `@versao` do `nfeProc` e do `protNFe`, um elemento que o modelo não tem): `null`. A conversão é inteira ou nada (decisão 3).
+- `UF` com `EX` aponta a `UF`; nas classes compartilhadas (`Local`, `Veiculo`, `Observacao`), o caminho diz o lugar (`Entrega.Logradouro`).
+
+### 14.2. O que fica público (no núcleo)
+
+```csharp
+public sealed class SchemaXml
+{
+    // novo: a mesma carga, com a conversão do caminho do problema na propriedade do modelo
+    public static SchemaXml Carregar(Assembly assembly, string recurso, string codigo,
+                                     Func<string, string?> propriedade);
+}
+```
+
+O `Validar` passa a preencher o `Problema.Propriedade` de cada problema com o que a conversão devolver para o `Caminho` (nulo continua nulo). A exceção dentro da conversão é erro de programação e sobe como veio. No leiaute, o `SchemasNFe400.Nota` e o `NotaProcessada` passam a carregar com a conversão; as outras mensagens ficam como estão.
+
+### 14.3. Decisões
+
+1. **Onde a conversão entra.** (a) **no `SchemaXml`, por uma sobrecarga do `Carregar` com a conversão; o `Validar` preenche a `Propriedade`**; (b) no `PedidoWS`, numa propriedade `init` com a conversão, aplicada pelo núcleo depois de validar; (c) na `DeclaracaoLeiaute`, uma por documento. Recomendo (a): a conversão depende só da forma da mensagem, que é o que o schema descreve, e o leiaute já guarda um `SchemaXml` por mensagem; quem chama o `Validar` direto (os testes, quem valida um XML à parte, o callback por campo da fase 3) ganha a propriedade sem fazer nada. (b) obrigaria cada operação a lembrar de passar; (c) não separa a nota (`NFe/...`) do lote (`enviNFe/NFe[2]/...`).
+2. **A forma da conversão.** (a) **`Func<string, string?>`: o caminho entra, a propriedade sai (nula quando não há)**; (b) uma interface do núcleo (`IConversorCaminho`). Recomendo (a): é uma função só, sem estado; uma interface acrescenta um tipo público sem ganho, e se um dia precisar de mais, a sobrecarga nova é versão menor.
+3. **O caminho que não converte inteiro.** (a) **`null`: a propriedade inteira ou nada**; (b) o prefixo mais longo que converte (o elemento inesperado `det[3]/prod/xYz` daria `Itens[2].Produto`). Recomendo (a): (b) aponta um grupo como se fosse o campo do problema, e quem mostra a propriedade ao usuário a leria como o campo errado; o `Caminho` continua no problema.
+4. **Quais mensagens ganham a conversão agora.** (a) **a nota (`NFe`) e a nota processada (`nfeProc`); o lote (`enviNFe`) na 4.4, quando o parâmetro da autorização tiver forma (a nota `k` do lote é `NFe[k]`, e a propriedade dela depende de onde o parâmetro guarda as notas)**; (b) o lote já, com a propriedade a partir da nota e sem dizer qual. Recomendo (a): (b) perderia qual nota do lote, que é o que mais importa ali; as mensagens de consulta, status, evento e inutilização não têm modelo do `[Tag]` hoje.
+5. **A escrita e a leitura.** (a) **continuam com o caminho próprio (já testado), e um teste confere que a conversão dá a mesma propriedade para cada problema delas**; (b) passam a usar a conversão. Recomendo (a): os dois já apontam a propriedade sem custo, porque sabem onde estão; o teste cruzado protege os três caminhos de divergirem.
+6. **A conversão pública para quem usa.** (a) **não: interna, exposta só pelo `Problema.Propriedade`**; (b) `LeiauteNFe400.Propriedade(string caminho)`. Recomendo (a): todo problema da lib já sai com a propriedade; o caso de quem tem só um caminho na mão (uma rejeição da SEFAZ não traz caminho) não existe hoje, e o método entra em versão menor se pedido.
+
+### 14.4. Testes previstos
+
+- **Cobertura por reflexão:** cada propriedade com `[Tag]` alcançável a partir da `NotaFiscal` e do `Protocolo` (com cada subclasse de escolha), o caminho no XML montado e convertido de volta à propriedade, com e sem o índice nas listas; os caminhos sem propriedade (14.1) dão `null`.
+- **Pela validação de verdade:** notas da escrita estragadas para o schema recusar (o `vProd` do 3º item, um campo do `ICMS00`, o `orig` herdado, um `refNF` do `NFref`, um `refNFe`, a UF, um `lacres` do `vol`, um obrigatório ausente, um elemento inesperado, o `@nItem`, a `Signature`), conferindo a `Propriedade` de cada problema; o `nfeProc` com um campo do protocolo estragado.
+- **O teste cruzado** da decisão 5: os problemas da escrita e da leitura dos testes de hoje, com a `Propriedade` igual à da conversão do `Caminho` deles.
+- **No núcleo**, com o XSD de exemplo da 1.5: a sobrecarga preenche a propriedade, deixa nula a que a conversão não dá, recusa a conversão nula (`ArgumentNullException`) e deixa a exceção da conversão subir.
