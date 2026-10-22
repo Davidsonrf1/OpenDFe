@@ -6,7 +6,9 @@ namespace OpenDFe.SefazEmulada;
 
 // O envelope SOAP 1.2, lido e escrito à mão (MOC 7.0, Visão Geral, 4.2.2 e 4.4.1): o pedido traz a área de
 // dados dentro do nfeDadosMsg, no namespace do WSDL do serviço, sem o cabeçalho (o nfeCabecMsg saiu no
-// leiaute 4.00 e, se vier, é ignorado); a resposta vai dentro do nfeResultMsg.
+// leiaute 4.00 e, se vier, é ignorado); a resposta vai dentro do nfeResultMsg. No serviço com a operação no
+// Body (o NFeDistribuicaoDFe, NT 2014.002, 5 e 6), o nfeDadosMsg vem dentro dela (nfeDistDFeInteresse), e a
+// resposta vai em <operação>Response/<operação>Result.
 internal static class EnvelopeSoap
 {
     public const string TipoConteudo = "application/soap+xml";
@@ -22,7 +24,7 @@ internal static class EnvelopeSoap
 
     // A área de dados do pedido, com o espaço em branco como veio (ele faz parte do que a nota assina).
     // Envelope que não serve vira FalhaSoapException (o cliente errou).
-    public static XElement LerDados(byte[] corpo, XNamespace namespaceWsdl)
+    public static XElement LerDados(byte[] corpo, XNamespace namespaceWsdl, string? operacao = null)
     {
         XDocument documento;
         try
@@ -43,8 +45,13 @@ internal static class EnvelopeSoap
             throw new FalhaSoapException(CodigoFalha.Remetente, "A mensagem não é um envelope SOAP 1.2.");
         var corpoSoap = raiz.Element(NamespaceSoap + "Body")
             ?? throw new FalhaSoapException(CodigoFalha.Remetente, "O envelope não tem o Body.");
+        if (operacao is not null)
+        {
+            corpoSoap = corpoSoap.Element(namespaceWsdl + operacao)
+                ?? throw new FalhaSoapException(CodigoFalha.Remetente, $"O Body não tem o {operacao} no namespace {namespaceWsdl}.");
+        }
         var mensagem = corpoSoap.Element(namespaceWsdl + "nfeDadosMsg")
-            ?? throw new FalhaSoapException(CodigoFalha.Remetente, $"O Body não tem o nfeDadosMsg no namespace {namespaceWsdl}.");
+            ?? throw new FalhaSoapException(CodigoFalha.Remetente, $"O {(operacao ?? "Body")} não tem o nfeDadosMsg no namespace {namespaceWsdl}.");
         return mensagem;
     }
 
@@ -76,8 +83,10 @@ internal static class EnvelopeSoap
         return false;
     }
 
-    public static byte[] Resultado(XNamespace namespaceWsdl, XElement retorno) =>
-        Escrever(new XElement(NamespaceSoap + "Body", new XElement(namespaceWsdl + "nfeResultMsg", retorno)));
+    public static byte[] Resultado(XNamespace namespaceWsdl, string? operacao, XElement retorno) =>
+        Escrever(new XElement(NamespaceSoap + "Body", operacao is null
+            ? new XElement(namespaceWsdl + "nfeResultMsg", retorno)
+            : new XElement(namespaceWsdl + (operacao + "Response"), new XElement(namespaceWsdl + (operacao + "Result"), retorno))));
 
     // A falha SOAP 1.2 (env:Fault, com o Code e o Reason).
     public static byte[] Falha(CodigoFalha codigo, string motivo) =>

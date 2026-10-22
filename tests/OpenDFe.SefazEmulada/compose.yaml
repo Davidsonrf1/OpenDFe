@@ -1,0 +1,19 @@
+# A SEFAZ emulada no Docker (docs/SEFAZ_EMULADA.md, "No Docker"):
+#   docker compose -f tests/OpenDFe.SefazEmulada/compose.yaml up -d --build
+# Fica em https://127.0.0.1:5443, como no dotnet run, com a AC de teste em dados/ac.crt (ou na pasta de
+# SEFAZ_EMULADA_PASTA), e o painel em http://127.0.0.1:5444. As portas são publicadas só no loopback: o /_controle e
+# o painel valem para o próprio computador.
+name: opendfe
+
+services:
+  sefaz-emulada:
+    image: opendfe/sefaz-emulada:dev
+    build:
+      context: ../..
+      dockerfile: tests/OpenDFe.SefazEmulada/Dockerfile
+    ports:
+      - "127.0.0.1:${SEFAZ_EMULADA_PORTA:-5443}:5443"
+      - "127.0.0.1:${SEFAZ_EMULADA_PAINEL:-5444}:5444"
+    volumes:
+      - "${SEFAZ_EMULADA_PASTA:-./dados}:/dados"
+    restart: unless-stopped

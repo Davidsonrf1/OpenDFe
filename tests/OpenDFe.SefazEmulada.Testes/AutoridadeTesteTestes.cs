@@ -146,22 +146,44 @@ public class OpcoesEmuladorTestes
         Assert.Equal("127.0.0.1", opcoes.Nome);
         Assert.EndsWith("OpenDFe.SefazEmulada", opcoes.Pasta, StringComparison.Ordinal);
         Assert.False(opcoes.Registrar);
+        Assert.Equal(OpcoesEmulador.PortaPainelPadrao, opcoes.Painel);
+        Assert.Equal(OpcoesEmulador.PedidosPadrao, opcoes.Pedidos);
+        Assert.False(opcoes.ControleDaRede);
+    }
+
+    [Fact]
+    public void OPadraoForaDaLinhaDeComandoESemPainel()
+    {
+        Assert.Null(new OpcoesEmulador().Painel);
+    }
+
+    [Theory]
+    [InlineData("0", null)]
+    [InlineData("7000", 7000)]
+    public void OPainelZeroDesliga(string valor, int? painel)
+    {
+        Assert.Equal(painel, OpcoesEmulador.Ler(["--painel", valor]).Painel);
     }
 
     [Fact]
     public void LeAsOpcoes()
     {
-        var opcoes = OpcoesEmulador.Ler(["--porta", "6000", "--pasta", "ac", "--endereco", "0.0.0.0", "--nome", "sefaz.teste"]);
+        var opcoes = OpcoesEmulador.Ler(["--porta", "6000", "--pasta", "ac", "--endereco", "0.0.0.0", "--nome", "sefaz.teste", "--controle", "rede"]);
 
         Assert.Equal(6000, opcoes.Porta);
         Assert.Equal(Path.GetFullPath("ac"), opcoes.Pasta);
         Assert.Equal(IPAddress.Any, opcoes.Endereco);
         Assert.Equal("sefaz.teste", opcoes.Nome);
+        Assert.True(opcoes.ControleDaRede);
+        Assert.False(OpcoesEmulador.Ler(["--controle", "local"]).ControleDaRede);
+        Assert.Equal(5, OpcoesEmulador.Ler(["--pedidos", "5"]).Pedidos);
     }
 
     [Theory]
     [InlineData("--porta")]
     [InlineData("--desconhecida", "1")]
+    [InlineData("--pedidos", "0")]
+    [InlineData("--controle", "todos")]
     public void RecusaAOpcaoErrada(params string[] argumentos)
     {
         Assert.Throws<ArgumentException>(() => OpcoesEmulador.Ler(argumentos));

@@ -6,11 +6,13 @@ namespace OpenDFe.SefazEmulada;
 // o emulador não reaproveita o que a lib declara, para um erro dela não aparecer igual dos dois lados).
 internal sealed class Autorizador
 {
-    private Autorizador(string sigla, string codigoCasa, IReadOnlyList<string> atendidas, IReadOnlyList<string> servicos, char tipo)
+    private Autorizador(string sigla, string codigoCasa, IReadOnlyList<string> atendidas, IReadOnlyList<string> servicos, char tipo,
+        IReadOnlyList<string>? cadastro = null)
     {
         Sigla = sigla;
         CodigoCasa = codigoCasa;
         Atendidas = atendidas;
+        Cadastro = cadastro ?? (servicos.Contains(Servico.NomeConsultaCadastro, StringComparer.Ordinal) ? atendidas : []);
         Servicos = servicos;
         Tipo = tipo;
         TipoEmissao = sigla switch
@@ -27,6 +29,10 @@ internal sealed class Autorizador
 
     // Os códigos IBGE das UFs atendidas.
     public IReadOnlyList<string> Atendidas { get; }
+
+    // Os códigos IBGE das UFs da consulta cadastro, que não são sempre as atendidas: a SVRS consulta só o
+    // cadastro do AC, do ES, do RN, da PB e de SC ("Relação de Serviços Web", conferida em 2026-10-21).
+    public IReadOnlyList<string> Cadastro { get; }
 
     // Os serviços que o autorizador tem no Portal; o emulador só responde os que já implementa.
     public IReadOnlyList<string> Servicos { get; }
@@ -48,15 +54,17 @@ internal sealed class Autorizador
 
     private static List<Autorizador> Montar()
     {
-        string[] completos = [Servico.NomeStatus, Servico.NomeAutorizacao, Servico.NomeRetAutorizacao, "NFeConsultaProtocolo4", "NFeRecepcaoEvento4", "NFeInutilizacao4"];
-        string[] svcRS = [Servico.NomeStatus, Servico.NomeAutorizacao, Servico.NomeRetAutorizacao, "NFeConsultaProtocolo4", "NFeRecepcaoEvento4"];
-        string[] an = ["NFeDistribuicaoDFe", "NFeRecepcaoEvento4"];
+        string[] completos = [Servico.NomeStatus, Servico.NomeAutorizacao, Servico.NomeRetAutorizacao, Servico.NomeConsultaProtocolo, Servico.NomeRecepcaoEvento, Servico.NomeInutilizacao];
+        string[] cadastro = [.. completos, Servico.NomeConsultaCadastro];
+        string[] svcRS = [Servico.NomeStatus, Servico.NomeAutorizacao, Servico.NomeRetAutorizacao, Servico.NomeConsultaProtocolo, Servico.NomeRecepcaoEvento];
+        string[] an = [Servico.NomeDistribuicao, Servico.NomeRecepcaoEvento];
 
         var lista = new List<Autorizador>();
         foreach (var uf in (string[])["AM", "BA", "GO", "MG", "MS", "MT", "PE", "PR", "RS", "SP"])
-            lista.Add(new Autorizador(uf, UnidadesFederativas.Codigo(uf), [UnidadesFederativas.Codigo(uf)], completos, '1'));
+            lista.Add(new Autorizador(uf, UnidadesFederativas.Codigo(uf), [UnidadesFederativas.Codigo(uf)], cadastro, '1'));
         lista.Add(new Autorizador("SVAN", "91", Codigos("MA"), completos, '4'));
-        lista.Add(new Autorizador("SVRS", "43", Codigos("AC", "AL", "AP", "CE", "DF", "ES", "PA", "PB", "PI", "RJ", "RN", "RO", "RR", "SC", "SE", "TO"), completos, '3'));
+        lista.Add(new Autorizador("SVRS", "43", Codigos("AC", "AL", "AP", "CE", "DF", "ES", "PA", "PB", "PI", "RJ", "RN", "RO", "RR", "SC", "SE", "TO"), cadastro, '3',
+            Codigos("AC", "ES", "RN", "PB", "SC")));
         lista.Add(new Autorizador("SVC-AN", "91", Codigos("AC", "AL", "AP", "CE", "DF", "ES", "MG", "PA", "PB", "PI", "RJ", "RN", "RO", "RR", "RS", "SC", "SE", "SP", "TO"), completos, '2'));
         lista.Add(new Autorizador("SVC-RS", "43", Codigos("AM", "BA", "GO", "MA", "MS", "MT", "PE", "PR"), svcRS, '3'));
         lista.Add(new Autorizador("AN", "91", [], an, '2'));
@@ -78,6 +86,11 @@ internal static class UnidadesFederativas
     };
 
     public static string Codigo(string sigla) => Tabela[sigla];
+
+    public static string? CodigoOuNulo(string sigla) => Tabela.GetValueOrDefault(sigla);
+
+    // A sigla do código IBGE; nulo se o código não é de uma UF.
+    public static string? Sigla(string codigo) => Tabela.FirstOrDefault(p => p.Value == codigo).Key;
 
     public static bool Existe(string codigo) => Tabela.ContainsValue(codigo);
 }

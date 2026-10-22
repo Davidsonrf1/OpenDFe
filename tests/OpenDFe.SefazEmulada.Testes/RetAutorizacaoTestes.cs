@@ -41,7 +41,7 @@ public sealed class RetAutorizacaoTestes : IClassFixture<EmuladorFixture>, IDisp
     [Fact]
     public async Task DevolveORecibo()
     {
-        var retorno = await _fixture.Http.AutorizarAsync(Autorizacao(), false, [new NotaTeste().Gerar()], Ct);
+        var retorno = await _fixture.Http.AutorizarAsync(Autorizacao(), false, [new NotaTeste().Gerar(), new NotaTeste().Gerar()], Ct);
 
         Assert.Equal(("103", "Lote recebido com sucesso", "31"), (retorno.Campo("cStat"), retorno.Campo("xMotivo"), retorno.Campo("cUF")));
         Assert.Equal(["tpAmb", "verAplic", "cStat", "xMotivo", "cUF", "dhRecbto", "infRec"], retorno.Elements().Select(e => e.Name.LocalName));
@@ -61,10 +61,10 @@ public sealed class RetAutorizacaoTestes : IClassFixture<EmuladorFixture>, IDisp
     {
         var tipoEmissao = destino switch { "SVC-AN" => "6", "SVC-RS" => "7", _ => "1" };
 
-        var recibo = await EnviarAsync(destino, new NotaTeste { Uf = uf, TipoEmissao = tipoEmissao }.Gerar());
+        var recibo = await EnviarAsync(destino, new NotaTeste { Uf = uf, TipoEmissao = tipoEmissao }.Gerar(), new NotaTeste { Uf = uf, TipoEmissao = tipoEmissao }.Gerar());
 
         Assert.StartsWith(inicio, recibo, StringComparison.Ordinal);
-        Assert.Equal("100", Assert.Single((await ConsultarAsync(recibo, destino)).Elements(Mensagens.NFe + "protNFe")).Protocolo().Campo("cStat"));
+        Assert.Equal(["100", "100"], (await ConsultarAsync(recibo, destino)).Elements(Mensagens.NFe + "protNFe").Select(p => p.Protocolo().Campo("cStat")));
     }
 
     [Fact]
@@ -88,19 +88,19 @@ public sealed class RetAutorizacaoTestes : IClassFixture<EmuladorFixture>, IDisp
     [Fact]
     public async Task ConsultaOMesmoLoteMaisDeUmaVez()
     {
-        var recibo = await EnviarAsync("MG", new NotaTeste().Gerar());
+        var recibo = await EnviarAsync("MG", new NotaTeste().Gerar(), new NotaTeste().Gerar());
 
         var primeira = await ConsultarAsync(recibo);
         var segunda = await ConsultarAsync(recibo);
 
-        Assert.Equal(primeira.Element(Mensagens.NFe + "protNFe")!.ToString(), segunda.Element(Mensagens.NFe + "protNFe")!.ToString());
+        Assert.Equal(string.Concat(primeira.Elements(Mensagens.NFe + "protNFe")), string.Concat(segunda.Elements(Mensagens.NFe + "protNFe")));
     }
 
     [Fact]
     public async Task ADuplicidadeDeLoteAssincronoLevaORecibo()
     {
         var xml = new NotaTeste().Gerar();
-        var recibo = await EnviarAsync("MG", xml);
+        var recibo = await EnviarAsync("MG", xml, new NotaTeste().Gerar());
 
         var info = Assert.Single((await _fixture.Http.AutorizarAsync(Autorizacao(), true, [xml], Ct)).Elements(Mensagens.NFe + "protNFe")).Protocolo();
 
@@ -122,6 +122,19 @@ public sealed class RetAutorizacaoTestes : IClassFixture<EmuladorFixture>, IDisp
         Assert.Equal(["100", "539"], protocolos);
     }
 
+    [Fact]
+    public async Task RejeitaOLoteAssincronoComUmaSoNota()
+    {
+        // NT 2025.001, GAP03a-3 (em produção desde 13/10/2025): a nota sozinha vai na resposta síncrona.
+        var nota = new NotaTeste();
+
+        var retorno = await _fixture.Http.AutorizarAsync(Autorizacao(), false, [nota.Gerar()], Ct);
+
+        Assert.Equal(("452", "Rejeição: Solicitada resposta assíncrona para Lote com somente 1 (uma) NF-e"), (retorno.Campo("cStat"), retorno.Campo("xMotivo")));
+        Assert.Equal(["tpAmb", "verAplic", "cStat", "xMotivo", "cUF", "dhRecbto"], retorno.Elements().Select(e => e.Name.LocalName));
+        Assert.DoesNotContain(_fixture.Emulador.Repositorio.Notas(), n => n.Chave == nota.Chave);
+    }
+
     // Regras da consulta
 
     [Fact]
@@ -137,7 +150,7 @@ public sealed class RetAutorizacaoTestes : IClassFixture<EmuladorFixture>, IDisp
     public async Task NaoLocalizaNumAutorizadorOLoteDeOutro()
     {
         // SVRS e SVC-RS: mesma casa e mesmo tipo de autorizador, filas separadas.
-        var recibo = await EnviarAsync("SVRS", new NotaTeste { Uf = "42" }.Gerar());
+        var recibo = await EnviarAsync("SVRS", new NotaTeste { Uf = "42" }.Gerar(), new NotaTeste { Uf = "42" }.Gerar());
 
         Assert.Equal("106", (await ConsultarAsync(recibo, "SVC-RS")).Campo("cStat"));
     }
@@ -145,7 +158,7 @@ public sealed class RetAutorizacaoTestes : IClassFixture<EmuladorFixture>, IDisp
     [Fact]
     public async Task RejeitaOReciboDeOutraUF()
     {
-        var recibo = await EnviarAsync("SP", new NotaTeste { Uf = "35" }.Gerar());
+        var recibo = await EnviarAsync("SP", new NotaTeste { Uf = "35" }.Gerar(), new NotaTeste { Uf = "35" }.Gerar());
 
         var retorno = await ConsultarAsync(recibo);
 
@@ -181,7 +194,7 @@ public sealed class RetAutorizacaoTestes : IClassFixture<EmuladorFixture>, IDisp
     [Fact]
     public async Task SoOTransmissorDoLoteConsulta()
     {
-        var recibo = await EnviarAsync("MG", new NotaTeste().Gerar());
+        var recibo = await EnviarAsync("MG", new NotaTeste().Gerar(), new NotaTeste().Gerar());
         using var outro = Clientes.Criar(_fixture.Emulador.Autoridade, Clientes.OutroCertificado);
 
         var retorno = await outro.ConsultarReciboAsync(Recibo(), recibo, Ct);
@@ -195,12 +208,12 @@ public sealed class RetAutorizacaoTestes : IClassFixture<EmuladorFixture>, IDisp
     {
         // Visão Geral, 4.3.3: o transmissor não precisa ser o emitente.
         using var outro = Clientes.Criar(_fixture.Emulador.Autoridade, Clientes.OutroCertificado);
-        var retorno = await outro.AutorizarAsync(Autorizacao(), false, [new NotaTeste().Gerar()], Ct);
+        var retorno = await outro.AutorizarAsync(Autorizacao(), false, [new NotaTeste().Gerar(), new NotaTeste().Gerar()], Ct);
         var recibo = retorno.Element(Mensagens.NFe + "infRec")!.Campo("nRec");
 
         var consulta = await outro.ConsultarReciboAsync(Recibo(), recibo, Ct);
 
-        Assert.Equal("100", consulta.Element(Mensagens.NFe + "protNFe")!.Protocolo().Campo("cStat"));
+        Assert.Equal(["100", "100"], consulta.Elements(Mensagens.NFe + "protNFe").Select(p => p.Protocolo().Campo("cStat")));
     }
 
     // Lote em processamento
@@ -208,7 +221,7 @@ public sealed class RetAutorizacaoTestes : IClassFixture<EmuladorFixture>, IDisp
     [Fact]
     public async Task RespondeEmProcessamentoPeloControle()
     {
-        var recibo = await EnviarAsync("MG", new NotaTeste().Gerar());
+        var recibo = await EnviarAsync("MG", new NotaTeste().Gerar(), new NotaTeste().Gerar());
         await ComandarAsync(new { tipo = "loteProcessando", destino = "MG", vezes = 2 });
 
         var primeira = await ConsultarAsync(recibo);
@@ -223,7 +236,7 @@ public sealed class RetAutorizacaoTestes : IClassFixture<EmuladorFixture>, IDisp
     [Fact]
     public async Task RespondeEmProcessamentoPelaMarca()
     {
-        var recibo = await EnviarAsync("MG", new NotaTeste { Observacao = "Teste EMULADA:loteProcessando:2 do caixa" }.Gerar());
+        var recibo = await EnviarAsync("MG", new NotaTeste { Observacao = "Teste EMULADA:loteProcessando:2 do caixa" }.Gerar(), new NotaTeste().Gerar());
 
         var consultas = new List<string>();
         for (var i = 0; i < 3; i++)

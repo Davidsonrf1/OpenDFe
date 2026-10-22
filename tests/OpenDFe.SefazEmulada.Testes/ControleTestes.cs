@@ -37,7 +37,7 @@ public class ControleTestes
     {
         var controle = new Controle();
 
-        var falha = controle.Acrescentar(new PedidoFalha(TipoFalha.Paralisacao, "MG", "NFeInutilizacao4"));
+        var falha = controle.Acrescentar(new PedidoFalha(TipoFalha.Paralisacao, "MG", "NFeDistribuicaoDFe"));
 
         Assert.Equal("108", falha.Codigo);
     }

@@ -14,3 +14,6 @@ TestResults/
 *.pfx
 *.p12
 .env
+
+# A AC de teste da SEFAZ emulada no Docker (tests/OpenDFe.SefazEmulada/compose.yaml).
+tests/OpenDFe.SefazEmulada/dados/

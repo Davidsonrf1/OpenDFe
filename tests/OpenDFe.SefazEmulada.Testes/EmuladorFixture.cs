@@ -9,8 +9,9 @@ namespace OpenDFe.Testes;
 
 // Um emulador por classe de teste, numa porta livre e com a AC numa pasta temporária, e o HttpClient que
 // confia nela e apresenta o certificado autoassinado dos testes (13.1). As falhas comandadas são limpas
-// por cada classe que as usa.
-public sealed class EmuladorFixture : IAsyncLifetime
+// por cada classe que as usa. O relógio do emulador anda com o do sistema, mais o avanço que o teste der
+// (o prazo do cancelamento, a emissão da substituta); quem avança volta a zero no fim.
+public class EmuladorFixture : IAsyncLifetime
 {
     private readonly string _pasta = Path.Combine(Path.GetTempPath(), "OpenDFe.SefazEmulada.Testes", Guid.NewGuid().ToString("N"));
 
@@ -20,16 +21,22 @@ public sealed class EmuladorFixture : IAsyncLifetime
 
     public string Pasta => _pasta;
 
+    public RelogioAjustavel Relogio { get; } = new();
+
     public Uri Url(string destino, string servico = Servico.NomeStatus) => new(Emulador.Endereco, $"{destino}/{servico}");
 
     public async ValueTask InitializeAsync()
     {
-        Emulador = await Emulador.IniciarAsync(new OpcoesEmulador { Porta = 0, Pasta = _pasta });
+        Emulador = await Emulador.IniciarAsync(Configurar(new OpcoesEmulador { Porta = 0, Pasta = _pasta, Relogio = Relogio }));
         Http = Clientes.Criar(Emulador.Autoridade, Clientes.CertificadoCliente);
     }
 
+    // As opções de quem herda (o painel, os pedidos guardados).
+    private protected virtual OpcoesEmulador Configurar(OpcoesEmulador opcoes) => opcoes;
+
     public async ValueTask DisposeAsync()
     {
+        GC.SuppressFinalize(this);
         Http.Dispose();
         await Emulador.DisposeAsync();
         try
@@ -40,6 +47,14 @@ public sealed class EmuladorFixture : IAsyncLifetime
         {
         }
     }
+}
+
+// O relógio do sistema adiantado pelo Avanco; os temporizadores são os do sistema.
+public sealed class RelogioAjustavel : TimeProvider
+{
+    public TimeSpan Avanco { get; set; }
+
+    public override DateTimeOffset GetUtcNow() => base.GetUtcNow() + Avanco;
 }
 
 // O cliente HTTP dos testes, sem a lib: TLS 1.2 ou 1.3, o certificado do cliente e a confiança só na AC dada.
@@ -103,11 +118,56 @@ internal static class Clientes
         return Mensagens.Retorno(await resposta.Content.ReadAsStringAsync(cancellationToken));
     }
 
+    // A consulta do protocolo: o consSitNFe, HTTP 200 e o retConsSitNFe.
+    public static async Task<XElement> ConsultarProtocoloAsync(
+        this HttpClient http, Uri url, string chave, CancellationToken cancellationToken, string ambiente = "2")
+    {
+        using var resposta = await http.EnviarAsync(url, Mensagens.Envelope(Mensagens.Consulta(chave, ambiente), Servico.NomeConsultaProtocolo), cancellationToken);
+        Assert.Equal(System.Net.HttpStatusCode.OK, resposta.StatusCode);
+        return Mensagens.Retorno(await resposta.Content.ReadAsStringAsync(cancellationToken));
+    }
+
     // O status: POST, HTTP 200 e o retConsStatServ.
     public static async Task<XElement> ConsultarStatusAsync(
         this HttpClient http, Uri url, CancellationToken cancellationToken, string ambiente = "2", string uf = "31")
     {
         using var resposta = await http.EnviarAsync(url, Mensagens.Envelope(Mensagens.Status(ambiente, uf)), cancellationToken);
+        Assert.Equal(System.Net.HttpStatusCode.OK, resposta.StatusCode);
+        return Mensagens.Retorno(await resposta.Content.ReadAsStringAsync(cancellationToken));
+    }
+
+    // Os eventos: o envEvento com os eventos assinados, HTTP 200 e o retEnvEvento.
+    public static async Task<XElement> EnviarEventosAsync(
+        this HttpClient http, Uri url, IEnumerable<string> eventos, CancellationToken cancellationToken)
+    {
+        using var resposta = await http.EnviarAsync(url, Mensagens.Envelope(Mensagens.Eventos([.. eventos]), Servico.NomeRecepcaoEvento), cancellationToken);
+        Assert.Equal(System.Net.HttpStatusCode.OK, resposta.StatusCode);
+        return Mensagens.Retorno(await resposta.Content.ReadAsStringAsync(cancellationToken));
+    }
+
+    // A distribuição: o distDFeInt dentro do nfeDistDFeInteresse, HTTP 200 e o retDistDFeInt.
+    public static async Task<XElement> DistribuirAsync(
+        this HttpClient http, Uri url, string pedido, CancellationToken cancellationToken)
+    {
+        using var resposta = await http.EnviarAsync(url, Mensagens.EnvelopeDistribuicao(pedido), cancellationToken);
+        Assert.Equal(System.Net.HttpStatusCode.OK, resposta.StatusCode);
+        return Mensagens.RetornoDistribuicao(await resposta.Content.ReadAsStringAsync(cancellationToken));
+    }
+
+    // A consulta cadastro: o ConsCad, HTTP 200 e o retConsCad.
+    public static async Task<XElement> ConsultarCadastroAsync(
+        this HttpClient http, Uri url, string pedido, CancellationToken cancellationToken)
+    {
+        using var resposta = await http.EnviarAsync(url, Mensagens.Envelope(pedido, Servico.NomeConsultaCadastro), cancellationToken);
+        Assert.Equal(System.Net.HttpStatusCode.OK, resposta.StatusCode);
+        return Mensagens.Retorno(await resposta.Content.ReadAsStringAsync(cancellationToken));
+    }
+
+    // A inutilização: o inutNFe assinado, HTTP 200 e o retInutNFe.
+    public static async Task<XElement> InutilizarAsync(
+        this HttpClient http, Uri url, string pedido, CancellationToken cancellationToken)
+    {
+        using var resposta = await http.EnviarAsync(url, Mensagens.Envelope(pedido, Servico.NomeInutilizacao), cancellationToken);
         Assert.Equal(System.Net.HttpStatusCode.OK, resposta.StatusCode);
         return Mensagens.Retorno(await resposta.Content.ReadAsStringAsync(cancellationToken));
     }
@@ -133,6 +193,59 @@ internal static class Mensagens
     // A consulta do recibo (Tabela 5-5).
     public static string Recibo(string recibo, string ambiente = "2") =>
         $"<consReciNFe xmlns=\"{NamespaceNFe}\" versao=\"4.00\"><tpAmb>{ambiente}</tpAmb><nRec>{recibo}</nRec></consReciNFe>";
+
+    // A consulta do protocolo (Visão Geral, Tabela 5-13).
+    public static string Consulta(string chave, string ambiente = "2", string servico = "CONSULTAR") =>
+        $"<consSitNFe xmlns=\"{NamespaceNFe}\" versao=\"4.00\"><tpAmb>{ambiente}</tpAmb><xServ>{servico}</xServ><chNFe>{chave}</chNFe></consSitNFe>";
+
+    // O lote de eventos (Tabela 5-32), com os eventos já assinados.
+    public static string Eventos(params string[] eventos) =>
+        $"<envEvento xmlns=\"{NamespaceNFe}\" versao=\"1.00\"><idLote>7</idLote>{string.Concat(eventos)}</envEvento>";
+
+    // O pedido da distribuição (NT 2014.002, 3.1 e os exemplos do item 5): o interessado e uma das consultas
+    // (DistribuirNsu, ConsultarNsu, ConsultarChave).
+    public static string Distribuicao(string consulta, string? cnpj = "11222333000181", string? cpf = null, string ambiente = "2", string? uf = "31") =>
+        $"<distDFeInt xmlns=\"{NamespaceNFe}\" versao=\"1.01\"><tpAmb>{ambiente}</tpAmb>{(uf is null ? "" : $"<cUFAutor>{uf}</cUFAutor>")}"
+        + (cnpj is not null ? $"<CNPJ>{cnpj}</CNPJ>" : $"<CPF>{cpf}</CPF>") + consulta + "</distDFeInt>";
+
+    public static string DistribuirNsu(long ultimo) =>
+        $"<distNSU><ultNSU>{ultimo.ToString("D15", System.Globalization.CultureInfo.InvariantCulture)}</ultNSU></distNSU>";
+
+    public static string ConsultarNsu(long nsu) =>
+        $"<consNSU><NSU>{nsu.ToString("D15", System.Globalization.CultureInfo.InvariantCulture)}</NSU></consNSU>";
+
+    public static string ConsultarChave(string chave) => $"<consChNFe><chNFe>{chave}</chNFe></consChNFe>";
+
+    // O pedido da consulta cadastro (Visão Geral, Tabela 5-21), com o argumento (<CNPJ>, <IE> ou <CPF>) pronto.
+    public static string Cadastro(string uf, string argumento, string servico = "CONS-CAD") =>
+        $"<ConsCad xmlns=\"{NamespaceNFe}\" versao=\"2.00\"><infCons><xServ>{servico}</xServ><UF>{uf}</UF>{argumento}</infCons></ConsCad>";
+
+    // O envelope da distribuição, com a operação no Body (NT 2014.002, 5), em SOAP 1.2.
+    public static string EnvelopeDistribuicao(string dados) =>
+        "<?xml version=\"1.0\" encoding=\"utf-8\"?>"
+        + $"<soap12:Envelope xmlns:soap12=\"{NamespaceSoap}\"><soap12:Body>"
+        + $"<nfeDistDFeInteresse xmlns=\"http://www.portalfiscal.inf.br/nfe/wsdl/{Servico.NomeDistribuicao}\">"
+        + $"<nfeDadosMsg>{dados}</nfeDadosMsg></nfeDistDFeInteresse>"
+        + "</soap12:Body></soap12:Envelope>";
+
+    // A área de dados do nfeDistDFeInteresseResponse/nfeDistDFeInteresseResult.
+    public static XElement RetornoDistribuicao(string envelope)
+    {
+        var corpo = XDocument.Parse(envelope).Root!.Element(Soap + "Body")!;
+        var resposta = Assert.Single(corpo.Elements());
+        Assert.Equal("nfeDistDFeInteresseResponse", resposta.Name.LocalName);
+        var resultado = Assert.Single(resposta.Elements());
+        Assert.Equal("nfeDistDFeInteresseResult", resultado.Name.LocalName);
+        return Assert.Single(resultado.Elements());
+    }
+
+    // O documento de um docZip: o base64 descompactado do gzip, em UTF-8.
+    public static XElement Descompactar(XElement documento)
+    {
+        using var compactado = new MemoryStream(Convert.FromBase64String(documento.Value));
+        using var gzip = new System.IO.Compression.GZipStream(compactado, System.IO.Compression.CompressionMode.Decompress);
+        return XDocument.Load(gzip).Root!;
+    }
 
     public static string Envelope(string dados, string servico = Servico.NomeStatus) =>
         "<?xml version=\"1.0\" encoding=\"utf-8\"?>"
