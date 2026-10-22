@@ -31,12 +31,13 @@ public class LeiauteNFe400Testes
     [Theory]
     [InlineData(Documento.NFe)]
     [InlineData(Documento.NFCe)]
-    public void ADeclaracaoTemAsFormasDeLeituraEAindaNenhumaOperacao(Documento documento)
+    public void ADeclaracaoTemAsFormasDeLeituraEOStatus(Documento documento)
     {
         var declaracao = DeclaracaoLeiaute.Criar(new LeiauteNFe400(), documento);
 
         Assert.Equal(documento, declaracao.Documento);
-        Assert.Empty(declaracao.Operacoes);
+        var operacao = Assert.Single(declaracao.Operacoes);
+        Assert.Equal((typeof(ConsultaStatus), typeof(RetornoStatus)), (operacao.Parametro, operacao.Retorno));
         Assert.NotEmpty(declaracao.Atendimentos);
         Assert.NotEmpty(declaracao.Enderecos);
         Assert.Null(declaracao.TipoConfiguracaoDocumento);

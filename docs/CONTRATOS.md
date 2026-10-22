@@ -583,7 +583,7 @@ Só declarado, ou nem isso, e vem depois:
 
 - **SOAP real, TLS ICP-Brasil, `CipherSuitesPolicy` por destino, fábrica do handler, tempo limite** (4.1): na 1.6, a transmissão é uma costura interna do `ConexoesSefaz`, usada pelos testes. A ação SOAP e o namespace do WSDL por serviço entram como membros novos do `PedidoWS` ou da declaração.
 - **As URLs e os atendimentos reais** (4.2), conferidos nos portais.
-- **Os parâmetros e retornos** (`ConsultaStatus`, `Autorizacao`, ..., 4.3 a 8.2), no pacote do leiaute; se o status vai para o núcleo como "operação comum" (3.4), decide-se na 4.3.
+- **Os parâmetros e retornos** (`ConsultaStatus`, `Autorizacao`, ..., 4.3 a 8.2), no pacote do leiaute; se o status vai para o núcleo como "operação comum" (3.4), decide-se na 4.3. **Decidido na 4.3: vai ao núcleo** (seção 13).
 - **`Preparar` e `DocumentoPreparado`** (4.4, 5.2), o **detector** `DFe.Detectar` (2.5), a **impressão** (7.2): membros novos no `DFe` e na `DeclaracaoLeiaute`.
 - **O motor de regras e a chamada dos callbacks** (3.1).
 - **A troca dos schemas por quem usa** (2.6 do `PROJETO.md`): sobrecarga do `SchemaXml` e propriedade da configuração.
@@ -608,3 +608,41 @@ O mínimo, sem mudar a forma dos tipos:
 - **Cancelamento e tempo:** o token é conferido no início (antes do `Montar`) e antes de transmitir. A `OperationCanceledException` que não é do token de quem chama (o tempo esgotado do `HttpClient`) é falha de transmissão.
 - **Handler e transporte que devolvem nulo:** o pedido ou a leitura nulos são `InvalidOperationException` (erro de programação do leiaute); a resposta nula do transporte é falha de transmissão.
 - **Analisadores:** a `FalhaTransmissaoException` fica sem os construtores padrão de exceção, como no desenho: o CA1032 não está ligado no nível `latest-recommended` do repositório (conferido: só no `latest-all`) e o CA1710 é atendido pelo sufixo. O construtor protegido de `ParametroWS<TRetorno>` dispara o RS0022 (torna herdável a base com construtor `private protected`), que é o desenho; suprimido ali, com o motivo.
+
+## 13. O status do serviço (etapa 4.3)
+
+**Aprovado em 2026-10-22**, todas as decisões pela recomendação. A primeira operação de verdade: o caminho do `ExecutarAsync` (seção 3) não mudou.
+
+```csharp
+// núcleo, namespace OpenDFe: operação comum aos documentos (PROJETO.md 3.4)
+public sealed class ConsultaStatus : ParametroWS<RetornoStatus>
+{
+    public ConsultaStatus();          // sem membros próprios; o Destino herdado sobrepõe
+}
+
+public sealed class RetornoStatus
+{
+    public RetornoStatus(int status, string motivo);       // o leiaute cria; ArgumentNullException no motivo nulo
+    public int Status { get; }                             // cStat
+    public string Motivo { get; }                          // xMotivo
+    public bool Operando { get; }                          // Status == 107
+    public Ambiente? Ambiente { get; init; }               // tpAmb
+    public string? VersaoAplicativo { get; init; }         // verAplic
+    public UF? UF { get; init; }                           // cUF, a UF responsável pelo serviço
+    public DateTimeOffset? Recebimento { get; init; }      // dhRecbto
+    public TimeSpan? TempoMedio { get; init; }             // tMed, em segundos
+    public DateTimeOffset? PrevisaoRetorno { get; init; }  // dhRetorno
+    public string? Observacao { get; init; }               // xObs
+}
+```
+
+No leiaute, o `OperacaoStatus` interno, registrado para a NF-e e para a NFC-e.
+
+1. **No núcleo, não no `OpenDFe.NFe`:** os campos são os mesmos no CT-e e no MDF-e; o PDV e o ERP monitoram qualquer documento com o mesmo `new ConsultaStatus()`, e cada leiaute registra o seu handler.
+2. **Imutável:** o construtor com o `cStat` e o `xMotivo`, o resto `init` e anulável, como o `LeituraWS`. O `Status` e o `Motivo` repetem os do `ResultadoWS`, para o retorno valer sozinho (como no `Protocolo`).
+3. **`Operando`:** o que o PDV olha para decidir a contingência.
+4. **Leitura branda**, sem o schema do retorno, como a da nota (`LEITURA.md`): outra raiz, ou sem o `cStat` (ou ele não numérico) ou o `xMotivo`, é resposta ilegível (`FormatException`, que o núcleo faz `FalhaTransmissaoException` do tipo `RespostaIlegivel`); o opcional que não se lê fica nulo com o aviso `NFE-VALOR` (o `cUF` que não é UF também); o campo desconhecido, em outro namespace ou com filhos é `NFE-DESCONHECIDO`, e o repetido, `NFE-REPETIDO` (vale o primeiro), todos aviso: a resposta já foi processada, e o aviso não pode virar recusa.
+5. **O pedido:** o `cUF` é a UF do destino quando ele é uma UF; nos virtuais (SVRS, SVAN, SVC), a do núcleo. O tipo de emissão é o do núcleo (o núcleo em SVC-AN consulta a SVC-AN); para olhar a SVC com o núcleo normal, `Destino = Destino.SvcAN`. Sem assinatura. O AN não tem o status: `NotSupportedException`, sem transmitir.
+6. **O PI nas duas SVC também no emulador**, que só emula a homologação (a divergência deixada pela 4.2).
+7. **Sem o açúcar `dfe.ConsultarStatusAsync()`** por enquanto (seção 8, decisão 5).
+

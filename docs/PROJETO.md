@@ -160,7 +160,7 @@ O rastro é um objeto (`RastroWS`), o mesmo no resultado e na `FalhaTransmissaoE
 
 | Operação | Parâmetro | Retorno | Destino natural |
 |---|---|---|---|
-| Status do serviço | `ConsultaStatus` | `RetornoStatus` | UF do núcleo |
+| Status do serviço | `ConsultaStatus` (no núcleo, comum aos documentos: `CONTRATOS.md` 13) | `RetornoStatus` | UF do núcleo, no tipo de emissão do núcleo |
 | Autorização | `Autorizacao(documentos) { Sincrona }` | `RetornoAutorizacao`: protocolo e `nfeProc` por documento, ou o recibo | UF do núcleo |
 | Consulta do recibo | `ConsultaRecibo(recibo)` | `RetornoAutorizacao` | UF do núcleo |
 | Consulta do protocolo | `ConsultaProtocolo(chave)` | `RetornoProtocolo`, com os eventos | UF e tipo de emissão da chave |

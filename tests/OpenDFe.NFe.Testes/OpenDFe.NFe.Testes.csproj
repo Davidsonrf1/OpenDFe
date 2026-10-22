@@ -10,6 +10,13 @@
     <ProjectReference Include="../../src/OpenDFe.NFe.Modelo/OpenDFe.NFe.Modelo.csproj" />
   </ItemGroup>
 
+  <!-- As operações pela lib contra a SEFAZ emulada (PROJETO.md 13.5), da 4.3 em diante: o leiaute de verdade com as
+       URLs do emulador trocadas e a AC dele pela fábrica de teste. -->
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <ProjectReference Include="../OpenDFe.SefazEmulada/OpenDFe.SefazEmulada.csproj" />
+  </ItemGroup>
+
   <!-- O gerador do certificado de teste (PROJETO.md 13.1): a nota escrita é assinada antes do schema, que exige a Signature. -->
   <ItemGroup>
     <Compile Include="../Compartilhado/**/*.cs" LinkBase="Compartilhado" />

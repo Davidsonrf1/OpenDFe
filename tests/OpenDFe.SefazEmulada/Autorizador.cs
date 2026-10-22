@@ -66,7 +66,9 @@ internal sealed class Autorizador
         lista.Add(new Autorizador("SVRS", "43", Codigos("AC", "AL", "AP", "CE", "DF", "ES", "PA", "PB", "PI", "RJ", "RN", "RO", "RR", "SC", "SE", "TO"), cadastro, '3',
             Codigos("AC", "ES", "RN", "PB", "SC")));
         lista.Add(new Autorizador("SVC-AN", "91", Codigos("AC", "AL", "AP", "CE", "DF", "ES", "MG", "PA", "PB", "PI", "RJ", "RN", "RO", "RR", "RS", "SC", "SE", "SP", "TO"), completos, '2'));
-        lista.Add(new Autorizador("SVC-RS", "43", Codigos("AM", "BA", "GO", "MA", "MS", "MT", "PE", "PR"), svcRS, '3'));
+        // O PI nas duas SVC: a produção o põe na SVC-AN e a homologação, que é o que o emulador emula, na SVC-RS (o
+        // Portal diverge; decidido na etapa 4.3, como a tabela da lib).
+        lista.Add(new Autorizador("SVC-RS", "43", Codigos("AM", "BA", "GO", "MA", "MS", "MT", "PE", "PI", "PR"), svcRS, '3'));
         lista.Add(new Autorizador("AN", "91", [], an, '2'));
         return lista;
     }

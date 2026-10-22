@@ -36,6 +36,8 @@ public class StatusServicoTestes(EmuladorFixture fixture) : IClassFixture<Emulad
     [InlineData("SVAN", "21")]
     [InlineData("SVC-AN", "31")]
     [InlineData("SVC-RS", "29")]
+    [InlineData("SVC-AN", "22")]
+    [InlineData("SVC-RS", "22")]
     [InlineData("SP", "35")]
     public async Task RespondeEmOperacaoComAUFDoPedido(string destino, string uf)
     {

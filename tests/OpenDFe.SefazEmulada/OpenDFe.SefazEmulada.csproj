@@ -11,6 +11,7 @@
     <InternalsVisibleTo Include="OpenDFe.SefazEmulada.Testes" />
     <!-- O encontro com a lib (4.1): o transporte contra o emulador, com as falhas comandadas pelo Controle. -->
     <InternalsVisibleTo Include="OpenDFe.Nucleo.Testes" />
+    <InternalsVisibleTo Include="OpenDFe.NFe.Testes" />
   </ItemGroup>
 
   <!-- A página do painel (E.6), embutida como está, sem build: Painel/<arquivo>. -->

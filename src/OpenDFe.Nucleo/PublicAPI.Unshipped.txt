@@ -397,3 +397,24 @@ OpenDFe.TipoFalhaTransmissao.Http = 5 -> OpenDFe.TipoFalhaTransmissao
 OpenDFe.TipoFalhaTransmissao.RespostaIlegivel = 7 -> OpenDFe.TipoFalhaTransmissao
 OpenDFe.TipoFalhaTransmissao.TempoEsgotado = 4 -> OpenDFe.TipoFalhaTransmissao
 OpenDFe.TipoFalhaTransmissao.Tls = 2 -> OpenDFe.TipoFalhaTransmissao
+OpenDFe.ConsultaStatus
+OpenDFe.ConsultaStatus.ConsultaStatus() -> void
+OpenDFe.RetornoStatus
+OpenDFe.RetornoStatus.Ambiente.get -> OpenDFe.Ambiente?
+OpenDFe.RetornoStatus.Ambiente.init -> void
+OpenDFe.RetornoStatus.Motivo.get -> string!
+OpenDFe.RetornoStatus.Observacao.get -> string?
+OpenDFe.RetornoStatus.Observacao.init -> void
+OpenDFe.RetornoStatus.Operando.get -> bool
+OpenDFe.RetornoStatus.PrevisaoRetorno.get -> System.DateTimeOffset?
+OpenDFe.RetornoStatus.PrevisaoRetorno.init -> void
+OpenDFe.RetornoStatus.Recebimento.get -> System.DateTimeOffset?
+OpenDFe.RetornoStatus.Recebimento.init -> void
+OpenDFe.RetornoStatus.RetornoStatus(int status, string! motivo) -> void
+OpenDFe.RetornoStatus.Status.get -> int
+OpenDFe.RetornoStatus.TempoMedio.get -> System.TimeSpan?
+OpenDFe.RetornoStatus.TempoMedio.init -> void
+OpenDFe.RetornoStatus.UF.get -> OpenDFe.UF?
+OpenDFe.RetornoStatus.UF.init -> void
+OpenDFe.RetornoStatus.VersaoAplicativo.get -> string?
+OpenDFe.RetornoStatus.VersaoAplicativo.init -> void

@@ -367,12 +367,16 @@ internal sealed class LeituraNFe
         var tag = _xml.LocalName;
         if (Texto(propriedade) is not { } texto)
             return null;
-        if (DateTimeOffset.TryParseExact(texto, FormatosDataHora, CultureInfo.InvariantCulture, DateTimeStyles.None, out var valor)
-            || DateTimeOffset.TryParseExact(texto, FormatosDataHoraUtc, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out valor))
+        if (TentarDataHora(texto, out var valor))
             return valor;
         Invalido(tag, propriedade, -1, "não é uma data e hora com o fuso (AAAA-MM-DDThh:mm:ss-03:00)");
         return null;
     }
+
+    /// <summary>A data e a hora com o deslocamento ou em UTC (<c>Z</c>), com ou sem a fração do segundo.</summary>
+    internal static bool TentarDataHora(string texto, out DateTimeOffset valor) =>
+        DateTimeOffset.TryParseExact(texto, FormatosDataHora, CultureInfo.InvariantCulture, DateTimeStyles.None, out valor)
+        || DateTimeOffset.TryParseExact(texto, FormatosDataHoraUtc, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out valor);
 
     /// <summary>A data, <c>AAAA-MM-DD</c>.</summary>
     internal DateOnly? Data(DateOnly? atual, string propriedade)

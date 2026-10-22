@@ -72,8 +72,10 @@ A tabela é do próprio emulador, sem o `Atendimento` da lib: se ele reaproveita
 | SVAN | MA | 91 |
 | SVRS | AC, AL, AP, CE, DF, ES, PA, PB, PI, RJ, RN, RO, RR, SC, SE, TO | 43 |
 | SVC-AN | AC, AL, AP, CE, DF, ES, MG, PA, PB, PI, RJ, RN, RO, RR, RS, SC, SE, SP, TO | 91 |
-| SVC-RS | AM, BA, GO, MA, MS, MT, PE, PR (sem o `NFeInutilizacao4`) | 43 |
+| SVC-RS | AM, BA, GO, MA, MS, MT, PE, PI, PR (sem o `NFeInutilizacao4`) | 43 |
 | AN | nenhuma: só `NFeDistribuicaoDFe` e `NFeRecepcaoEvento4` (a manifestação) | 91 |
+
+O PI está nas duas SVC: a produção o põe na SVC-AN e a homologação, na SVC-RS (o Portal diverge, conferido em 2026-10-22); o emulador, que só emula a homologação, segue a tabela da lib e atende o PI nas duas (decidido na etapa 4.3).
 
 O `CadConsultaCadastro4` está nas 10 UFs (o da própria UF) e na SVRS, que consulta só o cadastro do AC, do ES, do RN, da PB e de SC ("Relação de Serviços Web", conferida em 2026-10-21); a SVAN e as duas SVC não o têm. O emulador responde só os serviços que já implementa. Os outros dão 404, mesmo os que o autorizador tem. A SVC-AN tem o `NFeInutilizacao4` na lista do Portal, mas a SVC não oferece a inutilização (Anexo III, 2.1.3, e): no emulador, 404 nas duas SVC. A EPEC, no `NFeRecepcaoEvento4` do AN, não é implementada (491).
 

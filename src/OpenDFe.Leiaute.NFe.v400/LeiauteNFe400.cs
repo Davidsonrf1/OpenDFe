@@ -14,7 +14,8 @@ namespace OpenDFe.NFe;
 /// </para>
 /// <para>
 /// Declara os serviços SOAP, quem atende cada UF em cada tipo de emissão e as URLs dos autorizadores nos dois
-/// ambientes (etapa 4.2); as operações entram da etapa 4.3 em diante. Declara também as formas de XML que lê (o
+/// ambientes (etapa 4.2), e as operações: o status do serviço (<see cref="ConsultaStatus"/>, etapa 4.3); as outras
+/// entram da etapa 4.4 em diante. Declara também as formas de XML que lê (o
 /// <c>NFe</c> e o <c>nfeProc</c>), para o <see cref="DFe.Detectar"/>, e lê a nota (<see cref="Ler"/>) sem núcleo.
 /// </para>
 /// </remarks>
@@ -28,6 +29,8 @@ public sealed class LeiauteNFe400 : ILeiaute
 
     private static readonly FormaLeitura FormaNfeProc = new(Namespace, "nfeProc", "@versao", "NFe/infNFe/ide/mod");
 
+    private static readonly OperacaoStatus Status = new();
+
     /// <summary>A versão do leiaute, como no atributo <c>versao</c> do XML: <c>"4.00"</c>.</summary>
     public string Versao => "4.00";
 
@@ -35,7 +38,7 @@ public sealed class LeiauteNFe400 : ILeiaute
     public IReadOnlyList<Documento> Documentos => Atendidos;
 
     /// <summary>
-    /// Declara o que o leiaute tem para o documento: as formas de XML que ele lê (o <c>NFe</c> e o <c>nfeProc</c>),
+    /// Declara o que o leiaute tem para o documento: as operações, as formas de XML que ele lê (o <c>NFe</c> e o <c>nfeProc</c>),
     /// iguais para a NF-e e a NFC-e (o modelo do XML diz qual dos dois), as regras do MOC que ele confere antes de
     /// transmitir (docs/REGRAS.md) e os autorizadores do documento: os serviços SOAP, os atendimentos e as URLs
     /// (docs/NTS.md 3).
@@ -45,6 +48,7 @@ public sealed class LeiauteNFe400 : ILeiaute
     public void Declarar(DeclaracaoLeiaute declaracao)
     {
         ArgumentNullException.ThrowIfNull(declaracao);
+        declaracao.RegistrarOperacao(Status);
         declaracao.DeclararLeitura(FormaNFe);
         declaracao.DeclararLeitura(FormaNfeProc);
         declaracao.DeclararRegras(RegrasNFe400.Conferir);
