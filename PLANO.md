@@ -376,7 +376,16 @@ Pré-lançamentos (`0.x`) no NuGet.org a partir do fim da fase 5, quando o PDV p
 
 - **Aprovado em 2026-10-21:** todas as decisões (1 a 15) pela recomendação; na 15, a (c), com os XMLs reais quando o usuário os passar (sem eles, a implementação fecha com os da escrita e dos manuais e deixa os reais pendentes).
 
-**Próxima: 2.5, a implementação** do desenho aprovado (`docs/LEITURA.md`; ler também o `MODELO.md` 13, a escrita, que a leitura espelha), com o que a 11.13 deixou para ela (a sequência do `nItem`, o CST fora da lista lido como o número) e a ida e volta contra a escrita da 2.4.
+**2.5. Leitura e detector. Feita (2026-10-21).** O detalhe está em `docs/LEITURA.md` 9.
+- **Público:** no núcleo, `DFe.Detectar`, `DeteccaoDFe`, `FormaLeitura`, `DeclaracaoLeiaute.DeclararLeitura` e `Leituras`; no leiaute, `LeiauteNFe400.Ler` e `NotaLida`, e o `Declarar` com as formas `NFe` e `nfeProc`; no modelo, `Protocolo` e `MensagemSefaz` (identificadores PR04 a PR15, conferidos no MOC 7.0, Visão Geral). 48 símbolos novos nos `PublicAPI.Unshipped.txt`. A `ChaveAcesso.TentarLer` aceita o tipo de emissão 3 (a NFF, decisão 9).
+- **Interno, no leiaute:** `LeitorNFe` (a raiz, o `nfeProc`, a chave, o `nItem` e o protocolo à mão; os parciais `.Nota`, `.Item` e `.Total`, 153 métodos, gerados por script a partir dos parciais do `EscritorNFe` e revisados, daqui em diante editados à mão), `LeituraNFe` e `CodigosLeitura`. O que a 11.13 deixou: a sequência do `nItem` (`NFE-ITEM`) e o código fora da lista lido como o número (`NFE-ENUMERACAO`).
+- **Ajustes ao desenho** (a conferir pelo usuário, `LEITURA.md` 9): a `FormaLeitura` sem caminho vazio; o `Protocolo` sem `[Tag]` na classe; o índice sempre no elemento de lista no caminho do problema da leitura; o atributo e o texto solto também como `NFE-DESCONHECIDO`; a segunda alternativa de uma escolha como `NFE-REPETIDO`; 19 campos soltos da monofasia, e não 16.
+- **`tests/Exemplos/`** nasce aqui, com uma instância fixa da NF-e de teste do ErpCore (`erpcore-nfeproc-entrada.xml`); **pendente do usuário:** notas reais para anonimizar (decisão 15).
+- **Testes:** `NFe.Testes` com 207 (73 novos: a ida e volta das notas da escrita e dos 29 grupos de imposto, o `nfeProc`, a nota do ErpCore, cada problema, a tolerância, o detector e a cobertura por reflexão) e `Nucleo.Testes` com 451 (24 novos, o detector com o leiaute falso). Três mutações provadas (`LEITURA.md` 9).
+- Conferido (Windows): build sem aviso em Debug e Release, `dotnet test --solution OpenDFe.slnx` com código 0 (859 testes, 13 pulados, os de homologação sem variável), `dotnet pack -c Release` e `eng/ConferirPacotes.ps1` aprovando os três pacotes. No Linux (WSL Ubuntu 26.04, .NET 10.0.113), os 207 do `NFe.Testes` e os 451 do `Nucleo.Testes` passam (compilados com `--artifacts-path` e rodados pelo DLL). A regra de nomes sem nada fora dos métodos de teste. Sem dependência nova.
+- **Conferido na fonte (2026-10-21):** os 43 pacotes de schemas do 4.00 no Portal Nacional (`LEITURA.md` 5, registrados em `docs/NTS.md` 1.6).
+
+**Próxima: 2.6. Problema até a propriedade** (o caminho do erro do XSD convertido no caminho do modelo pelo `[Tag]`, `det[3]/prod/vProd` → `Itens[2].Produto.Valor`), que fecha a fase 2. Ler o `MODELO.md` 4 e 11.10 (o mapeamento) e o `LEITURA.md` 9 (o caminho da leitura já sai com a propriedade, e com o índice sempre no elemento de lista).
 
 ### Trilha paralela: SEFAZ emulada (branch `sefaz-emulada`, worktree `../OpenDFe-sefaz-emulada`)
 

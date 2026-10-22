@@ -83,7 +83,7 @@ public sealed class DFe
 }
 ```
 
-Vêm depois, como membros novos (versão menor): `Detectar` (estático, 2.5), `Preparar` (4.4 e 5.2) e a impressão (7.2).
+Vêm depois, como membros novos (versão menor): `Detectar` (estático, 2.5; feito, desenho e implementação em `docs/LEITURA.md`, com a `FormaLeitura` declarada na `DeclaracaoLeiaute`), `Preparar` (4.4 e 5.2) e a impressão (7.2).
 
 ### 2.2. `ConfiguracaoDFe`, `ConfiguracaoDocumento`, `Contingencia`
 

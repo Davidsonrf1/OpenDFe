@@ -37,8 +37,9 @@ public class CoberturaEscritaTestes
             Conferir(nota, infNFe, raiz, "", vistas);
         }
 
+        // O protocolo (2.5) não é da nota: a SEFAZ o escreve, e a escrita dele é da fase 4 (o nfeProc da autorização).
         var faltam = Modelo.GetTypes()
-            .Where(t => t.IsClass && t.IsPublic)
+            .Where(t => t.IsClass && t.IsPublic && t != typeof(Protocolo) && t != typeof(MensagemSefaz))
             .SelectMany(t => t.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly))
             .Where(p => p.GetCustomAttribute<TagAttribute>() is not null)
             .Where(p => !vistas.Contains((p.DeclaringType!, p.Name)))
@@ -108,8 +109,8 @@ public class CoberturaEscritaTestes
     }
 
     // Um valor para cada propriedade: texto, número, data, o primeiro membro da enumeração, a UF; cada grupo
-    // instanciado, cada lista com um item; na escolha por subclasse, a da rodada.
-    private static object Preencher(Type tipo, int rodada)
+    // instanciado, cada lista com um item; na escolha por subclasse, a da rodada. A cobertura da leitura usa as mesmas.
+    internal static object Preencher(Type tipo, int rodada)
     {
         if (tipo.IsAbstract)
         {

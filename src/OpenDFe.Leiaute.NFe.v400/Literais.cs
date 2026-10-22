@@ -33,5 +33,29 @@ internal static class Literais
         _ => Numero((int)valor),
     };
 
+    // A leitura (docs/LEITURA.md 3): o texto do leiaute vira o membro; o que não é da tradução fica nulo, e a leitura
+    // tenta o número.
+    internal static ModeloCupomFiscal? LerModeloCupomFiscal(string texto) => texto switch
+    {
+        "2B" => NFe.ModeloCupomFiscal.MaquinaRegistradora,
+        "2C" => NFe.ModeloCupomFiscal.Pdv,
+        "2D" => NFe.ModeloCupomFiscal.Ecf,
+        _ => null,
+    };
+
+    internal static IndicadorEscala? LerIndicadorEscala(string texto) => texto switch
+    {
+        "S" => NFe.IndicadorEscala.Relevante,
+        "N" => NFe.IndicadorEscala.NaoRelevante,
+        _ => null,
+    };
+
+    internal static CondicaoVin? LerCondicaoVin(string texto) => texto switch
+    {
+        "R" => NFe.CondicaoVin.Remarcado,
+        "N" => NFe.CondicaoVin.Normal,
+        _ => null,
+    };
+
     private static string Numero(int valor) => valor.ToString(CultureInfo.InvariantCulture);
 }

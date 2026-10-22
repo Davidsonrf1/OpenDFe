@@ -31,6 +31,9 @@ public sealed class ChaveAcesso : IEquatable<ChaveAcesso>
     /// <summary>Quantidade de posições da chave de acesso.</summary>
     public const int Tamanho = 44;
 
+    // O tipo de emissão da NFF (Nota Fiscal Fácil), fora do TipoEmissao (decisão da 1.1), aceito só na leitura.
+    private const TipoEmissao TipoEmissaoNff = (TipoEmissao)3;
+
     private const int MaiorSerie = 999;
     private const int MaiorNumero = 999_999_999;
     private const int LimiteCodigoNumerico = 100_000_000;
@@ -206,7 +209,10 @@ public sealed class ChaveAcesso : IEquatable<ChaveAcesso>
     /// mês, o CNPJ ou o CPF do emitente, o modelo, o número (não pode ser zero), o tipo de emissão e o
     /// dígito verificador. Não confere as regras do código numérico, nem a série do emitente CPF, que são
     /// regras do MOC sobre o documento. A chave de leiaute anterior ao 2.00 (com o <c>cNF</c> de 9 dígitos
-    /// e sem o tipo de emissão) é recusada quando a posição do tipo de emissão não tem um tipo conhecido.
+    /// e sem o tipo de emissão) é recusada quando a posição do tipo de emissão não tem um tipo conhecido. O tipo
+    /// 3 (a NFF, emitida pelo aplicativo Nota Fiscal Fácil, que o <see cref="OpenDFe.TipoEmissao"/> não tem) é aceito,
+    /// e a chave sai com <c>(TipoEmissao)3</c>: a nota recebida de um produtor rural ou de um MEI tem chave
+    /// (docs/LEITURA.md, decisão 9).
     /// </remarks>
     /// <param name="valor">A chave, com 44 posições.</param>
     /// <param name="chave">A chave lida, quando válida.</param>
@@ -233,7 +239,7 @@ public sealed class ChaveAcesso : IEquatable<ChaveAcesso>
         if (numero == 0)
             return false;
         var tipoEmissao = (TipoEmissao)(v[34] - '0');
-        if (!Enum.IsDefined(tipoEmissao))
+        if (!Enum.IsDefined(tipoEmissao) && tipoEmissao != TipoEmissaoNff)
             return false;
         if (Modulo11.Calcular(v[..(Tamanho - 1)]) != v[Tamanho - 1] - '0')
             return false;

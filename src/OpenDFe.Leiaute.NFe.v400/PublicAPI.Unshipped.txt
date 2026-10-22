@@ -3,4 +3,11 @@ OpenDFe.NFe.LeiauteNFe400
 OpenDFe.NFe.LeiauteNFe400.Declarar(OpenDFe.DeclaracaoLeiaute! declaracao) -> void
 OpenDFe.NFe.LeiauteNFe400.Documentos.get -> System.Collections.Generic.IReadOnlyList<OpenDFe.Documento>!
 OpenDFe.NFe.LeiauteNFe400.LeiauteNFe400() -> void
+OpenDFe.NFe.LeiauteNFe400.Ler(string! xml) -> OpenDFe.NFe.NotaLida!
 OpenDFe.NFe.LeiauteNFe400.Versao.get -> string!
+OpenDFe.NFe.NotaLida
+OpenDFe.NFe.NotaLida.Chave.get -> OpenDFe.ChaveAcesso?
+OpenDFe.NFe.NotaLida.Nota.get -> OpenDFe.NFe.NotaFiscal?
+OpenDFe.NFe.NotaLida.Problemas.get -> System.Collections.Generic.IReadOnlyList<OpenDFe.Problema!>!
+OpenDFe.NFe.NotaLida.Protocolo.get -> OpenDFe.NFe.Protocolo?
+OpenDFe.NFe.NotaLida.Xml.get -> string!

@@ -31,12 +31,14 @@ internal static class NotasTeste
     }
 
     // Assina o infNFe pelo Id e valida o NFe pelo schema da nota; devolve os problemas do schema.
-    internal static IReadOnlyList<Problema> Validar(NotaEscrita escrita)
+    internal static IReadOnlyList<Problema> Validar(NotaEscrita escrita) => SchemasNFe400.Nota.Validar(Assinar(escrita));
+
+    // O NFe assinado pelo certificado de teste.
+    internal static string Assinar(NotaEscrita escrita)
     {
         Assert.Empty(escrita.Problemas);
         Assert.NotNull(escrita.Id);
-        var assinado = AssinaturaDigital.Assinar(escrita.Xml, escrita.Id!, Certificado.Value);
-        return SchemasNFe400.Nota.Validar(assinado);
+        return AssinaturaDigital.Assinar(escrita.Xml, escrita.Id!, Certificado.Value);
     }
 
     internal static void AssertValida(NotaFiscal nota, ValoresNucleo? nucleo = null)

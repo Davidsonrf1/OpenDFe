@@ -161,7 +161,6 @@ public class ChaveAcessoTestes
     [InlineData("35260712ABC34501DE3A550010000001231876543212")]    // letra no DV do CNPJ
     [InlineData("41180678393592000146578900000006041028190694")]    // modelo 57
     [InlineData("41180678393592000146558900000000001028190695")]    // número zero
-    [InlineData("41180678393592000146558900000006043028190693")]    // tipo de emissão 3
     [InlineData("41180678393592000146558900000006048028190694")]    // tipo de emissão 8
     [InlineData("41180678393592000146558900000006040028190699")]    // tipo de emissão 0
     public void RecusaChaveInvalida(string? valor)
@@ -170,6 +169,16 @@ public class ChaveAcessoTestes
         Assert.Null(chave);
         if (valor is not null)
             Assert.Throws<ArgumentException>(() => ChaveAcesso.Ler(valor));
+    }
+
+    [Fact]
+    public void LeAChaveDaNffComOTipoDeEmissao3()
+    {
+        // A NFF (Nota Fiscal Fácil) não está no TipoEmissao, mas a nota recebida dela tem chave (docs/LEITURA.md, decisão 9).
+        Assert.True(ChaveAcesso.TentarLer("41180678393592000146558900000006043028190693", out var chave));
+
+        Assert.Equal((TipoEmissao)3, chave.TipoEmissao);
+        Assert.Equal(604, chave.Numero);
     }
 
     [Fact]

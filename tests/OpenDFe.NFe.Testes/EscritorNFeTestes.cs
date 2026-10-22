@@ -36,7 +36,10 @@ public class EscritorNFeTestes
 
     [Theory]
     [MemberData(nameof(GruposImposto))]
-    public void CadaGrupoDoImpostoPassaNoSchema(string grupo)
+    public void CadaGrupoDoImpostoPassaNoSchema(string grupo) => NotasTeste.AssertValida(NotaGrupoImposto(grupo));
+
+    // A NFC-e mínima com o grupo do imposto no item, com todos os campos preenchidos (a ida e volta da leitura usa as mesmas).
+    internal static NotaFiscal NotaGrupoImposto(string grupo)
     {
         var tipo = typeof(NotaFiscal).Assembly.GetTypes().Single(t => t.Name == grupo);
         var preenchido = Activator.CreateInstance(tipo)!;
@@ -69,6 +72,6 @@ public class EscritorNFeTestes
             case Pis pis: imposto.Pis = pis; break;
             case Cofins cofins: imposto.Cofins = cofins; break;
         }
-        NotasTeste.AssertValida(nota);
+        return nota;
     }
 }

@@ -18,6 +18,7 @@ public sealed class DeclaracaoLeiaute
     private readonly Dictionary<(UF, TipoEmissao), Atendimento> _atendimentosChave = [];
     private readonly List<EnderecoServico> _enderecos = [];
     private readonly HashSet<(Destino, Ambiente, string)> _enderecosChave = [];
+    private readonly List<FormaLeitura> _leituras = [];
     private OperacaoSuportada[] _operacoes = [];
     private bool _aberta = true;
     private bool _configuracaoDeclarada;
@@ -69,6 +70,9 @@ public sealed class DeclaracaoLeiaute
 
     /// <summary>As URLs declaradas, na ordem da declaração.</summary>
     public IReadOnlyList<EnderecoServico> Enderecos => _enderecos.AsReadOnly();
+
+    /// <summary>As formas de XML que o leiaute lê para o documento (<see cref="DFe.Detectar"/>), na ordem da declaração.</summary>
+    public IReadOnlyList<FormaLeitura> Leituras => _leituras.AsReadOnly();
 
     /// <summary>
     /// O tipo da configuração do documento (<c>typeof(ConfiguracaoNFCe)</c>); <see langword="null"/> se o
@@ -138,6 +142,20 @@ public sealed class DeclaracaoLeiaute
         if (!_enderecosChave.Add(endereco.Chave))
             throw new ArgumentException($"Já há URL declarada para {endereco.Servico} em {endereco.Autorizador.Sigla()}, {endereco.Ambiente}.", nameof(endereco));
         _enderecos.Add(endereco);
+    }
+
+    /// <summary>Declara uma forma de XML que o leiaute lê para o documento (PROJETO.md 3.3).</summary>
+    /// <param name="forma">A forma: a raiz e os caminhos da versão e do modelo.</param>
+    /// <exception cref="ArgumentNullException">A forma é nula.</exception>
+    /// <exception cref="ArgumentException">A mesma raiz, no mesmo namespace, já foi declarada.</exception>
+    /// <exception cref="InvalidOperationException">Fora de <see cref="ILeiaute.Declarar"/>.</exception>
+    public void DeclararLeitura(FormaLeitura forma)
+    {
+        ConferirAberta();
+        ArgumentNullException.ThrowIfNull(forma);
+        if (_leituras.Any(f => f.EspacoNomes == forma.EspacoNomes && f.Raiz == forma.Raiz))
+            throw new ArgumentException($"A raiz {forma.Raiz} já foi declarada no namespace {forma.EspacoNomes}.", nameof(forma));
+        _leituras.Add(forma);
     }
 
     /// <summary>Declara o tipo da configuração do documento (<c>ConfiguracaoNFCe</c>).</summary>

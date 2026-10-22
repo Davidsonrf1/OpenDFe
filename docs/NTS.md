@@ -81,6 +81,10 @@ Campos que o XSD declara só pelo padrão (`[0-9]{2}`), com a lista numa tabela 
 
 **Pendente:** a tabela das bandeiras do Portal Nacional. Achada, os códigos que faltam entram em `BandeiraCartao` (versão menor) e esta tabela ganha a fonte.
 
+### 1.6. Campos que saíram do schema do 4.00
+
+A leitura aceita a nota de qualquer NT do 4.00 (`PROJETO.md` 5.2). Em 2026-10-21 (etapa 2.5), os 43 pacotes do 4.00 listados no portal (do `PL_009` da NT 2016.002 v1.10, de 10/04/2017, ao 010f) foram baixados e comparados por script com o embutido: nenhum valor de enumeração saiu, e os campos que saíram estão em `docs/LEITURA.md` 5 (o `clEnq` do IPI, o trio `cCredPresumido` do 9m e as versões preliminares dos grupos da reforma, do 010a ao 010e). A leitura os reconhece como `NFE-RETIRADO`, pela tabela do `LeitorNFe`. **Ao trocar o pacote** (seção 2), comparar o novo com o anterior: o campo que sair entra na tabela, com a NT.
+
 ## 2. Como atualizar
 
 1. Na lista de Esquemas XML do portal, o primeiro pacote de "VERSÕES OFICIAIS (em uso)" que traz a nota; ler o título (as NTs) e a data.

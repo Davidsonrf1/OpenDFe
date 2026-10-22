@@ -1,6 +1,6 @@
 # Leitura e detector (etapa 2.5)
 
-Desenho dos tipos públicos da leitura da NF-e e da NFC-e (`PROJETO.md` 5.2 e 5.3) e do detector (`PROJETO.md` 3.3). **Aprovado em 2026-10-21:** todas as decisões da seção 7 pela recomendação (a recomendação está em negrito em cada uma; na 15, a (c): os XMLs da escrita e dos manuais já, e os reais quando o usuário os passar).
+Desenho dos tipos públicos da leitura da NF-e e da NFC-e (`PROJETO.md` 5.2 e 5.3) e do detector (`PROJETO.md` 3.3). **Aprovado em 2026-10-21:** todas as decisões da seção 7 pela recomendação (a recomendação está em negrito em cada uma; na 15, a (c): os XMLs da escrita e dos manuais já, e os reais quando o usuário os passar). **Implementado em 2026-10-21** (etapa 2.5), com os ajustes da seção 9.
 
 O critério é o do `CONTRATOS.md` e do `MODELO.md`: a menor superfície pública que atende a caixa de entrada do ErpCore (a nota recebida de um fornecedor) e a autorização da fase 4 (o `nfeProc` e o protocolo), fácil de estender em versão menor (`PROJETO.md` 12.3), com a regra de nomes sem preposição. Ao contrário da escrita (2.4), que ficou interna até a 4.4, **a leitura é pública já nesta etapa**: a caixa de entrada não passa pela SEFAZ e precisa dela sem a fase 4.
 
@@ -61,8 +61,8 @@ public sealed class DeteccaoDFe
 }
 
 /// Uma forma de XML que o leiaute lê, para um documento. Os caminhos são os nomes locais separados por "/", a
-/// partir da raiz (sem ela), no espaço de nomes da raiz; o último pode ser um atributo ("@versao"). Vazio = a
-/// própria raiz, para o atributo dela ("@versao").
+/// partir da raiz (sem ela), no espaço de nomes da raiz; o último pode ser um atributo ("@versao": o da própria
+/// raiz).
 public sealed class FormaLeitura
 {
     /// ArgumentException: algum texto vazio; caminho que não termina num atributo (versão) ou que tem passo vazio.
@@ -219,7 +219,7 @@ Comparados os 43 pacotes do 4.00 com o 010f (seção de abertura). **O leiaute �
 | `det/prod/cCredPresumido`, `pCredPresumido`, `vCredPresumido` | só no 9m (NT 2023.004 v1.01, 07/02/2024) | substituídos pelo grupo `gCred` no 9n (19/03/2024) |
 | `IBSCBS/gIBSCBS/gCBS/gDif/vCBSOp` e `gIBSMun/gDif/vCBSOp` | só no 010a (NT 2025.002 v1.01, 15/04/2025) | retirados no 010b |
 | `IBSCBS/gIBSCBS/gIBSCredPres` e `gCBSCredPres` (com `cCredPres`, `pCredPres`, `vCredPres`, `vCredPresCondSus`) | do 010a ao 010b da v1.20 (20/08/2025) | substituídos no 010b da v1.30 |
-| `IBSCBS/gIBSCBSMono` com os campos soltos (`qBCMono`, `adRemIBS`, `vIBSMono`, `vCBSMonoDif`...: 16 campos) | do 010a ao 010b da v1.10 (09/06/2025) | agrupados no 010b da v1.20 |
+| `IBSCBS/gIBSCBSMono` com os campos soltos (`qBCMono`, `adRemIBS`, `vIBSMono`, `vCBSMonoDif`...: 19 campos) | do 010a ao 010b da v1.10 (09/06/2025) | agrupados no 010b da v1.20 |
 | `IBSCBS/gIBSCBSMono/gMonoPadrao`, `gMonoReten`, `gMonoRet`, `gMonoDif` (com os campos de cada um) | do 010b da v1.20 (30/07/2025) ao 010e (26/06/2026) | a monofasia reformulada na v1.50 (010f): até ela entrar em produção (03/11/2026), é o schema de produção |
 | `det/imposto/IS/pISEspec` | do 010a ao 010e | retirado no 010f |
 
@@ -229,7 +229,22 @@ Fora isso, um XML de qualquer NT do 4.00 desde 2017 tem só campos que o 010f co
 
 O `ErpCore.Fiscal/Nfe/LeitorDeNfe.cs` (lido nesta etapa) lê, do `NFe` ou do `nfeProc` (sem conferir a assinatura): a chave do `Id`, com o DV; `mod` (só 55), `nNF`, `serie`, `dhEmi`, `tpNF`; `emit` e `dest` com `CNPJ` ou `CPF`, `xNome` e `IE` (só os dígitos, nula se `ISENTO`); cada `det` com o `nItem`, `cProd`, `xProd`, `uCom`, `qCom`, `vProd`, `vFrete`, `vSeg`, `vOutro`, `vDesc`, os `rastro` (`nLote`, `qLote`, `dFab`, `dVal`), o `vICMSST` e o `vFCPST` do grupo do ICMS e o `vIPI` do `IPITrib`; o `vNF` do `ICMSTot`; e o `cStat` do `protNFe`. Recusa com mensagem o XML que não é XML, a versão diferente de 4.00, a chave inválida, o modelo diferente de 55, a nota sem itens e o campo obrigatório que falta.
 
-Tudo isso está no modelo (2.2 e 2.3) e na `NotaLida`; o que é regra da caixa de entrada (só modelo 55, só autorizada, `IE` sem `ISENTO`) fica com o ErpCore. A tabela campo a campo entra aqui na implementação, e um teste lê com a lib a NF-e que o teste do ErpCore monta (`ErpCore.Api.Testes/NfeDeTeste.cs`).
+Tudo isso está no modelo (2.2 e 2.3) e na `NotaLida`; o que é regra da caixa de entrada (só modelo 55, só autorizada, `IE` sem `ISENTO`) fica com o ErpCore. O teste `LeANotaDeEntradaDoErpCoreComOQueOLeitorDeleUsa` lê com a lib uma instância da NF-e que o teste do ErpCore monta (`ErpCore.Api.Testes/NfeDeTeste.cs`), em `tests/Exemplos/erpcore-nfeproc-entrada.xml`.
+
+| O `LeitorDeNfe` do ErpCore | Na lib |
+|---|---|
+| a chave do `Id`, com o DV | `NotaLida.Chave` (`NFE-CHAVE` se inválida) |
+| `mod` (recusa o 65) | `Identificacao.Modelo`; a recusa da NFC-e fica com o ErpCore |
+| `nNF`, `serie`, `dhEmi`, `tpNF` | `Identificacao.Numero`, `Serie`, `Emissao`, `Tipo` (`TipoNota`) |
+| `emit` e `dest`: `CNPJ` ou `CPF`, `xNome`, `IE` | `Emitente` e `Destinatario`: `Cnpj`, `Cpf`, `Nome`, `InscricaoEstadual`; o `ISENTO` vem como está |
+| o `nItem` | a posição na lista + 1 (`NFE-ITEM` se fora da sequência) |
+| `cProd`, `xProd`, `uCom`, `qCom`, `vProd`, `vFrete`, `vSeg`, `vOutro`, `vDesc` | `Produto.Codigo`, `Descricao`, `UnidadeComercial`, `QuantidadeComercial`, `Valor`, `Frete`, `Seguro`, `OutrasDespesas`, `Desconto` |
+| os `rastro` | `Produto.Rastros`: `Lote`, `Quantidade`, `Fabricacao`, `Validade` |
+| o `vICMSST` e o `vFCPST` do grupo do ICMS, qualquer que seja | `Imposto.Icms`, pela subclasse: `ValorSt` e `ValorFcpSt` dos grupos que os têm (`Icms10`, `Icms30`, `Icms70`, `Icms90`...) |
+| o `vIPI` do `IPITrib` | `Imposto.Ipi.Tributado.Valor` |
+| o `vNF` | `Total.Icms.ValorNota` |
+| o `cStat` do `protNFe` | `NotaLida.Protocolo.Status` (`NFE-PROTOCOLO` se o protocolo for de outra nota, o que o leitor do ErpCore não confere) |
+| a mensagem do que impede ler | os `Problemas`, com a `Nota` nula em `NFE-XML`, `NFE-RAIZ` e `NFE-VERSAO` |
 
 ## 7. Decisões (aprovadas em 2026-10-21)
 
@@ -258,3 +273,25 @@ Tudo isso está no modelo (2.2 e 2.3) e na `NotaLida`; o que é regra da caixa d
 - **Detector:** NF-e, NFC-e, `NFe` e `nfeProc`; a versão 3.10, outro espaço de nomes, outra raiz, XML mal formado (nulo); dois leiautes (o primeiro vale); e um leiaute falso no `Nucleo.Testes`, para o detector sem a NF-e.
 - **O ErpCore:** a nota do `NfeDeTeste` lida com os valores que o `LeitorDeNfe` devolve.
 - **Exemplos reais** (decisão 15), quando houver.
+
+## 9. Implementação (etapa 2.5, 2026-10-21)
+
+- **No núcleo:** `DFe.Detectar` (lê o XML num `XmlDocument` sem DTD nem resolvedor, confere as formas de cada leiaute e documento, na ordem), `DeteccaoDFe`, `FormaLeitura` e, na `DeclaracaoLeiaute`, `DeclararLeitura` e `Leituras`. A `ChaveAcesso.TentarLer` aceita o tipo de emissão 3 (decisão 9). 14 símbolos novos no `PublicAPI.Unshipped.txt`.
+- **No modelo:** `Protocolo` e `MensagemSefaz` (27 símbolos novos), com os identificadores do MOC 7.0, Visão Geral (o leiaute do `protNFe`, PR01 a PR15, conferido no PDF): PR04 a PR12 nos campos, PR14 e PR15 no `cMsg` e no `xMsg`; a sequência deles (PR13) é a lista `Mensagens`, sem `[Tag]`.
+- **No leiaute:** `LeiauteNFe400.Ler` e `NotaLida` (7 símbolos novos); o `Declarar` passa a declarar as duas formas (`NFe` e `nfeProc`). Interno: `LeitorNFe` (a raiz, o `nfeProc`, o `infNFe` com a versão e a chave, o item com o `nItem`, o protocolo e a conferência do `cDV` e da chave do protocolo, à mão; e os parciais `.Nota`, `.Item` e `.Total`, um método por classe do modelo, 153 métodos), `LeituraNFe` (o `XmlReader`, o caminho no XML e no modelo e um método por forma de valor, espelho da `EscritaNFe`), `CodigosLeitura` (os onze códigos) e a tradução de volta em `Literais` (`LerIndicadorEscala`, `LerCondicaoVin`, `LerModeloCupomFiscal`).
+- **Como os arquivos foram feitos:** os três parciais `LeitorNFe.*.cs` gerados por um script (fora do repositório) a partir dos parciais do `EscritorNFe`: cada `e.Texto`, `e.Decimal`, `e.Inteiro`... vira um `case` que lê o valor (o `(int?)` da escrita diz a enumeração), cada grupo vira `l.Grupo`, cada lista `l.Lista`, cada escolha por subclasse um método `Ler<Base>`; os campos retirados (seção 5) entram por uma tabela do script, com a NT de cada um. Daqui em diante, editados à mão.
+- **Ajustes ao desenho** (sem decisão nova; a conferir pelo usuário):
+  - **A `FormaLeitura` não aceita caminho vazio** (o desenho dizia "vazio = a raiz"): o atributo da raiz é `@versao`, e o caminho do modelo precisa de um passo.
+  - **O `Protocolo` não tem `[Tag]` na classe**, como a `NotaFiscal` (o `protNFe` e o `infProt` achatados): o `[Tag]` na classe é das subclasses de escolha (`MODELO.md`, decisão 11).
+  - **O caminho no XML do problema da leitura leva o índice em todo elemento de lista** (`det[1]` mesmo com um item só), porque a leitura não sabe quantos virão; o da validação pelo schema só o põe quando o elemento se repete (`PROJETO.md` 6.4). A 2.6 converte os dois.
+  - **O `NFE-DESCONHECIDO` vale também para o atributo e para o texto solto entre os campos**; os atributos de namespace (`xmlns`) e do `xsi` são ignorados sem aviso.
+  - **A segunda alternativa de uma escolha por subclasse** (dois grupos de ICMS no mesmo `ICMS`) é `NFE-REPETIDO`, e vale a primeira; o `NFref` vazio não entra na lista.
+  - **O atributo numérico ilegível** (o `nItem`, o `dia`) também é `NFE-VALOR`; o `nItem` ausente ou ilegível dá ainda o `NFE-ITEM`.
+  - **A monofasia solta da seção 5 tem 19 campos**, e não 16 (a conta do desenho).
+  - **A XML de outro emissor em `tests/Exemplos/`** é, por enquanto, uma instância fixa da NF-e de teste do ErpCore (`erpcore-nfeproc-entrada.xml`: indentada, com o `xmlns` repetido no `NFe` e uma `Signature` de exemplo), gerada por script; notas reais anonimizadas continuam pendentes (decisão 15). O projeto de teste copia a pasta para a saída.
+- **Testes:** `NFe.Testes` com 207 (73 novos) e `Nucleo.Testes` com 451 (24 novos; um caso da chave passou da recusa à leitura):
+  - `LeitorNFeTestes`: a ida e volta (escrita, assinada, lida, comparada propriedade a propriedade e escrita de novo com o mesmo XML) da NFC-e mínima, da NF-e com o cabeçalho e dos 29 grupos de ICMS, PIS e COFINS; o CST do grupo de um valor lido preenchido; o `nfeProc` válido no schema do `procNFe`, com o protocolo e as mensagens; a nota do ErpCore com os valores que o leitor dele usa; cada problema da seção 4 com o caminho e a propriedade (o valor encontrado fora da mensagem); os campos retirados; a tolerância (indentada, com BOM, declaração, comentários, instrução de processamento, CDATA, atributos em outra ordem e prefixo de namespace); e o detector com o leiaute 4.00 (NF-e, NFC-e, `nfeProc`, a nota do ErpCore, a 3.10).
+  - `CoberturaLeituraTestes`: as notas preenchidas por reflexão da cobertura da escrita, uma rodada por subclasse de escolha, escritas e lidas de volta; toda propriedade com `[Tag]` do modelo volta com o valor, salvo os campos do núcleo. A cobertura da escrita deixa o protocolo de fora (a escrita dele é da fase 4).
+  - `ModeloNFeTestes`: o `Protocolo` e a `MensagemSefaz` conferidos contra o `TProtNFe`; toda classe do modelo está na árvore da nota ou do protocolo.
+  - `DetectorTestes` (núcleo, com o leiaute falso): a forma, a raiz, a versão e o modelo (no atributo e no texto), o XML mal formado e com DTD (nulo), o primeiro leiaute que lê, as recusas da `FormaLeitura` e da declaração. `ChaveAcessoTestes`: a chave da NFF lida.
+  - **Mutações conferidas:** um campo que o leitor deixa de ler (o `vFrete`), um valor atribuído à propriedade errada (o `vSeg` no `Frete`) e um campo retirado tirado da tabela (o `clEnq`): cada uma acusada.

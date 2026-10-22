@@ -1608,6 +1608,12 @@ OpenDFe.NFe.MeioPagamento.ValeAlimentacao = 10 -> OpenDFe.NFe.MeioPagamento
 OpenDFe.NFe.MeioPagamento.ValeCombustivel = 13 -> OpenDFe.NFe.MeioPagamento
 OpenDFe.NFe.MeioPagamento.ValePresente = 12 -> OpenDFe.NFe.MeioPagamento
 OpenDFe.NFe.MeioPagamento.ValeRefeicao = 11 -> OpenDFe.NFe.MeioPagamento
+OpenDFe.NFe.MensagemSefaz
+OpenDFe.NFe.MensagemSefaz.Codigo.get -> int?
+OpenDFe.NFe.MensagemSefaz.Codigo.set -> void
+OpenDFe.NFe.MensagemSefaz.MensagemSefaz() -> void
+OpenDFe.NFe.MensagemSefaz.Texto.get -> string?
+OpenDFe.NFe.MensagemSefaz.Texto.set -> void
 OpenDFe.NFe.ModalidadeBaseCalculo
 OpenDFe.NFe.ModalidadeBaseCalculo.MargemValorAgregado = 0 -> OpenDFe.NFe.ModalidadeBaseCalculo
 OpenDFe.NFe.ModalidadeBaseCalculo.Pauta = 1 -> OpenDFe.NFe.ModalidadeBaseCalculo
@@ -2094,6 +2100,27 @@ OpenDFe.NFe.ProdutoNff.CodigoFisco.set -> void
 OpenDFe.NFe.ProdutoNff.CodigoOperacao.get -> int?
 OpenDFe.NFe.ProdutoNff.CodigoOperacao.set -> void
 OpenDFe.NFe.ProdutoNff.ProdutoNff() -> void
+OpenDFe.NFe.Protocolo
+OpenDFe.NFe.Protocolo.Ambiente.get -> OpenDFe.Ambiente?
+OpenDFe.NFe.Protocolo.Ambiente.set -> void
+OpenDFe.NFe.Protocolo.Chave.get -> string?
+OpenDFe.NFe.Protocolo.Chave.set -> void
+OpenDFe.NFe.Protocolo.Digest.get -> string?
+OpenDFe.NFe.Protocolo.Digest.set -> void
+OpenDFe.NFe.Protocolo.Id.get -> string?
+OpenDFe.NFe.Protocolo.Id.set -> void
+OpenDFe.NFe.Protocolo.Mensagens.get -> System.Collections.Generic.IList<OpenDFe.NFe.MensagemSefaz!>!
+OpenDFe.NFe.Protocolo.Motivo.get -> string?
+OpenDFe.NFe.Protocolo.Motivo.set -> void
+OpenDFe.NFe.Protocolo.Numero.get -> string?
+OpenDFe.NFe.Protocolo.Numero.set -> void
+OpenDFe.NFe.Protocolo.Protocolo() -> void
+OpenDFe.NFe.Protocolo.Recebimento.get -> System.DateTimeOffset?
+OpenDFe.NFe.Protocolo.Recebimento.set -> void
+OpenDFe.NFe.Protocolo.Status.get -> int?
+OpenDFe.NFe.Protocolo.Status.set -> void
+OpenDFe.NFe.Protocolo.VersaoAplicativo.get -> string?
+OpenDFe.NFe.Protocolo.VersaoAplicativo.set -> void
 OpenDFe.NFe.ProvedorAssinatura
 OpenDFe.NFe.ProvedorAssinatura.Assinatura.get -> OpenDFe.NFe.AssinaturaProvedor!
 OpenDFe.NFe.ProvedorAssinatura.Assinatura.set -> void

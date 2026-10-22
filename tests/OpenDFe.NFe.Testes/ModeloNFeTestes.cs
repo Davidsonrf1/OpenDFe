@@ -286,6 +286,22 @@ public class ModeloNFeTestes
         return conferencia;
     }
 
+    // O protocolo (etapa 2.5, docs/LEITURA.md 2.3) contra o TProtNFe: o protNFe e o infProt achatados, como a nota; a
+    // versao, o infProt e a Signature ficam fora; a sequência cMsg + xMsg é a MensagemSefaz, na lista sem [Tag].
+    private static Conferencia ConferirProtocolo()
+    {
+        var conferencia = new Conferencia();
+        var tipo = Schemas.Value.GlobalTypes[new XmlQualifiedName("TProtNFe", Ns)] as XmlSchemaComplexType;
+        Assert.NotNull(tipo);
+        var filhos = Filhos(tipo);
+        foreach (var (nome, filho) in Filhos(filhos["infProt"].Tipo))
+            filhos.Add(nome, filho);
+        var usadas = Conferir(typeof(Protocolo), filhos, "protNFe", conferencia);
+        usadas.UnionWith(Conferir(typeof(MensagemSefaz), filhos, "protNFe/infProt", conferencia));
+        Sobras(filhos, usadas, ["infProt", "versao", "Signature"], "protNFe", conferencia);
+        return conferencia;
+    }
+
     [Fact]
     public void CadaTagExisteNoXsdETodoCampoTemPropriedade()
     {
@@ -296,12 +312,21 @@ public class ModeloNFeTestes
     }
 
     [Fact]
-    public void TodaClasseDoModeloEstaNaArvoreDaNota()
+    public void OProtocoloTemCadaCampoDoTProtNFe()
     {
-        var conferencia = ConferirNota();
+        var conferencia = ConferirProtocolo();
+
+        Assert.True(conferencia.Falhas.Count == 0, string.Join(Environment.NewLine, conferencia.Falhas));
+        Assert.Equal([typeof(MensagemSefaz)], typeof(Protocolo).GetProperty(nameof(Protocolo.Mensagens))!.PropertyType.GetGenericArguments());
+    }
+
+    [Fact]
+    public void TodaClasseDoModeloEstaNaArvoreDaNotaOuDoProtocolo()
+    {
+        var visitadas = ConferirNota().Visitadas.Union(ConferirProtocolo().Visitadas);
         var classes = Modelo.GetExportedTypes().Where(t => t.IsClass).ToHashSet();
 
-        Assert.Empty(classes.Except(conferencia.Visitadas).Select(t => t.Name));
+        Assert.Empty(classes.Except(visitadas).Select(t => t.Name));
     }
 
     [Fact]

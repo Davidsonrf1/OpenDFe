@@ -76,6 +76,90 @@ public sealed class DFe
         return new DFe(leiaute, documento, configuracao, declaracao, enderecos);
     }
 
+    /// <summary>
+    /// Qual dos leiautes lê o XML (PROJETO.md 3.3): o primeiro, na ordem recebida, com uma forma declarada
+    /// (<see cref="DeclaracaoLeiaute.DeclararLeitura"/>) para um dos seus documentos que bate com a raiz, a versão e o
+    /// modelo do XML. É o caminho da caixa de entrada, onde a versão só aparece dentro do XML.
+    /// </summary>
+    /// <param name="xml">O XML recebido.</param>
+    /// <param name="leiautes">Os leiautes de quem usa.</param>
+    /// <returns>
+    /// O leiaute, o documento, a raiz e a versão; <see langword="null"/> quando nenhum leiaute lê o XML, inclusive quando
+    /// ele não é XML bem formado. A leitura do leiaute diz o porquê, com os problemas.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">O XML ou a lista são nulos, ou há um leiaute nulo na lista.</exception>
+    /// <remarks>Sem DTD nem entidade externa: o XML vem de fora. Não lança pelo conteúdo.</remarks>
+    public static DeteccaoDFe? Detectar(string xml, params IEnumerable<ILeiaute> leiautes)
+    {
+        ArgumentNullException.ThrowIfNull(xml);
+        ArgumentNullException.ThrowIfNull(leiautes);
+        var lista = leiautes.ToList();
+        foreach (var leiaute in lista)
+            ArgumentNullException.ThrowIfNull(leiaute, nameof(leiautes));
+
+        XmlDocument documento;
+        try
+        {
+            documento = DocumentoSeguro(xml);
+        }
+        catch (XmlException)
+        {
+            return null;
+        }
+        var raiz = documento.DocumentElement!;
+        foreach (var leiaute in lista)
+        {
+            foreach (var tipo in leiaute.Documentos)
+            {
+                foreach (var forma in DeclaracaoLeiaute.Criar(leiaute, tipo).Leituras)
+                {
+                    if (raiz.LocalName != forma.Raiz || raiz.NamespaceURI != forma.EspacoNomes)
+                        continue;
+                    var versao = Valor(raiz, forma.CaminhoVersao);
+                    var modelo = Valor(raiz, forma.CaminhoModelo);
+                    if (versao == leiaute.Versao && modelo == ((int)tipo).ToString(System.Globalization.CultureInfo.InvariantCulture))
+                        return new DeteccaoDFe(leiaute, tipo, forma.Raiz, versao);
+                }
+            }
+        }
+        return null;
+    }
+
+    private static XmlDocument DocumentoSeguro(string xml)
+    {
+        var configuracao = new XmlReaderSettings
+        {
+            DtdProcessing = DtdProcessing.Prohibit,
+            XmlResolver = null,
+            IgnoreComments = true,
+            IgnoreProcessingInstructions = true,
+        };
+        using var texto = new StringReader(xml);
+        if (texto.Peek() == '﻿')
+            texto.Read();
+        using var leitor = XmlReader.Create(texto, configuracao);
+        var documento = new XmlDocument { XmlResolver = null };
+        documento.Load(leitor);
+        return documento;
+    }
+
+    // O texto no fim do caminho da FormaLeitura: os elementos no namespace da raiz, e o atributo sem namespace no fim.
+    private static string? Valor(XmlElement raiz, string caminho)
+    {
+        XmlElement atual = raiz;
+        foreach (var passo in caminho.Split('/'))
+        {
+            if (passo.StartsWith('@'))
+                return atual.GetAttributeNode(passo[1..])?.Value;
+            var proximo = atual.ChildNodes.OfType<XmlElement>()
+                .FirstOrDefault(e => e.LocalName == passo && e.NamespaceURI == raiz.NamespaceURI);
+            if (proximo is null)
+                return null;
+            atual = proximo;
+        }
+        return atual.InnerText;
+    }
+
     /// <summary>O leiaute.</summary>
     public ILeiaute Leiaute { get; }
 

@@ -16,9 +16,22 @@ OpenDFe.ChaveAcesso.TipoEmissao.get -> OpenDFe.TipoEmissao
 OpenDFe.ChaveAcesso.UF.get -> OpenDFe.UF
 OpenDFe.Cnpj
 OpenDFe.Cpf
+OpenDFe.DeclaracaoLeiaute.DeclararLeitura(OpenDFe.FormaLeitura! forma) -> void
+OpenDFe.DeclaracaoLeiaute.Leituras.get -> System.Collections.Generic.IReadOnlyList<OpenDFe.FormaLeitura!>!
+OpenDFe.DeteccaoDFe
+OpenDFe.DeteccaoDFe.Documento.get -> OpenDFe.Documento
+OpenDFe.DeteccaoDFe.Leiaute.get -> OpenDFe.ILeiaute!
+OpenDFe.DeteccaoDFe.Raiz.get -> string!
+OpenDFe.DeteccaoDFe.Versao.get -> string!
 OpenDFe.Documento
 OpenDFe.Documento.NFCe = 65 -> OpenDFe.Documento
 OpenDFe.Documento.NFe = 55 -> OpenDFe.Documento
+OpenDFe.FormaLeitura
+OpenDFe.FormaLeitura.CaminhoModelo.get -> string!
+OpenDFe.FormaLeitura.CaminhoVersao.get -> string!
+OpenDFe.FormaLeitura.EspacoNomes.get -> string!
+OpenDFe.FormaLeitura.FormaLeitura(string! espacoNomes, string! raiz, string! caminhoVersao, string! caminhoModelo) -> void
+OpenDFe.FormaLeitura.Raiz.get -> string!
 OpenDFe.FormatadorInvariavel
 OpenDFe.Problema
 OpenDFe.Problema.Caminho.get -> string?
@@ -92,6 +105,7 @@ static OpenDFe.Cpf.CalcularDigitos(string! base) -> string!
 static OpenDFe.Cpf.Formatar(string! valor) -> string!
 static OpenDFe.Cpf.RemoverMascara(string! valor) -> string!
 static OpenDFe.Cpf.Valido(string? valor) -> bool
+static OpenDFe.DFe.Detectar(string! xml, params System.Collections.Generic.IEnumerable<OpenDFe.ILeiaute!>! leiautes) -> OpenDFe.DeteccaoDFe?
 static OpenDFe.FormatadorInvariavel.Data(System.DateOnly valor) -> string!
 static OpenDFe.FormatadorInvariavel.DataHora(System.DateTimeOffset valor) -> string!
 static OpenDFe.FormatadorInvariavel.Numero(decimal valor, int casas) -> string!

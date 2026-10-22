@@ -15,4 +15,9 @@
     <Compile Include="../Compartilhado/**/*.cs" LinkBase="Compartilhado" />
   </ItemGroup>
 
+  <!-- Os XMLs de exemplo (PLANO.md, estrutura), com os bytes como estão, para a leitura (2.5). -->
+  <ItemGroup>
+    <None Include="../Exemplos/**/*.xml" LinkBase="Exemplos" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
 </Project>
