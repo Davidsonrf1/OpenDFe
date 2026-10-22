@@ -5,7 +5,7 @@ namespace OpenDFe;
 /// <summary>
 /// A configuração de um núcleo (<see cref="DFe.Criar"/>, PROJETO.md 3.2): o ambiente, a UF do emitente, o
 /// certificado, as conexões, o tipo de emissão da nota nova, as URLs trocadas, a parte do documento, os
-/// callbacks de validação e o relógio.
+/// callbacks de validação, as regras rebaixadas a aviso e o relógio.
 /// </summary>
 /// <remarks>
 /// <see cref="DFe.Criar"/> confere a configuração e tira uma cópia das listas: mudar a lista depois não muda o
@@ -57,6 +57,14 @@ public sealed class ConfiguracaoDFe
 
     /// <summary>Os callbacks de validação de quem usa (PROJETO.md 6.3).</summary>
     public ValidacaoCallback? Validacao { get; init; }
+
+    /// <summary>
+    /// Os códigos das regras do leiaute (<c>"564"</c>) cujo problema sai como <see cref="Severidade.Aviso"/> em vez de
+    /// <see cref="Severidade.Erro"/>: para seguir emitindo quando a lib aplica uma regra que o autorizador não aplica,
+    /// até a versão corrigida. O problema continua no resultado. Não vale para o schema (PROJETO.md 6.1) nem para os
+    /// callbacks; as regras que dividem um código são rebaixadas juntas.
+    /// </summary>
+    public IReadOnlyCollection<string> RegrasComoAviso { get; init; } = [];
 
     /// <summary>
     /// O relógio do rastro, dos tempos e do instante que o leiaute usar (PROJETO.md 2.3); o padrão é

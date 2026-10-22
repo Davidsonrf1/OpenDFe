@@ -20,4 +20,9 @@
     <None Include="../Exemplos/**/*.xml" LinkBase="Exemplos" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
+  <!-- O catálogo das rejeições (REGRAS.md 10), que o teste cruza com as regras do leiaute (3.1). -->
+  <ItemGroup>
+    <None Include="../../docs/REGRAS.md" Link="docs/REGRAS.md" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
 </Project>

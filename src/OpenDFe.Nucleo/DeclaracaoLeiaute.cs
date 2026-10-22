@@ -2,7 +2,8 @@ namespace OpenDFe;
 
 /// <summary>
 /// O que um leiaute declara para um documento: as operações, os atendimentos (UF × tipo de emissão →
-/// autorizador), as URLs (autorizador × ambiente × serviço) e a configuração do documento. Criada pelo núcleo,
+/// autorizador), as URLs (autorizador × ambiente × serviço), a configuração do documento, as formas de leitura e as
+/// regras. Criada pelo núcleo,
 /// que a passa a <see cref="ILeiaute.Declarar"/>.
 /// </summary>
 /// <remarks>
@@ -19,6 +20,7 @@ public sealed class DeclaracaoLeiaute
     private readonly List<EnderecoServico> _enderecos = [];
     private readonly HashSet<(Destino, Ambiente, string)> _enderecosChave = [];
     private readonly List<FormaLeitura> _leituras = [];
+    private readonly List<Func<DocumentoVerificado, ContextoOperacao, IEnumerable<Problema>>> _regras = [];
     private OperacaoSuportada[] _operacoes = [];
     private bool _aberta = true;
     private bool _configuracaoDeclarada;
@@ -174,6 +176,28 @@ public sealed class DeclaracaoLeiaute
         TipoConfiguracaoDocumento = typeof(TConfiguracao);
         ConfiguracaoDocumentoObrigatoria = obrigatoria;
     }
+
+    /// <summary>
+    /// Declara as regras do leiaute (PROJETO.md 6.2) para os documentos dos pedidos (<see cref="PedidoWS.Documentos"/>):
+    /// o núcleo chama a função uma vez por documento, depois da validação pelo schema e só sem erro nela, com o mesmo
+    /// <see cref="DocumentoVerificado"/> que os callbacks de quem usa recebem.
+    /// </summary>
+    /// <param name="regras">
+    /// A função: o documento e o contexto entram, os problemas saem (vazio = nenhum). Segura para uso concorrente; a
+    /// exceção dela sobe do <see cref="DFe.ExecutarAsync{TRetorno}"/> como veio.
+    /// </param>
+    /// <exception cref="ArgumentNullException">A função é nula.</exception>
+    /// <exception cref="InvalidOperationException">Fora de <see cref="ILeiaute.Declarar"/>.</exception>
+    /// <remarks>Pode ser chamado mais de uma vez: as funções rodam na ordem da declaração.</remarks>
+    public void DeclararRegras(Func<DocumentoVerificado, ContextoOperacao, IEnumerable<Problema>> regras)
+    {
+        ConferirAberta();
+        ArgumentNullException.ThrowIfNull(regras);
+        _regras.Add(regras);
+    }
+
+    /// <summary>As funções de regras declaradas, na ordem.</summary>
+    internal IReadOnlyList<Func<DocumentoVerificado, ContextoOperacao, IEnumerable<Problema>>> Regras => _regras;
 
     internal bool TentarExecutor(Type parametro, out ExecutorOperacao? executor) =>
         _executoresTipo.TryGetValue(parametro, out executor);

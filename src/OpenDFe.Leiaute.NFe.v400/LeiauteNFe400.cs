@@ -35,8 +35,9 @@ public sealed class LeiauteNFe400 : ILeiaute
     public IReadOnlyList<Documento> Documentos => Atendidos;
 
     /// <summary>
-    /// Declara o que o leiaute tem para o documento: hoje, só as formas de XML que ele lê (o <c>NFe</c> e o
-    /// <c>nfeProc</c>), iguais para a NF-e e a NFC-e; o modelo do XML diz qual dos dois.
+    /// Declara o que o leiaute tem para o documento: hoje, as formas de XML que ele lê (o <c>NFe</c> e o
+    /// <c>nfeProc</c>), iguais para a NF-e e a NFC-e (o modelo do XML diz qual dos dois), e as regras do MOC que ele
+    /// confere antes de transmitir (docs/REGRAS.md).
     /// </summary>
     /// <param name="declaracao">Onde declarar.</param>
     /// <exception cref="ArgumentNullException">A declaração é nula.</exception>
@@ -45,6 +46,7 @@ public sealed class LeiauteNFe400 : ILeiaute
         ArgumentNullException.ThrowIfNull(declaracao);
         declaracao.DeclararLeitura(FormaNFe);
         declaracao.DeclararLeitura(FormaNfeProc);
+        declaracao.DeclararRegras(RegrasNFe400.Conferir);
     }
 
     /// <summary>

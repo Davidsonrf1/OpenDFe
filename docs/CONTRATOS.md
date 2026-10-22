@@ -36,6 +36,7 @@ ResultadoWS<TRetorno> ◄───────── junta problemas, rastro
 | `ResultadoWS<TRetorno>`, `SituacaoResultado`, `RastroWS` | o resultado da operação, com o rastro (XMLs, URL, tempos) |
 | `FalhaTransmissaoException` | a falha de infraestrutura na transmissão, com o rastro e se o pedido pode ter sido processado |
 | `ValidacaoCallback`, `CampoVerificado`, `DocumentoVerificado` | os callbacks de validação de quem usa (6.3) |
+| `DocumentoPedido` | um documento dentro da mensagem, para as regras do leiaute e os callbacks (3.1, `docs/REGRAS.md`) |
 
 ## 2. Tipos públicos
 
@@ -411,7 +412,7 @@ public sealed class DocumentoVerificado
 }
 ```
 
-Quem chama os callbacks e em que ponto do caminho (depois do schema e das regras do leiaute, 6) é da 3.1: entra como membros novos de `ContextoOperacao` e `PedidoWS`, classes seladas do núcleo, sem mudar `IOperacao`.
+Quem chama os callbacks e em que ponto do caminho (depois do schema e das regras do leiaute, 6) ficou para a 3.1, sem mudar `IOperacao`: o `PedidoWS` ganhou os `Documentos` (`DocumentoPedido`), a `DeclaracaoLeiaute` o `DeclararRegras` e a `ConfiguracaoDFe` o `RegrasComoAviso` (`docs/REGRAS.md` 2 e 3).
 
 ## 3. O caminho de `ExecutarAsync`
 
@@ -419,12 +420,14 @@ Quem chama os callbacks e em que ponto do caminho (depois do schema e das regras
 2. `Montar` → `PedidoWS`. Problema `Erro` em `Problemas`: `RecusadoLocalmente`, com o `XmlPedido` no rastro.
 3. Assina cada `Id` de `IdsAssinatura` com o certificado (`AssinaturaDigital.Assinar`, 1.4).
 4. Valida o XML assinado pelo `Schema` (`SchemaXml.Validar`, 1.5). `Erro`: `RecusadoLocalmente`.
-5. Escolhe a URL: destino = `parametro.Destino` ?? `pedido.Destino` ?? a UF do núcleo; tipo de emissão = `pedido.Emissao` ?? o do núcleo; se o destino é uma UF, o autorizador sai do `Atendimento`; a URL, do autorizador × ambiente × serviço, nas efetivas. Sem URL: `NotSupportedException`.
-6. SOAP 1.2 pelas `Conexoes` (4.1). Falha: `FalhaTransmissaoException`.
-7. `Ler` → `LeituraWS`. Exceção da leitura: `FalhaTransmissaoException` com `PodeTerSidoProcessado`.
-8. `Processado`, com os problemas de 2, 4 e 7 (os avisos) e o rastro.
+5. As regras do leiaute (`DeclararRegras`) em cada um dos `Documentos` do pedido, com os códigos de `RegrasComoAviso` rebaixados a aviso (3.1, `docs/REGRAS.md` 3). `Erro`: `RecusadoLocalmente`.
+6. Os callbacks de `Validacao` em cada documento: o `Campo` em cada campo, depois o `Documento` (3.1). `Erro`: `RecusadoLocalmente`.
+7. Escolhe a URL: destino = `parametro.Destino` ?? `pedido.Destino` ?? a UF do núcleo; tipo de emissão = `pedido.Emissao` ?? o do núcleo; se o destino é uma UF, o autorizador sai do `Atendimento`; a URL, do autorizador × ambiente × serviço, nas efetivas. Sem URL: `NotSupportedException`.
+8. SOAP 1.2 pelas `Conexoes` (4.1). Falha: `FalhaTransmissaoException`.
+9. `Ler` → `LeituraWS`. Exceção da leitura: `FalhaTransmissaoException` com `PodeTerSidoProcessado`.
+10. `Processado`, com os problemas de 2, 4, 5, 6 e 9 (os avisos) e o rastro.
 
-Na 1.6 os passos 1 a 5, 7 e 8 são implementados; o 6 é uma costura interna do `ConexoesSefaz` (o teste injeta um transporte falso) até a 4.1.
+Na 1.6 os passos 1 a 4, 7, 9 e 10 são implementados; o 8 é uma costura interna do `ConexoesSefaz` (o teste injeta um transporte falso) até a 4.1. Os passos 5 e 6 entram na 3.1, e a numeração antiga (de 5 a 8) passou a ser de 7 a 10.
 
 ## 4. Exemplo de uso
 

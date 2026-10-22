@@ -352,3 +352,17 @@ OpenDFe.TagAttribute.Identificador.get -> string?
 OpenDFe.TagAttribute.Tag.get -> string!
 OpenDFe.TagAttribute.TagAttribute(string! tag) -> void
 OpenDFe.TagAttribute.TagAttribute(string! tag, string! identificador) -> void
+OpenDFe.ConfiguracaoDFe.RegrasComoAviso.get -> System.Collections.Generic.IReadOnlyCollection<string!>!
+OpenDFe.ConfiguracaoDFe.RegrasComoAviso.init -> void
+OpenDFe.DeclaracaoLeiaute.DeclararRegras(System.Func<OpenDFe.DocumentoVerificado!, OpenDFe.ContextoOperacao!, System.Collections.Generic.IEnumerable<OpenDFe.Problema!>!>! regras) -> void
+OpenDFe.DocumentoPedido
+OpenDFe.DocumentoPedido.Chave.get -> OpenDFe.ChaveAcesso?
+OpenDFe.DocumentoPedido.Chave.init -> void
+OpenDFe.DocumentoPedido.DocumentoPedido(string! id) -> void
+OpenDFe.DocumentoPedido.Id.get -> string!
+OpenDFe.DocumentoPedido.Modelo.get -> object?
+OpenDFe.DocumentoPedido.Modelo.init -> void
+OpenDFe.DocumentoPedido.Propriedade.get -> System.Func<string!, string?>?
+OpenDFe.DocumentoPedido.Propriedade.init -> void
+OpenDFe.PedidoWS.Documentos.get -> System.Collections.Generic.IReadOnlyList<OpenDFe.DocumentoPedido!>!
+OpenDFe.PedidoWS.Documentos.init -> void

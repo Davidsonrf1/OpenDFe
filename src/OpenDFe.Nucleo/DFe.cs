@@ -22,9 +22,11 @@ public sealed class DFe
     private readonly DeclaracaoLeiaute _declaracao;
     private readonly Dictionary<(Destino, Ambiente, string), EnderecoServico> _enderecosChave;
     private readonly ContextoOperacao _contexto;
+    private readonly HashSet<string> _regrasComoAviso;
 
     private DFe(ILeiaute leiaute, Documento documento, ConfiguracaoDFe configuracao, DeclaracaoLeiaute declaracao, EnderecoServico[] enderecos)
     {
+        _regrasComoAviso = new HashSet<string>(configuracao.RegrasComoAviso, StringComparer.Ordinal);
         Leiaute = leiaute;
         Documento = documento;
         Configuracao = configuracao;
@@ -47,7 +49,8 @@ public sealed class DFe
     /// a configuração do documento falta (quando o leiaute a declara obrigatória), é de outro tipo ou não é
     /// declarada pelo leiaute; a UF não tem atendimento no tipo de emissão; o tipo de emissão é diferente de
     /// <see cref="TipoEmissao.Normal"/> sem a <see cref="ConfiguracaoDFe.Contingencia"/>, ou é
-    /// <see cref="TipoEmissao.Normal"/> com ela; uma URL trocada é nula ou repetida.
+    /// <see cref="TipoEmissao.Normal"/> com ela; uma URL trocada é nula ou repetida; a lista das regras rebaixadas a
+    /// aviso é nula ou tem um código nulo ou vazio.
     /// </exception>
     /// <exception cref="CryptographicException">O certificado não tem a chave privada, ou ela não é RSA.</exception>
     /// <exception cref="ObjectDisposedException">As conexões já foram descartadas.</exception>
@@ -189,7 +192,8 @@ public sealed class DFe
         _declaracao.TentarExecutor(typeof(TParametro), out _);
 
     /// <summary>
-    /// Executa uma operação: montar → recusa local → assinar → validar pelo schema → transmitir → ler.
+    /// Executa uma operação: montar → recusa local → assinar → validar pelo schema → regras do leiaute → callbacks de
+    /// quem usa → transmitir → ler.
     /// </summary>
     /// <typeparam name="TRetorno">O retorno, deduzido do parâmetro.</typeparam>
     /// <param name="parametro">
@@ -226,6 +230,15 @@ public sealed class DFe
     /// <see cref="SituacaoResultado.RecusadoLocalmente"/>;
     /// </item>
     /// <item>
+    /// as regras do leiaute (<see cref="DeclaracaoLeiaute.DeclararRegras"/>) em cada um dos
+    /// <see cref="PedidoWS.Documentos"/>, com os códigos de <see cref="ConfiguracaoDFe.RegrasComoAviso"/> rebaixados a
+    /// aviso; com erro, <see cref="SituacaoResultado.RecusadoLocalmente"/>;
+    /// </item>
+    /// <item>
+    /// os callbacks de <see cref="ConfiguracaoDFe.Validacao"/> em cada documento (o de campo em cada campo, depois o de
+    /// documento); com erro, <see cref="SituacaoResultado.RecusadoLocalmente"/>;
+    /// </item>
+    /// <item>
     /// o destino é o <see cref="ParametroWS.Destino"/>, ou o <see cref="PedidoWS.Destino"/>, ou a UF da
     /// configuração; o tipo de emissão, o <see cref="PedidoWS.Emissao"/> ou o da configuração; uma UF vai ao
     /// autorizador do <see cref="Atendimento"/>; a URL é a do autorizador, do ambiente e do serviço, em
@@ -233,12 +246,17 @@ public sealed class DFe
     /// </item>
     /// <item>a mensagem é transmitida pelas <see cref="ConfiguracaoDFe.Conexoes"/>;</item>
     /// <item><see cref="IOperacao{TParametro, TRetorno}.Ler"/> lê a resposta;</item>
-    /// <item><see cref="SituacaoResultado.Processado"/>, com os avisos da montagem, do schema e da leitura.</item>
+    /// <item>
+    /// <see cref="SituacaoResultado.Processado"/>, com os avisos da montagem, do schema, das regras, dos callbacks e da
+    /// leitura.
+    /// </item>
     /// </list>
     /// <para>
     /// As exceções de <see cref="IOperacao{TParametro, TRetorno}.Montar"/>, da assinatura (um <c>Id</c> que não
-    /// existe na mensagem) e as de <see cref="IOperacao{TParametro, TRetorno}.Ler"/> que não são de leitura
-    /// sobem como vieram: são erro de programação do leiaute. Cancelar depois de o pedido sair é, para o
+    /// existe na mensagem), das regras e as de <see cref="IOperacao{TParametro, TRetorno}.Ler"/> que não são de
+    /// leitura sobem como vieram: são erro de programação do leiaute; as dos callbacks, de quem usa. O documento cujo
+    /// <c>Id</c> não está na mensagem e a lista nula (ou com problema nulo) devolvida pelas regras ou pelos callbacks
+    /// são <see cref="InvalidOperationException"/>. Cancelar depois de o pedido sair é, para o
     /// autorizador, a mesma queda no meio (PROJETO.md 8.6).
     /// </para>
     /// </remarks>
@@ -272,7 +290,21 @@ public sealed class DFe
         if (TemErro(problemasSchema))
             return Recusado(xml);
 
-        // 5. Escolher a URL; 6. transmitir.
+        // 5. As regras do leiaute; 6. os callbacks de quem usa (REGRAS.md 3).
+        if (pedido.Documentos.Count > 0)
+        {
+            var achados = MotorRegras.Achar(xml, pedido.Documentos, Documento);
+            var problemasRegras = MotorRegras.Regras(achados, _declaracao.Regras, _contexto, _regrasComoAviso);
+            problemas.AddRange(problemasRegras);
+            if (TemErro(problemasRegras))
+                return Recusado(xml);
+            var problemasCallbacks = MotorRegras.Callbacks(achados, Configuracao.Validacao);
+            problemas.AddRange(problemasCallbacks);
+            if (TemErro(problemasCallbacks))
+                return Recusado(xml);
+        }
+
+        // 7. Escolher a URL; 8. transmitir.
         var (autorizador, url) = EscolherUrl(parametro.Destino ?? pedido.Destino, pedido.Emissao, pedido.Servico);
         cancellationToken.ThrowIfCancellationRequested();
         var transporte = Configuracao.Conexoes.Transporte();
@@ -297,7 +329,7 @@ public sealed class DFe
         }
         var duracaoTransmissao = relogio.GetElapsedTime(marcaTransmissao);
 
-        // 7. Ler; 8. o resultado.
+        // 9. Ler; 10. o resultado.
         LeituraWS<TRetorno> leitura;
         try
         {
@@ -320,7 +352,7 @@ public sealed class DFe
             new(xmlPedido, retorno, autorizadorEscolhido, urlEscolhida, inicio, relogio.GetElapsedTime(marca), transmissao);
     }
 
-    // O passo 5: destino (parâmetro, pedido, UF do núcleo) × tipo de emissão (pedido, núcleo) → autorizador → URL.
+    // O passo 7: destino (parâmetro, pedido, UF do núcleo) × tipo de emissão (pedido, núcleo) → autorizador → URL.
     private (Destino Autorizador, Uri Url) EscolherUrl(Destino? destinoEscolhido, TipoEmissao? emissaoPedido, string servico)
     {
         var destino = destinoEscolhido ?? Configuracao.UF.ComoDestino();
@@ -357,6 +389,10 @@ public sealed class DFe
             throw new ArgumentException("A configuração não tem o relógio.", Nome);
         if (configuracao.Urls is null)
             throw new ArgumentException("A lista de URLs da configuração é nula.", Nome);
+        if (configuracao.RegrasComoAviso is null)
+            throw new ArgumentException("A lista das regras rebaixadas a aviso é nula.", Nome);
+        if (configuracao.RegrasComoAviso.Any(string.IsNullOrWhiteSpace))
+            throw new ArgumentException("Um dos códigos das regras rebaixadas a aviso é nulo ou vazio.", Nome);
         if (configuracao.Emissao != TipoEmissao.Normal && configuracao.Contingencia is null)
             throw new ArgumentException($"O tipo de emissão {configuracao.Emissao} exige a entrada em contingência (Contingencia).", Nome);
         if (configuracao.Emissao == TipoEmissao.Normal && configuracao.Contingencia is not null)

@@ -109,6 +109,15 @@ public sealed class EcoFalso : ParametroWS<RetornoEcoFalso>
 
     public TipoEmissao? EmissaoPedido { get; init; }
 
+    /// <summary>
+    /// Um documento por eco (o <c>eco</c>, pai do <c>infEco</c> assinado), com o texto como modelo e a conversão do
+    /// caminho do <see cref="OperacaoEcoFalsa.Propriedade"/>.
+    /// </summary>
+    public bool MontarDocumentos { get; init; }
+
+    /// <summary>Os documentos do pedido como estão (para as recusas); sobrepõe <see cref="MontarDocumentos"/>.</summary>
+    public IReadOnlyList<DocumentoPedido>? DocumentosPedido { get; init; }
+
     /// <summary>O contexto recebido na montagem.</summary>
     public ContextoOperacao? ContextoRecebido { get; set; }
 }
@@ -160,8 +169,20 @@ internal sealed class OperacaoEcoFalsa : IOperacao<EcoFalso, RetornoEcoFalso>
             Destino = parametro.DestinoPedido,
             Emissao = parametro.EmissaoPedido,
             Problemas = parametro.ProblemaMontagem is { } problema ? [problema] : [],
+            Documentos = parametro.DocumentosPedido
+                ?? (parametro.MontarDocumentos
+                    ? [.. parametro.Textos.Select((t, i) => new DocumentoPedido(Id(i)) { Modelo = t, Propriedade = Propriedade })]
+                    : []),
         };
     }
+
+    /// <summary>A conversão do caminho do eco na propriedade do "modelo" (só o texto e o Id têm).</summary>
+    public static string? Propriedade(string caminho) => caminho switch
+    {
+        "eco/infEco/texto" => "Texto",
+        "eco/infEco/@Id" => "Id",
+        _ => null,
+    };
 
     public LeituraWS<RetornoEcoFalso> Ler(EcoFalso parametro, string xmlRetorno, ContextoOperacao contexto)
     {

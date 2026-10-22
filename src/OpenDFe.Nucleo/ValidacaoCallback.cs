@@ -11,8 +11,11 @@ namespace OpenDFe;
 /// Exceção num callback sobe como veio: é erro de programação.
 /// </para>
 /// <para>
-/// Quem os chama, e em que ponto do caminho (depois do schema e das regras do leiaute), é do motor de regras
-/// (etapa 3.1 do plano): por ora, a configuração só os guarda.
+/// O núcleo os chama no <see cref="DFe.ExecutarAsync{TRetorno}"/>, para cada documento do pedido
+/// (<see cref="PedidoWS.Documentos"/>), depois do schema e das regras do leiaute e só sem erro neles: o
+/// <see cref="Campo"/> em cada campo do documento assinado (cada elemento sem filhos e cada atributo, fora da
+/// <c>Signature</c>), na ordem do XML, e depois o <see cref="Documento"/>. Com um problema de severidade
+/// <see cref="Severidade.Erro"/>, nada é enviado.
 /// </para>
 /// </remarks>
 public sealed class ValidacaoCallback

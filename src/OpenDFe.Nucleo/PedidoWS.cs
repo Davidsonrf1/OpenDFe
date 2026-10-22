@@ -8,6 +8,7 @@ public sealed class PedidoWS
 {
     private readonly IReadOnlyList<string> _idsAssinatura = [];
     private readonly IReadOnlyList<Problema> _problemas = [];
+    private readonly IReadOnlyList<DocumentoPedido> _documentos = [];
     private readonly Destino? _destino;
     private readonly TipoEmissao? _emissao;
 
@@ -55,6 +56,29 @@ public sealed class PedidoWS
             if (copia.Any(string.IsNullOrEmpty))
                 throw new ArgumentException("Um dos Id a assinar é nulo ou vazio.", nameof(value));
             _idsAssinatura = copia;
+        }
+    }
+
+    /// <summary>
+    /// Os documentos da mensagem, na ordem (uma nota por nota do lote), para as regras do leiaute e os callbacks de
+    /// quem usa; vazio quando a mensagem não leva documento (status, consulta). Um <c>Id</c> que não está no XML
+    /// assinado é erro de programação do leiaute (<see cref="InvalidOperationException"/> no
+    /// <see cref="DFe.ExecutarAsync{TRetorno}"/>).
+    /// </summary>
+    /// <exception cref="ArgumentNullException">A lista ou um dos documentos são nulos.</exception>
+    /// <exception cref="ArgumentException">Dois documentos com o mesmo <c>Id</c>.</exception>
+    public IReadOnlyList<DocumentoPedido> Documentos
+    {
+        get => _documentos;
+        init
+        {
+            ArgumentNullException.ThrowIfNull(value);
+            var copia = value.ToArray();
+            if (Array.Exists(copia, d => d is null))
+                throw new ArgumentNullException(nameof(value), "Um dos documentos é nulo.");
+            if (copia.Select(d => d.Id).Distinct(StringComparer.Ordinal).Count() != copia.Length)
+                throw new ArgumentException("Dois documentos com o mesmo Id.", nameof(value));
+            _documentos = copia;
         }
     }
 
