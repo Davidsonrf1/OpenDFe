@@ -400,6 +400,14 @@ Pré-lançamentos (`0.x`) no NuGet.org a partir do fim da fase 5, quando o PDV p
 
 **A fase 2 fechou:** notas de teste geradas válidas no XSD e lidas de volta iguais, e o problema com a propriedade. **Próxima: fase 3, 3.1. Motor e catálogo** (branch `fase-3-regras` a partir desta), só quando pedida. Ler o `PROJETO.md` 6 e o `CONTRATOS.md` 2.10 e 3 (os callbacks e o ponto do caminho em que as regras entram).
 
+### Fase 3 (branch `fase-3-regras`)
+
+**3.1. Motor e catálogo. Desenho para aprovação (2026-10-22)** em **`docs/REGRAS.md`**, que nasce aqui: a etapa cria API pública no núcleo (a costura das regras do leiaute e dos callbacks no caminho do `ExecutarAsync`), então o desenho vem antes do código.
+- Branch `fase-3-regras`, a partir da `fase-2-modelo-leiaute`.
+- **O caminho:** depois do schema, o passo das regras do leiaute (por documento) e o dos callbacks (`Campo` em cada campo do XML assinado, `Documento` em cada documento); cada etapa só roda sem `Erro` na anterior.
+- **O público:** `DocumentoPedido` e `PedidoWS.Documentos`, `DeclaracaoLeiaute.DeclararRegras`, `ConfiguracaoDFe.RegrasComoAviso`. As regras ficam internas no leiaute (`RegraNFe`, `RegrasNFe400`). Doze decisões (`REGRAS.md` 5).
+- **O catálogo:** a forma (`REGRAS.md` 6); o levantamento do Anexo I 7.03 (4.1 e 4.2.1, cerca de 495 regras) e das NTs posteriores do `NTS.md` é da implementação.
+- **Ler antes da implementação:** `docs/REGRAS.md`, o `CONTRATOS.md` 2.7, 2.10 e 3 e o `PROJETO.md` 6. As fontes: o Anexo I do MOC 7.0 (versão 7.03) e as NTs, baixados nas etapas anteriores (conferir o SHA-256 contra o portal antes de registrar).
 
 ### Trilha paralela: SEFAZ emulada (branch `sefaz-emulada`, worktree `../OpenDFe-sefaz-emulada`)
 
