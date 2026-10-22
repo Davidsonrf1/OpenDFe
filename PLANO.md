@@ -10,6 +10,7 @@ O modelo é o `docs/PROJETO.md`; onde este plano e o documento divergirem, vale 
 - **Desenho antes de implementar** nas etapas que criam API pública (contratos do núcleo, modelo, parâmetros e retornos): os tipos e as assinaturas são aprovados antes do código, porque depois de publicada cada mudança é versão maior (`PROJETO.md` 12.3).
 - **Conferir na fonte, na etapa:** pacote de liberação dos schemas, URLs dos autorizadores, versões do QR Code e regras do MOC mudam por NT. O plano não fixa versões; a etapa confere no Portal Nacional da NF-e e registra em `docs/NTS.md`.
 - Decisão que não está no `PROJETO.md`: pergunte.
+- **Validação: o schema e só as regras necessárias** (decidido em 2026-10-22, regra do projeto, `PROJETO.md` 2.9): nenhuma etapa implementa o MOC inteiro. O schema é a base e devolve tudo o que ele mesmo informa; regra à mão só a que pega erro comum, que o schema não vê, e quase não muda com as NTs. Na dúvida sobre uma regra, perguntar.
 - **Nomes sem preposição nem contração** (decidido em 2026-10-19, para sempre): nada de `De`, `Da`, `Do`, `Das`, `Dos`, `Para`, `Por`, `Pelo`, `Pela`, `Com`, `Sem`, `No`, `Na`, `Em`, `Ao` e afins como palavra de ligação nos identificadores: nunca `RegrasDaNFe`, e sim `RegraNFe`. Vale para tipos, membros, parâmetros, variáveis, campos, constantes, alvos e propriedades MSBuild e nomes de arquivo `.cs`, em `src/`, `tests/` (o código auxiliar) e `eng/`. Não vale para os nomes dos métodos de teste, que são frases (`RecusaOCertificadoDeOutroCnpj`), nem para o texto em português (mensagens, comentários, documentação). Não são preposição: `Documento`, `Dominio`, `Nome`, `Numero`, `Codigo`, `Comum`, `Padrao`, `Emissao`, `Nao`, `Como`. Para conferir: `grep -rhoE "\b[A-Za-z_]*[a-z](De|Da|Do|Das|Dos|Para|Pelo|Pela|Por|Com|Sem|No|Na|Nos|Nas|Em|Ao)[A-Z][A-Za-z]*\b" src tests eng`, mais os que começam pela preposição (`SemMascara`), tirando os métodos de teste e o `NoBuild` do MSBuild.
 
 ## Estrutura
@@ -424,7 +425,7 @@ Pré-lançamentos (`0.x`) no NuGet.org a partir do fim da fase 5, quando o PDV p
 - **Testes:** `NFe.Testes` com 372 (78 novos: `RegrasLoteTestes`, um caso por regra, e dois em `SchemasNFe400Testes`). As chaves referenciadas da NF-e de teste estavam com o DV errado e foram corrigidas. Uma mutação provada (a comparação dos totais desligada: 33 testes acusam).
 - Conferido (Windows): build sem aviso em Debug e Release, `dotnet test --solution OpenDFe.slnx` com código 0 (1.048 testes, 13 pulados, os de homologação sem variável), `dotnet pack -c Release` e `eng/ConferirPacotes.ps1` aprovando os três pacotes. No Linux (WSL), os 475 do `Nucleo.Testes` e os 372 do `NFe.Testes` passam. A regra de nomes sem nada fora dos métodos de teste. Sem dependência nova.
 
-**Próxima: 3.3. Regras da NFC-e**, só quando pedida. **Antes de começar, rever o escopo dela pelo critério da 3.2** (o schema mais um lote pequeno): as 70 linhas "a fazer (3.3)" foram levantadas antes da decisão.
+**Próxima: 3.3. Regras da NFC-e**, só quando pedida, pelo critério do `PROJETO.md` 2.9 (confirmado pelo usuário em 2026-10-22): das 70 linhas "a fazer (3.3)", levantadas antes da decisão, só as necessárias; o resto volta para "a fazer".
 
 ### Trilha paralela: SEFAZ emulada (branch `sefaz-emulada`, worktree `../OpenDFe-sefaz-emulada`)
 
