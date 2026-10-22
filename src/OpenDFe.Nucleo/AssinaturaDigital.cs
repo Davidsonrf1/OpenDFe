@@ -370,6 +370,7 @@ public static class AssinaturaDigital
     private static List<XmlElement> ElementosId(XmlDocument documento, string id)
     {
         var encontrados = new List<XmlElement>();
+
         foreach (XmlElement elemento in documento.GetElementsByTagName("*"))
         {
             if (elemento.GetAttribute("Id") == id || elemento.GetAttribute("id") == id || elemento.GetAttribute("ID") == id)

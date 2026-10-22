@@ -12,9 +12,9 @@ internal static partial class RegrasNFe400
 {
     /// <summary>
     /// As regras: o lote da etapa 3.2 (REGRAS.md 11), o CPF e o CNPJ, o DV das chaves referenciadas, os totais, as
-    /// combinações da operação e as datas.
+    /// combinações da operação e as datas; e as da NFC-e, da etapa 3.3 (REGRAS.md 12).
     /// </summary>
-    internal static IReadOnlyList<RegraNFe> Lista { get; } = [.. Documentos(), .. Totais(), .. Operacao()];
+    internal static IReadOnlyList<RegraNFe> Lista { get; } = [.. Documentos(), .. Totais(), .. Operacao(), .. NFCe()];
 
     /// <summary>A função declarada ao núcleo: as regras da <see cref="Lista"/> sobre o documento.</summary>
     internal static IEnumerable<Problema> Conferir(DocumentoVerificado documento, ContextoOperacao contexto)

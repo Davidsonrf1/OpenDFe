@@ -210,13 +210,13 @@ Baixadas em 2026-10-22: as NTs do Portal Nacional da NF-e (Documentos > Notas T�
 
 | Situação | Regras |
 |---|---|
-| lib | 68 |
-| a fazer (3.3) | 70 |
+| lib | 99 |
 | a fazer (4.4) | 1 |
-| a fazer | 651 |
+| a fazer (5.1) | 36 |
+| a fazer | 639 |
 | schema | 2 |
-| escrita | 16 |
-| SEFAZ | 177 |
+| escrita | 17 |
+| SEFAZ | 191 |
 | SEFAZ (tabela) | 15 |
 | outra operação (4.4) | 7 |
 | outra operação (6) | 53 |
@@ -283,37 +283,37 @@ Baixadas em 2026-10-22: as NTs do Portal Nacional da NF-e (Documentos > Notas T�
 | B02-10 | 55/65 | 226 | Obrig. | Código da UF do Emitente diverge da UF autorizadora | NT 2026.007 v1.10 | SEFAZ |
 | B02-20 | 55/65 | 476 | Obrig. | Código da UF diverge da UF da primeira NF-e do Lote | MOC 7.03 | outra operação (4.4) |
 | B03-10 | 55/65 | 897 | Obrig. | Código numérico em formato inválido | NT 2019.001 v1.70 | a fazer |
-| B06-10 | 65 | 702 | Obrig. | NFC-e não é aceita pela UFdo Emitente | MOC 7.03 | a fazer (3.3) |
+| B06-10 | 65 | 702 | Obrig. | NFC-e não é aceita pela UFdo Emitente | MOC 7.03 | SEFAZ |
 | B06-20 | 55/65 | 765 | Obrig. | Lote só poderá conter NF-e ou NFC-e | MOC 7.03 | outra operação (4.4) |
 | B06-30 | 55 | 450 | Facul. | Modelo da NF-e diferente de 55 | MOC 7.03 | escrita |
 | B06-40 | 65 | 775 | Facul. | Modelo da NFC-e diferente de 65 | MOC 7.03 | escrita |
-| B07-10 | 65 | 450 | Obrig. | Modelo da NF-e diferente de 55 | NT 2026.001 v1.02b | a fazer (3.3) |
+| B07-10 | 65 | 450 | Obrig. | Modelo da NF-e diferente de 55 | NT 2026.001 v1.02b | escrita |
 | B09-10 | 55/65 | 703 | Obrig. | Data-Hora de Emissão posterior ao horário de recebimento | MOC 7.03 | lib (3.2) |
 | B09-20 | 55 | 228 | Obrig. | Data de Emissão muito atrasada | NT 2026.002 v1.11 | SEFAZ |
 | B09-30 | 55 | 315 | Obrig. | Data de Emissão anterior ao início da autorização de Nota Fiscal na UF | MOC 7.03 | SEFAZ |
 | B09-40 | 55/65 | 704 | Obrig. | NFC-e ou NF-e com DANFE Simplificado Tipo 2 com Data-Hora de emissão atrasada | NT 2026.002 v1.11 | a fazer |
 | B09-50 | 65 | 315 | Obrig. | Data de Emissão anterior ao início da autorização de Nota Fiscal na UF | MOC 7.03 | SEFAZ |
-| B10-10 | 55/65 | 705 | Obrig. | NFC-e ou NF-e com DANFE Simplificado Tipo 2 com data de entrada/saída | NT 2026.002 v1.11 | a fazer |
+| B10-10 | 55/65 | 705 | Obrig. | NFC-e ou NF-e com DANFE Simplificado Tipo 2 com data de entrada/saída | NT 2026.002 v1.11 | lib (3.3) |
 | B10-20 | 55 | 504 | Facul. | Data de Entrada/Saída posterior ao permitido | MOC 7.03 | a fazer |
 | B10-30 | 55 | 505 | Facul. | Data de Entrada/Saída anterior ao permitido | MOC 7.03 | a fazer |
 | B10-40 | 55 | 506 | Facul. | Data de Saída menor que a Data de Emissão | MOC 7.03 | lib (3.2) |
-| B10a-10 | 65 | 1153 | Obrig. | NFC-e com data de previsão de entrega | NT 2025.002 v1.52 | a fazer (3.3) |
+| B10a-10 | 65 | 1153 | Obrig. | NFC-e com data de previsão de entrega | NT 2025.002 v1.52 | lib (3.3) |
 | B10a-20 | 55 | 1154 | Obrig. | Data de previsão de entrega posterior ao permitido | NT 2025.002 v1.52 | a fazer |
 | B10a-30 | 55 | 1155 | Obrig. | Data de previsão de entrega anterior ao permitido | NT 2025.002 v1.52 | a fazer |
 | B10a-40 | 55 | 1156 | Obrig. | Data de previsão de entrega não permitida para a finalidade de emissão informada | NT 2025.002 v1.52 | a fazer |
 | B10a-50 | 55 | 1157 | Obrig. | Data de previsão de entrega não permitida para a modalidade de frete informada | NT 2025.002 v1.52 | a fazer |
-| B11-10 | 55/65 | 706 | Obrig. | NFC-e ou NF-e com DANFE Simplificado Tipo 2 para operação de entrada | NT 2026.002 v1.11 | a fazer |
-| B11a-10 | 55/65 | 707 | Obrig. | NFC-e ou NF-e com DANFE Simplificado Tipo 2 para operação interestadual ou com o exterior | NT 2026.002 v1.11 | a fazer |
+| B11-10 | 55/65 | 706 | Obrig. | NFC-e ou NF-e com DANFE Simplificado Tipo 2 para operação de entrada | NT 2026.002 v1.11 | lib (3.3) |
+| B11a-10 | 55/65 | 707 | Obrig. | NFC-e ou NF-e com DANFE Simplificado Tipo 2 para operação interestadual ou com o exterior | NT 2026.002 v1.11 | lib (3.3) |
 | B12-10 | 55/65 | 270 | Obrig. | Código Município do Fato Gerador de ICMS inexistente | MOC 7.03 | SEFAZ (tabela) |
 | B12-20 | 55/65 | 271 | Obrig. | Código Município do Fato Gerador: difere da UF do emitente | MOC 7.03 | a fazer |
-| B21-10 | 65 | 709 | Obrig. | NFC-e com formato de DANFE inválido | MOC 7.03 | a fazer (3.3) |
+| B21-10 | 65 | 709 | Obrig. | NFC-e com formato de DANFE inválido | MOC 7.03 | lib (3.3) |
 | B21-20 | 55 | 710 | Obrig. | NF-e com formato de DANFE inválido | MOC 7.03 | a fazer |
 | B22-10 | 55 | 711 | Obrig. | NF-e com contingência off-line em operação não permitida | NT 2026.002 v1.11 | a fazer |
-| B22-20 | 65 | 712 | Facul. | NFC-e com contingência off-line para a UF | MOC 7.03 | a fazer (3.3) |
+| B22-20 | 65 | 712 | Facul. | NFC-e com contingência off-line para a UF | MOC 7.03 | SEFAZ |
 | B22-30 | 55/65 | 570 | Obrig. | Tipo de Emissão 3, 6 ou 7 só é válido nas contingências SCAN/SVC | NT 2021.002 v1.12 | a fazer |
 | B22-34 | 65 | 714 | Facul. | NFC-e com contingência inválida (tpEmis=2, 4 (a critério da UF) ou 5) | MOC 7.03 | SEFAZ |
 | B22-60 | 55/65 | 713 | Obrig. | Tipo de Emissão diferente de 6 ou 7 para contingência da SVC acessada | MOC 7.03 | a fazer |
-| B22-70 | 65 | 783 | Obrig. | NFC-e não é autorizada pela SVC | MOC 7.03 | a fazer (3.3) |
+| B22-70 | 65 | 783 | Obrig. | NFC-e não é autorizada pela SVC | MOC 7.03 | SEFAZ |
 | B23-10 | 55/65 | 253 | Obrig. | Digito Verificador da chave de acesso composta inválida | MOC 7.03 | a fazer |
 | B24-10 | 55/65 | 252 | Obrig. | Ambiente informado diverge do Ambiente de recebimento | MOC 7.03 | SEFAZ |
 | B25.1-10 | 55 | 1139 | Obrig. | Tipo de nota de débito informado indevidamente | NT 2025.002 v1.52 | a fazer |
@@ -322,7 +322,7 @@ Baixadas em 2026-10-22: as NTs do Portal Nacional da NF-e (Documentos > Notas T�
 | B25.2-20 | 55 | 1164 | Obrig. | Não informado tipo de nota de crédito | NT 2025.002 v1.52 | a fazer |
 | B25.2-30 | 55 | 1145 | Obrig. | Tipo de nota de crédito só pode ser usado a partir de janeiro/2029 | NT 2025.002 v1.52 | a fazer |
 | B25.2-40 | 55 | 1152 | Obrig. | Tipo de Operação incompatível com NF-e de Crédito do tipo Retorno | NT 2025.002 v1.52 | a fazer |
-| B25-20 | 55/65 | 715 | Obrig. | NFC-e ou NF-e com DANFE Simplificado Tipo 2 com finalidade inválida | NT 2026.002 v1.11 | a fazer |
+| B25-20 | 55/65 | 715 | Obrig. | NFC-e ou NF-e com DANFE Simplificado Tipo 2 com finalidade inválida | NT 2026.002 v1.11 | lib (3.3) |
 | B25-30 | 55 | 254 | Obrig. | NF-e não possui NF referenciada | NT 2025.002 v1.52 | a fazer |
 | B25-40 | 55 | 255 | Obrig. | NF-e possui mais de uma NF referenciada | NT 2025.002 v1.52 | a fazer |
 | B25-50 | 55 | 269 | Obrig. | CNPJ/CPF Emitente da NF-e difere do CNPJ/CPF da NF Referenciada | NT 2025.002 v1.52 | a fazer |
@@ -334,16 +334,16 @@ Baixadas em 2026-10-22: as NTs do Portal Nacional da NF-e (Documentos > Notas T�
 | B25-100 | 55 | 1003 | Obrig. | NF-e de crédito faz referência a documento fiscal diferente de NF-e modelo 55 | NT 2025.002 v1.52 | a fazer |
 | B25-110 | 55 | 1161 | Obrig. | Tipo de Operação incompatível com NF-e de Crédito | NT 2025.002 v1.52 | a fazer |
 | B25-120 | 55 | 1162 | Obrig. | Tipo de Operação incompatível com NF-e de Débito | NT 2025.002 v1.52 | a fazer |
-| B25a-10 | 55/65 | 716 | Obrig. | NFC-e ou NF-e com DANFE Simplificado Tipo 2 em operação não destinada a consumidor final | NT 2026.002 v1.11 | a fazer |
+| B25a-10 | 55/65 | 716 | Obrig. | NFC-e ou NF-e com DANFE Simplificado Tipo 2 em operação não destinada a consumidor final | NT 2026.002 v1.11 | lib (3.3) |
 | B25b-10 | 55 | 794 | Obrig. | NF-e com indicativo de NFC-e com entregaa domicílio | MOC 7.03 | a fazer |
 | B25b-20 | 55/65 | 717 | Obrig. | NFC-e ou NF-e com DANFE Simplificado Tipo 2 em operação não permitida | NT 2026.002 v1.11 | a fazer |
-| B25b-30 | 65 | 785 | Obrig. | NFC-e com entregaa domicílio não permitida pela UF | MOC 7.03 | a fazer (3.3) |
+| B25b-30 | 65 | 785 | Obrig. | NFC-e com entregaa domicílio não permitida pela UF | MOC 7.03 | SEFAZ |
 | B25b-40 | 55 | 864 | Obrig. | NF-e com indicativo de Operação presencial, fora do estabelecimentoe não informada NF referenciada | MOC 7.03 | a fazer |
-| B25b-60 | 65 | 1000 | Obrig. | Município do fato gerador do IBS informado indevidamente | NT 2025.002 v1.52 | a fazer (3.3) |
-| B25b-70 | 65 | 1005 | Obrig. | Operação presencial fora do estabelecimento sem informação do município do fato gerador do IBS | NT 2025.002 v1.52 | a fazer (3.3) |
+| B25b-60 | 65 | 1000 | Obrig. | Município do fato gerador do IBS informado indevidamente | NT 2025.002 v1.52 | SEFAZ |
+| B25b-70 | 65 | 1005 | Obrig. | Operação presencial fora do estabelecimento sem informação do município do fato gerador do IBS | NT 2025.002 v1.52 | SEFAZ |
 | B25c-10 | 55/65 | 434 | Obrig. | NF-e sem indicativo do intermediador | NT 2020.006 v1.31 | a fazer |
 | B25c-20 | 55/65 | 435 | Obrig. | NF-e não pode ter o indicativo do intermediador | NT 2020.006 v1.31 | a fazer |
-| B25d-10 | 65 | 1099 | Obrig. | Não é permitido o uso do código indicador do local da operação de fornecimento na NFC-e modelo 65 | NT 2025.002 v1.52 | a fazer (3.3) |
+| B25d-10 | 65 | 1099 | Obrig. | Não é permitido o uso do código indicador do local da operação de fornecimento na NFC-e modelo 65 | NT 2025.002 v1.52 | a fazer |
 | B25d-20 | 55 | 1102 | Obrig. | Código indicador do local de operação de fornecimento não permitido neste modelo de DFe | NT 2025.002 v1.52 | a fazer |
 | B25d-30 | 55 | 1110 | Obrig. | Local de Retirada não informado | NT 2025.002 v1.52 | a fazer |
 | B26-10 | 55/65 | 244 | Obrig. | Processo de Emissão pelo Contribuinte incompatível com a Série da NF | NT 2026.001 v1.02b | a fazer |
@@ -354,7 +354,7 @@ Baixadas em 2026-10-22: as NTs do Portal Nacional da NF-e (Documentos > Notas T�
 | B26-28 | 55 | 893 | Obrig. | Grupo de informações do Provedor de Assinatura e Autorização informado indevidamente | NT 2026.001 v1.02b | SEFAZ |
 | B26-30 | 55/65 | 370 | Obrig. | Processo de emissão pelo Fisco com Tipo de Emissão inválido | NT 2023.002 v1.01 | a fazer |
 | B26-40 | 55/65 | 571 | Obrig. | Processo de emissão pelo Fisco com Certificado de Transmissão incompatível | MOC 7.03 | a fazer |
-| B26-50 | 65 | 957 | Obrig. | Tipo de emissão incompatível com o Processo de Emissão | NT 2023.002 v1.01 | a fazer (3.3) |
+| B26-50 | 65 | 957 | Obrig. | Tipo de emissão incompatível com o Processo de Emissão | NT 2023.002 v1.01 | lib (3.3) |
 | B28-10 | 55/65 | 556 | Obrig. | Justificativa de entrada em contingência não deve ser informada para tipo de emissão normal | MOC 7.03 | a fazer |
 | B28-20 | 55/65 | 557 | Obrig. | A Justificativa de entrada em contingência deve ser informada | MOC 7.03 | a fazer |
 | B28-30 | 55/65 | 558 | Facul. | Data de entrada em contingência posterior a data de recebimento | MOC 7.03 | a fazer |
@@ -364,7 +364,7 @@ Baixadas em 2026-10-22: as NTs do Portal Nacional da NF-e (Documentos > Notas T�
 
 | Regra | Modelo | Código | Aplic. | Mensagem | Fonte | Situação |
 |---|---|---|---|---|---|---|
-| BA01-10 | 55/65 | 708 | Obrig. | NFC-e ou NF-e com DANFE Simplificado Tipo 2 não pode referenciar documento fiscal | NT 2026.002 v1.11 | a fazer |
+| BA01-10 | 55/65 | 708 | Obrig. | NFC-e ou NF-e com DANFE Simplificado Tipo 2 não pode referenciar documento fiscal | NT 2026.002 v1.11 | lib (3.3) |
 | BA02-10 | 55 | 547 | Facul. | Chave de Acesso referenciada com Dígito Verificador inválido[nOcor:nnn] | MOC 7.03 | lib (3.2) |
 | BA02-14 | 55 | 522 | Facul. | Chave de Acesso referenciada com UF inválida[nOcor:nnn] | MOC 7.03 | a fazer |
 | BA02-20 | 55 | 524 | Facul. | Chave de Acesso referenciada com Ano-Mês inválido[nOcor:nnn] | MOC 7.03 | a fazer |
@@ -419,7 +419,7 @@ Baixadas em 2026-10-22: as NTs do Portal Nacional da NF-e (Documentos > Notas T�
 
 | Regra | Modelo | Código | Aplic. | Mensagem | Fonte | Situação |
 |---|---|---|---|---|---|---|
-| BB01-10 | 65 | 1006 | Obrig. | NFCe com grupo de compra governamental | NT 2025.002 v1.52 | a fazer (3.3) |
+| BB01-10 | 65 | 1006 | Obrig. | NFCe com grupo de compra governamental | NT 2025.002 v1.52 | lib (3.3) |
 | BB02-10 | 55 | 1008 | Obrig. | Nota de compra governamental e alíquota dos outros entes informada incorretamente | NT 2025.002 v1.52 | a fazer |
 | BB05-10 | 55 | 1195 | Obrig. | Referenciado indevidamente DFe anterior em operação com ente governamental na operação de fornecimento com pagamento posterior | NT 2025.002 v1.52 | a fazer |
 | BB05-20 | 55 | 1196 | Obrig. | Não referenciado DFe anterior em operação com ente governamental na operação de recebimento do pagamento com fornecimento já realizado | NT 2025.002 v1.52 | a fazer |
@@ -449,7 +449,7 @@ Baixadas em 2026-10-22: as NTs do Portal Nacional da NF-e (Documentos > Notas T�
 | C02-10 | 55/65 | 207 | Obrig. | CNPJ do emitente inválido | MOC 7.03 | lib (3.2) |
 | C02-20 | 55/65 | 560 | Facul. | CNPJ base/CPFdo emitente difere do CNPJ base/CPFda primeira NF-e do lote recebido | MOC 7.03 | outra operação (4.4) |
 | C02-30 | 55/65 | 503 | Obrig. | CNPJ do emitente com Série incompatível | NT 2026.001 v1.02b | a fazer |
-| C02a-04 | 65 | 337 | Obrig. | NFC-e para emitente pessoa física | NT 2021.002 v1.12 | a fazer (3.3) |
+| C02a-04 | 65 | 337 | Obrig. | NFC-e para emitente pessoa física | NT 2021.002 v1.12 | SEFAZ |
 | C02a-08 | 55 | 652 | Obrig. | NF-e para emitente pessoa física | NT 2022.003 v1.11 | a fazer |
 | C02a-10 | 55/65 | 495 | Obrig. | CPF do Emitente com Série incompatível | NT 2026.001 v1.02b | a fazer |
 | C02a-14 | 55 | 407 | Obrig. | CPF do Emitente somente no serviço de Nota Fiscal Avulsa no site do Fisco | NT 2021.002 v1.12 | a fazer |
@@ -462,9 +462,9 @@ Baixadas em 2026-10-22: as NTs do Portal Nacional da NF-e (Documentos > Notas T�
 | C17-11 | 55 | 166 | Obrig. | UF de autorização não permitida para contribuinte exclusivo do IBS/CBS | NT 2026.007 v1.10 | SEFAZ |
 | C17-20 | 55/65 | 209 | Obrig. | IE do emitente inválida | NT 2026.007 v1.10 | a fazer |
 | C17-30 | 55/65 | 554 | Obrig. | IE do Emitente informada como ISENTO indevidamente | MOC 7.03 | a fazer |
-| C17-42 | 65 | 156 | Obrig. | NFC-e não pode ser emitida por contribuinte exclusivo do IBS/CBS | NT 2026.007 v1.10 | a fazer (3.3) |
+| C17-42 | 65 | 156 | Obrig. | NFC-e não pode ser emitida por contribuinte exclusivo do IBS/CBS | NT 2026.007 v1.10 | SEFAZ |
 | C17-43 | 55 | 157 | Obrig. | Obrigatório informar CNPJ do emitente para contribuinte exclusivo do IBS/CBS | NT 2026.007 v1.10 | a fazer |
-| C18-10 | 55/65 | 718 | Obrig. | NFC-e ou NF-e com DANFE Simplificado Tipo 2 não deve informar IE de Substituto Tributário | NT 2026.002 v1.11 | a fazer |
+| C18-10 | 55/65 | 718 | Obrig. | NFC-e ou NF-e com DANFE Simplificado Tipo 2 não deve informar IE de Substituto Tributário | NT 2026.002 v1.11 | lib (3.3) |
 | C18-14 | 55 | 347 | Obrig. | Informada IE do substituto tributário em operação que não é interestadual | MOC 7.03 | a fazer |
 | C18-20 | 55 | 478 | Obrig. | Local da entrega não informado para faturamento direto de veículos novos | MOC 7.03 | a fazer |
 | C18-30 | 55 | 211 | Obrig. | IE do substituto inválida | MOC 7.03 | a fazer |
@@ -487,9 +487,9 @@ Baixadas em 2026-10-22: as NTs do Portal Nacional da NF-e (Documentos > Notas T�
 | Regra | Modelo | Código | Aplic. | Mensagem | Fonte | Situação |
 |---|---|---|---|---|---|---|
 | E01-10 | 55 | 719 | Obrig. | NF-e sem a identificação do destinatário | MOC 7.03 | a fazer |
-| E01-20 | 55/65 | 787 | Obrig. | NFC-e ou NF-e com DANFE Simplificado Tipo 2 (tag:tpImp=6) em operação não presencial sem a identificação do destinatário | NT 2026.002 v1.11 | a fazer |
+| E01-20 | 55/65 | 787 | Obrig. | NFC-e ou NF-e com DANFE Simplificado Tipo 2 (tag:tpImp=6) em operação não presencial sem a identificação do destinatário | NT 2026.002 v1.11 | lib (3.3) |
 | E02-10 | 55/65 | 208 | Obrig. | CNPJ do destinatário inválido | MOC 7.03 | lib (3.2) |
-| E02-20 | 65 | 220 | Obrig. | Destinatário com identificação igual à identificação do emitente | MOC 7.03 | a fazer (3.3) |
+| E02-20 | 65 | 220 | Obrig. | Destinatário com identificação igual à identificação do emitente | MOC 7.03 | lib (3.3) |
 | E03-10 | 55/65 | 237 | Obrig. | CPF do destinatário inválido | MOC 7.03 | lib (3.2) |
 | E03a-10 | 55 | 720 | Obrig. | Na operação com Exterior deve ser informada tag idEstrangeiro | NT 2022.002 v1.30a | a fazer |
 | E03a-20 | 55 | 721 | Obrig. | Informado idEstrangeiro e Operação não é com consumidor final | MOC 7.03 | a fazer |
@@ -498,7 +498,7 @@ Baixadas em 2026-10-22: as NTs do Portal Nacional da NF-e (Documentos > Notas T�
 | E04-10 | 55 | 724 | Obrig. | NF-e sem o nome do destinatário | MOC 7.03 | a fazer |
 | E04-20 | 55/65 | 598 | Obrig. | NF-e emitida em ambiente de homologação com Razão Social do destinatário diferente de NF-E EMITIDA EM AMBIENTE DE HOMOLOGACAO - SEM VALOR FISCAL | NT 2021.002 v1.12 | a fazer |
 | E05-10 | 55 | 726 | Obrig. | NF-e sem a informação de endereço do destinatário | MOC 7.03 | a fazer |
-| E05-20 | 65 | 788 | Obrig. | NFC-e de entregaa domicílio sem o endereço do destinatário | MOC 7.03 | a fazer (3.3) |
+| E05-20 | 65 | 788 | Obrig. | NFC-e de entregaa domicílio sem o endereço do destinatário | MOC 7.03 | lib (3.3) |
 | E10-10 | 55/65 | 274 | Obrig. | Código Município do Destinatário inexistente | MOC 7.03 | SEFAZ (tabela) |
 | E10-20 | 55/65 | 275 | Obrig. | Código Município do Destinatário: difere da UF do Destinatário | MOC 7.03 | a fazer |
 | E10-30 | 55 | 509 | Obrig. | Informado código de município diferente de “9999999” para operação com o exterior | MOC 7.03 | a fazer |
@@ -511,17 +511,17 @@ Baixadas em 2026-10-22: as NTs do Portal Nacional da NF-e (Documentos > Notas T�
 | E14-10 | 55 | 510 | Facul. | Operação com Exterior e Código País destinatário é 1058 (Brasil) ou não informado | NT 2022.002 v1.30a | a fazer |
 | E14-20 | 55/65 | 511 | Facul. | Não é de Operação com Exterior e Código País destinatário difere de 1058 (Brasil) | MOC 7.03 | a fazer |
 | E14-30 | 55/65 | 926 | Obrig. | Operação com Exterior e país de destino igual a Brasil | NT 2019.001 v1.70 | a fazer |
-| E16a-10 | 65 | 789 | Obrig. | NFC-e para destinatário contribuinte de ICMS | MOC 7.03 | a fazer (3.3) |
+| E16a-10 | 65 | 789 | Obrig. | NFC-e para destinatário contribuinte de ICMS | MOC 7.03 | lib (3.3) |
 | E16a-20 | 55 | 790 | Obrig. | Operação com Exterior para destinatário Contribuinte de ICMS | NT 2022.002 v1.30a | a fazer |
 | E16a-30 | 55 | 805 | Obrig. | A SEFAZ do destinatário não permite Contribuinte Isento de Inscrição Estadual | NT 2025.001 v1.03 | a fazer |
 | E16a-35 | 55 | 805 | Facul. | A SEFAZ do destinatário não permite Contribuinte Isento de IE | NT 2025.001 v1.03 | a fazer |
 | E16a-40 | 55 | 696 | Obrig. | Operação com não contribuinte deve indicar operação com consumidor final | NT 2019.001 v1.70 | lib (3.2) |
-| E17-10 | 65 | 729 | Obrig. | NFC-e com informação da IE do destinatário | MOC 7.03 | a fazer (3.3) |
+| E17-10 | 65 | 729 | Obrig. | NFC-e com informação da IE do destinatário | MOC 7.03 | lib (3.3) |
 | E17-20 | 55 | 728 | Obrig. | NF-e sem informação da IE do destinatário | MOC 7.03 | lib (3.2) |
 | E17-30 | 55 | 791 | Obrig. | NF-e com indicação de destinatário isento de IE, com a informação da IE do destinatário | MOC 7.03 | lib (3.2) |
 | E17-40 | 55 | 792 | Obrig. | Informada a IE do destinatário para operação com destinatário no Exterior | MOC 7.03 | lib (3.2) |
 | E17-50 | 55 | 210 | Obrig. | IE do destinatário inválida | MOC 7.03 | a fazer |
-| E18-10 | 65 | 730 | Obrig. | NFC-e com Inscrição Suframa | MOC 7.03 | a fazer (3.3) |
+| E18-10 | 65 | 730 | Obrig. | NFC-e com Inscrição Suframa | MOC 7.03 | lib (3.3) |
 | E18-20 | 55 | 235 | Obrig. | Inscrição SUFRAMA inválida | MOC 7.03 | a fazer |
 | E18-30 | 55 | 251 | Obrig. | UF/Município destinatário não pertence a SUFRAMA | NT 2025.002 v1.52 | a fazer |
 
@@ -579,7 +579,7 @@ Baixadas em 2026-10-22: as NTs do Portal Nacional da NF-e (Documentos > Notas T�
 | I05-10 | 55/65 | 777 | Obrig. | Obrigatória a informação do NCM completo (redação dada pela NT 2013/005 v 1.20) [nItem: 999] | NT 2024.001 v1.20 | a fazer |
 | I05-20 | 55/65 | 778 | Obrig. | Informado NCM inexistente[nItem:nnn] | MOC 7.03 | SEFAZ (tabela) |
 | I05-24 | 55/65 | 471 | Obrig. | Informado NCM=00 indevidamente (NT 2014/004) [nItem:999] | MOC 7.03 | a fazer |
-| I05-30 | 65 | 779 | Obrig. | NFC-e com NCM incompatível [nItem:999] | MOC 7.03 | a fazer (3.3) |
+| I05-30 | 65 | 779 | Obrig. | NFC-e com NCM incompatível [nItem:999] | MOC 7.03 | SEFAZ |
 | I05c-10 | 55/65 | 446 | Obrig. | Informado CEST inexistente [nItem:999] | NT 2020.005 v1.21 | SEFAZ (tabela) |
 | I05e-10 | 55/65 | 879 | Obrig. | Informado item “Produzido em Escala NÃO Relevante”e não informado CNPJ do Fabricante [nItem:999] | MOC 7.03 | a fazer |
 | I05e-20 | 55/65 | 489 | Obrig. | CNPJ informado inválido (DV ou zeros) [nItem:999] | MOC 7.03 | lib (3.2) |
@@ -588,7 +588,7 @@ Baixadas em 2026-10-22: as NTs do Portal Nacional da NF-e (Documentos > Notas T�
 | I05f-30 | 55/65 | 934 | Facul. | Não informado valor do ICMS desonerado ou o Motivo de desoneração [nItem: nnn] | NT 2019.001 v1.70 | a fazer |
 | I05g-10 | 55/65 | 507 | Facul. | Grupo de informações sobre o Crédito Presumido não permitido | NT 2019.001 v1.70 | a fazer |
 | I05h-10 | 55/65 | 664 | Facul. | Informado código de crédito presumido (cCredPresumido) incorreto, inexistente ou incompatível na UF [nItem: nnn] | NT 2019.001 v1.70 | SEFAZ |
-| I05k-10 | 65 | 1165 | Obrig. | Não é permitido informar a classificação para subapuração do IBS na ZFM na NFC-e modelo 65 [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.3) |
+| I05k-10 | 65 | 1165 | Obrig. | Não é permitido informar a classificação para subapuração do IBS na ZFM na NFC-e modelo 65 [nItem: 999] | NT 2025.002 v1.52 | a fazer |
 | I05k-20 | 55 | 1166 | Obrig. | Classificação para subapuração do IBS na ZFM informado indevidamente. [nItem: 999] | NT 2025.002 v1.52 | a fazer |
 | I05k-30 | 55 | 1167 | Obrig. | Classificação para subapuração do IBS na ZFM não informada [nItem: 999] | NT 2025.002 v1.52 | a fazer |
 | I08-04 | 55/65 | 770 | Obrig. | CFOP Inexistente [nItem:nnn] | MOC 7.03 | a fazer |
@@ -618,7 +618,7 @@ Baixadas em 2026-10-22: as NTs do Portal Nacional da NF-e (Documentos > Notas T�
 | I08-191 | 55 | 159 | Obrig. | Operação não permitida para contribuinte exclusivo do IBS/CBS. [nItem:999] | NT 2026.007 v1.10 | SEFAZ (tabela) |
 | I08-194 | 55 | 475 | Facul. | Operação não permitida para não contribuinte [nItem:999] | NT 2022.003 v1.11 | SEFAZ |
 | I08-198 | 55 | 475 | Facul. | Operação não permitida para não contribuinte [nItem:999] | NT 2022.003 v1.11 | SEFAZ |
-| I09-10 | 65 | 734 | Obrig. | NFC-e com Unidade de Comercialização inválida [nItem:999] | MOC 7.03 | a fazer (3.3) |
+| I09-10 | 65 | 734 | Obrig. | NFC-e com Unidade de Comercialização inválida [nItem:999] | MOC 7.03 | SEFAZ |
 | I11-10 | 55/65 | 629 | Facul. | Valor do Produto difere do produto Valor Unitário de Comercialização e Quantidade Comercial [nItem:999] | MOC 7.03 | a fazer |
 | I11-20 | 55/65 | 630 | Facul. | Valor do Produto difere do produto Valor Unitário de Tributação e Quantidade Tributável [nItem:999] | MOC 7.03 | a fazer |
 | I11c-10 | 55/65 | 1278 | Obrig. | Valor Líquido do Produto não informado [nItem: 999] | NT 2026.008 v1.00 | a fazer |
@@ -628,7 +628,7 @@ Baixadas em 2026-10-22: as NTs do Portal Nacional da NF-e (Documentos > Notas T�
 | I12-30 | 55/65 | 885 | Obrig. | GTIN informado, mas não informado o GTIN da unidade tributável [nItem:999] | NT 2021.003 v1.50 | a fazer |
 | I12-40 | 55/65 | 886 | Obrig. | GTIN da unidade tributável informado, mas não informado o GTIN [nItem:999] | NT 2021.003 v1.50 | a fazer |
 | I12-60 | 55/65 | 888 | Obrig. | GTIN da unidade tributável (cEANTrib) sem informação [nItem:999] | NT 2021.003 v1.50 | a fazer |
-| I13-10 | 65 | 735 | Obrig. | NFC-e com Unidade de Tributação inválida [nItem:999] | MOC 7.03 | a fazer (3.3) |
+| I13-10 | 65 | 735 | Obrig. | NFC-e com Unidade de Tributação inválida [nItem:999] | MOC 7.03 | SEFAZ |
 | I13-20 | 55/65 | 854 | Obrig. | Unidade Tributável (tag:uTrib) incompatível com produto informado [nItem: 999] | NT 2023.001 v1.60 | a fazer |
 | I14-10 | 55 | 817 | Obrig. | Unidade Tributável incompatível com o NCM informado na operação com Comércio Exterior [nItem:999] | MOC 7.03 | SEFAZ (tabela) |
 | I17-10 | 55/65 | 483 | Obrig. | Valor do desconto maior que valor do produto [nItem:nnn] | MOC 7.03 | a fazer |
@@ -662,7 +662,7 @@ Baixadas em 2026-10-22: as NTs do Portal Nacional da NF-e (Documentos > Notas T�
 
 | Regra | Modelo | Código | Aplic. | Mensagem | Fonte | Situação |
 |---|---|---|---|---|---|---|
-| J01-10 | 55/65 | 736 | Obrig. | NFC-e ou NF-e com DANFE Simplificado Tipo 2 com grupo de Veículos novos | NT 2026.002 v1.11 | a fazer |
+| J01-10 | 55/65 | 736 | Obrig. | NFC-e ou NF-e com DANFE Simplificado Tipo 2 com grupo de Veículos novos | NT 2026.002 v1.11 | lib (3.3) |
 | J19-10 | 55 | 841 | Obrig. | Código do Tipo de Veículo Inexistente [nItem:nnn] | NT 2021.004 v1.35 | a fazer |
 | J20-10 | 55 | 842 | Obrig. | Código da espécie de Veículo Inexistente [nItem:nnn] | NT 2021.004 v1.35 | a fazer |
 | J20-20 | 55 | 843 | Obrig. | Código da espécie de Veículo incompatível com o tipo do Veículo. [nItem:nnn] | NT 2021.004 v1.35 | a fazer |
@@ -678,7 +678,7 @@ Baixadas em 2026-10-22: as NTs do Portal Nacional da NF-e (Documentos > Notas T�
 
 | Regra | Modelo | Código | Aplic. | Mensagem | Fonte | Situação |
 |---|---|---|---|---|---|---|
-| L01-10 | 55/65 | 738 | Obrig. | NFC-e ou NF-e com DANFE Simplificado Tipo 2 com grupo de Armamentos | NT 2026.002 v1.11 | a fazer |
+| L01-10 | 55/65 | 738 | Obrig. | NFC-e ou NF-e com DANFE Simplificado Tipo 2 com grupo de Armamentos | NT 2026.002 v1.11 | lib (3.3) |
 
 #### Grupo LA: Item / Combustível
 
@@ -705,7 +705,7 @@ Baixadas em 2026-10-22: as NTs do Portal Nacional da NF-e (Documentos > Notas T�
 
 | Regra | Modelo | Código | Aplic. | Mensagem | Fonte | Situação |
 |---|---|---|---|---|---|---|
-| LB01-10 | 55/65 | 348 | Obrig. | NFC-e ou NF-e com DANFE Simplificado Tipo 2 com grupo RECOPI | NT 2026.002 v1.11 | a fazer |
+| LB01-10 | 55/65 | 348 | Obrig. | NFC-e ou NF-e com DANFE Simplificado Tipo 2 com grupo RECOPI | NT 2026.002 v1.11 | lib (3.3) |
 | LB01-20 | 55 | 349 | Facul. | Número RECOPI não informado | MOC 7.03 | a fazer |
 | LB01-30 | 55 | 350 | Facul. | Número RECOPI inválido | MOC 7.03 | a fazer |
 
@@ -723,7 +723,7 @@ Baixadas em 2026-10-22: as NTs do Portal Nacional da NF-e (Documentos > Notas T�
 | N12-34 | 55/65 | 381 | Obrig. | Grupo de tributação ICMS90, informando dados do ICMS-ST [nItem:nnn] | NT 2026.002 v1.11 | a fazer |
 | N12-40 | 55/65 | 382 | Obrig. | CFOP não permitido para o CST informado [nItem:nnn] | NT 2026.002 v1.11 | a fazer |
 | N12-44 | 55/65 | 382 | Obrig. | CFOP não permitido para o CST informado [nItem:nnn] | NT 2026.002 v1.11 | a fazer |
-| N12-50 | 55/65 | 741 | Obrig. | NFC-e ou NF-e com DANFE Simplificado Tipo 2 com Partilha de ICMS entre UF | NT 2026.002 v1.11 | a fazer |
+| N12-50 | 55/65 | 741 | Obrig. | NFC-e ou NF-e com DANFE Simplificado Tipo 2 com Partilha de ICMS entre UF | NT 2026.002 v1.11 | lib (3.3) |
 | N12-60 | 55/65 | 740 | Obrig. | Item com Repasse de ICMS retido por Substituto Tributário [nItem: nnn] | NT 2026.002 v1.11 | a fazer |
 | N12-70 | 55 | 508 | Obrig. | CST incompatível na operação com Não Contribuinte [nItem: 999] | NT 2023.003 v1.40 | a fazer |
 | N12-80 | 55 | 529 | Obrig. | CST incompatível na operação com Contribuinte Isento de Inscrição Estadual [nItem: 999] | NT 2020.005 v1.21 | a fazer |
@@ -794,7 +794,7 @@ Baixadas em 2026-10-22: as NTs do Portal Nacional da NF-e (Documentos > Notas T�
 
 | Regra | Modelo | Código | Aplic. | Mensagem | Fonte | Situação |
 |---|---|---|---|---|---|---|
-| NA01-10 | 55/65 | 807 | Obrig. | NFC-e ou NF-e com DANFE Simplificado Tipo 2 com grupo de ICMS para a UF do destinatário | NT 2026.002 v1.11 | a fazer |
+| NA01-10 | 55/65 | 807 | Obrig. | NFC-e ou NF-e com DANFE Simplificado Tipo 2 com grupo de ICMS para a UF do destinatário | NT 2026.002 v1.11 | lib (3.3) |
 | NA01-20 | 55 | 694 | Obrig. | Não informado o grupo de ICMS para a UF de destino [nItem: 999] | NT 2025.002 v1.52 | a fazer |
 | NA01-30 | 55 | 695 | Obrig. | Informado indevidamente o grupo de ICMS para a UF de destino [nItem:999] | MOC 7.03 | a fazer |
 | NA09-10 | 55 | 697 | Obrig. | Alíquota interestadual do ICMS com origem diferente do previsto [nItem:999] | MOC 7.03 | a fazer |
@@ -809,7 +809,7 @@ Baixadas em 2026-10-22: as NTs do Portal Nacional da NF-e (Documentos > Notas T�
 
 | Regra | Modelo | Código | Aplic. | Mensagem | Fonte | Situação |
 |---|---|---|---|---|---|---|
-| NB01-10 | 65 | 1280 | Obrig. | Grupo do ICMS Previsto no Pagamento Antecipado informado indevidamente [nItem: 999] | NT 2026.008 v1.00 | a fazer (3.3) |
+| NB01-10 | 65 | 1280 | Obrig. | Grupo do ICMS Previsto no Pagamento Antecipado informado indevidamente [nItem: 999] | NT 2026.008 v1.00 | SEFAZ |
 | NB01-20 | 55 | 1280 | Obrig. | Grupo do ICMS Previsto no Pagamento Antecipado informado indevidamente [nItem: 999] | NT 2026.008 v1.00 | a fazer |
 | NB01-30 | 55 | 1281 | Obrig. | Grupo do ICMS Previsto no Pagamento Antecipado não informado [nItem: 999] | NT 2026.008 v1.00 | a fazer |
 
@@ -817,7 +817,7 @@ Baixadas em 2026-10-22: as NTs do Portal Nacional da NF-e (Documentos > Notas T�
 
 | Regra | Modelo | Código | Aplic. | Mensagem | Fonte | Situação |
 |---|---|---|---|---|---|---|
-| O01-10 | 55/65 | 742 | Obrig. | NFC-e ou NF-e com DANFE Simplificado Tipo 2 com grupo do IPI | NT 2026.002 v1.11 | a fazer |
+| O01-10 | 55/65 | 742 | Obrig. | NFC-e ou NF-e com DANFE Simplificado Tipo 2 com grupo do IPI | NT 2026.002 v1.11 | lib (3.3) |
 | O06-10 | 55 | 387 | Obrig. | Código de Enquadramento Legal do IPI inválido [nItem:nnn] | MOC 7.03 | a fazer |
 | O09-10 | 55 | 388 | Obrig. | Código de Situação Tributária do IPI incompatível com o Código de Enquadramento Legal do IPI [nItem:nnn] | MOC 7.03 | a fazer |
 
@@ -825,7 +825,7 @@ Baixadas em 2026-10-22: as NTs do Portal Nacional da NF-e (Documentos > Notas T�
 
 | Regra | Modelo | Código | Aplic. | Mensagem | Fonte | Situação |
 |---|---|---|---|---|---|---|
-| P01-10 | 55/65 | 743 | Obrig. | NFC-e ou NF-e com DANFE Simplificado Tipo 2 com grupo do II | NT 2026.002 v1.11 | a fazer |
+| P01-10 | 55/65 | 743 | Obrig. | NFC-e ou NF-e com DANFE Simplificado Tipo 2 com grupo do II | NT 2026.002 v1.11 | lib (3.3) |
 | P21-10 | 55/65 | 466 | Obrig. | Evento com Tipo de Autor incompatível | NT 2026.006 v1.00 | SEFAZ |
 | P26-10 | 55/65 | 1273 | Obrig. | Meio de pagamento inválido | NT 2026.006 v1.00 | a fazer |
 | P27-10 | 55/65 | 1274 | Obrig. | CNPJ do recebedor do pagamento inválido | NT 2026.006 v1.00 | a fazer |
@@ -840,7 +840,7 @@ Baixadas em 2026-10-22: as NTs do Portal Nacional da NF-e (Documentos > Notas T�
 
 | Regra | Modelo | Código | Aplic. | Mensagem | Fonte | Situação |
 |---|---|---|---|---|---|---|
-| R01-10 | 55/65 | 746 | Obrig. | NFC-e ou NF-e com DANFE Simplificado Tipo 2 com grupo do PIS-ST | NT 2026.002 v1.11 | a fazer |
+| R01-10 | 55/65 | 746 | Obrig. | NFC-e ou NF-e com DANFE Simplificado Tipo 2 com grupo do PIS-ST | NT 2026.002 v1.11 | lib (3.3) |
 
 #### Grupo S: Item / Tributo: COFINS
 
@@ -852,7 +852,7 @@ Baixadas em 2026-10-22: as NTs do Portal Nacional da NF-e (Documentos > Notas T�
 
 | Regra | Modelo | Código | Aplic. | Mensagem | Fonte | Situação |
 |---|---|---|---|---|---|---|
-| T01-10 | 55/65 | 749 | Obrig. | NFC-e ou NF-e com DANFE Simplificado Tipo 2 com grupo da COFINS-ST | NT 2026.002 v1.11 | a fazer |
+| T01-10 | 55/65 | 749 | Obrig. | NFC-e ou NF-e com DANFE Simplificado Tipo 2 com grupo da COFINS-ST | NT 2026.002 v1.11 | lib (3.3) |
 
 #### Grupo U: Item / Tributo: ISSQN
 
@@ -931,7 +931,7 @@ Baixadas em 2026-10-22: as NTs do Portal Nacional da NF-e (Documentos > Notas T�
 | UB59-10 | 55/65 | 1061 | Obrig. | CST do IBS/CBS informado obriga informação de diferimento da CBS [nItem: 999] | NT 2025.002 v1.52 | a fazer |
 | UB59-20 | 55/65 | 1090 | Obrig. | CST do IBS/CBS informado não permite informação de diferimento da CBS [nItem: 999] | NT 2025.002 v1.52 | a fazer |
 | UB61-10 | 55/65 | 1062 | Obrig. | Valor do Diferimento da CBS difere do calculado [nItem: 999] | NT 2025.002 v1.52 | a fazer |
-| UB62-10 | 65 | 1187 | Obrig. | Grupo de Devolução da CBS informado indevidamente [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.3) |
+| UB62-10 | 65 | 1187 | Obrig. | Grupo de Devolução da CBS informado indevidamente [nItem: 999] | NT 2025.002 v1.52 | a fazer |
 | UB62a-10 | 55 | 1188 | Obrig. | Percentual de devolução da CBS não informado [nItem: 999] | NT 2025.002 v1.52 | a fazer |
 | UB63-10 | 55 | 1189 | Obrig. | Valor da CBS devolvida difere do calculado [nItem: 999] | NT 2025.002 v1.52 | a fazer |
 | UB64-10 | 55/65 | 1028 | Obrig. | CST do IBS/CBS informado não permite informação de redução de alíquota da CBS [nItem: 999] | NT 2025.002 v1.52 | a fazer |
@@ -1026,7 +1026,7 @@ Baixadas em 2026-10-22: as NTs do Portal Nacional da NF-e (Documentos > Notas T�
 | UB116-10 | 55/65 | 1172 | Obrig. | Grupo de Estorno de Crédito informado indevidamente [nItem: 999] | NT 2025.002 v1.52 | a fazer |
 | UB116-20 | 55 | 1173 | Obrig. | Grupo de Estorno de Crédito não informado [nItem: 999] | NT 2025.002 v1.52 | a fazer |
 | UB116-30 | 55 | 1174 | Obrig. | Valor do IBS ou da CBS deve ser maior que zero no estorno de crédito [nItem: 999] | NT 2025.002 v1.52 | a fazer |
-| UB120-10 | 65 | 1049 | Obrig. | Não é permitido o uso de Crédito Presumido na NFC-e modelo 65 [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.3) |
+| UB120-10 | 65 | 1049 | Obrig. | Não é permitido o uso de Crédito Presumido na NFC-e modelo 65 [nItem: 999] | NT 2025.002 v1.52 | a fazer |
 | UB120-20 | 55 | 1175 | Obrig. | Grupo de Crédito Presumido na Operação informado indevidamente [nItem: 999] | NT 2025.002 v1.52 | a fazer |
 | UB122-10 | 55 | 1055 | Obrig. | Código de Crédito Presumido (cCredPres) da Operação inexistente [nItem: 999] | NT 2025.002 v1.52 | a fazer |
 | UB123-10 | 55 | 1053 | Obrig. | Crédito Presumido para o IBS informado indevidamente [nItem: 999] | NT 2025.002 v1.52 | a fazer |
@@ -1037,7 +1037,7 @@ Baixadas em 2026-10-22: as NTs do Portal Nacional da NF-e (Documentos > Notas T�
 | UB127-20 | 55 | 1058 | Obrig. | Crédito Presumido para a CBS não informado [nItem: 999] | NT 2025.002 v1.52 | a fazer |
 | UB129-10 | 55 | 1124 | Obrig. | Valor do Crédito Presumido da CBS não pode ser superior a vProd [nItem: 999] | NT 2025.002 v1.52 | a fazer |
 | UB130-10 | 55 | 1060 | Obrig. | Valor do Crédito Presumido da CBS informado indevidamente [nItem: 999] | NT 2025.002 v1.52 | a fazer |
-| UB131-10 | 65 | 1138 | Obrig. | Não é permitido o uso de Crédito Presumido ZFM na NFC-e modelo 65 [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.3) |
+| UB131-10 | 65 | 1138 | Obrig. | Não é permitido o uso de Crédito Presumido ZFM na NFC-e modelo 65 [nItem: 999] | NT 2025.002 v1.52 | a fazer |
 | UB131-20 | 55 | 1134 | Obrig. | CST do IBS/CBS informado não permite informação do grupo para apropriação de crédito presumido de IBS sobre o saldo devedor na ZFM [nItem: 999] | NT 2025.002 v1.52 | a fazer |
 | UB131-30 | 55 | 1135 | Obrig. | CST do IBS/CBS informado exige a informação do grupo para apropriação de crédito presumido de IBS sobre o saldo devedor na ZFM [nItem: 999] | NT 2025.002 v1.52 | a fazer |
 | UB131-40 | 55 | 1158 | Obrig. | Tipo de Nota de Crédito não permite o grupo para apropriação de crédito presumido de IBS sobre o saldo devedor na ZFM [nItem: 999] | NT 2025.002 v1.52 | a fazer |
@@ -1159,8 +1159,8 @@ Baixadas em 2026-10-22: as NTs do Portal Nacional da NF-e (Documentos > Notas T�
 |---|---|---|---|---|---|---|
 | X02-10 | 55/65 | 753 | Obrig. | NFC-e ou NF-e com DANFE Simplificado Tipo 2 (tag:tpImp=6) com Frete | NT 2026.002 v1.11 | a fazer |
 | X02-20 | 55 | 868 | Obrig. | Grupos Veiculo Transporte e Reboque não devem ser informados | MOC 7.03 | a fazer |
-| X03-10 | 65 | 754 | Obrig. | NFC-e com dados do Transportador | NT 2023.004 v1.20 | a fazer (3.3) |
-| X03-20 | 65 | 786 | Obrig. | NFC-e de entrega a domicílio sem dados do Transportador | NT 2023.004 v1.20 | a fazer (3.3) |
+| X03-10 | 65 | 754 | Obrig. | NFC-e com dados do Transportador | NT 2023.004 v1.20 | lib (3.3) |
+| X03-20 | 65 | 786 | Obrig. | NFC-e de entrega a domicílio sem dados do Transportador | NT 2023.004 v1.20 | lib (3.3) |
 | X03-30 | 55 | 845 | Obrig. | O Grupo Transportador não pode ser preenchido para Modalidade do frete informada | NT 2021.004 v1.35 | a fazer |
 | X04-10 | 55 | 362 | Facul. | Venda de combustível sem informação do Transportador | NT 2022.002 v1.30a | a fazer |
 | X04-20 | 55/65 | 542 | Obrig. | CNPJ do Transportador inválido | MOC 7.03 | lib (3.2) |
@@ -1203,8 +1203,8 @@ Baixadas em 2026-10-22: as NTs do Portal Nacional da NF-e (Documentos > Notas T�
 | Regra | Modelo | Código | Aplic. | Mensagem | Fonte | Situação |
 |---|---|---|---|---|---|---|
 | YA02-04 | 55 | 871 | Obrig. | O campo Meio de Pagamento deve ser preenchido com a opção Sem Pagamento | MOC 7.03 | a fazer |
-| YA02-10 | 65 | 857 | Obrig. | Informado Duplicata Mercantil como Forma de Pagamento | MOC 7.03 | a fazer (3.3) |
-| YA02-40 | 65 | 899 | Obrig. | Informado incorretamente o campo meio de pagamento | MOC 7.03 | a fazer (3.3) |
+| YA02-10 | 65 | 857 | Obrig. | Informado Duplicata Mercantil como Forma de Pagamento | MOC 7.03 | lib (3.3) |
+| YA02-40 | 65 | 899 | Obrig. | Informado incorretamente o campo meio de pagamento | MOC 7.03 | lib (3.3) |
 | YA02-50 | 55/65 | 436 | Obrig. | Informado 99-Outros como meio de pagamento | NT 2020.006 v1.31 | a fazer |
 | YA02-60 | 55/65 | 436 | Obrig. | Código do meio de pagamento inexistente | NT 2020.006 v1.31 | a fazer |
 | YA02a-10 | 55/65 | 441 | Obrig. | Descrição do pagamento obrigatória para meio de pagamento 99- outros | NT 2020.006 v1.31 | a fazer |
@@ -1245,8 +1245,8 @@ Baixadas em 2026-10-22: as NTs do Portal Nacional da NF-e (Documentos > Notas T�
 
 | Regra | Modelo | Código | Aplic. | Mensagem | Fonte | Situação |
 |---|---|---|---|---|---|---|
-| Z02-10 | 65 | 949 | Facul. | NFC-e sem preenchimento das Informações Adicionais de Interesse do Fisco | NT 2021.004 v1.35 | a fazer (3.3) |
-| Z02-20 | 65 | 950 | Facul. | Informações Adicionais de Interesse do Fisco abaixo do tamanho mínimo exigido pela UF | NT 2021.004 v1.35 | a fazer (3.3) |
+| Z02-10 | 65 | 949 | Facul. | NFC-e sem preenchimento das Informações Adicionais de Interesse do Fisco | NT 2021.004 v1.35 | SEFAZ |
+| Z02-20 | 65 | 950 | Facul. | Informações Adicionais de Interesse do Fisco abaixo do tamanho mínimo exigido pela UF | NT 2021.004 v1.35 | SEFAZ |
 | Z13-10 | 55/65 | 941 | Facul. | Número do Regime especial inválido. 4.6 | NT 2021.004 v1.35 | SEFAZ |
 
 #### Grupo ZA: Comércio Exterior
@@ -1255,7 +1255,7 @@ Baixadas em 2026-10-22: as NTs do Portal Nacional da NF-e (Documentos > Notas T�
 |---|---|---|---|---|---|---|
 | ZA01-10 | 55 | 355 | Obrig. | Informar o local de saída do Pais no caso da exportação | MOC 7.03 | a fazer |
 | ZA01-20 | 55 | 356 | Obrig. | Informar o local de saída do Pais somente no caso da exportação | MOC 7.03 | a fazer |
-| ZA01-30 | 65 | 814 | Obrig. | Nota Fiscal com grupo de comércio exterior | MOC 7.03 | a fazer (3.3) |
+| ZA01-30 | 65 | 814 | Obrig. | Nota Fiscal com grupo de comércio exterior | MOC 7.03 | lib (3.3) |
 
 #### Grupo ZB: Informação de Compra
 
@@ -1319,36 +1319,36 @@ Baixadas em 2026-10-22: as NTs do Portal Nacional da NF-e (Documentos > Notas T�
 |---|---|---|---|---|---|---|
 | ZX01-10 | 55 | 393 | Obrig. | NF-e com o grupo de Informações Suplementares | MOC 7.03 | a fazer |
 | ZX02-10 | 55/65 | 394 | Obrig. | Nota Fiscal sem a informação do QR-Code | NT 2026.002 v1.11 | a fazer |
-| ZX02-15 | 65 | 903 | Obrig. | Versão informada no QR-Code (“100”) não é mais válida para a data de emissão | MOC 7.03 | a fazer (3.3) |
+| ZX02-15 | 65 | 903 | Obrig. | Versão informada no QR-Code (“100”) não é mais válida para a data de emissão | MOC 7.03 | a fazer (5.1) |
 | ZX02-20 | 55/65 | 395 | Obrig. | Endereço do site da UF da Consulta via QR- Code diverge do previsto | NT 2026.002 v1.11 | a fazer |
-| ZX02-22 | 65 | 813 | Obrig. | QR-Code com sequência de escape para o e-comercial. Usar CDATA | MOC 7.03 | a fazer (3.3) |
-| ZX02-24 | 65 | 396 | Obrig. | Parâmetro do QR-Code inexistente (chAcesso) | MOC 7.03 | a fazer (3.3) |
-| ZX02-28 | 65 | 397 | Obrig. | Parâmetro do QR-Code divergente da Nota Fiscal (chAcesso) | MOC 7.03 | a fazer (3.3) |
-| ZX02-32 | 65 | 396 | Obrig. | Parâmetro do QR-Code inexistente (nVersao) | MOC 7.03 | a fazer (3.3) |
-| ZX02-40 | 65 | 396 | Obrig. | Parâmetro do QR-Code inexistente (tpAmp) | MOC 7.03 | a fazer (3.3) |
-| ZX02-44 | 65 | 397 | Obrig. | Parâmetro do QR-Code divergente da Nota Fiscal (tpAmb) | MOC 7.03 | a fazer (3.3) |
-| ZX02-48 | 65 | 396 | Obrig. | Parâmetro do QR-Code inexistente (cDest) | MOC 7.03 | a fazer (3.3) |
-| ZX02-52 | 65 | 399 | Obrig. | Parâmetro de Identificação do destinatário no QR-Code para Nota Fiscal sem identificação do destinatário | MOC 7.03 | a fazer (3.3) |
-| ZX02-56 | 65 | 397 | Obrig. | Parâmetro do QR-Code divergente da Nota Fiscal (cDest) | MOC 7.03 | a fazer (3.3) |
-| ZX02-60 | 65 | 396 | Obrig. | Parâmetro do QR-Code inexistente (dhEmi) | MOC 7.03 | a fazer (3.3) |
-| ZX02-64 | 65 | 400 | Obrig. | Parâmetro do QR-Code não está no formato hexadecimal (dhEmi) | MOC 7.03 | a fazer (3.3) |
-| ZX02-68 | 65 | 397 | Obrig. | Parâmetro do QR-Code divergente da Nota Fiscal (dhEmi) | MOC 7.03 | a fazer (3.3) |
-| ZX02-72 | 65 | 396 | Obrig. | Parâmetro do QR-Code inexistente (vNF) | MOC 7.03 | a fazer (3.3) |
-| ZX02-76 | 65 | 397 | Obrig. | Parâmetro do QR-Code divergente da Nota Fiscal (vNF) | MOC 7.03 | a fazer (3.3) |
-| ZX02-80 | 65 | 396 | Obrig. | Parâmetro do QR-Code inexistente (vICMS) | MOC 7.03 | a fazer (3.3) |
-| ZX02-84 | 65 | 397 | Obrig. | Parâmetro do QR-Code divergente da Nota Fiscal (vICMS) | MOC 7.03 | a fazer (3.3) |
-| ZX02-88 | 65 | 396 | Obrig. | Parâmetro do QR-Code inexistente (digVal) | MOC 7.03 | a fazer (3.3) |
-| ZX02-92 | 65 | 400 | Obrig. | Parâmetro do QR-Code não está no formato hexadecimal (digVal) | MOC 7.03 | a fazer (3.3) |
-| ZX02-96 | 65 | 397 | Obrig. | Parâmetro do QR-Code divergente da Nota Fiscal (digVal) | MOC 7.03 | a fazer (3.3) |
-| ZX02-100 | 65 | 396 | Obrig. | Parâmetro do QR-Code inexistente (cIdToken) | MOC 7.03 | a fazer (3.3) |
+| ZX02-22 | 65 | 813 | Obrig. | QR-Code com sequência de escape para o e-comercial. Usar CDATA | MOC 7.03 | a fazer (5.1) |
+| ZX02-24 | 65 | 396 | Obrig. | Parâmetro do QR-Code inexistente (chAcesso) | MOC 7.03 | a fazer (5.1) |
+| ZX02-28 | 65 | 397 | Obrig. | Parâmetro do QR-Code divergente da Nota Fiscal (chAcesso) | MOC 7.03 | a fazer (5.1) |
+| ZX02-32 | 65 | 396 | Obrig. | Parâmetro do QR-Code inexistente (nVersao) | MOC 7.03 | a fazer (5.1) |
+| ZX02-40 | 65 | 396 | Obrig. | Parâmetro do QR-Code inexistente (tpAmp) | MOC 7.03 | a fazer (5.1) |
+| ZX02-44 | 65 | 397 | Obrig. | Parâmetro do QR-Code divergente da Nota Fiscal (tpAmb) | MOC 7.03 | a fazer (5.1) |
+| ZX02-48 | 65 | 396 | Obrig. | Parâmetro do QR-Code inexistente (cDest) | MOC 7.03 | a fazer (5.1) |
+| ZX02-52 | 65 | 399 | Obrig. | Parâmetro de Identificação do destinatário no QR-Code para Nota Fiscal sem identificação do destinatário | MOC 7.03 | a fazer (5.1) |
+| ZX02-56 | 65 | 397 | Obrig. | Parâmetro do QR-Code divergente da Nota Fiscal (cDest) | MOC 7.03 | a fazer (5.1) |
+| ZX02-60 | 65 | 396 | Obrig. | Parâmetro do QR-Code inexistente (dhEmi) | MOC 7.03 | a fazer (5.1) |
+| ZX02-64 | 65 | 400 | Obrig. | Parâmetro do QR-Code não está no formato hexadecimal (dhEmi) | MOC 7.03 | a fazer (5.1) |
+| ZX02-68 | 65 | 397 | Obrig. | Parâmetro do QR-Code divergente da Nota Fiscal (dhEmi) | MOC 7.03 | a fazer (5.1) |
+| ZX02-72 | 65 | 396 | Obrig. | Parâmetro do QR-Code inexistente (vNF) | MOC 7.03 | a fazer (5.1) |
+| ZX02-76 | 65 | 397 | Obrig. | Parâmetro do QR-Code divergente da Nota Fiscal (vNF) | MOC 7.03 | a fazer (5.1) |
+| ZX02-80 | 65 | 396 | Obrig. | Parâmetro do QR-Code inexistente (vICMS) | MOC 7.03 | a fazer (5.1) |
+| ZX02-84 | 65 | 397 | Obrig. | Parâmetro do QR-Code divergente da Nota Fiscal (vICMS) | MOC 7.03 | a fazer (5.1) |
+| ZX02-88 | 65 | 396 | Obrig. | Parâmetro do QR-Code inexistente (digVal) | MOC 7.03 | a fazer (5.1) |
+| ZX02-92 | 65 | 400 | Obrig. | Parâmetro do QR-Code não está no formato hexadecimal (digVal) | MOC 7.03 | a fazer (5.1) |
+| ZX02-96 | 65 | 397 | Obrig. | Parâmetro do QR-Code divergente da Nota Fiscal (digVal) | MOC 7.03 | a fazer (5.1) |
+| ZX02-100 | 65 | 396 | Obrig. | Parâmetro do QR-Code inexistente (cIdToken) | MOC 7.03 | a fazer (5.1) |
 | ZX02-104 | 65 | 462 | Obrig. | Código Identificador do CSC no QR-Code não cadastrado na SEFAZ | MOC 7.03 | SEFAZ |
-| ZX02-108 | 65 | 463 | Obrig. | Código Identificador do CSC no QR-Code foi revogado pela empresa | MOC 7.03 | a fazer (3.3) |
-| ZX02-112 | 65 | 396 | Obrig. | Parâmetro do QR-Code inexistente (cHashQRCode) | MOC 7.03 | a fazer (3.3) |
-| ZX02-116 | 65 | 400 | Obrig. | Parâmetro do QR-Code não está no formato hexadecimal (cHashQRCode) | MOC 7.03 | a fazer (3.3) |
-| ZX02-120 | 65 | 464 | Obrig. | Código de Hash no QR-Code difere do calculado | MOC 7.03 | a fazer (3.3) |
-| ZX02-220 | 65 | 407 | Obrig. | NFC-e com qrCode na versão 3 | NT 2025.001 v1.03 | a fazer (3.3) |
+| ZX02-108 | 65 | 463 | Obrig. | Código Identificador do CSC no QR-Code foi revogado pela empresa | MOC 7.03 | a fazer (5.1) |
+| ZX02-112 | 65 | 396 | Obrig. | Parâmetro do QR-Code inexistente (cHashQRCode) | MOC 7.03 | a fazer (5.1) |
+| ZX02-116 | 65 | 400 | Obrig. | Parâmetro do QR-Code não está no formato hexadecimal (cHashQRCode) | MOC 7.03 | a fazer (5.1) |
+| ZX02-120 | 65 | 464 | Obrig. | Código de Hash no QR-Code difere do calculado | MOC 7.03 | a fazer (5.1) |
+| ZX02-220 | 65 | 407 | Obrig. | NFC-e com qrCode na versão 3 | NT 2025.001 v1.03 | a fazer (5.1) |
 | ZX02-220 | 55 | 672 | Obrig. | NF-e com DANFE Simplificado Tipo 2 com versão de qrCode não permitida | NT 2026.002 v1.11 | a fazer |
-| ZX02-222 | 65 | 444 | Obrig. | NFC-e com qrCode na versão 2 para Pessoa Física | NT 2025.001 v1.03 | a fazer (3.3) |
+| ZX02-222 | 65 | 444 | Obrig. | NFC-e com qrCode na versão 2 para Pessoa Física | NT 2025.001 v1.03 | a fazer (5.1) |
 | ZX02-224 | 55/65 | 396 | Obrig. | Parâmetro do QR-Code inexistente: [Param: xxx)] | NT 2026.002 v1.11 | a fazer |
 | ZX02-228 | 55/65 | 397 | Obrig. | Parâmetro do QR-Code divergente da Nota Fiscal [Param: xxx)] | NT 2026.002 v1.11 | a fazer |
 | ZX02-232 | 55/65 | 396 | Obrig. | Parâmetro do QR-Code inexistente: [Param: xxx)] | NT 2026.002 v1.11 | a fazer |
@@ -1359,22 +1359,22 @@ Baixadas em 2026-10-22: as NTs do Portal Nacional da NF-e (Documentos > Notas T�
 | ZX02-268 | 55/65 | 397 | Obrig. | Parâmetro do QR-Code divergente da Nota Fiscal: [Param: xxx] | NT 2026.002 v1.11 | a fazer |
 | ZX02-272 | 55/65 | 396 | Obrig. | Parâmetro do QR-Code inexistente: [Param: xxx] | NT 2026.002 v1.11 | a fazer |
 | ZX02-276 | 55/65 | 397 | Obrig. | Parâmetro do QR-Code divergente da Nota Fiscal: [Param: xxx] | NT 2026.002 v1.11 | a fazer |
-| ZX02-288 | 65 | 396 | Obrig. | Parâmetro do QR-Code inexistente:[Param: xxx) | MOC 7.03 | a fazer (3.3) |
-| ZX02-292 | 65 | 400 | Obrig. | Parâmetro Digest Value no QR-Code não está no formato hexadecimal (Caracteres: “0-9”, “a-f”,“A-F”) | MOC 7.03 | a fazer (3.3) |
-| ZX02-296 | 65 | 397 | Obrig. | Parâmetro do QR-Code divergente da Nota Fiscal: [Param: xxx)] | MOC 7.03 | a fazer (3.3) |
-| ZX02-300 | 65 | 396 | Obrig. | Parâmetro do QR-Code inexistente: [Param: xxx] | NT 2025.001 v1.03 | a fazer (3.3) |
+| ZX02-288 | 65 | 396 | Obrig. | Parâmetro do QR-Code inexistente:[Param: xxx) | MOC 7.03 | a fazer (5.1) |
+| ZX02-292 | 65 | 400 | Obrig. | Parâmetro Digest Value no QR-Code não está no formato hexadecimal (Caracteres: “0-9”, “a-f”,“A-F”) | MOC 7.03 | a fazer (5.1) |
+| ZX02-296 | 65 | 397 | Obrig. | Parâmetro do QR-Code divergente da Nota Fiscal: [Param: xxx)] | MOC 7.03 | a fazer (5.1) |
+| ZX02-300 | 65 | 396 | Obrig. | Parâmetro do QR-Code inexistente: [Param: xxx] | NT 2025.001 v1.03 | a fazer (5.1) |
 | ZX02-304 | 65 | 462 | Obrig. | Parâmetro Código Identificador do CSC no QR-Code não cadastrado na SEFAZ | MOC 7.03 | SEFAZ |
-| ZX02-308 | 65 | 463 | Obrig. | Parâmetro Código Identificador do CSC no QR-Code foi revogado pela empresa anteriormente a Data de Emissão | MOC 7.03 | a fazer (3.3) |
-| ZX02-312 | 65 | 396 | Obrig. | Parâmetro do QR-Code inexistente:[Param: xxx) | MOC 7.03 | a fazer (3.3) |
-| ZX02-316 | 65 | 400 | Obrig. | Parâmetro Hash no QR-Code não está no formato hexadecimal (Caracteres: “0-9”, “a-f”,“A-F”) | MOC 7.03 | a fazer (3.3) |
-| ZX02-320 | 65 | 464 | Obrig. | Parâmetro Hash no QR-Code diverge do calculado | MOC 7.03 | a fazer (3.3) |
+| ZX02-308 | 65 | 463 | Obrig. | Parâmetro Código Identificador do CSC no QR-Code foi revogado pela empresa anteriormente a Data de Emissão | MOC 7.03 | a fazer (5.1) |
+| ZX02-312 | 65 | 396 | Obrig. | Parâmetro do QR-Code inexistente:[Param: xxx) | MOC 7.03 | a fazer (5.1) |
+| ZX02-316 | 65 | 400 | Obrig. | Parâmetro Hash no QR-Code não está no formato hexadecimal (Caracteres: “0-9”, “a-f”,“A-F”) | MOC 7.03 | a fazer (5.1) |
+| ZX02-320 | 65 | 464 | Obrig. | Parâmetro Hash no QR-Code diverge do calculado | MOC 7.03 | a fazer (5.1) |
 | ZX02-324 | 55/65 | 396 | Obrig. | Parâmetro do QR-Code inexistente: [Param: xxx] | NT 2026.002 v1.11 | a fazer |
 | ZX02-326 | 55/65 | 396 | Obrig. | Parâmetro do QR-Code inexistente: [Param: xxx] | NT 2026.002 v1.11 | a fazer |
 | ZX02-328 | 55/65 | 397 | Obrig. | Parâmetro do QR-Code divergente da Nota Fiscal (idDest) | NT 2026.002 v1.11 | a fazer |
 | ZX02-330 | 55/65 | 445 | Obrig. | Parâmetro assinatura não deve ser informado no qrCode | NT 2026.002 v1.11 | a fazer |
 | ZX02-334 | 55/65 | 474 | Obrig. | Parâmetro assinatura deve ser informado no qrCode | NT 2026.002 v1.11 | a fazer |
 | ZX02-338 | 55/65 | 583 | Obrig. | Valor da assinatura do qrCode difere do valor calculado | NT 2026.002 v1.11 | a fazer |
-| ZX03-20 | 65 | 878 | Facul. | Endereço do site da UFda Consulta por chave de acesso diverge do previsto | MOC 7.03 | a fazer (3.3) |
+| ZX03-20 | 65 | 878 | Facul. | Endereço do site da UFda Consulta por chave de acesso diverge do previsto | MOC 7.03 | a fazer (5.1) |
 
 ### 10.5. Banco de dados do autorizador (Anexo I, 4.2.1, e as NTs)
 
@@ -1553,3 +1553,23 @@ As NTs 2019.001 (EPEC), 2025.002 (os eventos da RTC), 2026.001 (o cancelamento p
 - **Correção do levantamento da 3.1:** a extração do texto dos PDFs não via o tachado. A NT 2026.002 v1.11 exclui as regras BA05-10, BA06-10, BA12-10, BA13-10 e BA14-10 (conferido nas páginas 9 e 10 do PDF), agora "excluída". Outras linhas do catálogo podem ter o mesmo problema; quem implementar uma regra confere o PDF.
 - **Testes** (`RegrasLoteTestes`): as duas notas de teste passam sem problema nenhum; um caso por regra, com a nota que a SEFAZ rejeitaria (a mudança na NF-e de teste, o código e o caminho do problema); a lista e os casos conferidos nos dois sentidos; o detalhe dos valores, o CPF fora da mensagem, a tolerância e as exceções do `vNF`, a do CFOP de exportação e as regras só da NF-e. As chaves referenciadas da NF-e de teste estavam com o DV errado e foram corrigidas.
 
+
+## 12. As regras da NFC-e, etapa 3.3 (2026-10-22)
+
+**Aprovado pelo usuário em 2026-10-22** (`PROJETO.md` 2.9): a lista proposta pela recomendação, sem as regras do IBS, da CBS e da ZFM; com as regras de 55/65 da NT 2026.002 que valem para a NFC-e; as que dependem da UF, do cadastro ou de tabela ficam para a SEFAZ; as do QR Code vão para a 5.1.
+
+- **As 31 regras implementadas** (situação "lib (3.3)"), em `RegrasNFe400.NFCe.cs`, cada uma conferida no PDF da fonte:
+  - **NT 2026.002 v1.11, para a NFC-e e para a NF-e com o DANFE Simplificado Tipo 2 (`tpImp=6`)**, como a NT as escreve (modelo 55/65 no catálogo): sem `dhSaiEnt` (B10-10, 705); só saída (B11-10, 706); só operação interna (B11a-10, 707); só `finNFe=1` (B25-20, 715); só consumidor final (B25a-10, 716); sem `NFref` (BA01-10, 708); sem `IEST` (C18-10, 718); na entrega em domicílio (`indPres=4`), com o destinatário (E01-20, 787); e sem os grupos do item: veículo novo (J01-10, 736), arma (L01-10, 738), RECOPI (LB01-10, 348), `ICMSPart` (N12-50, 741), `ICMSUFDest` (NA01-10, 807), IPI (O01-10, 742), II (P01-10, 743), PIS-ST (R01-10, 746) e COFINS-ST (T01-10, 749).
+  - **Só a NFC-e:** sem `dPrevEntrega` (B10a-10, 1153, NT 2025.002); `tpImp` 4 ou 5 (B21-10, 709); `procEmi=0` fora da NFF, com a exceção de SC para a nota avulsa (B26-50, 957, NT 2023.002); sem `gCompraGov` (BB01-10, 1006, NT 2025.002); o CNPJ do destinatário diferente do emitente (E02-20, 220); na entrega em domicílio, o destinatário com o endereço (E05-20, 788); `indIEDest=9` (E16a-10, 789); a IE do destinatário na operação com o exterior (E17-10, 729); sem `ISUF` (E18-10, 730); o transportador só na entrega em domicílio, e obrigatório nela (X03-10, 754, e X03-20, 786, NT 2023.004); sem `tPag` 14 (YA02-10, 857) nem 90 (YA02-40, 899); sem `exporta` (ZA01-30, 814).
+- **Conferido no PDF e diferente da proposta:**
+  - **C02a-04 (337, "NFC-e para emitente pessoa física") não entrou.** A NT 2023.002 v1.01 (18/11/2025), posterior à NT 2021.002 v1.12, permite a NFC-e do produtor rural com CPF (seção 2, a série 920-969 e o e-CPF) e republica a C02a-10 para 55/65; a regra da NT 2021.002 recusaria uma nota hoje válida. Fica "SEFAZ".
+  - **E17-10:** o Anexo I condiciona a regra à operação com o exterior (`idDest=3`), e assim ela foi escrita, mesmo que a B11a-10 já recuse essa operação na NFC-e. A extração `-layout` mistura as colunas nessa página; a `-raw` dá a condição.
+  - **YA02-40 (899):** a regra é o `tPag=90` ("Sem pagamento") na NFC-e, e não o meio de pagamento em geral.
+  - **E05-20:** só com o destinatário informado; a NFC-e de entrega sem destinatário é da E01-20.
+- **As outras 39 linhas que estavam "a fazer (3.3)":**
+  - **"a fazer (5.1)" (36):** as do QR Code (ZX02, 396, 397, 399, 400, 407, 444, 463, 464) e a URL de consulta (ZX03-20, 878). A lib vai montar o QR Code na 5.1, que decide quais viram "escrita".
+  - **"SEFAZ" (14):** a configuração da UF (B06-10, B22-20, B25b-30, Z02-10, Z02-20), o autorizador (B22-70), o cadastro (C17-42), as tabelas (I05-30 NCM, I09-10 e I13-10 unidades), o município do fato gerador do IBS (B25b-60, B25b-70), a NB01-10 (NT 2026.008, ainda sem pacote de schemas) e a C02a-04.
+  - **"escrita" (1):** B07-10 (450), o modelo vem do núcleo.
+  - **"a fazer" (5):** as do IBS, da CBS e da ZFM (B25d-10, I05k-10, UB62-10, UB120-10, UB131-10), que mudam com as NTs da reforma.
+- **Ficaram fora da proposta**, e continuam "a fazer": outras regras da NT 2026.002 do mesmo tipo (B25b-20 717 `indPres`, F01-10 669 retirada, I17b-10 774 `indTot=0`, UA01-20 `impostoDevol`, X02-10 753 frete, X11-10 a X25b-10 755 a 759 veículo e reboque, Y01-10 760 cobrança, N12-30 a N12a-44 CST e CSOSN), a B09-40 (704, a emissão atrasada, que depende do momento do recebimento) e a I08-150 (725, a lista de CFOPs). Entram só com uma nova aprovação.
+- **Testes** (`RegrasNFCeTestes`, 52): um caso por regra sobre a NFC-e de teste (o código, o caminho, a severidade, a mensagem e a propriedade); as 17 da NT 2026.002 também na NF-e com `tpImp=6` e nunca na NF-e com o DANFE retrato; as só da NFC-e nunca na NF-e; a NFC-e de entrega completa passa limpa; as exceções da B26-50 (SC e NFF); o grupo no segundo item com o índice. O `CadaRegraTemOSeuCaso` do `RegrasLoteTestes` passa a somar os casos dos dois arquivos. Uma mutação provada: sem a condição do `tpImp=6`, 17 testes acusam.

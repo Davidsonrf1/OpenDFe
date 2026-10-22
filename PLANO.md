@@ -425,7 +425,16 @@ Pré-lançamentos (`0.x`) no NuGet.org a partir do fim da fase 5, quando o PDV p
 - **Testes:** `NFe.Testes` com 372 (78 novos: `RegrasLoteTestes`, um caso por regra, e dois em `SchemasNFe400Testes`). As chaves referenciadas da NF-e de teste estavam com o DV errado e foram corrigidas. Uma mutação provada (a comparação dos totais desligada: 33 testes acusam).
 - Conferido (Windows): build sem aviso em Debug e Release, `dotnet test --solution OpenDFe.slnx` com código 0 (1.048 testes, 13 pulados, os de homologação sem variável), `dotnet pack -c Release` e `eng/ConferirPacotes.ps1` aprovando os três pacotes. No Linux (WSL), os 475 do `Nucleo.Testes` e os 372 do `NFe.Testes` passam. A regra de nomes sem nada fora dos métodos de teste. Sem dependência nova.
 
-**Próxima: 3.3. Regras da NFC-e**, só quando pedida, pelo critério do `PROJETO.md` 2.9 (confirmado pelo usuário em 2026-10-22): das 70 linhas "a fazer (3.3)", levantadas antes da decisão, só as necessárias, **listadas e aprovadas pelo usuário antes de implementar**; o resto volta para "a fazer".
+**3.3. Regras da NFC-e. Feita (2026-10-22).** O detalhe está em `docs/REGRAS.md` 12.
+- **Aprovado pelo usuário em 2026-10-22:** a lista proposta pela recomendação (`PROJETO.md` 2.9), sem as regras do IBS, da CBS e da ZFM, e com as de 55/65 da NT 2026.002 que valem para a NFC-e.
+- **Regras (leiaute, interno):** 31 na `RegrasNFe400.Lista`, no parcial novo `RegrasNFe400.NFCe.cs`. As 17 da NT 2026.002 valem para a NFC-e e para a NF-e com o DANFE Simplificado Tipo 2 (`tpImp=6`), como a NT as escreve; as outras 14, só para a NFC-e. Sem API pública nova.
+- **Diferente da proposta, pela conferência no PDF:** a C02a-04 (337, NFC-e de emitente CPF) não entrou, porque a NT 2023.002 v1.01 permite a NFC-e do produtor rural com CPF; a E17-10 tem a condição do `idDest=3` do Anexo I; a YA02-40 é o `tPag=90`.
+- **Catálogo:** 31 linhas "lib (3.3)"; das 70 "a fazer (3.3)", 36 para "a fazer (5.1)" (QR Code), 14 para "SEFAZ", 1 para "escrita" e 5 para "a fazer" (IBS, CBS e ZFM). Outras regras da NT 2026.002 do mesmo tipo ficaram fora da proposta e continuam "a fazer" (listadas em `REGRAS.md` 12).
+- **Testes:** `NFe.Testes` com 424 (52 novos, `RegrasNFCeTestes`). Uma mutação provada (sem a condição do `tpImp=6`, 17 testes acusam).
+- Conferido (Windows): build sem aviso em Debug e Release, `dotnet test --solution OpenDFe.slnx` com código 0 (1.100 testes, 13 pulados, os de homologação sem variável), `dotnet pack -c Release` e `eng/ConferirPacotes.ps1` aprovando os pacotes. No Linux (WSL Ubuntu 26.04), os 424 do `NFe.Testes` e os 475 do `Nucleo.Testes` passam. Sem dependência nova.
+- Entra no mesmo commit uma linha em branco em `AssinaturaDigital.cs` (`ElementosId`), que estava pendente no repositório, a pedido do usuário.
+
+**A fase 3 fechou.** **Próxima: fase 4, 4.1. Transporte** (branch `fase-4-transmissao` a partir desta), só quando pedida.
 
 ### Trilha paralela: SEFAZ emulada (branch `sefaz-emulada`, worktree `../OpenDFe-sefaz-emulada`)
 
