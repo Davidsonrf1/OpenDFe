@@ -17,6 +17,7 @@ internal sealed class ValidacaoSchema
 {
     private readonly XmlSchemaSet _schemas;
     private readonly string _codigo;
+    private readonly Func<string, string?>? _propriedade;
     private readonly List<Pendente> _pendentes = [];
     private readonly List<ValidationEventArgs> _eventos = [];
     private readonly Stack<Quadro> _pilha = new();
@@ -24,10 +25,11 @@ internal sealed class ValidacaoSchema
     private XmlSchemaValidator _validador = null!;
     private bool _raizDesconhecida;
 
-    public ValidacaoSchema(XmlSchemaSet schemas, string codigo)
+    public ValidacaoSchema(XmlSchemaSet schemas, string codigo, Func<string, string?>? propriedade)
     {
         _schemas = schemas;
         _codigo = codigo;
+        _propriedade = propriedade;
     }
 
     public IReadOnlyList<Problema> Executar(string xml)
@@ -75,7 +77,7 @@ internal sealed class ValidacaoSchema
             Descartar();
         }
 
-        return _pendentes.ConvertAll(p => p.Problema(_codigo));
+        return _pendentes.ConvertAll(p => p.Problema(_codigo, _propriedade));
     }
 
     private void AbrirElemento()
@@ -473,11 +475,16 @@ internal sealed class ValidacaoSchema
 
     private sealed record Pendente(Severidade Severidade, string? Tag, Segmento? Segmento, string Mensagem, FalhaSchema Falha)
     {
-        public Problema Problema(string codigo) => new(codigo, Severidade, Mensagem)
+        public Problema Problema(string codigo, Func<string, string?>? propriedade)
         {
-            Tag = Tag,
-            Caminho = Segmento?.Caminho(),
-            Schema = Falha,
-        };
+            var caminho = Segmento?.Caminho();
+            return new(codigo, Severidade, Mensagem)
+            {
+                Tag = Tag,
+                Caminho = caminho,
+                Propriedade = caminho is not null && propriedade is not null ? propriedade(caminho) : null,
+                Schema = Falha,
+            };
+        }
     }
 }

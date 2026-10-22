@@ -2391,7 +2391,7 @@ A escrita da seção 6, no leiaute (`src/OpenDFe.Leiaute.NFe.v400/`), **toda int
   - `CoberturaEscritaTestes`: as notas preenchidas por reflexão (um valor em cada campo, uma rodada por subclasse de escolha) conferidas no XML campo a campo (o elemento ou atributo da tag, no grupo do pai) e **a ordem dos filhos de cada elemento contra o XSD**, inclusive nos grupos que nenhuma nota válida usa (o combustível, o veículo, a cana, o agropecuário...).
   - **Mutações conferidas:** uma linha tirada do escritor (o `vFrete`), a ordem trocada num grupo coberto por nota válida (`cProd` e `cEAN`) e num grupo só da cobertura (`cProdANP` e `descANP`): cada uma acusada.
 
-## 14. Problema até a propriedade (etapa 2.6): desenho para aprovação (2026-10-22)
+## 14. Problema até a propriedade (etapa 2.6): desenho aprovado em 2026-10-22
 
 O que falta: o problema da **validação pelo schema** sai só com o `Caminho` (`NFe/infNFe/det[3]/prod/vProd`), porque quem valida é o núcleo (`SchemaXml.Validar`, no passo 4 do `ExecutarAsync`, `CONTRATOS.md` 3), e o núcleo não conhece o modelo. A escrita (2.4) e a leitura (2.5) já saem com a `Propriedade`, cada uma pelo caminho que ela mesma abre. A 2.6 dá ao schema a conversão das seções 4 e 11.10, e isso pede **um símbolo público novo no núcleo**: por isso o desenho vem antes.
 
@@ -2419,7 +2419,7 @@ public sealed class SchemaXml
 
 O `Validar` passa a preencher o `Problema.Propriedade` de cada problema com o que a conversão devolver para o `Caminho` (nulo continua nulo). A exceção dentro da conversão é erro de programação e sobe como veio. No leiaute, o `SchemasNFe400.Nota` e o `NotaProcessada` passam a carregar com a conversão; as outras mensagens ficam como estão.
 
-### 14.3. Decisões
+### 14.3. Decisões (aprovadas em 2026-10-22, todas pela recomendação (a))
 
 1. **Onde a conversão entra.** (a) **no `SchemaXml`, por uma sobrecarga do `Carregar` com a conversão; o `Validar` preenche a `Propriedade`**; (b) no `PedidoWS`, numa propriedade `init` com a conversão, aplicada pelo núcleo depois de validar; (c) na `DeclaracaoLeiaute`, uma por documento. Recomendo (a): a conversão depende só da forma da mensagem, que é o que o schema descreve, e o leiaute já guarda um `SchemaXml` por mensagem; quem chama o `Validar` direto (os testes, quem valida um XML à parte, o callback por campo da fase 3) ganha a propriedade sem fazer nada. (b) obrigaria cada operação a lembrar de passar; (c) não separa a nota (`NFe/...`) do lote (`enviNFe/NFe[2]/...`).
 2. **A forma da conversão.** (a) **`Func<string, string?>`: o caminho entra, a propriedade sai (nula quando não há)**; (b) uma interface do núcleo (`IConversorCaminho`). Recomendo (a): é uma função só, sem estado; uma interface acrescenta um tipo público sem ganho, e se um dia precisar de mais, a sobrecarga nova é versão menor.
@@ -2434,3 +2434,20 @@ O `Validar` passa a preencher o `Problema.Propriedade` de cada problema com o qu
 - **Pela validação de verdade:** notas da escrita estragadas para o schema recusar (o `vProd` do 3º item, um campo do `ICMS00`, o `orig` herdado, um `refNF` do `NFref`, um `refNFe`, a UF, um `lacres` do `vol`, um obrigatório ausente, um elemento inesperado, o `@nItem`, a `Signature`), conferindo a `Propriedade` de cada problema; o `nfeProc` com um campo do protocolo estragado.
 - **O teste cruzado** da decisão 5: os problemas da escrita e da leitura dos testes de hoje, com a `Propriedade` igual à da conversão do `Caminho` deles.
 - **No núcleo**, com o XSD de exemplo da 1.5: a sobrecarga preenche a propriedade, deixa nula a que a conversão não dá, recusa a conversão nula (`ArgumentNullException`) e deixa a exceção da conversão subir.
+
+### 14.5. Implementação (etapa 2.6, 2026-10-22)
+
+- **No núcleo:** a sobrecarga `SchemaXml.Carregar(assembly, recurso, codigo, propriedade)` (um símbolo novo no `PublicAPI.Unshipped.txt`), que recusa a conversão nula; o `ValidacaoSchema` chama a conversão com o `Caminho` de cada problema e põe o resultado na `Propriedade`. A carga sem conversão continua igual (a `Propriedade` nula).
+- **No leiaute:** `CaminhoModeloNFe` (interno), pelas regras da 14.1; o `SchemasNFe400.Nota` e o `NotaProcessada` carregam com ela. O `[1]` também é aceito na raiz e no `infNFe` (o caminho da leitura e o "índice em todo passo").
+- **Ajustes ao desenho** (sem decisão nova; a conferir pelo usuário):
+  - **A sequência repetida sem elemento** (o `cMsg` e o `xMsg` do `infProt`, a lista `Protocolo.Mensagens` sem `[Tag]`) é uma regra a mais da conversão: o passo que não é propriedade nem escolha procura nas listas sem `[Tag]` do tipo, e o índice do elemento é o da mensagem (`infProt/xMsg[2]` → `Protocolo.Mensagens[1].Texto`), como a leitura já aponta.
+  - **O `protNFe` e o `infProt` sozinhos** dão `Protocolo`; o `NFe` e o `infNFe` sozinhos dão nulo (a raiz não é propriedade).
+  - **O obrigatório ausente no meio do grupo:** o validador do .NET aponta o elemento que veio no lugar (`det[2]/prod/NCM` quando falta o `xProd`), e a propriedade é a dele (`Itens[1].Produto.Ncm`); no fim do grupo, o caminho é o do que falta, e a propriedade também. É o que o `SchemaXml.Validar` já documentava sobre o caminho.
+  - **O teste cruzado da escrita** confere só os problemas de campo (com a `Tag`): o da escolha (`NFE-EXCLUSIVO`, 2.4) aponta o grupo no caminho e a alternativa na propriedade, de propósito.
+- **Testes:** `NFe.Testes` com 280 (73 novos, em `CaminhoModeloNFeTestes`) e `Nucleo.Testes` com 456 (5 novos, no `SchemaXmlTestes`):
+  - os caminhos da seção 4 e da 11.10 e os sem propriedade, caso a caso;
+  - a cobertura: cada elemento e atributo das notas da cobertura da escrita (uma rodada por subclasse, com um segundo item), com o caminho no estilo do schema e no de índice em todo passo, convertido e **avaliado na própria nota** (o campo tem valor e a tag do elemento); toda propriedade com `[Tag]` é alcançada; o protocolo campo a campo;
+  - a validação de verdade: o `vProd` do 3º item, o `vBC` do `ICMS00` e o `orig` herdado, o `refNFe` e o `refNF` do `NFref`, a UF do destinatário, o `xLgr` da entrega, o obrigatório ausente no fim e no meio, o elemento inesperado, o `@nItem` e a `Signature` (nulos), o `nfeProc` (a nota, o `cStat` e o `cMsg`) e o lote ainda sem propriedade (decisão 4);
+  - o cruzado (decisão 5): mais de mil problemas da leitura (todo valor ilegível) e da escrita (todo texto com caractere de controle), com a mesma propriedade da conversão;
+  - no núcleo: a conversão chamada com o caminho de cada problema na ordem do XML, a nula sem conversão, não chamada na nota válida, a exceção que sobe e a recusa da conversão nula.
+  - **Mutações conferidas:** o índice da lista sem o `-1`, a escolha de um valor (`refNFe`) desligada, a sequência do protocolo desligada, a escolha por classe gerando passo e o índice aceito fora da lista: cada uma acusada.

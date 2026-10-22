@@ -24,11 +24,13 @@ public sealed class SchemaXml
 {
     private readonly XmlSchemaSet _schemas;
     private readonly string _codigo;
+    private readonly Func<string, string?>? _propriedade;
 
-    private SchemaXml(XmlSchemaSet schemas, string codigo)
+    private SchemaXml(XmlSchemaSet schemas, string codigo, Func<string, string?>? propriedade)
     {
         _schemas = schemas;
         _codigo = codigo;
+        _propriedade = propriedade;
     }
 
     /// <summary>Carrega e compila o schema de uma mensagem a partir dos recursos embutidos de um assembly.</summary>
@@ -52,7 +54,38 @@ public sealed class SchemaXml
     /// Um schema é inválido, não compila, inclui ou importa um recurso que não existe ou um endereço externo.
     /// </exception>
     /// <exception cref="XmlException">Um schema não é XML bem formado ou tem DTD.</exception>
-    public static SchemaXml Carregar(Assembly assembly, string recurso, string codigo)
+    public static SchemaXml Carregar(Assembly assembly, string recurso, string codigo) =>
+        Compilar(assembly, recurso, codigo, null);
+
+    /// <summary>
+    /// Carrega e compila o schema de uma mensagem, como <see cref="Carregar(Assembly, string, string)"/>, com a
+    /// conversão do caminho do problema na propriedade do modelo (PROJETO.md 6.4): o <see cref="Validar"/> preenche
+    /// a <see cref="Problema.Propriedade"/> de cada problema com o que ela devolve para o
+    /// <see cref="Problema.Caminho"/>.
+    /// </summary>
+    /// <param name="assembly">O assembly que embute os XSDs (o do leiaute).</param>
+    /// <param name="recurso">O nome do recurso do schema principal, como em <see cref="Carregar(Assembly, string, string)"/>.</param>
+    /// <param name="codigo">O código dos problemas da validação.</param>
+    /// <param name="propriedade">
+    /// A conversão, do leiaute: recebe o caminho no XML (<c>"NFe/infNFe/det[3]/prod/vProd"</c>) e devolve a
+    /// propriedade do modelo (<c>"Itens[2].Produto.Valor"</c>), ou <see langword="null"/> quando o caminho não
+    /// tem propriedade. Chamada em paralelo quando o schema valida em paralelo; a exceção dela sobe do
+    /// <see cref="Validar"/> como veio (erro de programação).
+    /// </param>
+    /// <returns>O schema compilado.</returns>
+    /// <exception cref="ArgumentNullException">Um dos argumentos é nulo.</exception>
+    /// <exception cref="ArgumentException">O recurso ou o código estão vazios, ou o recurso não existe no assembly.</exception>
+    /// <exception cref="XmlSchemaException">
+    /// Um schema é inválido, não compila, inclui ou importa um recurso que não existe ou um endereço externo.
+    /// </exception>
+    /// <exception cref="XmlException">Um schema não é XML bem formado ou tem DTD.</exception>
+    public static SchemaXml Carregar(Assembly assembly, string recurso, string codigo, Func<string, string?> propriedade)
+    {
+        ArgumentNullException.ThrowIfNull(propriedade);
+        return Compilar(assembly, recurso, codigo, propriedade);
+    }
+
+    private static SchemaXml Compilar(Assembly assembly, string recurso, string codigo, Func<string, string?>? propriedade)
     {
         ArgumentNullException.ThrowIfNull(assembly);
         ArgumentException.ThrowIfNullOrWhiteSpace(recurso);
@@ -77,7 +110,7 @@ public sealed class SchemaXml
         if (falhas.Count > 0)
             throw new XmlSchemaException($"O schema \"{recurso}\" não carregou: {string.Join(" | ", falhas)}");
 
-        return new SchemaXml(schemas, codigo);
+        return new SchemaXml(schemas, codigo, propriedade);
     }
 
     /// <summary>Valida um XML pelo schema, juntando todos os problemas (não para no primeiro).</summary>
@@ -86,7 +119,8 @@ public sealed class SchemaXml
     /// Os problemas, na ordem do XML; vazio se o XML é válido. Cada um tem o código informado na carga, a
     /// severidade (<see cref="Severidade.Erro"/>, ou <see cref="Severidade.Aviso"/> nos avisos do validador), a
     /// mensagem em português, a <see cref="Problema.Tag"/> (o nome local do elemento ou atributo), o
-    /// <see cref="Problema.Caminho"/> e o detalhe em <see cref="Problema.Schema"/>.
+    /// <see cref="Problema.Caminho"/>, a <see cref="Problema.Propriedade"/> quando o schema foi carregado com a
+    /// conversão e o detalhe em <see cref="Problema.Schema"/>.
     /// </returns>
     /// <remarks>
     /// <para>
@@ -106,6 +140,6 @@ public sealed class SchemaXml
     public IReadOnlyList<Problema> Validar(string xml)
     {
         ArgumentNullException.ThrowIfNull(xml);
-        return new ValidacaoSchema(_schemas, _codigo).Executar(xml);
+        return new ValidacaoSchema(_schemas, _codigo, _propriedade).Executar(xml);
     }
 }

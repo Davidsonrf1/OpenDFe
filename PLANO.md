@@ -389,6 +389,17 @@ Pré-lançamentos (`0.x`) no NuGet.org a partir do fim da fase 5, quando o PDV p
 - **A conversão**, interna no leiaute (`CaminhoModeloNFe`): o caminho do XML na propriedade do modelo pelas regras das seções 4 e 11.10, pela reflexão sobre o `[Tag]`, com o `nfeProc` (o protocolo como `Protocolo.X`, como a leitura) e os índices do schema (só no que se repete) e da leitura (sempre na lista).
 - **O público:** uma sobrecarga `SchemaXml.Carregar(assembly, recurso, codigo, Func<string, string?> propriedade)`, e o `Validar` preenche o `Problema.Propriedade`; o `SchemasNFe400.Nota` e o `NotaProcessada` passam a carregar com ela. Seis decisões (14.3); o lote fica para a 4.4 (decisão 4).
 
+- **Aprovado em 2026-10-22:** todas as decisões (1 a 6) pela recomendação.
+
+**2.6. Problema até a propriedade. Feita (2026-10-22).** O detalhe está em `docs/MODELO.md` 14.5.
+- **Público:** a sobrecarga `SchemaXml.Carregar(assembly, recurso, codigo, Func<string, string?> propriedade)` (um símbolo novo); o `Validar` preenche o `Problema.Propriedade`.
+- **Interno, no leiaute:** `CaminhoModeloNFe`; o `SchemasNFe400.Nota` e o `NotaProcessada` com a conversão.
+- **Ajustes ao desenho** (a conferir pelo usuário, `MODELO.md` 14.5): a sequência `cMsg`/`xMsg` do protocolo como regra a mais; o `protNFe` sozinho dá `Protocolo`; o obrigatório ausente no meio do grupo aponta o elemento que veio no lugar (o caminho é o do validador do .NET); o cruzado da escrita só com os problemas de campo.
+- **Testes:** `NFe.Testes` com 280 (73 novos) e `Nucleo.Testes` com 456 (5 novos). Cinco mutações provadas (`MODELO.md` 14.5).
+- Conferido (Windows): build sem aviso em Debug e Release, `dotnet test --solution OpenDFe.slnx` com código 0 (937 testes, 13 pulados, os de homologação sem variável), `dotnet pack -c Release` e `eng/ConferirPacotes.ps1` aprovando os três pacotes. No Linux (WSL, .NET 10.0.113), os 280 do `NFe.Testes` e os 456 do `Nucleo.Testes` passam. A regra de nomes sem nada fora dos métodos de teste. Sem dependência nova.
+
+**A fase 2 fechou:** notas de teste geradas válidas no XSD e lidas de volta iguais, e o problema com a propriedade. **Próxima: fase 3, 3.1. Motor e catálogo** (branch `fase-3-regras` a partir desta), só quando pedida. Ler o `PROJETO.md` 6 e o `CONTRATOS.md` 2.10 e 3 (os callbacks e o ponto do caminho em que as regras entram).
+
 
 ### Trilha paralela: SEFAZ emulada (branch `sefaz-emulada`, worktree `../OpenDFe-sefaz-emulada`)
 

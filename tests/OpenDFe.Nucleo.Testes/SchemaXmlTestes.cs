@@ -551,4 +551,64 @@ public class SchemaXmlTestes
             (CultureInfo.CurrentCulture, CultureInfo.CurrentUICulture) = anterior;
         }
     }
+
+    // Propriedade do modelo (2.6): a conversão do leiaute, chamada com o caminho de cada problema
+
+    [Fact]
+    public void AConversaoPreencheAPropriedade()
+    {
+        var caminhos = new List<string>();
+        var schema = SchemaXml.Carregar(typeof(SchemaXmlTestes).Assembly, Recurso, "225", caminho =>
+        {
+            lock (caminhos)
+                caminhos.Add(caminho);
+            return caminho == "NFe/infNFe/det[3]/prod/vProd" ? "Itens[2].Produto.Valor" : null;
+        });
+        var xml = Nota().Replace("<vProd>30.00</vProd>", "<vProd>12,5</vProd>", StringComparison.Ordinal)
+            .Replace("<CNPJ>11222333000181</CNPJ>", "<CNPJ>1122233300018</CNPJ>", StringComparison.Ordinal);
+
+        var problemas = schema.Validar(xml);
+
+        Assert.Equal(2, problemas.Count);
+        var cnpj = Assert.Single(problemas, p => p.Tag == "CNPJ");
+        Assert.Null(cnpj.Propriedade);
+        var valor = Assert.Single(problemas, p => p.Tag == "vProd");
+        Assert.Equal("Itens[2].Produto.Valor", valor.Propriedade);
+        Assert.Equal("NFe/infNFe/det[3]/prod/vProd", valor.Caminho);
+        Assert.Equal(["NFe/infNFe/emit/CNPJ", "NFe/infNFe/det[3]/prod/vProd"], caminhos);
+        Assert.Contains("(Itens[2].Produto.Valor)", valor.ToString(), StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void SemAConversaoAPropriedadeFicaNula()
+    {
+        var problema = Unico(Nota().Replace("<vProd>30.00</vProd>", "<vProd>12,5</vProd>", StringComparison.Ordinal));
+        Assert.Null(problema.Propriedade);
+    }
+
+    [Fact]
+    public void AConversaoNaoEhChamadaNaNotaValida()
+    {
+        var schema = SchemaXml.Carregar(typeof(SchemaXmlTestes).Assembly, Recurso, "225",
+            _ => throw new InvalidOperationException("Não devia ser chamada."));
+        Assert.Empty(schema.Validar(Nota()));
+    }
+
+    [Fact]
+    public void AExcecaoDaConversaoSobeComoVeio()
+    {
+        var schema = SchemaXml.Carregar(typeof(SchemaXmlTestes).Assembly, Recurso, "225",
+            _ => throw new InvalidOperationException("Erro da conversão."));
+        var xml = Nota().Replace("<vProd>30.00</vProd>", "<vProd>12,5</vProd>", StringComparison.Ordinal);
+
+        var excecao = Assert.Throws<InvalidOperationException>(() => schema.Validar(xml));
+        Assert.Equal("Erro da conversão.", excecao.Message);
+    }
+
+    [Fact]
+    public void AConversaoNulaEhArgumentoInvalido()
+    {
+        Assert.Throws<ArgumentNullException>(() => SchemaXml.Carregar(typeof(SchemaXmlTestes).Assembly, Recurso, "225", null!));
+        Assert.Throws<ArgumentException>(() => SchemaXml.Carregar(typeof(SchemaXmlTestes).Assembly, Recurso, "", _ => null));
+    }
 }

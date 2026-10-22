@@ -168,6 +168,7 @@ OpenDFe.TipoFalhaSchema.Outra = 7 -> OpenDFe.TipoFalhaSchema
 OpenDFe.TipoFalhaSchema.TextoInesperado = 6 -> OpenDFe.TipoFalhaSchema
 OpenDFe.TipoFalhaSchema.Valor = 1 -> OpenDFe.TipoFalhaSchema
 static OpenDFe.SchemaXml.Carregar(System.Reflection.Assembly! assembly, string! recurso, string! codigo) -> OpenDFe.SchemaXml!
+static OpenDFe.SchemaXml.Carregar(System.Reflection.Assembly! assembly, string! recurso, string! codigo, System.Func<string!, string?>! propriedade) -> OpenDFe.SchemaXml!
 OpenDFe.Destino
 OpenDFe.Destinos
 static OpenDFe.Destinos.ComoDestino(this OpenDFe.UF uf) -> OpenDFe.Destino

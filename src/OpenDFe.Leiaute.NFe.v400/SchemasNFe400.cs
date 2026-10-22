@@ -7,7 +7,8 @@ namespace OpenDFe.NFe;
 /// </summary>
 /// <remarks>
 /// Um schema por mensagem, com o código da rejeição que a falha antecipa (1.5): na nota, 225 ("Falha no Schema
-/// XML da NFe"); nas outras mensagens, 215 ("Falha no schema XML"). Os códigos vêm de resumos do MOC, não do
+/// XML da NFe"); nas outras mensagens, 215 ("Falha no schema XML"). Na nota e na nota processada, o problema sai
+/// também com a propriedade do modelo (<see cref="CaminhoModeloNFe"/>). Os códigos vêm de resumos do MOC, não do
 /// Anexo I em si (conferido na 3.1).
 /// </remarks>
 internal static class SchemasNFe400
@@ -21,13 +22,13 @@ internal static class SchemasNFe400
     /// <summary>Falha no schema XML (da mensagem).</summary>
     internal const string CodigoMensagem = "215";
 
-    private static readonly Lazy<SchemaXml> SchemaNota = Preparar("nfe_v4.00.xsd", CodigoNota);
+    private static readonly Lazy<SchemaXml> SchemaNota = Preparar("nfe_v4.00.xsd", CodigoNota, CaminhoModeloNFe.Propriedade);
     private static readonly Lazy<SchemaXml> SchemaLote = Preparar("enviNFe_v4.00.xsd", CodigoMensagem);
     private static readonly Lazy<SchemaXml> SchemaRecibo = Preparar("consReciNFe_v4.00.xsd", CodigoMensagem);
     private static readonly Lazy<SchemaXml> SchemaSituacao = Preparar("consSitNFe_v4.00.xsd", CodigoMensagem);
     private static readonly Lazy<SchemaXml> SchemaStatus = Preparar("consStatServ_v4.00.xsd", CodigoMensagem);
     private static readonly Lazy<SchemaXml> SchemaInutilizacao = Preparar("inutNFe_v4.00.xsd", CodigoMensagem);
-    private static readonly Lazy<SchemaXml> SchemaNotaProcessada = Preparar("procNFe_v4.00.xsd", CodigoMensagem);
+    private static readonly Lazy<SchemaXml> SchemaNotaProcessada = Preparar("procNFe_v4.00.xsd", CodigoMensagem, CaminhoModeloNFe.Propriedade);
 
     /// <summary>A nota sozinha (<c>NFe</c>): a que o <c>Preparar</c> gera e a que se lê.</summary>
     internal static SchemaXml Nota => SchemaNota.Value;
@@ -55,4 +56,8 @@ internal static class SchemasNFe400
 
     private static Lazy<SchemaXml> Preparar(string arquivo, string codigo) =>
         new(() => SchemaXml.Carregar(typeof(SchemasNFe400).Assembly, Recurso(arquivo), codigo));
+
+    // A nota e a nota processada: o problema do schema aponta a propriedade do modelo (docs/MODELO.md 14).
+    private static Lazy<SchemaXml> Preparar(string arquivo, string codigo, Func<string, string?> propriedade) =>
+        new(() => SchemaXml.Carregar(typeof(SchemasNFe400).Assembly, Recurso(arquivo), codigo, propriedade));
 }
