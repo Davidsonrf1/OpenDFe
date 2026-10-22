@@ -1585,3 +1585,13 @@ As NTs 2019.001 (EPEC), 2025.002 (os eventos da RTC), 2026.001 (o cancelamento p
 | (lib) | `NFE-LOTE` | Erro | a mesma chave duas vezes no lote; o tipo de emissão diferente do da primeira nota |
 
 O resto do que era "a fazer (4.4)" e "outra operação (4.4)": o 214 (tamanho da mensagem) e o 776 (a UF sem a síncrona) ficam para a SEFAZ; o 764 (síncrona com mais de uma nota) a montagem evita, porque a quantidade decide o `indSinc` (escrita); o YA03-20 (866, troco) é regra da nota, não do lote, e volta a "a fazer".
+
+## 14. A consulta do protocolo e a recuperação, etapa 4.5 (2026-10-22)
+
+**Aprovada pelo usuário em 2026-10-22** (`CONTRATOS.md` 15, decisão 3), conferida na montagem do `consSitNFe` (`SituacaoNFe`, no leiaute). Não é regra do MOC, e o catálogo não tem linha para ela.
+
+| Regra | Código | Severidade | O que confere |
+|---|---|---|---|
+| (lib) | `NFE-CHAVE` | Erro | a chave consultada (ou a do XML recuperado) é do modelo do núcleo: a de NFC-e num núcleo de NF-e, e o contrário, iria ao web service do outro documento |
+
+As regras J01 a J06 da consulta (Tabela 5-16) ficam com a SEFAZ: o DV, a UF, o ano, o mês, o CNPJ ou o CPF, o modelo e o número da chave (236, 614 a 619) a `ChaveAcesso` já garante antes de existir; o ambiente (252) é o do núcleo. A recuperação confere a assinatura do XML como a autorização confere a da nota recebida (seção 13, F02).

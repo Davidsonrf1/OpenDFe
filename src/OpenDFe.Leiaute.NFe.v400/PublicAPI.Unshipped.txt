@@ -41,3 +41,28 @@ OpenDFe.NFe.RetornoAutorizacao.Status.get -> int
 OpenDFe.NFe.RetornoAutorizacao.TempoMedio.get -> System.TimeSpan?
 OpenDFe.NFe.RetornoAutorizacao.UF.get -> OpenDFe.UF?
 OpenDFe.NFe.RetornoAutorizacao.VersaoAplicativo.get -> string?
+static OpenDFe.NFe.Autorizacao.NotasEnviadas(string! xmlPedido) -> System.Collections.Generic.IReadOnlyList<string!>!
+OpenDFe.NFe.ResultadoNota.Duplicidade.get -> OpenDFe.NFe.Duplicidade?
+OpenDFe.NFe.Duplicidade
+OpenDFe.NFe.Duplicidade.Chave.get -> OpenDFe.ChaveAcesso?
+OpenDFe.NFe.Duplicidade.MesmaChave.get -> bool
+OpenDFe.NFe.Duplicidade.Recibo.get -> string?
+OpenDFe.NFe.ConsultaProtocolo
+OpenDFe.NFe.ConsultaProtocolo.Chave.get -> OpenDFe.ChaveAcesso!
+OpenDFe.NFe.ConsultaProtocolo.ConsultaProtocolo(OpenDFe.ChaveAcesso! chave) -> void
+OpenDFe.NFe.RecuperacaoAutorizacao
+OpenDFe.NFe.RecuperacaoAutorizacao.RecuperacaoAutorizacao(string! xml) -> void
+OpenDFe.NFe.RecuperacaoAutorizacao.Xml.get -> string!
+OpenDFe.NFe.RetornoProtocolo
+OpenDFe.NFe.RetornoProtocolo.Ambiente.get -> OpenDFe.Ambiente?
+OpenDFe.NFe.RetornoProtocolo.Autorizada.get -> bool
+OpenDFe.NFe.RetornoProtocolo.Cancelada.get -> bool
+OpenDFe.NFe.RetornoProtocolo.Chave.get -> OpenDFe.ChaveAcesso?
+OpenDFe.NFe.RetornoProtocolo.ChaveRegistrada.get -> OpenDFe.ChaveAcesso?
+OpenDFe.NFe.RetornoProtocolo.Eventos.get -> System.Collections.Generic.IReadOnlyList<string!>!
+OpenDFe.NFe.RetornoProtocolo.Motivo.get -> string!
+OpenDFe.NFe.RetornoProtocolo.Protocolo.get -> OpenDFe.NFe.Protocolo?
+OpenDFe.NFe.RetornoProtocolo.Recebimento.get -> System.DateTimeOffset?
+OpenDFe.NFe.RetornoProtocolo.Status.get -> int
+OpenDFe.NFe.RetornoProtocolo.UF.get -> OpenDFe.UF?
+OpenDFe.NFe.RetornoProtocolo.VersaoAplicativo.get -> string?

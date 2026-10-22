@@ -479,10 +479,10 @@ if (dfe.Suporta<ConsultaStatus>())
 foreach (var a in dfe.Atendimentos) Console.WriteLine($"{a.UF} {a.Emissao} → {a.Autorizador.Sigla()}");
 foreach (var e in dfe.Enderecos)    Console.WriteLine($"{e.Autorizador.Sigla()} {e.Ambiente} {e.Servico} {e.Url}");
 
-try { var a = await dfe.ExecutarAsync(new Autorizacao([nota]) { Sincrona = true }, ct); }
+try { var a = await dfe.ExecutarAsync(new Autorizacao(nota), ct); }
 catch (FalhaTransmissaoException ex) when (ex.PodeTerSidoProcessado)
 {
-    // guardar ex.Rastro.XmlPedido; depois, RecuperacaoAutorizacao (8.6)
+    // Autorizacao.NotasEnviadas(ex.Rastro.XmlPedido), guardar; depois, RecuperacaoAutorizacao (seção 15, docs/QUANDO_CAI.md)
 }
 ```
 
@@ -851,3 +851,136 @@ Como no desenho, com estes ajustes (a conferir pelo usuário):
 - **O `idLote` do relógio** é em UTC.
 - **O preparo sem chave** (a escrita com erro): o documento leva o `Id` `"NFe"` só para existir; nada é assinado, porque o erro da montagem para antes.
 - **A nota repetida no lote** entra uma vez só nos documentos do pedido (o `PedidoWS` recusa dois com o mesmo `Id`); o `NFE-LOTE` já recusa o lote.
+
+## 15. A queda no meio (etapa 4.5)
+
+**Aprovado em 2026-10-22**, as 13 decisões pela recomendação (com a regra da decisão 3), e implementado na etapa 4.5 com os ajustes da 15.6. A consulta do protocolo pela chave, a recuperação da autorização cuja resposta se perdeu (`PROJETO.md` 8.6), a duplicidade identificada com a chave e o guia `docs/QUANDO_CAI.md`. O caminho do `ExecutarAsync` (seção 3) não muda; o núcleo não ganha membro novo.
+
+### 15.1. No leiaute (`OpenDFe.NFe`)
+
+```csharp
+/// A consulta da situação de uma nota pela chave (NFeConsultaProtocolo4: consSitNFe, retConsSitNFe).
+public sealed class ConsultaProtocolo : ParametroWS<RetornoProtocolo>
+{
+    /// ArgumentNullException na chave nula. O destino e o tipo de emissão saem da chave (PROJETO.md 8.4).
+    public ConsultaProtocolo(ChaveAcesso chave);
+    public ChaveAcesso Chave { get; }
+}
+
+/// O retorno da consulta do protocolo. Construtor interno; imutável.
+public sealed class RetornoProtocolo
+{
+    public int Status { get; }                      // cStat: 100, 150, 101 (cancelada), 110/301/302, 217 (não consta), 562...
+    public string Motivo { get; }
+    public Ambiente? Ambiente { get; }
+    public string? VersaoAplicativo { get; }
+    public UF? UF { get; }
+    public DateTimeOffset? Recebimento { get; }
+    public ChaveAcesso? Chave { get; }              // chNFe; nulo quando não se lê
+    /// O protNFe da autorização (ou da denegação), quando a nota consta.
+    public Protocolo? Protocolo { get; }
+    /// Cada procEventoNFe como veio (o cancelamento, a CC-e), na ordem da resposta. O evento tipado vem na fase 6.
+    public IReadOnlyList<string> Eventos { get; }
+    /// No 562 (outro cNF na base), a chave da nota da base, quando o motivo a traz ([chNFe:...]).
+    public ChaveAcesso? ChaveRegistrada { get; }
+    public bool Autorizada { get; }                 // Status 100 ou 150
+    public bool Cancelada { get; }                  // Status 101, 151 ou 155
+}
+
+/// A autorização cuja resposta se perdeu (PROJETO.md 8.6): consulta a chave do XML assinado e, achado o protocolo
+/// de autorização ou de denegação do mesmo XML, monta o nfeProc. Não reenvia nada.
+public sealed class RecuperacaoAutorizacao : ParametroWS<RetornoAutorizacao>
+{
+    /// O NFe assinado, como foi enviado (ResultadoNota.Xml, DocumentoPreparado.Xml ou Autorizacao.NotasEnviadas).
+    /// ArgumentException: nulo ou vazio.
+    public RecuperacaoAutorizacao(string xml);
+    public string Xml { get; }
+}
+
+public sealed class Autorizacao
+{
+    /// Novo: as notas assinadas, com os bytes como foram, tiradas da mensagem enviada (o Rastro.XmlPedido do
+    /// resultado ou da FalhaTransmissaoException). FormatException: não é um enviNFe.
+    public static IReadOnlyList<string> NotasEnviadas(string xmlPedido);
+}
+
+public sealed class ResultadoNota
+{
+    /// Novo: no 204 e no 539, a nota que já está na base. Nulo nos outros.
+    public Duplicidade? Duplicidade { get; }
+}
+
+/// A nota já registrada que causou a rejeição por duplicidade. Construtor interno; imutável.
+public sealed class Duplicidade
+{
+    /// 204: a chave da própria nota (é a mesma nota); 539: a do motivo ([chNFe:...]), ou nula se ele não a traz.
+    public ChaveAcesso? Chave { get; }
+    /// O recibo do lote em que ela foi autorizada ([nRec:...]), quando o motivo o traz.
+    public string? Recibo { get; }
+    /// 204: a mesma chave, e a RecuperacaoAutorizacao dá o nfeProc; 539: outra chave com a mesma numeração.
+    public bool MesmaChave { get; }
+}
+```
+
+No leiaute, os internos `OperacaoConsultaProtocolo` e `OperacaoRecuperacao`, com a leitura do `retConsSitNFe` compartilhada pelos dois.
+
+### 15.2. Exemplo de uso
+
+```csharp
+ResultadoWS<RetornoAutorizacao> r;
+try
+{
+    r = await dfe.ExecutarAsync(new Autorizacao(nota), ct);
+}
+catch (FalhaTransmissaoException ex) when (ex.PodeTerSidoProcessado)
+{
+    var xml = Autorizacao.NotasEnviadas(ex.Rastro.XmlPedido!)[0];         // guardar antes de tudo
+    r = await dfe.ExecutarAsync(new RecuperacaoAutorizacao(xml), ct);
+    // Status 100/150: Notas[0].XmlProcessado é o nfeProc; 217: não chegou, reenviar o MESMO xml
+}
+
+if (r.Retorno?.Notas[0].Duplicidade is { MesmaChave: true })             // 204: já estava autorizada
+    r = await dfe.ExecutarAsync(new RecuperacaoAutorizacao(r.Retorno.Notas[0].Xml!), ct);
+
+var situacao = await dfe.ExecutarAsync(new ConsultaProtocolo(chave), ct); // a situação e os eventos
+```
+
+### 15.3. O caminho
+
+1. **`ConsultaProtocolo`:** o `consSitNFe` (`tpAmb` do núcleo, `xServ` `CONSULTAR`, `chNFe`), sem assinatura, validado pelo `consSitNFe_v4.00.xsd`. Destino e tipo de emissão da chave.
+2. **`RecuperacaoAutorizacao`:** o XML lido só até a chave do `Id`, como as notas assinadas da 4.4 (`NFE-XML`, `NFE-RAIZ`, `NFE-CHAVE`); o mesmo `consSitNFe`, ao autorizador da chave. Na leitura, achado o `protNFe` com 100, 150, 110, 301 ou 302 e o `digVal` igual ao `DigestValue` do XML, o `nfeProc` (o mesmo `LoteNFe.NotaProcessada` da 4.4). O `RetornoAutorizacao` leva o `cStat` e o `xMotivo` da consulta, sem `Recibo` nem `TempoMedio`, e uma `ResultadoNota` com o XML, o `Protocolo` e o `nfeProc`.
+3. **A leitura** do `retConsSitNFe` é branda, como a do status e a da autorização (seção 13, decisão 4): o `protNFe` pelo leitor da 2.5, cada `procEventoNFe` guardado como texto, o `retCancNFe` (o cancelamento de antes dos eventos) conhecido e ignorado.
+
+### 15.4. Decisões
+
+1. **Onde ficam os tipos.** (a) **no `OpenDFe.NFe`, como os da 4.4: falam do `Protocolo` e do `RetornoAutorizacao`**; (b) a consulta no núcleo. Recomendo (a): é o `PROJETO.md` 3.4.
+2. **A entrada da consulta.** (a) **a `ChaveAcesso`, que já confere o tamanho, o DV, a UF, o modelo e o tipo de emissão (o 236 e o 614 a 619 da SEFAZ não chegam a sair)**; (b) o texto da chave. Recomendo (a): o texto vira chave com `ChaveAcesso.Ler`, e a chave errada não sai do computador.
+3. **A chave de outro modelo** (regra fora do schema, para aprovação). (a) **a chave de NFC-e num núcleo de NF-e, e o contrário, é recusada na montagem (`NFE-CHAVE`, Erro), como o 765 no lote**; (b) transmitida, e a SEFAZ responde. Recomendo (a): o web service da NF-e e o da NFC-e são outros em várias UFs (MG), e a resposta seria enganosa.
+4. **O destino da consulta.** (a) **a UF e o tipo de emissão da chave (8.4): a nota emitida em SVC-AN é consultada na SVC-AN; o `Destino` sobrepõe, para consultar no normal**; (b) sempre o autorizador normal da UF, que acha também as da SVC. Recomendo (a): é a regra que o `PROJETO.md` 8.4 já fixou, e a SVC pode estar no ar quando o normal não está; o guia explica o caso.
+5. **O retorno da consulta.** (a) **`RetornoProtocolo` com os campos da resposta, o `Protocolo` do modelo, os eventos como texto e `Autorizada`/`Cancelada`**; (b) os eventos já tipados. Recomendo (a): o evento tipado é da fase 6 (o modelo dele ainda não existe); como nada foi publicado, a fase 6 pode trocar o tipo da lista sem quebrar ninguém.
+6. **A recuperação.** (a) **um parâmetro próprio, `RecuperacaoAutorizacao(xml)`, com o mesmo `RetornoAutorizacao` da autorização: quem usa trata os dois resultados com o mesmo código**; (b) `ConsultaProtocolo { Xml }`, com o `nfeProc` no `RetornoProtocolo`. Recomendo (a): é o `PROJETO.md` 8.3, e a pergunta é "a autorização terminou?", não "qual a situação?".
+7. **Uma nota por recuperação.** (a) **um XML por chamada (o `ExecutarAsync` faz uma transmissão, e a consulta é por chave); o lote perdido é recuperado nota a nota**; (b) até 50 XMLs, com várias consultas por dentro. Recomendo (a): (b) mudaria o núcleo (uma operação, um SOAP) e misturaria as falhas de várias transmissões num resultado.
+8. **O `digVal`.** (a) **o `nfeProc` só sai se o `digVal` do protocolo é o `DigestValue` do XML; diferente, o `Protocolo` vem e o `XmlProcessado` não, com o aviso `NFE-PROTOCOLO` (a base tem outro XML com a mesma chave)**; (b) sem conferir. Recomendo (a): é a única prova de que o protocolo é daquele XML (a mesma chave com outro conteúdo existe: a nota gerada de novo com o mesmo `cNF`), e um `nfeProc` com o XML errado seria um documento falso.
+9. **As notas da mensagem perdida.** (a) **`Autorizacao.NotasEnviadas(xmlPedido)`, público e estático: as notas assinadas do `enviNFe` do rastro, com os bytes como foram**; (b) quem usa lê o `enviNFe`. Recomendo (a): a nota do modelo só existe assinada dentro do rastro (decisão 13 da 4.4), e tirá-la à mão com os bytes certos é fácil de errar (o `XDocument` reescreve). Já existe por dentro (`LoteNFe.Enviadas`).
+10. **A duplicidade identificada.** (a) **`ResultadoNota.Duplicidade` no 204 e no 539, com a chave e o recibo lidos do motivo (`[chNFe:...]`, `[nRec:...]`, com ou sem espaço depois dos dois-pontos) e `MesmaChave`; no 204 sem a chave no motivo, a da própria nota; o motivo sem o complemento não é aviso** (o MOC o faz opcional); (b) só o `cStat`, e quem usa lê o motivo. Recomendo (a): é o `PROJETO.md` 8.6, e o 204 e o 539 pedem ações opostas (recuperar; investigar a outra nota). O 562 da consulta ganha o mesmo, no `RetornoProtocolo.ChaveRegistrada`.
+11. **Sem automatismo** (8.6). (a) **a lib não consulta sozinha depois da falha nem do 204; quem usa decide, seguindo o guia**; (b) a `Autorizacao` recupera sozinha no 204. Recomendo (a).
+12. **A NFC-e.** (a) **a `ConsultaProtocolo` registrada para a NF-e e para a NFC-e (não depende do QR Code); a `RecuperacaoAutorizacao` só para a NF-e, e a NFC-e entra na 5.1, com a autorização dela**; (b) as duas só na NF-e. Recomendo (a): o PDV já pode consultar a situação das NFC-e emitidas por outro sistema.
+13. **O guia `docs/QUANDO_CAI.md`**, escrito para quem usa a lib, com o código de cada caso: a falha que não chegou (reenviar); a que pode ter chegado (guardar o XML e recuperar; 217: reenviar o mesmo XML; a consulta também caiu: esperar e tentar de novo, nunca gerar outra nota); o 204 (recuperar) e o 539 (consultar a outra chave: a numeração está em uso); o 103 perdido (sem recibo, recuperar nota a nota); a resposta do recibo perdida (consultar o recibo de novo); a contingência com uma nota em dúvida (resolver antes de emitir a mesma numeração em SVC, que daria outra chave e o 539); por que não gerar a nota de novo (o `cNF` sorteado, decisão 13 da 4.4).
+
+### 15.5. Testes previstos
+
+- **Leiaute, com o handler que responde o retorno do caso:** o `consSitNFe` no schema e o destino da chave (também a SVC-AN); a chave de outro modelo; a leitura do 100 com o protocolo e os eventos, do 101, do 217, do 562 com e sem a chave no motivo, e as respostas ilegíveis; a recuperação do 100 com o `nfeProc` válido no `procNFe` e com os bytes, do 110, do 217, do `digVal` diferente e do XML que não é nota; a duplicidade do 204 e do 539, com e sem o complemento, com e sem o espaço; o `NotasEnviadas` com os mesmos bytes e com o que não é `enviNFe`.
+- **Contra a SEFAZ emulada:** a consulta da autorizada, a da chave que não consta (217), a do `cNF` diferente (562) e a da SVC-AN (o cancelamento é da fase 6); a queda depois de autorizar (`conexaoDerrubada` com `depois`), a recuperação com o `nfeProc` e o reenvio dando 204 com a `Duplicidade`; a queda antes de processar, a recuperação com o 217 e o reenvio autorizado; o 539 com a chave da outra nota, consultada depois.
+- **Homologação real:** a consulta da nota autorizada pelo `AutorizacaoHomologacaoTestes`, pulada sem o PFX.
+
+### 15.6. Implementação (etapa 4.5, 2026-10-22)
+
+Como no desenho, com estes ajustes (a conferir pelo usuário):
+
+- **O `Destino` do parâmetro vai ao autorizador normal** (decisão 4). O núcleo escolhe o autorizador da UF pelo tipo de emissão do pedido; com o da chave, `Destino = Destino.MG` numa chave de SVC-AN continuaria na SVC-AN. Com o `Destino` informado, o pedido leva o tipo de emissão normal; sem ele, o da chave. Vale para a consulta e para a recuperação.
+- **A recuperação confere a assinatura do XML** (297, 298, 290), pela mesma leitura das notas assinadas da 4.4: o XML vai para o `nfeProc`. O problema do XML leva a propriedade `Xml` (o parâmetro tem um XML só, sem índice).
+- **O protocolo sem o `digVal`** também não dá o `nfeProc` (decisão 8), com o aviso `NFE-PROTOCOLO`: sem ele, não há como provar que o protocolo é daquele XML. O protocolo de outra chave fica fora, com o mesmo aviso, como na 4.4.
+- **A nota cancelada (101) recuperada** traz o `nfeProc` com o protocolo da autorização: a nota existiu; o cancelamento está nos eventos da consulta.
+- **O `chNFe` zerado** das rejeições da mensagem (o emulador e a SEFAZ o mandam assim) fica nulo sem aviso; o ilegível, nulo com o `NFE-VALOR`. O `protNFe` repetido é `NFE-REPETIDO`, e vale o primeiro.
+- **O complemento do motivo** (`[chNFe:...]`, `[nRec:...]`) é lido por um apoio interno (`MotivoSefaz`), sem expressão regular: os dígitos entre os dois-pontos e o colchete, com os espaços em volta, no tamanho exato (44 e 15); fora disso, nulo.
+- **Os eventos** são o `procEventoNFe` escrito de novo pelo `XElement`, com a declaração do namespace (`<procEventoNFe versao="1.00" xmlns="...">`): equivalentes, não byte a byte, como o `protNFe` do `nfeProc`.

@@ -3,16 +3,16 @@ using OpenDFe.NFe;
 
 namespace OpenDFe.Testes;
 
-// A autorização da NF-e pela lib inteira na homologação real (etapa 4.4): uma nota do Simples Nacional, de venda a
-// consumidor final em MG, com o emitente do PFX e a inscrição estadual em OPENDFE_EMITENTE_IE. Pulado sem o PFX: até
-// ele chegar, a etapa fecha na SEFAZ emulada (AutorizacaoEmuladaTestes, PROJETO.md 17). Outro regime ou outra UF
-// pedem o item e o endereço ajustados.
+// A autorização da NF-e pela lib inteira na homologação real (etapa 4.4), e a consulta e a recuperação dela (4.5): uma
+// nota do Simples Nacional, de venda a consumidor final em MG, com o emitente do PFX e a inscrição estadual em
+// OPENDFE_EMITENTE_IE. Pulado sem o PFX: até ele chegar, as etapas fecham na SEFAZ emulada (AutorizacaoEmuladaTestes,
+// QuedaEmuladaTestes, PROJETO.md 17). Outro regime ou outra UF pedem o item e o endereço ajustados.
 public class AutorizacaoHomologacaoTestes
 {
     private const string VariavelInscricao = "OPENDFE_EMITENTE_IE";
 
     [Fact]
-    public async Task UmaNFeEAutorizadaEmHomologacao()
+    public async Task UmaNFeEAutorizadaConsultadaERecuperadaEmHomologacao()
     {
         using var certificado = AmbienteHomologacao.AbrirPfx();
         var inscricao = Environment.GetEnvironmentVariable(VariavelInscricao);
@@ -41,6 +41,15 @@ public class AutorizacaoHomologacaoTestes
         var nota = Assert.Single(resultado.Retorno.Notas);
         Assert.True(nota.Autorizada, $"{nota.Protocolo?.Status} {nota.Protocolo?.Motivo}");
         Assert.NotNull(nota.XmlProcessado);
+
+        var consulta = await dfe.ExecutarAsync(new ConsultaProtocolo(nota.Chave!), TestContext.Current.CancellationToken);
+        Assert.True(consulta.Processado, string.Join(Environment.NewLine, consulta.Problemas));
+        Assert.True(consulta.Retorno.Autorizada, $"{consulta.CStat} {consulta.Motivo}");
+        Assert.Equal(nota.Protocolo!.Numero, consulta.Retorno.Protocolo?.Numero);
+
+        var recuperada = await dfe.ExecutarAsync(new RecuperacaoAutorizacao(nota.Xml!), TestContext.Current.CancellationToken);
+        Assert.True(recuperada.Processado, string.Join(Environment.NewLine, recuperada.Problemas));
+        Assert.NotNull(Assert.Single(recuperada.Retorno.Notas).XmlProcessado);
     }
 
     // A venda de um item a um consumidor final de MG, no Simples Nacional, com o número sorteado (a homologação guarda
@@ -57,7 +66,7 @@ public class AutorizacaoHomologacaoTestes
                 Tipo = TipoNota.Saida, LocalDestino = LocalDestino.Interna, MunicipioFatoGerador = 3106200,
                 FormatoImpressao = FormatoImpressao.DanfeRetrato, Finalidade = FinalidadeEmissao.Normal,
                 ConsumidorFinal = IndicadorConsumidorFinal.ConsumidorFinal, Presenca = PresencaComprador.Presencial,
-                Processo = ProcessoEmissao.AplicativoContribuinte, VersaoAplicativo = "OpenDFe 4.4",
+                Processo = ProcessoEmissao.AplicativoContribuinte, VersaoAplicativo = "OpenDFe 4.5",
             },
             Emitente = new Emitente
             {

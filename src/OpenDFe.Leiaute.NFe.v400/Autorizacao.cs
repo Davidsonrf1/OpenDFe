@@ -83,6 +83,23 @@ public sealed class Autorizacao : ParametroWS<RetornoAutorizacao>
         }
     }
 
+    /// <summary>
+    /// As notas assinadas, com os bytes como foram, tiradas da mensagem enviada: o <see cref="RastroWS.XmlPedido"/> do
+    /// resultado ou da <see cref="FalhaTransmissaoException"/> (docs/CONTRATOS.md 15, decisão 9). É o XML da nota do
+    /// modelo para a <see cref="RecuperacaoAutorizacao"/> e o reenvio depois de uma queda.
+    /// </summary>
+    /// <param name="xmlPedido">O <c>enviNFe</c> enviado.</param>
+    /// <returns>Os <c>NFe</c> do lote, na ordem.</returns>
+    /// <exception cref="ArgumentNullException">A mensagem é nula.</exception>
+    /// <exception cref="FormatException">A mensagem não é um <c>enviNFe</c> da NF-e.</exception>
+    public static IReadOnlyList<string> NotasEnviadas(string xmlPedido)
+    {
+        ArgumentNullException.ThrowIfNull(xmlPedido);
+        if (!LoteNFe.Lote(xmlPedido))
+            throw new FormatException("A mensagem não é o enviNFe da autorização.");
+        return LoteNFe.Enviadas(xmlPedido).AsReadOnly();
+    }
+
     private static void Conferir(int quantidade, string nome)
     {
         if (quantidade == 0)

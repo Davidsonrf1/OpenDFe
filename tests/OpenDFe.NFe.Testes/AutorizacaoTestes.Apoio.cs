@@ -79,14 +79,14 @@ public partial class AutorizacaoTestes
         + string.Concat(resto.Where(r => !r.StartsWith("<cMsg", StringComparison.Ordinal)))
         + "</retConsReciNFe>";
 
-    private static string Protocolo(string chave, string digest, int status)
+    private static string Protocolo(string chave, string digest, int status, string? motivo = null)
     {
         var autorizada = status is 100 or 150 or 110 or 301 or 302;
         return "<protNFe versao=\"4.00\"><infProt><tpAmb>2</tpAmb><verAplic>MG-TESTE</verAplic>"
             + $"<chNFe>{chave}</chNFe><dhRecbto>{Recebimento}</dhRecbto>"
             + (autorizada ? "<nProt>131260000000001</nProt>" : "")
             + (digest.Length > 0 ? $"<digVal>{digest}</digVal>" : "")
-            + $"<cStat>{status}</cStat><xMotivo>Motivo {status.ToString(CultureInfo.InvariantCulture)}</xMotivo></infProt></protNFe>";
+            + $"<cStat>{status}</cStat><xMotivo>{motivo ?? "Motivo " + status.ToString(CultureInfo.InvariantCulture)}</xMotivo></infProt></protNFe>";
     }
 
     // A chave e o DigestValue da primeira nota de um XML.

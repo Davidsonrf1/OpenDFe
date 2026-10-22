@@ -17,7 +17,8 @@ namespace OpenDFe.NFe;
 /// ambientes (etapa 4.2), e as operações: o status do serviço (<see cref="ConsultaStatus"/>, etapa 4.3), nos dois
 /// documentos; a autorização (<see cref="NFe.Autorizacao"/>), a consulta do recibo (<see cref="ConsultaRecibo"/>) e o
 /// preparo da nota (<see cref="DFe.Preparar{TDocumento}"/>), etapa 4.4, só na NF-e (a NFC-e entra com o QR Code, na
-/// 5.1). Declara também as formas de XML que lê (o
+/// 5.1); a consulta do protocolo (<see cref="ConsultaProtocolo"/>), nos dois documentos, e a recuperação da
+/// autorização (<see cref="RecuperacaoAutorizacao"/>), só na NF-e, etapa 4.5. Declara também as formas de XML que lê (o
 /// <c>NFe</c> e o <c>nfeProc</c>), para o <see cref="DFe.Detectar"/>, e lê a nota (<see cref="Ler"/>) sem núcleo.
 /// </para>
 /// </remarks>
@@ -39,6 +40,10 @@ public sealed class LeiauteNFe400 : ILeiaute
 
     private static readonly PreparoNFe Preparo = new();
 
+    private static readonly OperacaoConsultaProtocolo Consulta = new();
+
+    private static readonly OperacaoRecuperacao Recuperacao = new();
+
     /// <summary>A versão do leiaute, como no atributo <c>versao</c> do XML: <c>"4.00"</c>.</summary>
     public string Versao => "4.00";
 
@@ -57,10 +62,12 @@ public sealed class LeiauteNFe400 : ILeiaute
     {
         ArgumentNullException.ThrowIfNull(declaracao);
         declaracao.RegistrarOperacao(Status);
+        declaracao.RegistrarOperacao(Consulta);
         if (declaracao.Documento == Documento.NFe)
         {
             declaracao.RegistrarOperacao(Autorizacao);
             declaracao.RegistrarOperacao(Recibo);
+            declaracao.RegistrarOperacao(Recuperacao);
             declaracao.RegistrarPreparo(Preparo);
         }
         declaracao.DeclararLeitura(FormaNFe);

@@ -11,6 +11,7 @@ public sealed class ResultadoNota
         Xml = xml;
         Protocolo = protocolo;
         XmlProcessado = xmlProcessado;
+        Duplicidade = Duplicidade.Ler(protocolo, chave);
     }
 
     /// <summary>A chave de acesso da nota; nula quando o <c>chNFe</c> do protocolo não é uma chave.</summary>
@@ -36,6 +37,12 @@ public sealed class ResultadoNota
 
     /// <summary>O protocolo autoriza o uso: <c>cStat</c> 100 ou 150 (fora de prazo).</summary>
     public bool Autorizada => Protocolo?.Status is 100 or 150;
+
+    /// <summary>
+    /// Na rejeição por duplicidade (204 e 539), a nota que já está na SEFAZ, com a chave e o recibo do motivo
+    /// (docs/CONTRATOS.md 15, decisão 10); nula nos outros.
+    /// </summary>
+    public Duplicidade? Duplicidade { get; }
 
     internal static bool Processada(int? status) => status is { } valor && StatusProcessada.Contains(valor);
 }

@@ -195,6 +195,38 @@ internal static class LoteNFe
         return notas;
     }
 
+    /// <summary>A mensagem é um <c>enviNFe</c> da NF-e bem formado.</summary>
+    internal static bool Lote(string xmlPedido)
+    {
+        try
+        {
+            using var texto = new StringReader(xmlPedido);
+            using var leitor = XmlReader.Create(texto, ConfiguracaoLeitura);
+            return XElement.Load(leitor).Name == XName.Get("enviNFe", EscritaNFe.Namespace);
+        }
+        catch (XmlException)
+        {
+            return false;
+        }
+    }
+
+    /// <summary>O <c>DigestValue</c> da assinatura da nota (o que o <c>digVal</c> do protocolo repete); nulo sem ele.</summary>
+    internal static string? Digest(string nota)
+    {
+        try
+        {
+            using var texto = new StringReader(nota);
+            using var leitor = XmlReader.Create(texto, ConfiguracaoLeitura);
+            var assinatura = XNamespace.Get("http://www.w3.org/2000/09/xmldsig#");
+            return XElement.Load(leitor).Element(assinatura + "Signature")?.Element(assinatura + "SignedInfo")
+                ?.Element(assinatura + "Reference")?.Element(assinatura + "DigestValue")?.Value.Trim();
+        }
+        catch (XmlException)
+        {
+            return null;
+        }
+    }
+
     /// <summary>A chave do <c>Id</c> do <c>infNFe</c> de uma nota enviada; nula quando não há.</summary>
     internal static ChaveAcesso? Chave(string nota)
     {

@@ -163,12 +163,12 @@ O rastro é um objeto (`RastroWS`), o mesmo no resultado e na `FalhaTransmissaoE
 | Status do serviço | `ConsultaStatus` (no núcleo, comum aos documentos: `CONTRATOS.md` 13) | `RetornoStatus` | UF do núcleo, no tipo de emissão do núcleo |
 | Autorização | `Autorizacao(notas)` ou `Autorizacao(xmlsAssinados)`, de 1 a 50 (uma vai na síncrona; de 2 a 50, no lote com recibo: NT 2025.001, `CONTRATOS.md` 14) | `RetornoAutorizacao`: protocolo e `nfeProc` por nota (`ResultadoNota`), ou o recibo | UF do núcleo; a da chave nas assinadas |
 | Consulta do recibo | `ConsultaRecibo(recibo) { Xmls }` (com as notas do lote, o `nfeProc`) | `RetornoAutorizacao` | UF do núcleo; a da chave da primeira nota |
-| Consulta do protocolo | `ConsultaProtocolo(chave)` | `RetornoProtocolo`, com os eventos | UF e tipo de emissão da chave |
+| Consulta do protocolo | `ConsultaProtocolo(chave)` (NF-e e NFC-e, `CONTRATOS.md` 15) | `RetornoProtocolo`: a situação, o protocolo e os eventos | UF e tipo de emissão da chave; com o `Destino`, o autorizador normal dele |
 | Inutilização | `Inutilizacao(serie, inicio, fim, justificativa)` | `RetornoInutilizacao` | UF do núcleo |
 | Evento | `EnvioEvento(1 a 20 eventos)`, o detalhe é subclasse: `Cancelamento`, `CancelamentoPorSubstituicao`, `CartaCorrecao`, `Manifestacao`, `Epec`... | `RetornoEvento`, com o `procEventoNFe` por evento | o do documento; AN para manifestação e EPEC |
 | Distribuição DF-e | `DistribuicaoDFe(ultimoNsu / nsu / chave)` | `RetornoDistribuicao` | AN |
 | Consulta cadastro | `ConsultaCadastro(uf, documento)` | `RetornoCadastro` | UF consultada |
-| Recuperação | `RecuperacaoAutorizacao(xmlAssinado)` | `RetornoAutorizacao` | o do documento (8.6) |
+| Recuperação | `RecuperacaoAutorizacao(xmlAssinado)` (uma nota; `Autorizacao.NotasEnviadas` tira as notas do rastro) | `RetornoAutorizacao`, com o `nfeProc` se o `digVal` confere | UF e tipo de emissão da chave (8.6) |
 
 Serviços SOAP por trás: `NFeAutorizacao4` (síncrona, `indSinc=1`, e por lote), `NFeRetAutorizacao4`, `NFeConsultaProtocolo4`, `NFeStatusServico4`, `NFeInutilizacao4`, `NFeRecepcaoEvento4`, `NFeDistribuicaoDFe` e `CadConsultaCadastro4`.
 
@@ -185,7 +185,7 @@ Serviços SOAP por trás: `NFeAutorizacao4` (síncrona, `indSinc=1`, e por lote)
 - **os tempos:** `TempoConexao` (15 s) e `TempoResposta` (60 s, do envio ao fim da resposta, por transmissão), propriedades `init` do `ConexoesSefaz`;
 - **as falhas:** a `FalhaTransmissaoException` diz a espécie (`TipoFalhaTransmissao`: conexão, TLS, certificado recusado, tempo esgotado, HTTP, falha SOAP, resposta ilegível) e se pode ter sido processada. Não foi processado: DNS, conexão recusada, TLS, o HTTP 403 sem envelope (o IIS da SVRS e de SP recusando o certificado do cliente, achado da 1.7), a falha SOAP do remetente (`Sender` e afins) e o HTTP 4xx. Pode ter sido: o tempo esgotado e a conexão caída depois do envio, a falha `Receiver`, o HTTP 5xx e a resposta ilegível.
 
-8.6. **Sem reenvio automático.** A lib não repete a autorização sozinha: quem chama decide. Para a queda no meio (a SEFAZ autorizou e a resposta se perdeu), a `RecuperacaoAutorizacao` consulta pela chave e monta o `nfeProc` com o protocolo encontrado; a duplicidade (rejeição 204 e afins) vem identificada no retorno, com a chave. O guia "o que fazer quando cai" faz parte da documentação.
+8.6. **Sem reenvio automático.** A lib não repete a autorização sozinha: quem chama decide. Para a queda no meio (a SEFAZ autorizou e a resposta se perdeu), a `RecuperacaoAutorizacao` consulta pela chave e monta o `nfeProc` com o protocolo encontrado; a duplicidade (rejeição 204 e afins) vem identificada no retorno, com a chave (`ResultadoNota.Duplicidade`). O guia "o que fazer quando cai" faz parte da documentação: `docs/QUANDO_CAI.md` (4.5).
 
 8.7. **Resultado da autorização:** o XML distribuível (`nfeProc`, nota e protocolo), o `cStat` e o motivo, e o XML de envio e de retorno, para quem quiser guardar o rastro.
 
