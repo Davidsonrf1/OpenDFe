@@ -7,6 +7,8 @@
 
   <ItemGroup>
     <ProjectReference Include="../../src/OpenDFe.Leiaute.NFe.v400/OpenDFe.Leiaute.NFe.v400.csproj" />
+    <!-- O modelo é referência privada do leiaute (vai no pacote dele): a nota da autorização em homologação (4.4) o usa direto. -->
+    <ProjectReference Include="../../src/OpenDFe.NFe.Modelo/OpenDFe.NFe.Modelo.csproj" />
   </ItemGroup>
 
   <!-- O gerador do certificado de teste (PROJETO.md 13.1): o cliente da prova contra a SEFAZ emulada. -->

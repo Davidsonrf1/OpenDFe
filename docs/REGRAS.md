@@ -147,7 +147,7 @@ Cada linha cita a fonte (o MOC 7.03 ou a NT e a versão), e a regra que uma NT a
 ## 8. Fora desta etapa
 
 - As regras em si: o primeiro lote (3.2: chave e DV, CPF e CNPJ, totais, CST × grupo, CFOP × `idDest`, `indIEDest` × IE, datas, `cClassTrib`) e as da NFC-e (3.3).
-- As regras do lote (476, 765) e o caminho da nota no lote (4.4); as dos eventos e da inutilização (fase 6), com o `DocumentoPedido` do evento.
+- As regras do lote (476, 765) e o caminho da nota no lote (4.4; feitas, seção 13); as dos eventos e da inutilização (fase 6), com o `DocumentoPedido` do evento.
 - Um `Validar` público (validar uma nota sem transmitir) e as regras na leitura (`LeiauteNFe400.Ler`): fora, como na 2.5 (decisão 4); entram em versão menor se pedidos.
 
 ## 9. Implementação (etapa 3.1, 2026-10-22)
@@ -210,15 +210,13 @@ Baixadas em 2026-10-22: as NTs do Portal Nacional da NF-e (Documentos > Notas T�
 
 | Situação | Regras |
 |---|---|
-| lib | 99 |
-| a fazer (4.4) | 1 |
+| lib | 104 |
 | a fazer (5.1) | 36 |
-| a fazer | 639 |
+| a fazer | 640 |
 | schema | 2 |
 | escrita | 17 |
-| SEFAZ | 191 |
+| SEFAZ | 193 |
 | SEFAZ (tabela) | 15 |
-| outra operação (4.4) | 7 |
 | outra operação (6) | 53 |
 | excluída | 8 |
 | **total** | **1068** |
@@ -234,7 +232,7 @@ Baixadas em 2026-10-22: as NTs do Portal Nacional da NF-e (Documentos > Notas T�
 | A05 | 55/65 | 284 | Obrig. | Certificado Transmissor revogado | MOC 7.03 | SEFAZ |
 | A06 | 55/65 | 285 | Obrig. | Certificado Transmissor difere ICP-Brasil | MOC 7.03 | SEFAZ |
 | A07 | 55/65 | 282 | Obrig. | Certificado Transmissor sem CNPJ/CPF | MOC 7.03 | SEFAZ |
-| B01 | 55/65 | 214 | Obrig. | Tamanho da mensagemexcedeuo limite estabelecido | MOC 7.03 | a fazer (4.4) |
+| B01 | 55/65 | 214 | Obrig. | Tamanho da mensagemexcedeuo limite estabelecido | MOC 7.03 | SEFAZ |
 | B02 | 55/65 | 243 | Facul. | XML Mal Formado | MOC 7.03 | escrita |
 | B03 | 55/65 | 108 | Obrig. | Serviço Paralisado Momentaneamente (curto prazo) | MOC 7.03 | SEFAZ |
 | B04 | 55/65 | 109 | Obrig. | Serviço Paralisado sem Previsão | MOC 7.03 | SEFAZ |
@@ -261,10 +259,10 @@ Baixadas em 2026-10-22: as NTs do Portal Nacional da NF-e (Documentos > Notas T�
 | E06 | 55/65 | 294 | Obrig. | Certificado Assinatura revogado | MOC 7.03 | SEFAZ |
 | E07 | 55/65 | 295 | Obrig. | Certificado Assinatura difere ICP-Brasil | MOC 7.03 | SEFAZ |
 | F01 | 55/65 | 298 | Obrig. | Assinatura difere do padrão do Sistema | MOC 7.03 | escrita |
-| F02 | 55/65 | 297 | Obrig. | Assinatura difere do calculado | MOC 7.03 | escrita |
+| F02 | 55/65 | 297 | Obrig. | Assinatura difere do calculado | MOC 7.03 | lib (4.4) |
 | F03 | 55/65 | 227 | Obrig. | CPF do Emitente difere do CPF do Certificado Digital | MOC 7.03 | a fazer |
-| GAP03a-1 | 55/65 | 764 | Obrig. | Solicitada resposta síncrona para Lote com mais de uma NF-e (indSinc=1) | MOC 7.03 | outra operação (4.4) |
-| GAP03a-2 | 55/65 | 776 | Facul. | Solicitada resposta síncrona para UF que não disponibiliza este atendimento(indSinc=1) | MOC 7.03 | outra operação (4.4) |
+| GAP03a-1 | 55/65 | 764 | Obrig. | Solicitada resposta síncrona para Lote com mais de uma NF-e (indSinc=1) | MOC 7.03 | escrita |
+| GAP03a-2 | 55/65 | 776 | Facul. | Solicitada resposta síncrona para UF que não disponibiliza este atendimento(indSinc=1) | MOC 7.03 | SEFAZ |
 
 ### 10.4. Autorização da NF-e e da NFC-e, por grupo (Anexo I, 4.2.1, e as NTs)
 
@@ -281,10 +279,10 @@ Baixadas em 2026-10-22: as NTs do Portal Nacional da NF-e (Documentos > Notas T�
 | Regra | Modelo | Código | Aplic. | Mensagem | Fonte | Situação |
 |---|---|---|---|---|---|---|
 | B02-10 | 55/65 | 226 | Obrig. | Código da UF do Emitente diverge da UF autorizadora | NT 2026.007 v1.10 | SEFAZ |
-| B02-20 | 55/65 | 476 | Obrig. | Código da UF diverge da UF da primeira NF-e do Lote | MOC 7.03 | outra operação (4.4) |
+| B02-20 | 55/65 | 476 | Obrig. | Código da UF diverge da UF da primeira NF-e do Lote | MOC 7.03 | lib (4.4) |
 | B03-10 | 55/65 | 897 | Obrig. | Código numérico em formato inválido | NT 2019.001 v1.70 | a fazer |
 | B06-10 | 65 | 702 | Obrig. | NFC-e não é aceita pela UFdo Emitente | MOC 7.03 | SEFAZ |
-| B06-20 | 55/65 | 765 | Obrig. | Lote só poderá conter NF-e ou NFC-e | MOC 7.03 | outra operação (4.4) |
+| B06-20 | 55/65 | 765 | Obrig. | Lote só poderá conter NF-e ou NFC-e | MOC 7.03 | lib (4.4) |
 | B06-30 | 55 | 450 | Facul. | Modelo da NF-e diferente de 55 | MOC 7.03 | escrita |
 | B06-40 | 65 | 775 | Facul. | Modelo da NFC-e diferente de 65 | MOC 7.03 | escrita |
 | B07-10 | 65 | 450 | Obrig. | Modelo da NF-e diferente de 55 | NT 2026.001 v1.02b | escrita |
@@ -447,14 +445,14 @@ Baixadas em 2026-10-22: as NTs do Portal Nacional da NF-e (Documentos > Notas T�
 | Regra | Modelo | Código | Aplic. | Mensagem | Fonte | Situação |
 |---|---|---|---|---|---|---|
 | C02-10 | 55/65 | 207 | Obrig. | CNPJ do emitente inválido | MOC 7.03 | lib (3.2) |
-| C02-20 | 55/65 | 560 | Facul. | CNPJ base/CPFdo emitente difere do CNPJ base/CPFda primeira NF-e do lote recebido | MOC 7.03 | outra operação (4.4) |
+| C02-20 | 55/65 | 560 | Facul. | CNPJ base/CPFdo emitente difere do CNPJ base/CPFda primeira NF-e do lote recebido | MOC 7.03 | lib (4.4) |
 | C02-30 | 55/65 | 503 | Obrig. | CNPJ do emitente com Série incompatível | NT 2026.001 v1.02b | a fazer |
 | C02a-04 | 65 | 337 | Obrig. | NFC-e para emitente pessoa física | NT 2021.002 v1.12 | SEFAZ |
 | C02a-08 | 55 | 652 | Obrig. | NF-e para emitente pessoa física | NT 2022.003 v1.11 | a fazer |
 | C02a-10 | 55/65 | 495 | Obrig. | CPF do Emitente com Série incompatível | NT 2026.001 v1.02b | a fazer |
 | C02a-14 | 55 | 407 | Obrig. | CPF do Emitente somente no serviço de Nota Fiscal Avulsa no site do Fisco | NT 2021.002 v1.12 | a fazer |
 | C02a-20 | 55/65 | 401 | Obrig. | CPF do emitente inválido | NT 2023.002 v1.01 | lib (3.2) |
-| C02a-30 | 55/65 | 560 | Facul. | CNPJ Base/CPF do emitente difere do CNPJ Base/CPF da primeira NF-e do lote recebido | NT 2023.002 v1.01 | outra operação (4.4) |
+| C02a-30 | 55/65 | 560 | Facul. | CNPJ Base/CPF do emitente difere do CNPJ Base/CPF da primeira NF-e do lote recebido | NT 2023.002 v1.01 | lib (4.4) |
 | C10-10 | 55/65 | 272 | Obrig. | Código Município do Emitente inexistente | MOC 7.03 | SEFAZ (tabela) |
 | C10-20 | 55/65 | 273 | Obrig. | Código Município do Emitente: difere da UF do emitente | MOC 7.03 | a fazer |
 | C12-10 | 55/65 | 247 | Obrig. | Sigla da UF do Emitente diverge da UF autorizadora | NT 2026.007 v1.10 | SEFAZ |
@@ -1210,7 +1208,7 @@ Baixadas em 2026-10-22: as NTs do Portal Nacional da NF-e (Documentos > Notas T�
 | YA02a-10 | 55/65 | 441 | Obrig. | Descrição do pagamento obrigatória para meio de pagamento 99- outros | NT 2020.006 v1.31 | a fazer |
 | YA02a-20 | 55/65 | 442 | Obrig. | Descrição do pagamento não permitida | NT 2020.006 v1.31 | a fazer |
 | YA03-10 | 55/65 | 865 | Facul. (55), Obrig. (65) | Total dos pagamentos menor que o total da nota | NT 2025.001 v1.03 | a fazer |
-| YA03-20 | 55/65 | 866 | Facul. (55), Obrig. (65) | Ausência de troco quando o valor dos pagamentos informados for maior que o total da nota | NT 2025.001 v1.03 | outra operação (4.4) |
+| YA03-20 | 55/65 | 866 | Facul. (55), Obrig. (65) | Ausência de troco quando o valor dos pagamentos informados for maior que o total da nota | NT 2025.001 v1.03 | a fazer |
 | YA03-30 | 55/65 | 904 | Facul. (55), Obrig. (65) | Informado indevidamente campo valor de pagamento | NT 2025.001 v1.03 | a fazer |
 | YA03a-10 | 55/65 | 657 | Obrig. | Data de Pagamento inválida [nOcor:999] | NT 2023.004 v1.20 | a fazer |
 | YA03c-10 | 55/65 | 961 | Obrig. | CNPJ transacional do pagamento inválido [nOcor:999] | NT 2023.004 v1.20 | lib (3.2) |
@@ -1573,3 +1571,17 @@ As NTs 2019.001 (EPEC), 2025.002 (os eventos da RTC), 2026.001 (o cancelamento p
   - **"a fazer" (5):** as do IBS, da CBS e da ZFM (B25d-10, I05k-10, UB62-10, UB120-10, UB131-10), que mudam com as NTs da reforma.
 - **Ficaram fora da proposta**, e continuam "a fazer": outras regras da NT 2026.002 do mesmo tipo (B25b-20 717 `indPres`, F01-10 669 retirada, I17b-10 774 `indTot=0`, UA01-20 `impostoDevol`, X02-10 753 frete, X11-10 a X25b-10 755 a 759 veículo e reboque, Y01-10 760 cobrança, N12-30 a N12a-44 CST e CSOSN), a B09-40 (704, a emissão atrasada, que depende do momento do recebimento) e a I08-150 (725, a lista de CFOPs). Entram só com uma nova aprovação.
 - **Testes** (`RegrasNFCeTestes`, 52): um caso por regra sobre a NFC-e de teste (o código, o caminho, a severidade, a mensagem e a propriedade); as 17 da NT 2026.002 também na NF-e com `tpImp=6` e nunca na NF-e com o DANFE retrato; as só da NFC-e nunca na NF-e; a NFC-e de entrega completa passa limpa; as exceções da B26-50 (SC e NFF); o grupo no segundo item com o índice. O `CadaRegraTemOSeuCaso` do `RegrasLoteTestes` passa a somar os casos dos dois arquivos. Uma mutação provada: sem a condição do `tpImp=6`, 17 testes acusam.
+
+## 13. O lote da autorização, etapa 4.4 (2026-10-22)
+
+**Aprovadas pelo usuário em 2026-10-22** (`CONTRATOS.md` 14, decisão 10), conferidas na montagem do `enviNFe` (`LoteNFe`, no leiaute) como problemas da montagem, e não na `RegrasNFe400`: são do lote, não da nota. O teste do catálogo cruza a lista `LoteNFe.Regras` com as linhas "lib (4.4)".
+
+| Regra | Código | Severidade | O que confere |
+|---|---|---|---|
+| B02-20 | 476 | Erro | a UF da chave de cada nota igual à da primeira (só as notas assinadas podem divergir: as do modelo levam a UF do núcleo) |
+| B06-20 | 765 | Erro | o modelo da chave de cada nota igual ao documento do núcleo |
+| C02-20, C02a-30 | 560 | Aviso (facultativa) | o CNPJ base, ou o CPF, do emitente da chave igual ao da primeira nota |
+| F02 | 297 | Erro | a assinatura de cada nota assinada recebida (`AssinaturaDigital.Verificar`), com as rejeições da estrutura (298) e do certificado (290) que a verificação dá; o titular (213, 227, 292) fica para a SEFAZ |
+| (lib) | `NFE-LOTE` | Erro | a mesma chave duas vezes no lote; o tipo de emissão diferente do da primeira nota |
+
+O resto do que era "a fazer (4.4)" e "outra operação (4.4)": o 214 (tamanho da mensagem) e o 776 (a UF sem a síncrona) ficam para a SEFAZ; o 764 (síncrona com mais de uma nota) a montagem evita, porque a quantidade decide o `indSinc` (escrita); o YA03-20 (866, troco) é regra da nota, não do lote, e volta a "a fazer".

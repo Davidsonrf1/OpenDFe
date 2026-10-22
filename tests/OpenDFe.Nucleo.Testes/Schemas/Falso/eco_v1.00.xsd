@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Schema falso, só para os testes dos contratos (1.6): as mensagens do leiaute falso (Falso/LeiauteFalso.cs).
-     O ecoLote exige a assinatura de cada eco, para provar que o núcleo assina antes de validar. -->
+     O ecoLote exige a assinatura de cada eco, para provar que o núcleo assina antes de validar. O eco também é
+     global, para o documento validado sozinho (o schema do documento e o preparo, 4.4). -->
 <xs:schema xmlns="urn:opendfe:teste:eco" xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="urn:opendfe:teste:eco" elementFormDefault="qualified" attributeFormDefault="unqualified">
   <xs:simpleType name="TTexto">
     <xs:restriction base="xs:string">
@@ -23,24 +24,25 @@
       <xs:attribute name="versao" type="xs:string" use="required"/>
     </xs:complexType>
   </xs:element>
+  <xs:element name="eco">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="infEco">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="texto" type="TTexto"/>
+            </xs:sequence>
+            <xs:attribute name="Id" type="xs:ID" use="required"/>
+          </xs:complexType>
+        </xs:element>
+        <xs:any namespace="http://www.w3.org/2000/09/xmldsig#" processContents="skip"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
   <xs:element name="ecoLote">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="eco" maxOccurs="100">
-          <xs:complexType>
-            <xs:sequence>
-              <xs:element name="infEco">
-                <xs:complexType>
-                  <xs:sequence>
-                    <xs:element name="texto" type="TTexto"/>
-                  </xs:sequence>
-                  <xs:attribute name="Id" type="xs:ID" use="required"/>
-                </xs:complexType>
-              </xs:element>
-              <xs:any namespace="http://www.w3.org/2000/09/xmldsig#" processContents="skip"/>
-            </xs:sequence>
-          </xs:complexType>
-        </xs:element>
+        <xs:element ref="eco" maxOccurs="100"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>

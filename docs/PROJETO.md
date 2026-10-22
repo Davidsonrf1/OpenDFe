@@ -161,8 +161,8 @@ O rastro é um objeto (`RastroWS`), o mesmo no resultado e na `FalhaTransmissaoE
 | Operação | Parâmetro | Retorno | Destino natural |
 |---|---|---|---|
 | Status do serviço | `ConsultaStatus` (no núcleo, comum aos documentos: `CONTRATOS.md` 13) | `RetornoStatus` | UF do núcleo, no tipo de emissão do núcleo |
-| Autorização | `Autorizacao(documentos) { Sincrona }` | `RetornoAutorizacao`: protocolo e `nfeProc` por documento, ou o recibo | UF do núcleo |
-| Consulta do recibo | `ConsultaRecibo(recibo)` | `RetornoAutorizacao` | UF do núcleo |
+| Autorização | `Autorizacao(notas)` ou `Autorizacao(xmlsAssinados)`, de 1 a 50 (uma vai na síncrona; de 2 a 50, no lote com recibo: NT 2025.001, `CONTRATOS.md` 14) | `RetornoAutorizacao`: protocolo e `nfeProc` por nota (`ResultadoNota`), ou o recibo | UF do núcleo; a da chave nas assinadas |
+| Consulta do recibo | `ConsultaRecibo(recibo) { Xmls }` (com as notas do lote, o `nfeProc`) | `RetornoAutorizacao` | UF do núcleo; a da chave da primeira nota |
 | Consulta do protocolo | `ConsultaProtocolo(chave)` | `RetornoProtocolo`, com os eventos | UF e tipo de emissão da chave |
 | Inutilização | `Inutilizacao(serie, inicio, fim, justificativa)` | `RetornoInutilizacao` | UF do núcleo |
 | Evento | `EnvioEvento(1 a 20 eventos)`, o detalhe é subclasse: `Cancelamento`, `CancelamentoPorSubstituicao`, `CartaCorrecao`, `Manifestacao`, `Epec`... | `RetornoEvento`, com o `procEventoNFe` por evento | o do documento; AN para manifestação e EPEC |
@@ -172,7 +172,7 @@ O rastro é um objeto (`RastroWS`), o mesmo no resultado e na `FalhaTransmissaoE
 
 Serviços SOAP por trás: `NFeAutorizacao4` (síncrona, `indSinc=1`, e por lote), `NFeRetAutorizacao4`, `NFeConsultaProtocolo4`, `NFeStatusServico4`, `NFeInutilizacao4`, `NFeRecepcaoEvento4`, `NFeDistribuicaoDFe` e `CadConsultaCadastro4`.
 
-**Locais, sem web service:** `dfe.Preparar(nota)` → `DocumentoPreparado { Xml assinado, Chave, Problemas }` (gera, valida e assina sem enviar: a NFC-e offline, 9.2), e a `Autorizacao` aceita o documento preparado ou o XML já assinado, para transmitir os mesmos bytes.
+**Locais, sem web service:** `dfe.Preparar(nota)` → `DocumentoPreparado { Preparado, Xml assinado, Chave, Problemas }` (gera, assina e valida sem enviar: a NFC-e offline, 9.2; no núcleo, pelo `IPreparo` que o leiaute registra, `CONTRATOS.md` 14), e a `Autorizacao` aceita o XML já assinado (o `preparado.Xml`), para transmitir os mesmos bytes. Desde a 4.4, na NF-e; na NFC-e, com o QR Code (5.1).
 
 8.4. **Escolha da URL:** destino × ambiente × tipo de emissão × serviço, a partir da tabela que o leiaute declara (3.2), com as URLs que quem usa trocou. São dois eixos independentes: o **ambiente** (homologação, produção) e o **tipo de emissão** (normal, SVC-AN, SVC-RS, EPEC, FS-DA, offline da NFC-e), porque a contingência também se testa em homologação, e cada tipo de emissão muda a URL ou o XML de um jeito. **Quando a operação tem um documento ou uma chave, o destino e o tipo de emissão saem dele**, não da configuração do núcleo: a NFC-e emitida offline é transmitida depois, com o núcleo já normal, e a consulta e os eventos de uma nota emitida em SVC seguem o `tpEmis` da chave. A configuração do núcleo vale para a nota nova. O `Destino` do parâmetro sobrepõe tudo.
 

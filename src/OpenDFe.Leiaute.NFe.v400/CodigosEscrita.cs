@@ -20,4 +20,10 @@ internal static class CodigosEscrita
 
     /// <summary>Um campo preenchido que o leiaute não escreve (PROJETO.md 4.4): aviso.</summary>
     internal const string NaoSuportado = "NFE-NAO-SUPORTADO";
+
+    /// <summary>
+    /// A composição do lote da autorização (docs/CONTRATOS.md 14, decisão 10): a mesma chave duas vezes, ou tipos de
+    /// emissão diferentes.
+    /// </summary>
+    internal const string Lote = "NFE-LOTE";
 }

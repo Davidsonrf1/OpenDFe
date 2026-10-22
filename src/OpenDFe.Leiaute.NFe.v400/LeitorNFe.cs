@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Xml;
+using System.Xml.Linq;
 
 namespace OpenDFe.NFe;
 
@@ -170,6 +171,19 @@ internal static partial class LeitorNFe
         Ler(l, item);
         l.Sair();
         itens.Add(item);
+    }
+
+    /// <summary>
+    /// Lê um <c>protNFe</c> solto (o do retorno da autorização), com o caminho a partir dele
+    /// (<c>protNFe/infProt/cStat</c>) e a propriedade a partir do <see cref="Protocolo"/> (<c>Protocolo.Status</c>).
+    /// </summary>
+    internal static (Protocolo Protocolo, IReadOnlyList<Problema> Problemas) LerProtocolo(XElement protNFe)
+    {
+        using var leitor = protNFe.CreateReader();
+        leitor.MoveToContent();
+        var l = new LeituraNFe(leitor);
+        var protocolo = LerProtocolo(l);
+        return (protocolo, l.Problemas);
     }
 
     private static Protocolo LerProtocolo(LeituraNFe l)

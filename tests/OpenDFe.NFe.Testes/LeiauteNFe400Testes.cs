@@ -28,16 +28,23 @@ public class LeiauteNFe400Testes
         Assert.Equal([Documento.NFe, Documento.NFCe], new LeiauteNFe400().Documentos);
     }
 
+    public static TheoryData<Documento, Type[]> OperacoesDocumento => new()
+    {
+        // a NFC-e ganha a autorização com o QR Code, na 5.1 (CONTRATOS.md 14, decisão 12)
+        { Documento.NFe, [typeof(ConsultaStatus), typeof(Autorizacao), typeof(ConsultaRecibo)] },
+        { Documento.NFCe, [typeof(ConsultaStatus)] },
+    };
+
     [Theory]
-    [InlineData(Documento.NFe)]
-    [InlineData(Documento.NFCe)]
-    public void ADeclaracaoTemAsFormasDeLeituraEOStatus(Documento documento)
+    [MemberData(nameof(OperacoesDocumento))]
+    public void ADeclaracaoTemAsFormasDeLeituraEAsOperacoesDoDocumento(Documento documento, Type[] parametros)
     {
         var declaracao = DeclaracaoLeiaute.Criar(new LeiauteNFe400(), documento);
 
         Assert.Equal(documento, declaracao.Documento);
-        var operacao = Assert.Single(declaracao.Operacoes);
-        Assert.Equal((typeof(ConsultaStatus), typeof(RetornoStatus)), (operacao.Parametro, operacao.Retorno));
+        Assert.Equal(parametros, declaracao.Operacoes.Select(o => o.Parametro));
+        Assert.Equal(typeof(RetornoStatus), declaracao.Operacoes[0].Retorno);
+        Assert.All(declaracao.Operacoes.Skip(1), o => Assert.Equal(typeof(RetornoAutorizacao), o.Retorno));
         Assert.NotEmpty(declaracao.Atendimentos);
         Assert.NotEmpty(declaracao.Enderecos);
         Assert.Null(declaracao.TipoConfiguracaoDocumento);

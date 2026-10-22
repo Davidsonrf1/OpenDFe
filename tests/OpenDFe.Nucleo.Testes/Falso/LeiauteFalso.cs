@@ -44,6 +44,7 @@ internal sealed class LeiauteFalso : ILeiaute
         Ultima = declaracao;
         declaracao.RegistrarOperacao(new OperacaoStatusFalsa());
         declaracao.RegistrarOperacao(new OperacaoEcoFalsa());
+        declaracao.RegistrarPreparo(new PreparoEcoFalso());
         if (declaracao.Documento == Documento.NFCe)
             declaracao.DeclararConfiguracaoDocumento<ConfiguracaoFalsa>(obrigatoria: true);
 
@@ -122,6 +123,12 @@ public sealed class EcoFalso : ParametroWS<RetornoEcoFalso>
     /// </summary>
     public bool MontarDocumentos { get; init; }
 
+    /// <summary>Com <see cref="MontarDocumentos"/>, cada documento declara o schema do eco sozinho (4.4).</summary>
+    public bool SchemaDocumentos { get; init; }
+
+    /// <summary>Com <see cref="MontarDocumentos"/>, o prefixo da propriedade de cada documento: <c>Ecos[i].</c> (4.4).</summary>
+    public bool PrefixarDocumentos { get; init; }
+
     /// <summary>Os documentos do pedido como estão (para as recusas); sobrepõe <see cref="MontarDocumentos"/>.</summary>
     public IReadOnlyList<DocumentoPedido>? DocumentosPedido { get; init; }
 
@@ -136,7 +143,7 @@ internal sealed class OperacaoStatusFalsa : IOperacao<StatusFalso, RetornoStatus
             $"<consStatus xmlns=\"{LeiauteFalso.Namespace}\" versao=\"1.00\"><tpAmb>{(int)contexto.Configuracao.Ambiente}</tpAmb></consStatus>",
             LeiauteFalso.Schema);
 
-    public LeituraWS<RetornoStatusFalso> Ler(StatusFalso parametro, string xmlRetorno, ContextoOperacao contexto)
+    public LeituraWS<RetornoStatusFalso> Ler(StatusFalso parametro, string xmlPedido, string xmlRetorno, ContextoOperacao contexto)
     {
         var raiz = XDocument.Parse(xmlRetorno).Root!;
         var retorno = new RetornoStatusFalso { Host = (string?)raiz.Element("host") ?? "" };
@@ -151,7 +158,7 @@ internal sealed class OperacaoAbstrataFalsa : IOperacao<AbstratoFalso, RetornoSt
 {
     public PedidoWS Montar(AbstratoFalso parametro, ContextoOperacao contexto) => throw new NotSupportedException();
 
-    public LeituraWS<RetornoStatusFalso> Ler(AbstratoFalso parametro, string xmlRetorno, ContextoOperacao contexto) =>
+    public LeituraWS<RetornoStatusFalso> Ler(AbstratoFalso parametro, string xmlPedido, string xmlRetorno, ContextoOperacao contexto) =>
         throw new NotSupportedException();
 }
 
@@ -178,7 +185,13 @@ internal sealed class OperacaoEcoFalsa : IOperacao<EcoFalso, RetornoEcoFalso>
             Problemas = parametro.ProblemaMontagem is { } problema ? [problema] : [],
             Documentos = parametro.DocumentosPedido
                 ?? (parametro.MontarDocumentos
-                    ? [.. parametro.Textos.Select((t, i) => new DocumentoPedido(Id(i)) { Modelo = t, Propriedade = Propriedade })]
+                    ? [.. parametro.Textos.Select((t, i) => new DocumentoPedido(Id(i))
+                    {
+                        Modelo = t,
+                        Propriedade = Propriedade,
+                        Schema = parametro.SchemaDocumentos ? LeiauteFalso.Schema : null,
+                        PrefixoPropriedade = parametro.PrefixarDocumentos ? $"Ecos[{i}]." : null,
+                    })]
                     : []),
         };
     }
@@ -191,7 +204,7 @@ internal sealed class OperacaoEcoFalsa : IOperacao<EcoFalso, RetornoEcoFalso>
         _ => null,
     };
 
-    public LeituraWS<RetornoEcoFalso> Ler(EcoFalso parametro, string xmlRetorno, ContextoOperacao contexto)
+    public LeituraWS<RetornoEcoFalso> Ler(EcoFalso parametro, string xmlPedido, string xmlRetorno, ContextoOperacao contexto)
     {
         var raiz = XDocument.Parse(xmlRetorno).Root!;
         var retorno = new RetornoEcoFalso { Textos = [.. raiz.Elements("texto").Select(e => e.Value)] };
@@ -208,5 +221,51 @@ internal sealed class OperacaoEcoFalsa : IOperacao<EcoFalso, RetornoEcoFalso>
         XNamespace ns = LeiauteFalso.Namespace;
         var textos = XDocument.Parse(xmlPedido).Descendants(ns + "texto").Select(e => SecurityElement.Escape(e.Value));
         return "<retEco><cStat>100</cStat><xMotivo>Eco processado</xMotivo>" + string.Concat(textos.Select(t => $"<texto>{t}</texto>")) + "</retEco>";
+    }
+}
+
+/// <summary>O documento do preparo falso: um eco sozinho, com o texto.</summary>
+public sealed class TextoFalso
+{
+    public string Texto { get; init; } = "ola";
+
+    public Problema? ProblemaMontagem { get; init; }
+
+    /// <summary>A montagem devolve nulo (erro de programação do leiaute).</summary>
+    public bool MontagemNula { get; init; }
+
+    /// <summary>O contexto recebido na montagem.</summary>
+    public ContextoOperacao? ContextoRecebido { get; set; }
+}
+
+/// <summary>Um documento que o leiaute falso não sabe preparar.</summary>
+public sealed class NaoPreparadoFalso
+{
+}
+
+/// <summary>O preparo falso: o eco sozinho, com o Id ECO1, a chave de teste e a conversão do eco.</summary>
+internal sealed class PreparoEcoFalso : IPreparo<TextoFalso>
+{
+    public static readonly ChaveAcesso Chave = ChaveAcesso.Montar(UF.MG, new DateTimeOffset(2026, 10, 22, 10, 0, 0, TimeSpan.FromHours(-3)),
+        "11222333000181", Documento.NFe, 1, 1, TipoEmissao.Normal, 12345678);
+
+    public DocumentoMontado Montar(TextoFalso documento, ContextoOperacao contexto)
+    {
+        documento.ContextoRecebido = contexto;
+        if (documento.MontagemNula)
+            return null!;
+        var xml = documento.ProblemaMontagem is { Severidade: Severidade.Erro }
+            ? ""
+            : $"<eco xmlns=\"{LeiauteFalso.Namespace}\"><infEco Id=\"ECO1\"><texto>{SecurityElement.Escape(documento.Texto)}</texto></infEco></eco>";
+        return new DocumentoMontado(xml, LeiauteFalso.Schema, new DocumentoPedido("ECO1")
+        {
+            Modelo = documento.Texto,
+            Chave = Chave,
+            Propriedade = OperacaoEcoFalsa.Propriedade,
+            Schema = LeiauteFalso.Schema,
+        })
+        {
+            Problemas = documento.ProblemaMontagem is { } problema ? [problema] : [],
+        };
     }
 }

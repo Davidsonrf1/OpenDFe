@@ -19,16 +19,8 @@ internal static partial class RegrasNFe400
     /// <summary>A função declarada ao núcleo: as regras da <see cref="Lista"/> sobre o documento.</summary>
     internal static IEnumerable<Problema> Conferir(DocumentoVerificado documento, ContextoOperacao contexto)
     {
-        var configuracao = contexto.Configuracao;
-        var nucleo = new ValoresNucleo
-        {
-            Documento = contexto.Documento,
-            UF = configuracao.UF,
-            Ambiente = configuracao.Ambiente,
-            Emissao = configuracao.Emissao,
-            Contingencia = configuracao.Contingencia,
-        };
-        return Conferir(Lista, documento.Modelo, documento.Xml, new ContextoRegra(nucleo, documento.Chave, configuracao.Relogio.GetUtcNow()));
+        var nucleo = ValoresNucleo.Criar(contexto);
+        return Conferir(Lista, documento.Modelo, documento.Xml, new ContextoRegra(nucleo, documento.Chave, contexto.Configuracao.Relogio.GetUtcNow()));
     }
 
     /// <summary>

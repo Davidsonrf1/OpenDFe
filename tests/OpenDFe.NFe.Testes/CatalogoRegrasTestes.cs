@@ -4,7 +4,8 @@ using OpenDFe.NFe;
 namespace OpenDFe.Testes;
 
 // O catálogo das rejeições (REGRAS.md 6 e 10) contra o código: toda regra da RegrasNFe400 marcada "lib" com o mesmo
-// identificador, código, modelo e aplicação, e toda linha "lib" com a sua regra; e a forma das linhas.
+// identificador, código, modelo e aplicação, as do lote da autorização (LoteNFe.Regras, 4.4) também, e toda linha "lib"
+// com a sua regra; e a forma das linhas.
 public partial class CatalogoRegrasTestes
 {
     private static readonly Lazy<Linha[]> Linhas = new(Ler);
@@ -86,12 +87,24 @@ public partial class CatalogoRegrasTestes
     }
 
     [Fact]
+    public void ARegraDoLoteEstaNoCatalogoComoLib()
+    {
+        foreach (var (identificador, codigo) in LoteNFe.Regras)
+        {
+            var linha = Linhas.Value.SingleOrDefault(l => l.Regra == identificador && l.Codigo == codigo);
+            Assert.True(linha is not null, $"{identificador} ({codigo}) não está no catálogo.");
+            Assert.Equal("lib (4.4)", linha!.Situacao);
+        }
+    }
+
+    [Fact]
     public void ALinhaLibTemASuaRegra()
     {
         foreach (var linha in Linhas.Value.Where(l => l.Situacao.StartsWith("lib ", StringComparison.Ordinal)))
         {
-            Assert.True(RegrasNFe400.Lista.Any(r => r.Identificador == linha.Regra && r.Codigo == linha.Codigo),
-                $"{linha.Regra} ({linha.Codigo}) está marcada lib e não está na RegrasNFe400.");
+            Assert.True(RegrasNFe400.Lista.Any(r => r.Identificador == linha.Regra && r.Codigo == linha.Codigo)
+                    || LoteNFe.Regras.Contains((linha.Regra, linha.Codigo)),
+                $"{linha.Regra} ({linha.Codigo}) está marcada lib e não está na RegrasNFe400 nem nas regras do lote.");
         }
     }
 

@@ -291,28 +291,12 @@ public sealed class DFe
         if (TemErro(pedido.Problemas))
             return Recusado(pedido.Xml.Length == 0 ? null : pedido.Xml);
 
-        // 3. Assinar; 4. validar a mensagem assinada.
+        // 3. Assinar; 4. validar a mensagem assinada; 5. as regras do leiaute; 6. os callbacks de quem usa.
         var xml = pedido.Xml;
         foreach (var id in pedido.IdsAssinatura)
             xml = AssinaturaDigital.Assinar(xml, id, Configuracao.Certificado);
-        var problemasSchema = pedido.Schema.Validar(xml);
-        problemas.AddRange(problemasSchema);
-        if (TemErro(problemasSchema))
+        if (!Validar(xml, pedido.Schema, pedido.Documentos, schemasDocumentos: true, problemas))
             return Recusado(xml);
-
-        // 5. As regras do leiaute; 6. os callbacks de quem usa (REGRAS.md 3).
-        if (pedido.Documentos.Count > 0)
-        {
-            var achados = MotorRegras.Achar(xml, pedido.Documentos, Documento);
-            var problemasRegras = MotorRegras.Regras(achados, _declaracao.Regras, _contexto, _regrasComoAviso);
-            problemas.AddRange(problemasRegras);
-            if (TemErro(problemasRegras))
-                return Recusado(xml);
-            var problemasCallbacks = MotorRegras.Callbacks(achados, Configuracao.Validacao);
-            problemas.AddRange(problemasCallbacks);
-            if (TemErro(problemasCallbacks))
-                return Recusado(xml);
-        }
 
         // 7. Escolher a URL; 8. transmitir.
         var (autorizador, url) = EscolherUrl(parametro.Destino ?? pedido.Destino, pedido.Emissao, pedido.Servico);
@@ -358,7 +342,7 @@ public sealed class DFe
         LeituraWS<TRetorno> leitura;
         try
         {
-            leitura = executor.Ler(parametro, xmlRetorno, _contexto)
+            leitura = executor.Ler(parametro, xml, xmlRetorno, _contexto)
                 ?? throw new InvalidOperationException($"A operação {tipo.Name} leu um retorno nulo.");
         }
         catch (Exception e) when (e is XmlException or FormatException)
@@ -376,6 +360,87 @@ public sealed class DFe
 
         RastroWS Rastro(string? xmlPedido, string? retorno, Destino? autorizadorEscolhido, Uri? urlEscolhida, TimeSpan? transmissao) =>
             new(xmlPedido, retorno, autorizadorEscolhido, urlEscolhida, inicio, relogio.GetElapsedTime(marca), transmissao);
+    }
+
+    /// <summary>
+    /// Prepara um documento sem transmitir (PROJETO.md 8.3; a NFC-e offline, 9.2): o caminho do
+    /// <see cref="ExecutarAsync{TRetorno}"/> até os callbacks, sem a URL nem o SOAP.
+    /// </summary>
+    /// <typeparam name="TDocumento">O modelo do documento, deduzido (<c>Preparar(nota)</c>).</typeparam>
+    /// <param name="documento">O documento (a nota).</param>
+    /// <returns>
+    /// O documento assinado e validado (<see cref="DocumentoPreparado.Preparado"/>), ou os problemas que o impedem, com
+    /// o XML até onde o caminho chegou.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">O documento é nulo.</exception>
+    /// <exception cref="NotSupportedException">
+    /// O leiaute não registrou o preparo de <typeparamref name="TDocumento"/> para o documento do núcleo.
+    /// </exception>
+    /// <remarks>
+    /// <para>O caminho:</para>
+    /// <list type="number">
+    /// <item>
+    /// o preparo é achado pelo tipo <typeparamref name="TDocumento"/>; <see cref="IPreparo{TDocumento}.Montar"/>; com um
+    /// problema de severidade <see cref="Severidade.Erro"/>, para;
+    /// </item>
+    /// <item>o <see cref="DocumentoPedido.Id"/> do <see cref="DocumentoMontado.Documento"/> é assinado;</item>
+    /// <item>o XML assinado é validado pelo <see cref="DocumentoMontado.Schema"/>; com erro, para;</item>
+    /// <item>as regras do leiaute; com erro, para;</item>
+    /// <item>os callbacks de <see cref="ConfiguracaoDFe.Validacao"/>.</item>
+    /// </list>
+    /// <para>
+    /// Síncrono e sem I/O. As exceções do <see cref="IPreparo{TDocumento}.Montar"/>, da assinatura e das regras sobem
+    /// como vieram (erro de programação do leiaute); as dos callbacks, de quem usa.
+    /// </para>
+    /// </remarks>
+    public DocumentoPreparado Preparar<TDocumento>(TDocumento documento)
+        where TDocumento : class
+    {
+        ArgumentNullException.ThrowIfNull(documento);
+        if (!_declaracao.TentarPreparo<TDocumento>(out var preparo))
+            throw new NotSupportedException($"O leiaute {Leiaute.Versao} não registrou o preparo de {typeof(TDocumento).Name} para {Documento}.");
+
+        var montado = preparo!.Montar(documento, _contexto)
+            ?? throw new InvalidOperationException($"O preparo de {typeof(TDocumento).Name} montou um documento nulo.");
+        var problemas = new List<Problema>(montado.Problemas);
+        var chave = montado.Documento.Chave;
+        if (TemErro(montado.Problemas))
+            return new DocumentoPreparado(false, montado.Xml.Length == 0 ? null : montado.Xml, chave, problemas.ToArray());
+
+        var xml = AssinaturaDigital.Assinar(montado.Xml, montado.Documento.Id, Configuracao.Certificado);
+        var preparado = Validar(xml, montado.Schema, [montado.Documento], schemasDocumentos: false, problemas);
+        return new DocumentoPreparado(preparado, xml, chave, problemas.ToArray());
+    }
+
+    // Os passos 4 a 6: o schema de cada documento que o declara e, sem erro neles, o da mensagem; as regras do
+    // leiaute; os callbacks. Cada etapa só roda sem erro na anterior (REGRAS.md 5, decisão 2).
+    private bool Validar(string xml, SchemaXml schema, IReadOnlyList<DocumentoPedido> documentos, bool schemasDocumentos, List<Problema> problemas)
+    {
+        MotorRegras.Achado[]? achados = null;
+        if (schemasDocumentos && documentos.Any(d => d.Schema is not null))
+        {
+            achados = MotorRegras.Achar(xml, documentos, Documento);
+            var problemasDocumentos = MotorRegras.Schemas(achados);
+            problemas.AddRange(problemasDocumentos);
+            if (TemErro(problemasDocumentos))
+                return false;
+        }
+
+        var problemasSchema = schema.Validar(xml);
+        problemas.AddRange(problemasSchema);
+        if (TemErro(problemasSchema))
+            return false;
+
+        if (documentos.Count == 0)
+            return true;
+        achados ??= MotorRegras.Achar(xml, documentos, Documento);
+        var problemasRegras = MotorRegras.Regras(achados, _declaracao.Regras, _contexto, _regrasComoAviso);
+        problemas.AddRange(problemasRegras);
+        if (TemErro(problemasRegras))
+            return false;
+        var problemasCallbacks = MotorRegras.Callbacks(achados, Configuracao.Validacao);
+        problemas.AddRange(problemasCallbacks);
+        return !TemErro(problemasCallbacks);
     }
 
     // O passo 7: destino (parâmetro, pedido, UF do núcleo) × tipo de emissão (pedido, núcleo) → autorizador → URL.

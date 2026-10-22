@@ -65,10 +65,34 @@ internal static class MotorRegras
             {
                 foreach (var problema in Conferir(regra(achado.Verificado, contexto), "Uma função de regras do leiaute"))
                 {
-                    problemas.Add(problema.Severidade == Severidade.Erro && comoAviso.Contains(problema.Codigo)
+                    problemas.Add(Prefixar(achado, problema.Severidade == Severidade.Erro && comoAviso.Contains(problema.Codigo)
                         ? Rebaixar(problema)
-                        : problema);
+                        : problema));
                 }
+            }
+        }
+        return problemas;
+    }
+
+    /// <summary>
+    /// O schema de cada documento que o declara (<see cref="DocumentoPedido.Schema"/>), sobre o documento sozinho: o
+    /// caminho é o do documento, e a propriedade, a do schema ou, sem ela, a da conversão do documento.
+    /// </summary>
+    internal static List<Problema> Schemas(Achado[] achados)
+    {
+        var problemas = new List<Problema>();
+        foreach (var achado in achados)
+        {
+            if (achado.Pedido.Schema is not { } schema)
+                continue;
+            var conversao = achado.Pedido.Propriedade;
+            foreach (var problema in schema.Validar(achado.Verificado.Xml))
+            {
+                var propriedade = problema.Propriedade
+                    ?? (conversao is not null && problema.Caminho is not null ? conversao(problema.Caminho) : null);
+                problemas.Add(Prefixar(achado, propriedade == problema.Propriedade
+                    ? problema
+                    : Copiar(problema, problema.Severidade, propriedade)));
             }
         }
         return problemas;
@@ -85,10 +109,10 @@ internal static class MotorRegras
             if (validacao.Campo is { } campo)
             {
                 foreach (var verificado in Campos(achado))
-                    problemas.AddRange(Conferir(campo(verificado), "O callback de campo"));
+                    problemas.AddRange(Conferir(campo(verificado), "O callback de campo").Select(p => Prefixar(achado, p)));
             }
             if (validacao.Documento is { } documento)
-                problemas.AddRange(Conferir(documento(achado.Verificado), "O callback de documento"));
+                problemas.AddRange(Conferir(documento(achado.Verificado), "O callback de documento").Select(p => Prefixar(achado, p)));
         }
         return problemas;
     }
@@ -152,12 +176,21 @@ internal static class MotorRegras
         return copia;
     }
 
+    // O prefixo do documento na propriedade (DocumentoPedido.PrefixoPropriedade), quando há os dois.
+    private static Problema Prefixar(Achado achado, Problema problema) =>
+        achado.Pedido.PrefixoPropriedade is { } prefixo && problema.Propriedade is { } propriedade
+            ? Copiar(problema, problema.Severidade, prefixo + propriedade)
+            : problema;
+
     private static Problema Rebaixar(Problema problema) =>
-        new(problema.Codigo, Severidade.Aviso, problema.Mensagem)
+        Copiar(problema, Severidade.Aviso, problema.Propriedade);
+
+    private static Problema Copiar(Problema problema, Severidade severidade, string? propriedade) =>
+        new(problema.Codigo, severidade, problema.Mensagem)
         {
             Tag = problema.Tag,
             Caminho = problema.Caminho,
-            Propriedade = problema.Propriedade,
+            Propriedade = propriedade,
             Schema = problema.Schema,
         };
 

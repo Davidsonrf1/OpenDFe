@@ -29,8 +29,11 @@ public interface IOperacao<TParametro, TRetorno>
     /// <see cref="FalhaTransmissaoException"/> com o rastro. Outra exceção é erro de programação e sobe como veio.
     /// </summary>
     /// <param name="parametro">O parâmetro recebido pelo núcleo.</param>
+    /// <param name="xmlPedido">
+    /// A mensagem como foi enviada, assinada: os bytes dos documentos que o retorno completa (a nota no <c>nfeProc</c>).
+    /// </param>
     /// <param name="xmlRetorno">A resposta do autorizador.</param>
     /// <param name="contexto">O documento e a configuração do núcleo.</param>
     /// <returns>O retorno lido.</returns>
-    LeituraWS<TRetorno> Ler(TParametro parametro, string xmlRetorno, ContextoOperacao contexto);
+    LeituraWS<TRetorno> Ler(TParametro parametro, string xmlPedido, string xmlRetorno, ContextoOperacao contexto);
 }

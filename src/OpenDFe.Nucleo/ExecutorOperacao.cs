@@ -15,7 +15,7 @@ internal abstract class ExecutorOperacao<TRetorno> : ExecutorOperacao
 {
     public abstract PedidoWS Montar(ParametroWS<TRetorno> parametro, ContextoOperacao contexto);
 
-    public abstract LeituraWS<TRetorno> Ler(ParametroWS<TRetorno> parametro, string xmlRetorno, ContextoOperacao contexto);
+    public abstract LeituraWS<TRetorno> Ler(ParametroWS<TRetorno> parametro, string xmlPedido, string xmlRetorno, ContextoOperacao contexto);
 }
 
 /// <inheritdoc cref="ExecutorOperacao"/>
@@ -37,6 +37,6 @@ internal sealed class ExecutorOperacao<TParametro, TRetorno> : ExecutorOperacao<
     public override PedidoWS Montar(ParametroWS<TRetorno> parametro, ContextoOperacao contexto) =>
         _operacao.Montar((TParametro)parametro, contexto);
 
-    public override LeituraWS<TRetorno> Ler(ParametroWS<TRetorno> parametro, string xmlRetorno, ContextoOperacao contexto) =>
-        _operacao.Ler((TParametro)parametro, xmlRetorno, contexto);
+    public override LeituraWS<TRetorno> Ler(ParametroWS<TRetorno> parametro, string xmlPedido, string xmlRetorno, ContextoOperacao contexto) =>
+        _operacao.Ler((TParametro)parametro, xmlPedido, xmlRetorno, contexto);
 }

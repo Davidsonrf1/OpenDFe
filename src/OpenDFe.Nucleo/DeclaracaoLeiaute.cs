@@ -26,6 +26,7 @@ public sealed class DeclaracaoLeiaute
     private readonly Dictionary<Destino, IReadOnlyList<TlsCipherSuite>> _cifras = [];
     private readonly List<FormaLeitura> _leituras = [];
     private readonly List<Func<DocumentoVerificado, ContextoOperacao, IEnumerable<Problema>>> _regras = [];
+    private readonly Dictionary<Type, object> _preparos = [];
     private OperacaoSuportada[] _operacoes = [];
     private bool _aberta = true;
     private bool _configuracaoDeclarada;
@@ -248,11 +249,35 @@ public sealed class DeclaracaoLeiaute
         _regras.Add(regras);
     }
 
+    /// <summary>
+    /// Registra o preparo de um documento (<see cref="DFe.Preparar{TDocumento}"/>), pelo tipo do documento.
+    /// </summary>
+    /// <typeparam name="TDocumento">O modelo do documento (a nota).</typeparam>
+    /// <param name="preparo">O preparo.</param>
+    /// <exception cref="ArgumentNullException">O preparo é nulo.</exception>
+    /// <exception cref="ArgumentException">Já há preparo para <typeparamref name="TDocumento"/>.</exception>
+    /// <exception cref="InvalidOperationException">Fora de <see cref="ILeiaute.Declarar"/>.</exception>
+    public void RegistrarPreparo<TDocumento>(IPreparo<TDocumento> preparo)
+        where TDocumento : class
+    {
+        ConferirAberta();
+        ArgumentNullException.ThrowIfNull(preparo);
+        if (!_preparos.TryAdd(typeof(TDocumento), preparo))
+            throw new ArgumentException($"Já há um preparo registrado para {typeof(TDocumento).Name}.", nameof(preparo));
+    }
+
     /// <summary>As funções de regras declaradas, na ordem.</summary>
     internal IReadOnlyList<Func<DocumentoVerificado, ContextoOperacao, IEnumerable<Problema>>> Regras => _regras;
 
     internal bool TentarExecutor(Type parametro, out ExecutorOperacao? executor) =>
         _executoresTipo.TryGetValue(parametro, out executor);
+
+    internal bool TentarPreparo<TDocumento>(out IPreparo<TDocumento>? preparo)
+        where TDocumento : class
+    {
+        preparo = _preparos.GetValueOrDefault(typeof(TDocumento)) as IPreparo<TDocumento>;
+        return preparo is not null;
+    }
 
     internal bool TentarServico(string nome, out ServicoSoap? servico) =>
         _servicosNome.TryGetValue(nome, out servico);

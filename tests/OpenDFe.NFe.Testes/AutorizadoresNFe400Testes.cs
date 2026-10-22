@@ -351,6 +351,6 @@ public class AutorizadoresNFe400Testes
             };
         }
 
-        public LeituraWS<RetornoEco> Ler(Eco parametro, string xmlRetorno, ContextoOperacao contexto) => new(new RetornoEco(), 107, "Servico em Operacao");
+        public LeituraWS<RetornoEco> Ler(Eco parametro, string xmlPedido, string xmlRetorno, ContextoOperacao contexto) => new(new RetornoEco(), 107, "Servico em Operacao");
     }
 }

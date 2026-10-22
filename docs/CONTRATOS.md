@@ -84,7 +84,7 @@ public sealed class DFe
 }
 ```
 
-Vêm depois, como membros novos (versão menor): `Detectar` (estático, 2.5; feito, desenho e implementação em `docs/LEITURA.md`, com a `FormaLeitura` declarada na `DeclaracaoLeiaute`), `Preparar` (4.4 e 5.2) e a impressão (7.2).
+Vêm depois, como membros novos (versão menor): `Detectar` (estático, 2.5; feito, desenho e implementação em `docs/LEITURA.md`, com a `FormaLeitura` declarada na `DeclaracaoLeiaute`), `Preparar` (4.4, feito: seção 14) e a impressão (7.2).
 
 ### 2.2. `ConfiguracaoDFe`, `ConfiguracaoDocumento`, `Contingencia`
 
@@ -288,9 +288,9 @@ public interface IOperacao<TParametro, TRetorno>
     /// Monta a mensagem (o conteúdo do nfeDadosMsg), sem assinar. Exceção aqui é erro de programação e sobe como veio.
     PedidoWS Montar(TParametro parametro, ContextoOperacao contexto);
 
-    /// Lê o retorno (o conteúdo do nfeResultMsg). XML que não se lê: lançar XmlException ou FormatException;
-    /// o núcleo a embrulha numa FalhaTransmissaoException com o rastro.
-    LeituraWS<TRetorno> Ler(TParametro parametro, string xmlRetorno, ContextoOperacao contexto);
+    /// Lê o retorno (o conteúdo do nfeResultMsg), com a mensagem como foi enviada, assinada (4.4: o nfeProc). XML que
+    /// não se lê: lançar XmlException ou FormatException; o núcleo a embrulha numa FalhaTransmissaoException com o rastro.
+    LeituraWS<TRetorno> Ler(TParametro parametro, string xmlPedido, string xmlRetorno, ContextoOperacao contexto);
 }
 
 /// O que o handler enxerga do núcleo. Construtor interno; ganha membros nas fases 3 e 5 (o motor de regras,
@@ -434,7 +434,7 @@ Quem chama os callbacks e em que ponto do caminho (depois do schema e das regras
 1. Acha o handler pelo **tipo exato** do parâmetro; sem ele, `NotSupportedException`.
 2. `Montar` → `PedidoWS`. Problema `Erro` em `Problemas`: `RecusadoLocalmente`, com o `XmlPedido` no rastro.
 3. Assina cada `Id` de `IdsAssinatura` com o certificado (`AssinaturaDigital.Assinar`, 1.4).
-4. Valida o XML assinado pelo `Schema` (`SchemaXml.Validar`, 1.5). `Erro`: `RecusadoLocalmente`.
+4. Valida cada documento que declara o seu (`DocumentoPedido.Schema`, 4.4) sozinho e, sem erro neles, o XML assinado pelo `Schema` (`SchemaXml.Validar`, 1.5). `Erro`: `RecusadoLocalmente`.
 5. As regras do leiaute (`DeclararRegras`) em cada um dos `Documentos` do pedido, com os códigos de `RegrasComoAviso` rebaixados a aviso (3.1, `docs/REGRAS.md` 3). `Erro`: `RecusadoLocalmente`.
 6. Os callbacks de `Validacao` em cada documento: o `Campo` em cada campo, depois o `Documento` (3.1). `Erro`: `RecusadoLocalmente`.
 7. Escolhe a URL: destino = `parametro.Destino` ?? `pedido.Destino` ?? a UF do núcleo; tipo de emissão = `pedido.Emissao` ?? o do núcleo; se o destino é uma UF, o autorizador sai do `Atendimento`; a URL, do autorizador × ambiente × serviço, nas efetivas. Sem URL: `NotSupportedException`.
@@ -584,7 +584,7 @@ Só declarado, ou nem isso, e vem depois:
 - **SOAP real, TLS ICP-Brasil, `CipherSuitesPolicy` por destino, fábrica do handler, tempo limite** (4.1): na 1.6, a transmissão é uma costura interna do `ConexoesSefaz`, usada pelos testes. A ação SOAP e o namespace do WSDL por serviço entram como membros novos do `PedidoWS` ou da declaração.
 - **As URLs e os atendimentos reais** (4.2), conferidos nos portais.
 - **Os parâmetros e retornos** (`ConsultaStatus`, `Autorizacao`, ..., 4.3 a 8.2), no pacote do leiaute; se o status vai para o núcleo como "operação comum" (3.4), decide-se na 4.3. **Decidido na 4.3: vai ao núcleo** (seção 13).
-- **`Preparar` e `DocumentoPreparado`** (4.4, 5.2), o **detector** `DFe.Detectar` (2.5), a **impressão** (7.2): membros novos no `DFe` e na `DeclaracaoLeiaute`.
+- **`Preparar` e `DocumentoPreparado`** (4.4, feitos: seção 14), o **detector** `DFe.Detectar` (2.5), a **impressão** (7.2): membros novos no `DFe` e na `DeclaracaoLeiaute`.
 - **O motor de regras e a chamada dos callbacks** (3.1).
 - **A troca dos schemas por quem usa** (2.6 do `PROJETO.md`): sobrecarga do `SchemaXml` e propriedade da configuração.
 - Fora por especulativo: interface `INucleo` para *mock* (quem usa testa com um leiaute falso e um transporte falso); carregar leiaute por DLL (3.2); exceção própria de certificado (1.3).
@@ -646,3 +646,208 @@ No leiaute, o `OperacaoStatus` interno, registrado para a NF-e e para a NFC-e.
 6. **O PI nas duas SVC também no emulador**, que só emula a homologação (a divergência deixada pela 4.2).
 7. **Sem o açúcar `dfe.ConsultarStatusAsync()`** por enquanto (seção 8, decisão 5).
 
+## 14. A autorização (etapa 4.4)
+
+**Aprovado em 2026-10-22**, as 14 decisões pela recomendação, e implementado na etapa 4.4 com os ajustes da 14.7. A autorização da NF-e (síncrona e por lote), a consulta do recibo, o `nfeProc`, o `Preparar` e a autorização do XML já assinado. A NFC-e entra na 5.1, com o QR Code (decisão 12).
+
+### 14.1. No leiaute (`OpenDFe.NFe`, pacote `OpenDFe.NFe`)
+
+```csharp
+/// A autorização de 1 a 50 notas (NFeAutorizacao4). Uma nota vai na resposta síncrona; de 2 a 50, no lote com
+/// recibo (NT 2025.001, GAP03a: o lote de uma nota é 452; a síncrona com mais de uma, 764).
+public sealed class Autorizacao : ParametroWS<RetornoAutorizacao>
+{
+    /// As notas do modelo: o leiaute escreve, o núcleo assina, valida e transmite.
+    /// ArgumentException: nenhuma, mais de 50, ou uma nula.
+    public Autorizacao(params IEnumerable<NotaFiscal> notas);
+    /// As notas já assinadas (o Preparar, a NFC-e offline, o reenvio): vão com os mesmos bytes.
+    /// ArgumentException: nenhuma, mais de 50, ou uma nula ou vazia.
+    public Autorizacao(params IEnumerable<string> xmls);
+
+    public IReadOnlyList<NotaFiscal> Notas { get; }   // vazia quando vieram os XMLs
+    public IReadOnlyList<string> Xmls { get; }        // vazia quando vieram as notas
+    /// O idLote (1 a 15 dígitos); null = do relógio da configuração (AAMMDDhhmmssmmm).
+    public long? Lote { get; init; }
+}
+
+/// A consulta do recibo do lote (NFeRetAutorizacao4).
+public sealed class ConsultaRecibo : ParametroWS<RetornoAutorizacao>
+{
+    /// ArgumentException: o recibo não tem 15 dígitos.
+    public ConsultaRecibo(string recibo);
+    public string Recibo { get; }
+    /// As notas assinadas do lote (ResultadoNota.Xml do retorno com o recibo): com elas, o retorno traz o nfeProc.
+    public IReadOnlyList<string> Xmls { get; init; } = [];
+}
+
+/// O retorno da autorização e da consulta do recibo. Construtor interno; imutável.
+public sealed class RetornoAutorizacao
+{
+    public int Status { get; }                       // cStat do lote: 103, 104, 105, 106 ou a rejeição do lote
+    public string Motivo { get; }
+    public Ambiente? Ambiente { get; }
+    public string? VersaoAplicativo { get; }
+    public UF? UF { get; }
+    public DateTimeOffset? Recebimento { get; }
+    public string? Recibo { get; }                   // nRec (103); também quando a síncrona devolve o recibo
+    public TimeSpan? TempoMedio { get; }             // tMed
+    /// Uma por nota enviada, na ordem do parâmetro (ou do Xmls da consulta); na consulta sem os XMLs, uma por
+    /// protNFe, na ordem da resposta. Vazia na rejeição do lote.
+    public IReadOnlyList<ResultadoNota> Notas { get; }
+}
+
+/// Uma nota do lote. Construtor interno; imutável.
+public sealed class ResultadoNota
+{
+    public ChaveAcesso? Chave { get; }
+    /// O NFe assinado, como foi: o que se guarda até ter o protocolo. Null na consulta sem os XMLs.
+    public string? Xml { get; }
+    /// O protNFe (o Protocolo do modelo, LEITURA.md 2.3); null enquanto o lote não foi processado.
+    public Protocolo? Protocolo { get; }
+    /// O nfeProc (a nota com os bytes assinados e o protNFe): com o protocolo de autorização ou de denegação
+    /// (100, 150, 110, 301, 302) e o XML da nota; senão null. É o XML distribuível (PROJETO.md 8.7).
+    public string? XmlProcessado { get; }
+    /// Protocolo.Status é 100 ou 150.
+    public bool Autorizada { get; }
+}
+```
+
+### 14.2. No núcleo (`OpenDFe`)
+
+```csharp
+public sealed class DFe
+{
+    /// Gera, assina e valida um documento sem transmitir (PROJETO.md 8.3; a NFC-e offline, 9.2): montar → assinar →
+    /// schema → regras do leiaute → callbacks, como o ExecutarAsync. Síncrono, sem I/O.
+    /// NotSupportedException: o leiaute não registrou o preparo de TDocumento para o documento do núcleo.
+    public DocumentoPreparado Preparar<TDocumento>(TDocumento documento) where TDocumento : class;
+}
+
+/// O preparo de um documento, no leiaute (a nota). Sem estado e seguro em paralelo.
+public interface IPreparo<TDocumento> where TDocumento : class
+{
+    DocumentoMontado Montar(TDocumento documento, ContextoOperacao contexto);
+}
+
+/// O documento montado, sem assinar. Construtor público: o leiaute cria.
+public sealed class DocumentoMontado
+{
+    /// documento: o Id que o núcleo assina, o modelo, a chave e a conversão (REGRAS.md 3).
+    public DocumentoMontado(string xml, SchemaXml schema, DocumentoPedido documento);
+    public string Xml { get; }
+    public SchemaXml Schema { get; }
+    public DocumentoPedido Documento { get; }
+    public IReadOnlyList<Problema> Problemas { get; init; } = [];
+}
+
+/// O resultado do Preparar. Construtor interno.
+public sealed class DocumentoPreparado
+{
+    /// Sem problema de severidade Erro: o Xml está assinado e válido.
+    public bool Preparado { get; }
+    /// O XML assinado (o que se transmite e se guarda); o montado, se parou antes de assinar; null se a montagem não o produziu.
+    public string? Xml { get; }
+    public ChaveAcesso? Chave { get; }
+    public IReadOnlyList<Problema> Problemas { get; }
+}
+
+public sealed class DeclaracaoLeiaute
+{
+    /// ArgumentException: já há preparo para TDocumento.
+    public void RegistrarPreparo<TDocumento>(IPreparo<TDocumento> preparo) where TDocumento : class;
+}
+
+public sealed class DocumentoPedido
+{
+    /// O schema do documento sozinho (a nota, 225), validado antes do schema da mensagem (o lote, 215).
+    public SchemaXml? Schema { get; init; }
+}
+
+public interface IOperacao<TParametro, TRetorno>
+{
+    /// Muda: recebe também a mensagem como foi enviada (assinada), para montar o nfeProc com os mesmos bytes.
+    LeituraWS<TRetorno> Ler(TParametro parametro, string xmlPedido, string xmlRetorno, ContextoOperacao contexto);
+}
+```
+
+### 14.3. Exemplo de uso
+
+```csharp
+var dfe = DFe.Criar(new LeiauteNFe400(), Documento.NFe, configuracao);
+
+var r = await dfe.ExecutarAsync(new Autorizacao(nota), ct);             // síncrona
+if (r.Processado && r.Retorno.Notas[0] is { Autorizada: true } n)
+    guardar(n.Chave, n.XmlProcessado);                                  // o nfeProc
+else if (!r.Processado)
+    mostrar(r.Problemas);                                               // Propriedade: "Notas[0].Itens[2].Produto.Valor"
+
+var lote = await dfe.ExecutarAsync(new Autorizacao(notas), ct);         // 2 a 50: 103 com o recibo
+guardar(lote.Retorno!.Notas.Select(x => x.Xml));
+await Task.Delay(lote.Retorno.TempoMedio ?? TimeSpan.FromSeconds(1), ct);
+var consulta = await dfe.ExecutarAsync(new ConsultaRecibo(lote.Retorno.Recibo!) { Xmls = xmlsGuardados }, ct);
+
+var preparado = dfe.Preparar(nota);                                     // sem transmitir
+if (preparado.Preparado)
+    await dfe.ExecutarAsync(new Autorizacao(preparado.Xml!), ct);      // os mesmos bytes
+```
+
+### 14.4. O caminho da autorização
+
+1. **`Montar`:** cada nota do modelo é escrita (`EscritorNFe`, com os valores do núcleo); cada XML assinado é lido só até a chave do `Id`. O `enviNFe` (`idLote`, `indSinc` pela quantidade, as notas na ordem) com um `DocumentoPedido` por nota (o `Id`, o modelo, a chave, o schema da nota e a conversão com o prefixo `Notas[k].` ou `Xmls[k].`); `IdsAssinatura` só com as notas do modelo. Os XMLs entram com os bytes como vieram. Destino e tipo de emissão: os do núcleo nas notas do modelo; os da chave nos XMLs (8.4). As regras do lote (decisão 10) são problemas da montagem.
+2. **O núcleo** assina, valida **cada nota pelo schema dela (225)** e, só sem erro nelas, **a mensagem pelo `enviNFe` (215)**; depois as regras e os callbacks por nota, a URL, o SOAP.
+3. **`Ler`:** o `retEnviNFe` ou o `retConsReciNFe`, brando como o status (seção 13, decisão 4); cada `protNFe` pelo leitor do protocolo da 2.5, ligado à nota pelo `chNFe`. O `protNFe` de uma chave que não está no lote é aviso (`NFE-PROTOCOLO`) e fica fora; a nota sem protocolo num lote processado fica com o `Protocolo` nulo e um aviso. O `nfeProc` é escrito com a nota como foi enviada e o `protNFe` da resposta.
+
+### 14.5. Decisões
+
+1. **Onde ficam os tipos.** (a) **`Autorizacao`, `ConsultaRecibo`, `RetornoAutorizacao` e `ResultadoNota` no `OpenDFe.NFe` (o projeto do leiaute), porque falam da `NotaFiscal` e do `Protocolo`; o preparo no núcleo, comum a todo documento**; (b) tudo no núcleo, com `object` no lugar da nota. Recomendo (a): é o `PROJETO.md` 3.4 ("os parâmetros e retornos próprios da NF-e"), e o CT-e terá os seus.
+2. **Síncrona ou lote.** (a) **sem a propriedade `Sincrona`: uma nota vai sempre na síncrona (`indSinc=1`) e de 2 a 50 sempre no lote com recibo**; (b) a `Sincrona` do `PROJETO.md` 8.3, conferida (`ArgumentException` na combinação que a SEFAZ rejeita). Recomendo (a): desde a NT 2025.001 a quantidade decide (452 e 764), e a propriedade só serviria para errar. **Diverge do `PROJETO.md` 8.3.**
+3. **A entrada.** (a) **dois construtores, as notas do modelo ou os XMLs assinados, sem misturar no mesmo lote**; (b) uma lista de um tipo que embrulha os dois; (c) também o `DocumentoPreparado`. Recomendo (a): o `preparado.Xml` já é o XML; misturar no mesmo lote não tem uso conhecido e complica a ordem e a assinatura.
+4. **O retorno.** (a) **`RetornoAutorizacao` com os campos do lote e uma `ResultadoNota` por nota (a chave, o XML assinado, o `Protocolo`, o `nfeProc`, `Autorizada`); o mesmo tipo para a síncrona, o lote e a consulta do recibo; construtores internos**; (b) um retorno para a síncrona e outro para o lote. Recomendo (a): é o `PROJETO.md` 8.3 (a consulta do recibo devolve `RetornoAutorizacao`), e a síncrona também pode devolver o recibo; o `Protocolo` é o do modelo, que a leitura da 2.5 já preenche.
+5. **Quando sai o `nfeProc`.** (a) **com o protocolo de autorização (100, 150) e de denegação (110, 301, 302); `Autorizada` só no 100 e no 150**; (b) só no 100 e no 150. Recomendo (a): a nota denegada também é guardada com o protocolo (o `nfeProc` é a forma legal dela); a NT 2024.001 tirou o 301 e o 302 das regras novas, mas uma SEFAZ ainda pode devolvê-los.
+6. **A mensagem enviada na leitura.** (a) **o `IOperacao.Ler` passa a receber a mensagem assinada (`xmlPedido`)**; (b) um membro de interface padrão, com o `Ler` antigo ficando; (c) o núcleo monta o `nfeProc`. Recomendo (a): sem ela, a leitura não tem os bytes assinados da nota do modelo (o núcleo assina depois do `Montar`). Nada foi publicado (os `PublicAPI.Shipped.txt` estão vazios), então mudar a interface não quebra ninguém; (b) deixaria dois `Ler` para sempre; (c) poria a NF-e no núcleo.
+7. **A consulta do recibo e o `nfeProc`.** (a) **`ConsultaRecibo(recibo) { Xmls }`: com as notas do lote, o retorno liga o protocolo à nota e traz o `nfeProc`; sem elas, só os protocolos**; (b) só o recibo, e o `nfeProc` montado por quem usa. Recomendo (a): quem usa já guarda os XMLs do lote (o `ResultadoNota.Xml` do retorno com o recibo), e montar o `nfeProc` à mão é o erro que a lib existe para evitar.
+8. **O `Preparar`.** (a) **no núcleo, genérico pelo tipo do documento: `DFe.Preparar<TDocumento>`, com o `IPreparo<TDocumento>` registrado pelo leiaute (`RegistrarPreparo`), o `DocumentoMontado` e o `DocumentoPreparado`; o caminho é o do `ExecutarAsync` até os callbacks**; (b) um método do leiaute (`LeiauteNFe400.Preparar(dfe, nota)`); (c) `Preparar(object)` sem tipo. Recomendo (a): o schema, as regras e os callbacks são do núcleo e não podem ser opcionais (6.1), como na decisão 2 da seção 8; o tipo é deduzido (`dfe.Preparar(nota)`), sem reflexão. É o "membro novo no `DFe` e na `DeclaracaoLeiaute`" previsto na seção 9.
+9. **A nota do lote no problema** (a decisão 4 do `MODELO.md` 14 e a 12 do `REGRAS.md`). (a) **cada nota validada sozinha pelo schema da nota (225) e, sem erro nelas, a mensagem pelo `enviNFe` (215); o caminho é o da nota (`NFe/infNFe/det[3]/prod/vProd`) no schema, nas regras e nos callbacks, igual ao do `Preparar`; a propriedade leva o índice do parâmetro (`Notas[0].Itens[2].Produto.Valor`, `Xmls[1]...`)**; (b) só o `enviNFe` (215), com o caminho da mensagem (`enviNFe/NFe[2]/...`) e a propriedade sem o prefixo; (c) um membro novo `Problema.Documento`. Recomendo (a): o problema da nota sai igual no `Preparar` e na autorização, o código é o que a SEFAZ dá à nota (225), e o prefixo diz qual nota sem membro novo no `Problema`. Custa o `DocumentoPedido.Schema` (membro novo) e uma validação a mais por nota.
+10. **As regras do lote** (`PROJETO.md` 2.9: listadas para aprovação). (a) **estas, como problemas da montagem**:
+
+    | Regra | Código | Severidade | O que confere |
+    |---|---|---|---|
+    | B02-20 | 476 | Erro | as notas do lote com a mesma UF (só os XMLs podem divergir; as do modelo levam a do núcleo) |
+    | B06-20 | 765 | Erro | as notas com o modelo do núcleo (o XML de NFC-e num núcleo de NF-e) |
+    | C02-20 | 560 | Aviso (facultativa) | o CNPJ base ou o CPF do emitente igual ao da primeira nota |
+    | F02 | 297 | Erro | a assinatura de cada XML recebido conferida (`AssinaturaDigital`, 1.4): o XML alterado depois de assinado |
+    | (lib) | `NFE-LOTE` | Erro | a mesma chave duas vezes no lote; tipos de emissão diferentes no lote (iriam a autorizadores diferentes) |
+
+    Ficam fora: o 214 (tamanho da mensagem, 500 KB), para a SEFAZ; o 452, o 764 e o 776, que a escolha da decisão 2 evita. (b) nenhuma, tudo para a SEFAZ. Recomendo (a).
+11. **O `idLote`.** (a) **`Lote` opcional; sem ele, do relógio da configuração (`AAMMDDhhmmssmmm`, 15 dígitos)**; (b) sorteado; (c) obrigatório. Recomendo (a): legível no rastro e testável com o relógio falso; a SEFAZ não exige que seja único.
+12. **A NFC-e.** (a) **a autorização, a consulta do recibo e o preparo registrados só para a NF-e nesta etapa; a NFC-e entra na 5.1, com o QR Code e o `infNFeSupl` escritos pela lib**; (b) registrados para os dois já, com o QR Code preenchido por quem usa até a 5.1. Recomendo (a): a NFC-e sem QR Code é rejeitada, e (b) deixaria quem usa montando o `infNFeSupl` à mão por uma fase.
+13. **O `cNF` sorteado.** (a) **a escrita continua sem alterar a nota (`MODELO.md` 6): executar de novo a mesma nota sorteia outra chave; o reenvio depois de uma queda usa o XML (o `ResultadoNota.Xml`, o `Rastro.XmlPedido`, ou o `Preparar` antes), e o guia da 4.5 diz isso**; (b) a autorização grava o `cNF` sorteado na nota. Recomendo (a): a mesma numeração com outra chave a SEFAZ recusa (539), e o caminho seguro para o reenvio é o XML já assinado; (b) faria a lib mexer no objeto de quem usa.
+14. **Sem consulta automática do recibo.** (a) **o 103 volta com o recibo e o `TempoMedio`; consultar é de quem usa**; (b) a lib espera e consulta até o 104. Recomendo (a): segue o 8.6 (a lib não repete chamadas sozinha) e não prende o `ExecutarAsync` por um tempo que quem usa não controla; um açúcar que espera entra depois, se pedido.
+
+### 14.6. Testes previstos
+
+- **Leiaute, com o handler que responde o retorno do caso:**
+  - a montagem: uma nota síncrona, o lote de 2 e de 50, os XMLs assinados com os mesmos bytes, o `idLote` do relógio e o informado, o destino e a emissão da chave;
+  - cada regra da decisão 10;
+  - o schema da nota (225) e da mensagem (215), com o caminho e a propriedade com o prefixo;
+  - a leitura da síncrona, do 103, do 104 com os protocolos, do 105, do 106, da rejeição do lote, do `protNFe` de outra chave e da nota sem protocolo;
+  - o `nfeProc` válido no `procNFe` e com os bytes da nota;
+  - o `Preparar`: o preparado, o recusado, o XML montado, as regras e os callbacks.
+- **Contra a SEFAZ emulada:** a NF-e autorizada (100), síncrona e no lote de 2 com a consulta do recibo (104); a rejeição; o 105 pelo controle; a duplicidade (204 e 539); a SVC-AN com MG paralisado; o `Preparar` e a autorização do XML depois; a queda depois de autorizar e o reenvio do mesmo XML (204).
+- **Homologação real:** a NF-e autorizada em MG, pulada sem o PFX.
+
+
+### 14.7. Implementação (etapa 4.4, 2026-10-22)
+
+Como no desenho, com estes ajustes (a conferir pelo usuário):
+
+- **`DocumentoPedido.PrefixoPropriedade`** (membro novo, além do `Schema`): o prefixo da decisão 9 (`Notas[1].`) é posto pelo núcleo nos problemas do documento (o schema dele, as regras e os callbacks). A conversão do documento não podia carregá-lo: as regras do leiaute calculam a propriedade sozinhas, e o callback `Campo` passaria a ver `Notas[0].Emitente.Cnpj` na autorização e `Emitente.Cnpj` no `Preparar`. Com o prefixo à parte, o `CampoVerificado.Propriedade` é sempre o da nota.
+- **`RetornoAutorizacao.Mensagem`** (membro novo): o `cMsg` e o `xMsg` do lote, que o `retConsReciNFe` pode trazer; sem ele, a mensagem da SEFAZ sumiria calada.
+- **`Autorizacao.MaximoNotas`** (50), público, usado também pela `ConsultaRecibo`.
+- **A assinatura da nota recebida** (regra F02 da decisão 10): o `AssinaturaDigital.Verificar` da 1.4, com as rejeições da assinatura e do certificado (297, 298, 290); o titular (213, 227, 292) não entra, por não estar na lista aprovada. A nota recebida que não é XML, não é um `NFe` ou não tem a chave no `Id` é `NFE-XML`, `NFE-RAIZ` ou `NFE-CHAVE` (os códigos da leitura), sem a nota no lote.
+- **A consulta do recibo** vai ao autorizador da chave da primeira nota em `Xmls` (o lote foi para lá); sem as notas, ao do núcleo.
+- **A leitura do retorno:** o `protNFe` é lido pelo leitor do protocolo da 2.5, e os problemas dele saem como aviso, com o caminho a partir da raiz do retorno (`retEnviNFe/protNFe[2]/infProt/...`) e a propriedade a partir do retorno (`Notas[0].Protocolo.Recebimento`). A nota sem protocolo só é aviso no 104; no 103 e no 105, é o esperado. O resultado das notas sai no 103, 104 e 105, ou quando veio algum `protNFe`.
+- **O `nfeProc`** leva a nota com os bytes da mensagem enviada (as do modelo, tiradas do `enviNFe` assinado; as recebidas, como entraram no lote, sem o BOM e a declaração) e o `protNFe` como o núcleo o leu do envelope (equivalente, não byte a byte, como na 4.1).
+- **O `idLote` do relógio** é em UTC.
+- **O preparo sem chave** (a escrita com erro): o documento leva o `Id` `"NFe"` só para existir; nada é assinado, porque o erro da montagem para antes.
+- **A nota repetida no lote** entra uma vez só nos documentos do pedido (o `PedidoWS` recusa dois com o mesmo `Id`); o `NFE-LOTE` já recusa o lote.

@@ -11,3 +11,33 @@ OpenDFe.NFe.NotaLida.Nota.get -> OpenDFe.NFe.NotaFiscal?
 OpenDFe.NFe.NotaLida.Problemas.get -> System.Collections.Generic.IReadOnlyList<OpenDFe.Problema!>!
 OpenDFe.NFe.NotaLida.Protocolo.get -> OpenDFe.NFe.Protocolo?
 OpenDFe.NFe.NotaLida.Xml.get -> string!
+const OpenDFe.NFe.Autorizacao.MaximoNotas = 50 -> int
+OpenDFe.NFe.Autorizacao
+OpenDFe.NFe.Autorizacao.Autorizacao(params System.Collections.Generic.IEnumerable<OpenDFe.NFe.NotaFiscal!>! notas) -> void
+OpenDFe.NFe.Autorizacao.Autorizacao(params System.Collections.Generic.IEnumerable<string!>! xmls) -> void
+OpenDFe.NFe.Autorizacao.Lote.get -> long?
+OpenDFe.NFe.Autorizacao.Lote.init -> void
+OpenDFe.NFe.Autorizacao.Notas.get -> System.Collections.Generic.IReadOnlyList<OpenDFe.NFe.NotaFiscal!>!
+OpenDFe.NFe.Autorizacao.Xmls.get -> System.Collections.Generic.IReadOnlyList<string!>!
+OpenDFe.NFe.ConsultaRecibo
+OpenDFe.NFe.ConsultaRecibo.ConsultaRecibo(string! recibo) -> void
+OpenDFe.NFe.ConsultaRecibo.Recibo.get -> string!
+OpenDFe.NFe.ConsultaRecibo.Xmls.get -> System.Collections.Generic.IReadOnlyList<string!>!
+OpenDFe.NFe.ConsultaRecibo.Xmls.init -> void
+OpenDFe.NFe.ResultadoNota
+OpenDFe.NFe.ResultadoNota.Autorizada.get -> bool
+OpenDFe.NFe.ResultadoNota.Chave.get -> OpenDFe.ChaveAcesso?
+OpenDFe.NFe.ResultadoNota.Protocolo.get -> OpenDFe.NFe.Protocolo?
+OpenDFe.NFe.ResultadoNota.Xml.get -> string?
+OpenDFe.NFe.ResultadoNota.XmlProcessado.get -> string?
+OpenDFe.NFe.RetornoAutorizacao
+OpenDFe.NFe.RetornoAutorizacao.Ambiente.get -> OpenDFe.Ambiente?
+OpenDFe.NFe.RetornoAutorizacao.Mensagem.get -> OpenDFe.NFe.MensagemSefaz?
+OpenDFe.NFe.RetornoAutorizacao.Motivo.get -> string!
+OpenDFe.NFe.RetornoAutorizacao.Notas.get -> System.Collections.Generic.IReadOnlyList<OpenDFe.NFe.ResultadoNota!>!
+OpenDFe.NFe.RetornoAutorizacao.Recebimento.get -> System.DateTimeOffset?
+OpenDFe.NFe.RetornoAutorizacao.Recibo.get -> string?
+OpenDFe.NFe.RetornoAutorizacao.Status.get -> int
+OpenDFe.NFe.RetornoAutorizacao.TempoMedio.get -> System.TimeSpan?
+OpenDFe.NFe.RetornoAutorizacao.UF.get -> OpenDFe.UF?
+OpenDFe.NFe.RetornoAutorizacao.VersaoAplicativo.get -> string?

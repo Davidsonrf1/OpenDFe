@@ -262,7 +262,7 @@ OpenDFe.ILeiaute.Declarar(OpenDFe.DeclaracaoLeiaute! declaracao) -> void
 OpenDFe.ILeiaute.Documentos.get -> System.Collections.Generic.IReadOnlyList<OpenDFe.Documento>!
 OpenDFe.ILeiaute.Versao.get -> string!
 OpenDFe.IOperacao<TParametro, TRetorno>
-OpenDFe.IOperacao<TParametro, TRetorno>.Ler(TParametro! parametro, string! xmlRetorno, OpenDFe.ContextoOperacao! contexto) -> OpenDFe.LeituraWS<TRetorno!>!
+OpenDFe.IOperacao<TParametro, TRetorno>.Ler(TParametro! parametro, string! xmlPedido, string! xmlRetorno, OpenDFe.ContextoOperacao! contexto) -> OpenDFe.LeituraWS<TRetorno!>!
 OpenDFe.IOperacao<TParametro, TRetorno>.Montar(TParametro! parametro, OpenDFe.ContextoOperacao! contexto) -> OpenDFe.PedidoWS!
 OpenDFe.LeituraWS<TRetorno>
 OpenDFe.LeituraWS<TRetorno>.CStat.get -> int
@@ -418,3 +418,23 @@ OpenDFe.RetornoStatus.UF.get -> OpenDFe.UF?
 OpenDFe.RetornoStatus.UF.init -> void
 OpenDFe.RetornoStatus.VersaoAplicativo.get -> string?
 OpenDFe.RetornoStatus.VersaoAplicativo.init -> void
+OpenDFe.DFe.Preparar<TDocumento>(TDocumento! documento) -> OpenDFe.DocumentoPreparado!
+OpenDFe.DeclaracaoLeiaute.RegistrarPreparo<TDocumento>(OpenDFe.IPreparo<TDocumento!>! preparo) -> void
+OpenDFe.DocumentoMontado
+OpenDFe.DocumentoMontado.Documento.get -> OpenDFe.DocumentoPedido!
+OpenDFe.DocumentoMontado.DocumentoMontado(string! xml, OpenDFe.SchemaXml! schema, OpenDFe.DocumentoPedido! documento) -> void
+OpenDFe.DocumentoMontado.Problemas.get -> System.Collections.Generic.IReadOnlyList<OpenDFe.Problema!>!
+OpenDFe.DocumentoMontado.Problemas.init -> void
+OpenDFe.DocumentoMontado.Schema.get -> OpenDFe.SchemaXml!
+OpenDFe.DocumentoMontado.Xml.get -> string!
+OpenDFe.DocumentoPedido.Schema.get -> OpenDFe.SchemaXml?
+OpenDFe.DocumentoPedido.Schema.init -> void
+OpenDFe.DocumentoPedido.PrefixoPropriedade.get -> string?
+OpenDFe.DocumentoPedido.PrefixoPropriedade.init -> void
+OpenDFe.DocumentoPreparado
+OpenDFe.DocumentoPreparado.Chave.get -> OpenDFe.ChaveAcesso?
+OpenDFe.DocumentoPreparado.Preparado.get -> bool
+OpenDFe.DocumentoPreparado.Problemas.get -> System.Collections.Generic.IReadOnlyList<OpenDFe.Problema!>!
+OpenDFe.DocumentoPreparado.Xml.get -> string?
+OpenDFe.IPreparo<TDocumento>
+OpenDFe.IPreparo<TDocumento>.Montar(TDocumento! documento, OpenDFe.ContextoOperacao! contexto) -> OpenDFe.DocumentoMontado!
