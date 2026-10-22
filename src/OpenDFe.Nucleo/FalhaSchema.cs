@@ -27,6 +27,20 @@ public sealed class FalhaSchema
     public string? TipoSchema { get; internal init; }
 
     /// <summary>
+    /// O texto do <c>xs:documentation</c> da declaração do campo no schema (<c>"Valor bruto do produto ou
+    /// serviço."</c>): o do elemento ou atributo que falhou, ou, na falta de um elemento obrigatório (ausente, ou
+    /// outro no lugar dele), o do que faltou; <see langword="null"/> quando o schema não documenta o campo ou a falha
+    /// não aponta uma declaração.
+    /// </summary>
+    public string? Documentacao { get; internal init; }
+
+    /// <summary>
+    /// O texto do <c>xs:documentation</c> do tipo nomeado do campo (<c>"Tipo Decimal com 15 dígitos, sendo 13 de corpo
+    /// e 2 decimais"</c>, o do <see cref="TipoSchema"/>); <see langword="null"/> quando o tipo não é documentado.
+    /// </summary>
+    public string? DocumentacaoTipo { get; internal init; }
+
+    /// <summary>
     /// O valor encontrado no elemento ou atributo, como está no XML, na falha de <see cref="TipoFalhaSchema.Valor"/>;
     /// <see langword="null"/> nas outras. Pode ser dado pessoal (ver a observação da classe).
     /// </summary>

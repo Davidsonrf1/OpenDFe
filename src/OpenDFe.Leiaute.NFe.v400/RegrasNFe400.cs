@@ -8,10 +8,13 @@ namespace OpenDFe.NFe;
 /// O núcleo só as chama com o schema sem erro; mesmo assim, as regras leem o modelo, e o campo nulo é "não se aplica" (o
 /// schema já apontou o obrigatório). Sem estado e seguro em paralelo.
 /// </remarks>
-internal static class RegrasNFe400
+internal static partial class RegrasNFe400
 {
-    /// <summary>As regras, na ordem do catálogo. Vazia até a etapa 3.2.</summary>
-    internal static IReadOnlyList<RegraNFe> Lista { get; } = [];
+    /// <summary>
+    /// As regras: o lote da etapa 3.2 (REGRAS.md 11), o CPF e o CNPJ, o DV das chaves referenciadas, os totais, as
+    /// combinações da operação e as datas.
+    /// </summary>
+    internal static IReadOnlyList<RegraNFe> Lista { get; } = [.. Documentos(), .. Totais(), .. Operacao()];
 
     /// <summary>A função declarada ao núcleo: as regras da <see cref="Lista"/> sobre o documento.</summary>
     internal static IEnumerable<Problema> Conferir(DocumentoVerificado documento, ContextoOperacao contexto)

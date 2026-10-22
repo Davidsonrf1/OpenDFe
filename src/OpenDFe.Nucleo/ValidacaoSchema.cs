@@ -168,7 +168,7 @@ internal sealed class ValidacaoSchema
                 else if (info.SchemaAttribute is null)
                     AtributoInesperado(evento, nomeAtributo, segmentoAtributo, quadro);
                 else
-                    ValorInvalido(evento, nomeAtributo, segmentoAtributo, info.SchemaType, valor);
+                    ValorInvalido(evento, nomeAtributo, segmentoAtributo, info.SchemaAttribute, info.SchemaType, valor);
             }
         }
 
@@ -180,9 +180,10 @@ internal sealed class ValidacaoSchema
                 Generico(evento, nome, segmento);
                 continue;
             }
-            var ausentes = AtributosObrigatorios(quadro.Info.SchemaType)
+            var declaracoes = AtributosObrigatorios(quadro.Info.SchemaType)
                 .Where(a => !atributos.Any(x => x.Nome == a.QualifiedName.Name && x.Espaco == a.QualifiedName.Namespace))
-                .Select(a => a.QualifiedName.Name).ToList();
+                .ToList();
+            var ausentes = declaracoes.ConvertAll(a => a.QualifiedName.Name);
             if (ausentes.Count == 0)
             {
                 Generico(evento, nome, segmento);
@@ -193,7 +194,15 @@ internal sealed class ValidacaoSchema
                 ausentes.Count == 1
                     ? $"{nome}: falta o atributo obrigatório {ausentes[0]}."
                     : $"{nome}: faltam os atributos obrigatórios {Lista(ausentes)}.",
-                new FalhaSchema(TipoFalhaSchema.AtributoAusente, evento.Message) { Esperados = ausentes, TipoSchema = NomeTipo(quadro.Info.SchemaType), Linha = Linha(evento), Coluna = Coluna(evento) });
+                new FalhaSchema(TipoFalhaSchema.AtributoAusente, evento.Message)
+                {
+                    Esperados = ausentes,
+                    TipoSchema = NomeTipo(quadro.Info.SchemaType),
+                    Documentacao = Documentacao(ausentes.Count == 1 ? declaracoes[0] : quadro.Info.SchemaElement),
+                    DocumentacaoTipo = DocumentacaoTipo(quadro.Info.SchemaType),
+                    Linha = Linha(evento),
+                    Coluna = Coluna(evento),
+                });
         }
 
         if (vazio)
@@ -222,7 +231,7 @@ internal sealed class ValidacaoSchema
             else if (quadro.Falhou)
                 continue;   // o .NET às vezes repete no fim a falha do início do mesmo elemento
             else if (tipoValor is not null)
-                ValorInvalido(evento, nome, quadro.Segmento, quadro.Info.SchemaType, quadro.Texto.ToString());
+                ValorInvalido(evento, nome, quadro.Segmento, quadro.Info.SchemaElement, quadro.Info.SchemaType, quadro.Texto.ToString());
             else
                 Ausente(evento, nome, quadro, esperados);
         }
@@ -252,7 +261,14 @@ internal sealed class ValidacaoSchema
             }
             Adicionar(Severidade.Erro, nome, quadro.Segmento,
                 $"{nome}: o elemento não aceita texto, só elementos filhos.",
-                new FalhaSchema(TipoFalhaSchema.TextoInesperado, evento.Message) { TipoSchema = NomeTipo(quadro.Info.SchemaType), Linha = Linha(evento), Coluna = Coluna(evento) });
+                new FalhaSchema(TipoFalhaSchema.TextoInesperado, evento.Message)
+                {
+                    TipoSchema = NomeTipo(quadro.Info.SchemaType),
+                    Documentacao = Documentacao(quadro.Info.SchemaElement),
+                    DocumentacaoTipo = DocumentacaoTipo(quadro.Info.SchemaType),
+                    Linha = Linha(evento),
+                    Coluna = Coluna(evento),
+                });
         }
     }
 
@@ -261,6 +277,8 @@ internal sealed class ValidacaoSchema
     private void Inesperado(ValidationEventArgs evento, string nome, Segmento segmento, Quadro? pai, XmlSchemaParticle[] particulas)
     {
         var esperados = Nomes(particulas);
+        // Com um só elemento obrigatório esperado no lugar (o que faltou), a documentação é a dele.
+        var obrigatorios = particulas.OfType<XmlSchemaElement>().Where(p => p.MinOccurs > 0).ToList();
         var tipoPai = pai?.Info.SchemaType;
         string mensagem;
         if (tipoPai is not null && AnaliseTipo.TipoSimples(tipoPai) is not null)
@@ -272,13 +290,20 @@ internal sealed class ValidacaoSchema
         else
             mensagem = $"{nome}: o elemento não era esperado; esperado: {Lista(esperados)}.";
         Adicionar(Severidade.Erro, nome, segmento, mensagem,
-            new FalhaSchema(TipoFalhaSchema.ElementoInesperado, evento.Message) { Esperados = esperados, Linha = Linha(evento), Coluna = Coluna(evento) });
+            new FalhaSchema(TipoFalhaSchema.ElementoInesperado, evento.Message)
+            {
+                Esperados = esperados,
+                Documentacao = obrigatorios.Count == 1 ? Documentacao(obrigatorios[0]) : null,
+                Linha = Linha(evento),
+                Coluna = Coluna(evento),
+            });
     }
 
     private void Ausente(ValidationEventArgs evento, string nome, Quadro quadro, XmlSchemaParticle[] particulas)
     {
         var esperados = Nomes(particulas);
-        var obrigatorios = Nomes(particulas.Where(p => p.MinOccurs > 0).ToArray());
+        var obrigatorias = particulas.Where(p => p.MinOccurs > 0).ToArray();
+        var obrigatorios = Nomes(obrigatorias);
         if (esperados.Count == 0)
         {
             Generico(evento, nome, quadro.Segmento);
@@ -288,6 +313,10 @@ internal sealed class ValidacaoSchema
         {
             Esperados = obrigatorios.Count > 0 ? obrigatorios : esperados,
             TipoSchema = NomeTipo(quadro.Info.SchemaType),
+            Documentacao = obrigatorios.Count == 1
+                ? Documentacao(obrigatorias.OfType<XmlSchemaElement>().FirstOrDefault())
+                : Documentacao(quadro.Info.SchemaElement),
+            DocumentacaoTipo = DocumentacaoTipo(quadro.Info.SchemaType),
             Linha = Linha(evento),
             Coluna = Coluna(evento),
         };
@@ -317,7 +346,8 @@ internal sealed class ValidacaoSchema
             new FalhaSchema(TipoFalhaSchema.AtributoInesperado, evento.Message) { Esperados = declarados, Linha = Linha(evento), Coluna = Coluna(evento) });
     }
 
-    private void ValorInvalido(ValidationEventArgs evento, string nome, Segmento segmento, XmlSchemaType? tipo, string valor)
+    private void ValorInvalido(ValidationEventArgs evento, string nome, Segmento segmento, XmlSchemaAnnotated? declaracao,
+        XmlSchemaType? tipo, string valor)
     {
         var simples = AnaliseTipo.TipoSimples(tipo);
         var nomeTipo = NomeTipo(tipo);
@@ -331,6 +361,8 @@ internal sealed class ValidacaoSchema
             new FalhaSchema(TipoFalhaSchema.Valor, evento.Message)
             {
                 TipoSchema = nomeTipo,
+                Documentacao = Documentacao(declaracao),
+                DocumentacaoTipo = DocumentacaoTipo(tipo),
                 Valor = valor,
                 Restricoes = analise.Restricoes,
                 Linha = Linha(evento),
@@ -408,6 +440,23 @@ internal sealed class ValidacaoSchema
 
     private static IEnumerable<XmlSchemaAttribute> AtributosObrigatorios(XmlSchemaType? tipo) =>
         AtributosDeclarados(tipo).Where(a => a.Use == XmlSchemaUse.Required);
+
+    // O texto dos xs:documentation da anotação, com o espaço em branco normalizado; nulo sem documentação.
+    internal static string? Documentacao(XmlSchemaAnnotated? item)
+    {
+        if (item?.Annotation is null)
+            return null;
+        var partes = item.Annotation.Items.OfType<XmlSchemaDocumentation>()
+            .SelectMany(d => d.Markup ?? [])
+            .Select(n => n?.InnerText)
+            .Where(t => !string.IsNullOrWhiteSpace(t));
+        var texto = string.Join(" ", string.Join(" ", partes).Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries));
+        return texto.Length == 0 ? null : texto;
+    }
+
+    // A documentação do tipo nomeado; a do tipo anônimo fica com a declaração do campo.
+    private static string? DocumentacaoTipo(XmlSchemaType? tipo) =>
+        tipo is null || tipo.QualifiedName.IsEmpty ? null : Documentacao(tipo);
 
     internal static string? NomeTipo(XmlSchemaType? tipo)
     {

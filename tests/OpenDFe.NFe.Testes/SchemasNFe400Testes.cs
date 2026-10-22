@@ -169,4 +169,34 @@ public class SchemasNFe400Testes
         Assert.Matches("[A-Z]", chave.ToString());
         Assert.Empty(SchemasNFe400.Situacao.Validar(xml));
     }
+
+    [Fact]
+    public void OProblemaDoValorTrazADocumentacaoDoCampoEDoTipo()
+    {
+        var xml = NotasTeste.Assinar(NotasTeste.Escrever(NotasTeste.NFCe()));
+        var errado = xml.Replace("<vProd>50.00</vProd>", "<vProd>50.123</vProd>", StringComparison.Ordinal);
+        Assert.NotEqual(xml, errado);
+
+        // O vProd do item e o do total têm o mesmo valor: o do item.
+        var problema = Assert.Single(SchemasNFe400.Nota.Validar(errado), p => p.Caminho == "NFe/infNFe/det/prod/vProd");
+
+        Assert.Equal("TDec_1302", problema.Schema!.TipoSchema);
+        Assert.Equal("Valor bruto do produto ou serviço.", problema.Schema.Documentacao);
+        Assert.Equal("Tipo Decimal com 15 dígitos, sendo 13 de corpo e 2 decimais", problema.Schema.DocumentacaoTipo);
+    }
+
+    [Fact]
+    public void OElementoQueFaltaTrazADocumentacaoDele()
+    {
+        var xml = NotasTeste.Assinar(NotasTeste.Escrever(NotasTeste.NFCe()));
+        var errado = xml.Replace("<xProd>CAFE TORRADO 500G</xProd>", "", StringComparison.Ordinal);
+        Assert.NotEqual(xml, errado);
+
+        // O NCM chega no lugar do xProd: o problema é o elemento inesperado, com a documentação do que faltou.
+        var problema = Assert.Single(SchemasNFe400.Nota.Validar(errado));
+
+        Assert.Equal(TipoFalhaSchema.ElementoInesperado, problema.Schema!.Tipo);
+        Assert.Contains("xProd", problema.Schema.Esperados);
+        Assert.Equal("Descrição do produto ou serviço", problema.Schema!.Documentacao);
+    }
 }

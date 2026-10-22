@@ -112,10 +112,10 @@ internal static class NotasTeste
                 Processo = ProcessoEmissao.AplicativoContribuinte, VersaoAplicativo = "ERP 1.0",
                 Referencias =
                 {
-                    new NFeReferenciada { Chave = "31261011222333000181550010000001231123456780" },
+                    new NFeReferenciada { Chave = "31261011222333000181550010000001231123456784" },
                     new NotaModelo1Referenciada { UF = UF.MG, AnoMes = "2610", Cnpj = CnpjEmitente, Modelo = ModeloNotaReferenciada.Modelo1, Serie = 1, Numero = 10 },
                     new NotaProdutorReferenciada { UF = UF.MG, AnoMes = "2610", Cpf = "52998224725", InscricaoEstadual = "ISENTO", Modelo = ModeloNotaProdutor.NotaProdutor, Serie = 0, Numero = 11 },
-                    new CTeReferenciado { Chave = "31261011222333000181570010000001231123456780" },
+                    new CTeReferenciado { Chave = "31261011222333000181570010000001231123456781" },
                     new CupomFiscalReferenciado { Modelo = ModeloCupomFiscal.Ecf, NumeroEcf = 1, Coo = 123 },
                 },
             },

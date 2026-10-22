@@ -1,6 +1,6 @@
 # Regras do MOC e callbacks (fase 3)
 
-Desenho do motor de regras (`PROJETO.md` 6.2 e 6.3, etapa 3.1): onde as regras do leiaute e os callbacks de quem usa entram no caminho do `ExecutarAsync`, o que o núcleo ganha de público para isso e a forma do catálogo das rejeições. **Aprovado em 2026-10-22** (as doze decisões da seção 5, todas pela recomendação) e **implementado na mesma data** (etapa 3.1), com os ajustes da seção 9. O catálogo das rejeições está na seção 10.
+Desenho do motor de regras (`PROJETO.md` 6.2 e 6.3, etapa 3.1): onde as regras do leiaute e os callbacks de quem usa entram no caminho do `ExecutarAsync`, o que o núcleo ganha de público para isso e a forma do catálogo das rejeições. **Aprovado em 2026-10-22** (as doze decisões da seção 5, todas pela recomendação) e **implementado na mesma data** (etapa 3.1), com os ajustes da seção 9. O catálogo das rejeições está na seção 10; o lote de regras da etapa 3.2, com a decisão de ficar no schema mais um lote pequeno de regras, na seção 11.
 
 O critério é o do `CONTRATOS.md`: a menor superfície pública que atende as fases 3 a 8, fácil de estender em versão menor (`PROJETO.md` 12.3), com a regra de nomes sem preposição. As regras em si (a conta do total, o DV do CPF) ficam **internas** no leiaute; o público é só a costura no núcleo.
 
@@ -210,18 +210,17 @@ Baixadas em 2026-10-22: as NTs do Portal Nacional da NF-e (Documentos > Notas T�
 
 | Situação | Regras |
 |---|---|
-| lib | 0 |
-| a fazer (3.2) | 296 |
+| lib | 68 |
 | a fazer (3.3) | 70 |
 | a fazer (4.4) | 1 |
-| a fazer | 428 |
+| a fazer | 651 |
 | schema | 2 |
 | escrita | 16 |
 | SEFAZ | 177 |
 | SEFAZ (tabela) | 15 |
 | outra operação (4.4) | 7 |
 | outra operação (6) | 53 |
-| excluída | 3 |
+| excluída | 8 |
 | **total** | **1068** |
 
 ### 10.3. Regras gerais (Anexo I, 4.1)
@@ -263,7 +262,7 @@ Baixadas em 2026-10-22: as NTs do Portal Nacional da NF-e (Documentos > Notas T�
 | E07 | 55/65 | 295 | Obrig. | Certificado Assinatura difere ICP-Brasil | MOC 7.03 | SEFAZ |
 | F01 | 55/65 | 298 | Obrig. | Assinatura difere do padrão do Sistema | MOC 7.03 | escrita |
 | F02 | 55/65 | 297 | Obrig. | Assinatura difere do calculado | MOC 7.03 | escrita |
-| F03 | 55/65 | 227 | Obrig. | CPF do Emitente difere do CPF do Certificado Digital | MOC 7.03 | a fazer (3.2) |
+| F03 | 55/65 | 227 | Obrig. | CPF do Emitente difere do CPF do Certificado Digital | MOC 7.03 | a fazer |
 | GAP03a-1 | 55/65 | 764 | Obrig. | Solicitada resposta síncrona para Lote com mais de uma NF-e (indSinc=1) | MOC 7.03 | outra operação (4.4) |
 | GAP03a-2 | 55/65 | 776 | Facul. | Solicitada resposta síncrona para UF que não disponibiliza este atendimento(indSinc=1) | MOC 7.03 | outra operação (4.4) |
 
@@ -289,18 +288,18 @@ Baixadas em 2026-10-22: as NTs do Portal Nacional da NF-e (Documentos > Notas T�
 | B06-30 | 55 | 450 | Facul. | Modelo da NF-e diferente de 55 | MOC 7.03 | escrita |
 | B06-40 | 65 | 775 | Facul. | Modelo da NFC-e diferente de 65 | MOC 7.03 | escrita |
 | B07-10 | 65 | 450 | Obrig. | Modelo da NF-e diferente de 55 | NT 2026.001 v1.02b | a fazer (3.3) |
-| B09-10 | 55/65 | 703 | Obrig. | Data-Hora de Emissão posterior ao horário de recebimento | MOC 7.03 | a fazer (3.2) |
+| B09-10 | 55/65 | 703 | Obrig. | Data-Hora de Emissão posterior ao horário de recebimento | MOC 7.03 | lib (3.2) |
 | B09-20 | 55 | 228 | Obrig. | Data de Emissão muito atrasada | NT 2026.002 v1.11 | SEFAZ |
 | B09-30 | 55 | 315 | Obrig. | Data de Emissão anterior ao início da autorização de Nota Fiscal na UF | MOC 7.03 | SEFAZ |
-| B09-40 | 55/65 | 704 | Obrig. | NFC-e ou NF-e com DANFE Simplificado Tipo 2 com Data-Hora de emissão atrasada | NT 2026.002 v1.11 | a fazer (3.2) |
+| B09-40 | 55/65 | 704 | Obrig. | NFC-e ou NF-e com DANFE Simplificado Tipo 2 com Data-Hora de emissão atrasada | NT 2026.002 v1.11 | a fazer |
 | B09-50 | 65 | 315 | Obrig. | Data de Emissão anterior ao início da autorização de Nota Fiscal na UF | MOC 7.03 | SEFAZ |
 | B10-10 | 55/65 | 705 | Obrig. | NFC-e ou NF-e com DANFE Simplificado Tipo 2 com data de entrada/saída | NT 2026.002 v1.11 | a fazer |
-| B10-20 | 55 | 504 | Facul. | Data de Entrada/Saída posterior ao permitido | MOC 7.03 | a fazer (3.2) |
-| B10-30 | 55 | 505 | Facul. | Data de Entrada/Saída anterior ao permitido | MOC 7.03 | a fazer (3.2) |
-| B10-40 | 55 | 506 | Facul. | Data de Saída menor que a Data de Emissão | MOC 7.03 | a fazer (3.2) |
+| B10-20 | 55 | 504 | Facul. | Data de Entrada/Saída posterior ao permitido | MOC 7.03 | a fazer |
+| B10-30 | 55 | 505 | Facul. | Data de Entrada/Saída anterior ao permitido | MOC 7.03 | a fazer |
+| B10-40 | 55 | 506 | Facul. | Data de Saída menor que a Data de Emissão | MOC 7.03 | lib (3.2) |
 | B10a-10 | 65 | 1153 | Obrig. | NFC-e com data de previsão de entrega | NT 2025.002 v1.52 | a fazer (3.3) |
-| B10a-20 | 55 | 1154 | Obrig. | Data de previsão de entrega posterior ao permitido | NT 2025.002 v1.52 | a fazer (3.2) |
-| B10a-30 | 55 | 1155 | Obrig. | Data de previsão de entrega anterior ao permitido | NT 2025.002 v1.52 | a fazer (3.2) |
+| B10a-20 | 55 | 1154 | Obrig. | Data de previsão de entrega posterior ao permitido | NT 2025.002 v1.52 | a fazer |
+| B10a-30 | 55 | 1155 | Obrig. | Data de previsão de entrega anterior ao permitido | NT 2025.002 v1.52 | a fazer |
 | B10a-40 | 55 | 1156 | Obrig. | Data de previsão de entrega não permitida para a finalidade de emissão informada | NT 2025.002 v1.52 | a fazer |
 | B10a-50 | 55 | 1157 | Obrig. | Data de previsão de entrega não permitida para a modalidade de frete informada | NT 2025.002 v1.52 | a fazer |
 | B11-10 | 55/65 | 706 | Obrig. | NFC-e ou NF-e com DANFE Simplificado Tipo 2 para operação de entrada | NT 2026.002 v1.11 | a fazer |
@@ -315,7 +314,7 @@ Baixadas em 2026-10-22: as NTs do Portal Nacional da NF-e (Documentos > Notas T�
 | B22-34 | 65 | 714 | Facul. | NFC-e com contingência inválida (tpEmis=2, 4 (a critério da UF) ou 5) | MOC 7.03 | SEFAZ |
 | B22-60 | 55/65 | 713 | Obrig. | Tipo de Emissão diferente de 6 ou 7 para contingência da SVC acessada | MOC 7.03 | a fazer |
 | B22-70 | 65 | 783 | Obrig. | NFC-e não é autorizada pela SVC | MOC 7.03 | a fazer (3.3) |
-| B23-10 | 55/65 | 253 | Obrig. | Digito Verificador da chave de acesso composta inválida | MOC 7.03 | a fazer (3.2) |
+| B23-10 | 55/65 | 253 | Obrig. | Digito Verificador da chave de acesso composta inválida | MOC 7.03 | a fazer |
 | B24-10 | 55/65 | 252 | Obrig. | Ambiente informado diverge do Ambiente de recebimento | MOC 7.03 | SEFAZ |
 | B25.1-10 | 55 | 1139 | Obrig. | Tipo de nota de débito informado indevidamente | NT 2025.002 v1.52 | a fazer |
 | B25.1-20 | 55 | 1009 | Obrig. | Não informado tipo de nota de débito | NT 2025.002 v1.52 | a fazer |
@@ -358,59 +357,59 @@ Baixadas em 2026-10-22: as NTs do Portal Nacional da NF-e (Documentos > Notas T�
 | B26-50 | 65 | 957 | Obrig. | Tipo de emissão incompatível com o Processo de Emissão | NT 2023.002 v1.01 | a fazer (3.3) |
 | B28-10 | 55/65 | 556 | Obrig. | Justificativa de entrada em contingência não deve ser informada para tipo de emissão normal | MOC 7.03 | a fazer |
 | B28-20 | 55/65 | 557 | Obrig. | A Justificativa de entrada em contingência deve ser informada | MOC 7.03 | a fazer |
-| B28-30 | 55/65 | 558 | Facul. | Data de entrada em contingência posterior a data de recebimento | MOC 7.03 | a fazer (3.2) |
-| B28-40 | 55/65 | 569 | Facul. | Data de entrada em contingência muito atrasada | MOC 7.03 | a fazer (3.2) |
+| B28-30 | 55/65 | 558 | Facul. | Data de entrada em contingência posterior a data de recebimento | MOC 7.03 | a fazer |
+| B28-40 | 55/65 | 569 | Facul. | Data de entrada em contingência muito atrasada | MOC 7.03 | a fazer |
 
 #### Grupo BA: Documento Fiscal Referenciado
 
 | Regra | Modelo | Código | Aplic. | Mensagem | Fonte | Situação |
 |---|---|---|---|---|---|---|
 | BA01-10 | 55/65 | 708 | Obrig. | NFC-e ou NF-e com DANFE Simplificado Tipo 2 não pode referenciar documento fiscal | NT 2026.002 v1.11 | a fazer |
-| BA02-10 | 55 | 547 | Facul. | Chave de Acesso referenciada com Dígito Verificador inválido[nOcor:nnn] | MOC 7.03 | a fazer (3.2) |
-| BA02-14 | 55 | 522 | Facul. | Chave de Acesso referenciada com UF inválida[nOcor:nnn] | MOC 7.03 | a fazer (3.2) |
-| BA02-20 | 55 | 524 | Facul. | Chave de Acesso referenciada com Ano-Mês inválido[nOcor:nnn] | MOC 7.03 | a fazer (3.2) |
-| BA02-24 | 55 | 524 | Facul. | Chave de Acesso referenciada com Ano-Mês inválido[nOcor:nnn] | MOC 7.03 | a fazer (3.2) |
-| BA02-30 | 55 | 552 | Facul. | Chave de Acesso referenciada com CNPJ/CPF inválido [nOcor:nnn] | NT 2026.001 v1.02b | a fazer (3.2) |
-| BA02-34 | 55 | 679 | Facul. | Chave de Acesso referenciada com Modelo inválido[nOcor:nnn] | MOC 7.03 | a fazer (3.2) |
-| BA02-35 | 55 | 679 | Obrig. | Chave de Acesso referenciada com Modelo inválido [nOcor:nnn] | NT 2026.002 v1.11 | a fazer (3.2) |
-| BA02-40 | 55 | 683 | Facul. | Chave de Acesso referenciada com Número inválido[nOcor:nnn] | MOC 7.03 | a fazer (3.2) |
+| BA02-10 | 55 | 547 | Facul. | Chave de Acesso referenciada com Dígito Verificador inválido[nOcor:nnn] | MOC 7.03 | lib (3.2) |
+| BA02-14 | 55 | 522 | Facul. | Chave de Acesso referenciada com UF inválida[nOcor:nnn] | MOC 7.03 | a fazer |
+| BA02-20 | 55 | 524 | Facul. | Chave de Acesso referenciada com Ano-Mês inválido[nOcor:nnn] | MOC 7.03 | a fazer |
+| BA02-24 | 55 | 524 | Facul. | Chave de Acesso referenciada com Ano-Mês inválido[nOcor:nnn] | MOC 7.03 | a fazer |
+| BA02-30 | 55 | 552 | Facul. | Chave de Acesso referenciada com CNPJ/CPF inválido [nOcor:nnn] | NT 2026.001 v1.02b | a fazer |
+| BA02-34 | 55 | 679 | Facul. | Chave de Acesso referenciada com Modelo inválido[nOcor:nnn] | MOC 7.03 | a fazer |
+| BA02-35 | 55 | 679 | Obrig. | Chave de Acesso referenciada com Modelo inválido [nOcor:nnn] | NT 2026.002 v1.11 | a fazer |
+| BA02-40 | 55 | 683 | Facul. | Chave de Acesso referenciada com Número inválido[nOcor:nnn] | MOC 7.03 | a fazer |
 | BA02-44 | 55 | 680 | Facul. | Chave de Acesso referenciada em duplicidade na NF-e [nOcor:nnn] | MOC 7.03 | SEFAZ |
 | BA02-50 | 55 | 316 | Obrig. | Chave de Acesso referenciada com a mesma Chave de Acesso da Nota Fiscal atual [nOcor:nnn] | MOC 7.03 | a fazer |
-| BA02-60 | 55 | 953 | Facul. | Chave de Acesso referenciada com tipo de emissão inválido [nOcor:nnn] | NT 2022.003 v1.11 | a fazer (3.2) |
+| BA02-60 | 55 | 953 | Facul. | Chave de Acesso referenciada com tipo de emissão inválido [nOcor:nnn] | NT 2022.003 v1.11 | a fazer |
 | BA02-70 | 55 | 954 | Facul. | Chave de Acesso referenciada não permitida para esta operação[nOcor:nnn] | NT 2022.003 v1.11 | a fazer |
-| BA02-80 | 55 | 954 | Facul. | Chave de Acesso referenciada não permitida para esta operação[nOcor:nnn] | NT 2022.003 v1.11 | a fazer (3.2) |
+| BA02-80 | 55 | 954 | Facul. | Chave de Acesso referenciada não permitida para esta operação[nOcor:nnn] | NT 2022.003 v1.11 | a fazer |
 | BA02a-10 | 55 | 951 | Facul. | Chave de Acesso referenciada com código numérico zerado não permitida para finalidade diferente de normal | NT 2022.002 v1.30a | a fazer |
-| BA02a-20 | 55 | 522 | Facul. | Chave de Acesso referenciada com UF inválida[nOcor:nnn] | NT 2022.003 v1.11 | a fazer (3.2) |
-| BA02a-30 | 55 | 524 | Facul. | Chave de Acesso referenciada com Ano-Mês inválido[nOcor:nnn] | NT 2022.003 v1.11 | a fazer (3.2) |
-| BA02a-40 | 55 | 524 | Facul. | Chave de Acesso referenciada com Ano-Mês inválido[nOcor:nnn] | NT 2022.003 v1.11 | a fazer (3.2) |
-| BA02a-50 | 55 | 552 | Facul. | Chave de Acesso referenciada com CNPJ/CPF inválido [nOcor:nnn] | NT 2026.001 v1.02b | a fazer (3.2) |
-| BA02a-60 | 55 | 679 | Facul. | Chave de Acesso referenciada com Modelo inválido[nOcor:nnn] | NT 2022.003 v1.11 | a fazer (3.2) |
-| BA02a-70 | 55 | 683 | Facul. | Chave de Acesso referenciada com Número inválido[nOcor:nnn] | NT 2022.003 v1.11 | a fazer (3.2) |
+| BA02a-20 | 55 | 522 | Facul. | Chave de Acesso referenciada com UF inválida[nOcor:nnn] | NT 2022.003 v1.11 | a fazer |
+| BA02a-30 | 55 | 524 | Facul. | Chave de Acesso referenciada com Ano-Mês inválido[nOcor:nnn] | NT 2022.003 v1.11 | a fazer |
+| BA02a-40 | 55 | 524 | Facul. | Chave de Acesso referenciada com Ano-Mês inválido[nOcor:nnn] | NT 2022.003 v1.11 | a fazer |
+| BA02a-50 | 55 | 552 | Facul. | Chave de Acesso referenciada com CNPJ/CPF inválido [nOcor:nnn] | NT 2026.001 v1.02b | a fazer |
+| BA02a-60 | 55 | 679 | Facul. | Chave de Acesso referenciada com Modelo inválido[nOcor:nnn] | NT 2022.003 v1.11 | a fazer |
+| BA02a-70 | 55 | 683 | Facul. | Chave de Acesso referenciada com Número inválido[nOcor:nnn] | NT 2022.003 v1.11 | a fazer |
 | BA02a-74 | 55 | 955 | Facul. | Chave de Acesso referenciada com código numérico não zerado [nOcor:nnn] | NT 2022.003 v1.11 | a fazer |
 | BA02a-80 | 55 | 680 | Facul. | Chave de Acesso referenciada em duplicidade na NF-e [nOcor:nnn] | NT 2022.003 v1.11 | SEFAZ |
 | BA02a-90 | 55 | 680 | Facul. | Chave de Acesso referenciada em duplicidade na NF-e [nOcor:nnn] | NT 2022.003 v1.11 | SEFAZ |
 | BA02a-100 | 55 | 952 | Facul. | Chave de Acesso referenciada com a mesma Chave Natural da Nota Fiscal atual [nOcor:nnn] | NT 2022.003 v1.11 | a fazer |
-| BA02a-110 | 55 | 953 | Facul. | Chave de Acesso referenciada com tipo de emissão inválido [nOcor:nnn] | NT 2022.003 v1.11 | a fazer (3.2) |
+| BA02a-110 | 55 | 953 | Facul. | Chave de Acesso referenciada com tipo de emissão inválido [nOcor:nnn] | NT 2022.003 v1.11 | a fazer |
 | BA02a-120 | 55 | 956 | Facul. | Chave de Acesso referenciada com código numérico zerado não permitida na UF [nOcor:nnn] | NT 2022.003 v1.11 | a fazer |
 | BA03-10 | 55 | 681 | Obrig. | Proibido informar NF referenciada [nOcor: nnn] | NT 2026.002 v1.11 | SEFAZ |
-| BA05-10 | 55 | 317 | Facul. | NF modelo 1 referenciada com data de emissão inválida [nOcor:nnn] | NT 2026.002 v1.11 | a fazer (3.2) |
-| BA06-10 | 55 | 548 | Facul. | NF modelo 1 referenciada com data de emissão inválida [nOcor:nnn] | NT 2026.002 v1.11 | a fazer (3.2) |
+| BA05-10 | 55 | 317 | Facul. | NF modelo 1 referenciada com data de emissão inválida [nOcor:nnn] | NT 2026.002 v1.11 | excluída |
+| BA06-10 | 55 | 548 | Facul. | NF modelo 1 referenciada com data de emissão inválida [nOcor:nnn] | NT 2026.002 v1.11 | excluída |
 | BA10-10 | 55 | 682 | Obrig. | Proibido referenciar NF de Produtor [nOcor: 999] | NT 2026.002 v1.11 | SEFAZ |
 | BA10-20 | 55 | 318 | Facul. | Contranota de Produtor sem Nota Fiscal referenciada | NT 2026.002 v1.11 | a fazer |
 | BA10-30 | 55 | 319 | Facul. | Contranota de Produtor não pode referenciar somente Nota Fiscal de entrada | NT 2026.002 v1.11 | a fazer |
 | BA10-40 | 55 | 320 | Facul. | Contranota de Produtor referencia somente NF de outro emitente | NT 2026.002 v1.11 | a fazer |
 | BA10-50 | 55 | 922 | Facul. | Contranota de Produtor só pode referenciar NF-e ou NF de Produtor Modelo 4 | NT 2026.002 v1.11 | a fazer |
-| BA12-10 | 55 | 322 | Facul. | NF de produtor referenciada com data de emissão inválida [nOcor:nnn] | NT 2026.002 v1.11 | a fazer (3.2) |
-| BA13-10 | 55 | 549 | Facul. | CNPJ da NF referenciada de produtor inválido [nOcor: 999] | NT 2026.002 v1.11 | a fazer (3.2) |
-| BA14-10 | 55 | 550 | Facul. | CPF da NF referenciada de produtor inválido [nOcor: 999] | NT 2026.002 v1.11 | a fazer (3.2) |
+| BA12-10 | 55 | 322 | Facul. | NF de produtor referenciada com data de emissão inválida [nOcor:nnn] | NT 2026.002 v1.11 | excluída |
+| BA13-10 | 55 | 549 | Facul. | CNPJ da NF referenciada de produtor inválido [nOcor: 999] | NT 2026.002 v1.11 | excluída |
+| BA14-10 | 55 | 550 | Facul. | CPF da NF referenciada de produtor inválido [nOcor: 999] | NT 2026.002 v1.11 | excluída |
 | BA15-10 | 55 | 551 | Facul. | IE da NF referenciada de produtor inválido | NT 2026.002 v1.11 | a fazer |
-| BA19-10 | 55 | 547 | Facul. | Chave de Acesso referenciada com Dígito Verificador inválido[nOcor:nnn] | MOC 7.03 | a fazer (3.2) |
-| BA19-14 | 55 | 522 | Facul. | Chave de Acesso referenciada com UF inválida[nOcor:nnn] | MOC 7.03 | a fazer (3.2) |
-| BA19-20 | 55 | 524 | Facul. | Chave de Acesso referenciada com Ano-Mês inválido[nOcor:nnn] | MOC 7.03 | a fazer (3.2) |
-| BA19-24 | 55 | 524 | Facul. | Chave de Acesso referenciada com Ano-Mês inválido [nOcor: 999] | MOC 7.03 | a fazer (3.2) |
-| BA19-30 | 55 | 552 | Facul. | Chave de Acesso referenciada com CNPJ inválido[nOcor:nnn] | MOC 7.03 | a fazer (3.2) |
-| BA19-34 | 55 | 679 | Facul. | Chave de Acesso referenciada com Modelo inválido[nOcor:nnn] | MOC 7.03 | a fazer (3.2) |
-| BA19-40 | 55 | 683 | Facul. | Chave de Acesso referenciada com Número inválido[nOcor:nnn] | MOC 7.03 | a fazer (3.2) |
+| BA19-10 | 55 | 547 | Facul. | Chave de Acesso referenciada com Dígito Verificador inválido[nOcor:nnn] | MOC 7.03 | lib (3.2) |
+| BA19-14 | 55 | 522 | Facul. | Chave de Acesso referenciada com UF inválida[nOcor:nnn] | MOC 7.03 | a fazer |
+| BA19-20 | 55 | 524 | Facul. | Chave de Acesso referenciada com Ano-Mês inválido[nOcor:nnn] | MOC 7.03 | a fazer |
+| BA19-24 | 55 | 524 | Facul. | Chave de Acesso referenciada com Ano-Mês inválido [nOcor: 999] | MOC 7.03 | a fazer |
+| BA19-30 | 55 | 552 | Facul. | Chave de Acesso referenciada com CNPJ inválido[nOcor:nnn] | MOC 7.03 | a fazer |
+| BA19-34 | 55 | 679 | Facul. | Chave de Acesso referenciada com Modelo inválido[nOcor:nnn] | MOC 7.03 | a fazer |
+| BA19-40 | 55 | 683 | Facul. | Chave de Acesso referenciada com Número inválido[nOcor:nnn] | MOC 7.03 | a fazer |
 | BA19-44 | 55 | 680 | Facul. | Chave de Acesso referenciada em duplicidade na NF-e [nOcor:nnn] | MOC 7.03 | SEFAZ |
 | BA20-10 | 55 | 684 | Facul. | Duplicidade de Cupom Fiscal referenciado (Modelo, Número de Ordem e COO) [nOcor: 999] | NT 2026.002 v1.11 | SEFAZ |
 | BA20-20 | 55 | 923 | Facul. | Referenciado documento de operação interna em operação interestadual. [nOcor: 999] | NT 2026.002 v1.11 | a fazer |
@@ -421,23 +420,23 @@ Baixadas em 2026-10-22: as NTs do Portal Nacional da NF-e (Documentos > Notas T�
 | Regra | Modelo | Código | Aplic. | Mensagem | Fonte | Situação |
 |---|---|---|---|---|---|---|
 | BB01-10 | 65 | 1006 | Obrig. | NFCe com grupo de compra governamental | NT 2025.002 v1.52 | a fazer (3.3) |
-| BB02-10 | 55 | 1008 | Obrig. | Nota de compra governamental e alíquota dos outros entes informada incorretamente | NT 2025.002 v1.52 | a fazer (3.2) |
+| BB02-10 | 55 | 1008 | Obrig. | Nota de compra governamental e alíquota dos outros entes informada incorretamente | NT 2025.002 v1.52 | a fazer |
 | BB05-10 | 55 | 1195 | Obrig. | Referenciado indevidamente DFe anterior em operação com ente governamental na operação de fornecimento com pagamento posterior | NT 2025.002 v1.52 | a fazer |
 | BB05-20 | 55 | 1196 | Obrig. | Não referenciado DFe anterior em operação com ente governamental na operação de recebimento do pagamento com fornecimento já realizado | NT 2025.002 v1.52 | a fazer |
 | BB05-30 | 55 | 1197 | Obrig. | Referenciado mais de um DFe anterior em operação com ente governamental na operação de recebimento do pagamento com fornecimento já realizado | NT 2025.002 v1.52 | a fazer |
 | BB05-40 | 55 | 1198 | Obrig. | Não referenciado DFe anterior em operação com ente governamental na operação de fornecimento com pagamento já realizado | NT 2025.002 v1.52 | a fazer |
 | BB05-50 | 55 | 1199 | Obrig. | Referenciado indevidamente DFe anterior em operação com ente governamental na operação de recebimento do pagamento com fornecimento posterior | NT 2025.002 v1.52 | a fazer |
-| BB05-60 | 55 | 1203 | Obrig. | DFe referenciado em operação com ente governamental com tamanho inválido [nOcor:nnn] | NT 2025.002 v1.52 | a fazer (3.2) |
-| BB05-70 | 55 | 1204 | Obrig. | DFe referenciado em operação com ente governamental com Dígito Verificador inválido [nOcor:nnn] | NT 2025.002 v1.52 | a fazer (3.2) |
-| BB05-80 | 55 | 1205 | Obrig. | DFe referenciado em operação com ente governamental com UF inválida [nOcor:nnn] | NT 2025.002 v1.52 | a fazer (3.2) |
-| BB05-90 | 55 | 1206 | Obrig. | DFe referenciado em operação com ente governamental com Ano inválido [nOcor:nnn] | NT 2025.002 v1.52 | a fazer (3.2) |
-| BB05-100 | 55 | 1207 | Obrig. | DFe referenciado em operação com ente governamental com Mês inválido [nOcor:nnn] | NT 2025.002 v1.52 | a fazer (3.2) |
-| BB05-110 | 55 | 1208 | Obrig. | DFe referenciado em operação com ente governamental com CNPJ/CPF inválido [nOcor:nnn] | NT 2025.002 v1.52 | a fazer (3.2) |
-| BB05-120 | 55 | 1209 | Obrig. | DFe referenciado em operação com ente governamental com Modelo inválido [nOcor:nnn] | NT 2025.002 v1.52 | a fazer (3.2) |
-| BB05-130 | 55 | 1210 | Obrig. | DFe referenciado em operação com ente governamental com Número inválido [nOcor:nnn] | NT 2025.002 v1.52 | a fazer (3.2) |
+| BB05-60 | 55 | 1203 | Obrig. | DFe referenciado em operação com ente governamental com tamanho inválido [nOcor:nnn] | NT 2025.002 v1.52 | a fazer |
+| BB05-70 | 55 | 1204 | Obrig. | DFe referenciado em operação com ente governamental com Dígito Verificador inválido [nOcor:nnn] | NT 2025.002 v1.52 | lib (3.2) |
+| BB05-80 | 55 | 1205 | Obrig. | DFe referenciado em operação com ente governamental com UF inválida [nOcor:nnn] | NT 2025.002 v1.52 | a fazer |
+| BB05-90 | 55 | 1206 | Obrig. | DFe referenciado em operação com ente governamental com Ano inválido [nOcor:nnn] | NT 2025.002 v1.52 | a fazer |
+| BB05-100 | 55 | 1207 | Obrig. | DFe referenciado em operação com ente governamental com Mês inválido [nOcor:nnn] | NT 2025.002 v1.52 | a fazer |
+| BB05-110 | 55 | 1208 | Obrig. | DFe referenciado em operação com ente governamental com CNPJ/CPF inválido [nOcor:nnn] | NT 2025.002 v1.52 | a fazer |
+| BB05-120 | 55 | 1209 | Obrig. | DFe referenciado em operação com ente governamental com Modelo inválido [nOcor:nnn] | NT 2025.002 v1.52 | a fazer |
+| BB05-130 | 55 | 1210 | Obrig. | DFe referenciado em operação com ente governamental com Número inválido [nOcor:nnn] | NT 2025.002 v1.52 | a fazer |
 | BB05-140 | 55 | 1211 | Obrig. | DFe referenciado em operação com ente governamental em duplicidade [nOcor:nnn] | NT 2025.002 v1.52 | SEFAZ |
 | BB05-150 | 55 | 1212 | Obrig. | DFe referenciado em operação com ente governamental com a mesma Chave de Acesso da Nota Fiscal atual [nOcor:nnn] | NT 2025.002 v1.52 | a fazer |
-| BB05-160 | 55 | 1213 | Obrig. | DFe referenciado em operação com ente governamental com tipo de emissão inválido [nOcor:nnn] | NT 2025.002 v1.52 | a fazer (3.2) |
+| BB05-160 | 55 | 1213 | Obrig. | DFe referenciado em operação com ente governamental com tipo de emissão inválido [nOcor:nnn] | NT 2025.002 v1.52 | a fazer |
 | BB05-170 | 55 | 1214 | Obrig. | DFe referenciado em operação com ente governamental deve existir e não estar cancelada [nOcor:nnn] | NT 2025.002 v1.52 | SEFAZ |
 | BB05-180 | 55 | 1215 | Obrig. | DFe referenciado em operação com ente governamental deve possuir o mesmo CNPJ base ou CPF do emitente do documento [nOcor:nnn] | NT 2025.002 v1.52 | a fazer |
 | BB05-190 | 55 | 1216 | Obrig. | DFe referenciado em operação com ente governamental deve ser de fornecimento com pagamento posterior [nOcor:nnn] | NT 2025.002 v1.52 | a fazer |
@@ -447,14 +446,14 @@ Baixadas em 2026-10-22: as NTs do Portal Nacional da NF-e (Documentos > Notas T�
 
 | Regra | Modelo | Código | Aplic. | Mensagem | Fonte | Situação |
 |---|---|---|---|---|---|---|
-| C02-10 | 55/65 | 207 | Obrig. | CNPJ do emitente inválido | MOC 7.03 | a fazer (3.2) |
+| C02-10 | 55/65 | 207 | Obrig. | CNPJ do emitente inválido | MOC 7.03 | lib (3.2) |
 | C02-20 | 55/65 | 560 | Facul. | CNPJ base/CPFdo emitente difere do CNPJ base/CPFda primeira NF-e do lote recebido | MOC 7.03 | outra operação (4.4) |
 | C02-30 | 55/65 | 503 | Obrig. | CNPJ do emitente com Série incompatível | NT 2026.001 v1.02b | a fazer |
 | C02a-04 | 65 | 337 | Obrig. | NFC-e para emitente pessoa física | NT 2021.002 v1.12 | a fazer (3.3) |
 | C02a-08 | 55 | 652 | Obrig. | NF-e para emitente pessoa física | NT 2022.003 v1.11 | a fazer |
 | C02a-10 | 55/65 | 495 | Obrig. | CPF do Emitente com Série incompatível | NT 2026.001 v1.02b | a fazer |
 | C02a-14 | 55 | 407 | Obrig. | CPF do Emitente somente no serviço de Nota Fiscal Avulsa no site do Fisco | NT 2021.002 v1.12 | a fazer |
-| C02a-20 | 55/65 | 401 | Obrig. | CPF do emitente inválido | NT 2023.002 v1.01 | a fazer (3.2) |
+| C02a-20 | 55/65 | 401 | Obrig. | CPF do emitente inválido | NT 2023.002 v1.01 | lib (3.2) |
 | C02a-30 | 55/65 | 560 | Facul. | CNPJ Base/CPF do emitente difere do CNPJ Base/CPF da primeira NF-e do lote recebido | NT 2023.002 v1.01 | outra operação (4.4) |
 | C10-10 | 55/65 | 272 | Obrig. | Código Município do Emitente inexistente | MOC 7.03 | SEFAZ (tabela) |
 | C10-20 | 55/65 | 273 | Obrig. | Código Município do Emitente: difere da UF do emitente | MOC 7.03 | a fazer |
@@ -489,10 +488,10 @@ Baixadas em 2026-10-22: as NTs do Portal Nacional da NF-e (Documentos > Notas T�
 |---|---|---|---|---|---|---|
 | E01-10 | 55 | 719 | Obrig. | NF-e sem a identificação do destinatário | MOC 7.03 | a fazer |
 | E01-20 | 55/65 | 787 | Obrig. | NFC-e ou NF-e com DANFE Simplificado Tipo 2 (tag:tpImp=6) em operação não presencial sem a identificação do destinatário | NT 2026.002 v1.11 | a fazer |
-| E02-10 | 55/65 | 208 | Obrig. | CNPJ do destinatário inválido | MOC 7.03 | a fazer (3.2) |
+| E02-10 | 55/65 | 208 | Obrig. | CNPJ do destinatário inválido | MOC 7.03 | lib (3.2) |
 | E02-20 | 65 | 220 | Obrig. | Destinatário com identificação igual à identificação do emitente | MOC 7.03 | a fazer (3.3) |
-| E03-10 | 55/65 | 237 | Obrig. | CPF do destinatário inválido | MOC 7.03 | a fazer (3.2) |
-| E03a-10 | 55 | 720 | Obrig. | Na operação com Exterior deve ser informada tag idEstrangeiro | NT 2022.002 v1.30a | a fazer (3.2) |
+| E03-10 | 55/65 | 237 | Obrig. | CPF do destinatário inválido | MOC 7.03 | lib (3.2) |
+| E03a-10 | 55 | 720 | Obrig. | Na operação com Exterior deve ser informada tag idEstrangeiro | NT 2022.002 v1.30a | a fazer |
 | E03a-20 | 55 | 721 | Obrig. | Informado idEstrangeiro e Operação não é com consumidor final | MOC 7.03 | a fazer |
 | E03a-30 | 55/65 | 925 | Obrig. | NF-e com identificação de estrangeiro e inscrição estadual informada para destinatário | NT 2019.001 v1.70 | a fazer |
 | E03a-60 | 55/65 | 372 | Obrig. | Destinatário com identificação de estrangeiro com caracteres inválidos | MOC 7.03 | a fazer |
@@ -503,25 +502,25 @@ Baixadas em 2026-10-22: as NTs do Portal Nacional da NF-e (Documentos > Notas T�
 | E10-10 | 55/65 | 274 | Obrig. | Código Município do Destinatário inexistente | MOC 7.03 | SEFAZ (tabela) |
 | E10-20 | 55/65 | 275 | Obrig. | Código Município do Destinatário: difere da UF do Destinatário | MOC 7.03 | a fazer |
 | E10-30 | 55 | 509 | Obrig. | Informado código de município diferente de “9999999” para operação com o exterior | MOC 7.03 | a fazer |
-| E12-10 | 55 | 727 | Obrig. | Operação com Exterior e UF diferente de EX | NT 2022.002 v1.30a | a fazer (3.2) |
+| E12-10 | 55 | 727 | Obrig. | Operação com Exterior e UF diferente de EX | NT 2022.002 v1.30a | a fazer |
 | E12-30 | 55 | 772 | Obrig. | Operação Interestadual e UF de destino igual à UF de origem | MOC 7.03 | a fazer |
 | E12-40 | 55 | 773 | Obrig. | Operação Interna e UF de destino difere da UF de origem | MOC 7.03 | a fazer |
 | E12-50 | 55 | 772 | Obrig. | Operação Interestadual e UF de destino igual à UFde origem | MOC 7.03 | a fazer |
 | E12-60 | 55 | 773 | Obrig. | Operação Interna e UF de destino difere da UF de origem | MOC 7.03 | a fazer |
 | E14-04 | 55/65 | 377 | Obrig. | Código de País do destinatário inexistente | MOC 7.03 | a fazer |
-| E14-10 | 55 | 510 | Facul. | Operação com Exterior e Código País destinatário é 1058 (Brasil) ou não informado | NT 2022.002 v1.30a | a fazer (3.2) |
+| E14-10 | 55 | 510 | Facul. | Operação com Exterior e Código País destinatário é 1058 (Brasil) ou não informado | NT 2022.002 v1.30a | a fazer |
 | E14-20 | 55/65 | 511 | Facul. | Não é de Operação com Exterior e Código País destinatário difere de 1058 (Brasil) | MOC 7.03 | a fazer |
 | E14-30 | 55/65 | 926 | Obrig. | Operação com Exterior e país de destino igual a Brasil | NT 2019.001 v1.70 | a fazer |
 | E16a-10 | 65 | 789 | Obrig. | NFC-e para destinatário contribuinte de ICMS | MOC 7.03 | a fazer (3.3) |
-| E16a-20 | 55 | 790 | Obrig. | Operação com Exterior para destinatário Contribuinte de ICMS | NT 2022.002 v1.30a | a fazer (3.2) |
-| E16a-30 | 55 | 805 | Obrig. | A SEFAZ do destinatário não permite Contribuinte Isento de Inscrição Estadual | NT 2025.001 v1.03 | a fazer (3.2) |
-| E16a-35 | 55 | 805 | Facul. | A SEFAZ do destinatário não permite Contribuinte Isento de IE | NT 2025.001 v1.03 | a fazer (3.2) |
-| E16a-40 | 55 | 696 | Obrig. | Operação com não contribuinte deve indicar operação com consumidor final | NT 2019.001 v1.70 | a fazer (3.2) |
+| E16a-20 | 55 | 790 | Obrig. | Operação com Exterior para destinatário Contribuinte de ICMS | NT 2022.002 v1.30a | a fazer |
+| E16a-30 | 55 | 805 | Obrig. | A SEFAZ do destinatário não permite Contribuinte Isento de Inscrição Estadual | NT 2025.001 v1.03 | a fazer |
+| E16a-35 | 55 | 805 | Facul. | A SEFAZ do destinatário não permite Contribuinte Isento de IE | NT 2025.001 v1.03 | a fazer |
+| E16a-40 | 55 | 696 | Obrig. | Operação com não contribuinte deve indicar operação com consumidor final | NT 2019.001 v1.70 | lib (3.2) |
 | E17-10 | 65 | 729 | Obrig. | NFC-e com informação da IE do destinatário | MOC 7.03 | a fazer (3.3) |
-| E17-20 | 55 | 728 | Obrig. | NF-e sem informação da IE do destinatário | MOC 7.03 | a fazer (3.2) |
-| E17-30 | 55 | 791 | Obrig. | NF-e com indicação de destinatário isento de IE, com a informação da IE do destinatário | MOC 7.03 | a fazer (3.2) |
-| E17-40 | 55 | 792 | Obrig. | Informada a IE do destinatário para operação com destinatário no Exterior | MOC 7.03 | a fazer (3.2) |
-| E17-50 | 55 | 210 | Obrig. | IE do destinatário inválida | MOC 7.03 | a fazer (3.2) |
+| E17-20 | 55 | 728 | Obrig. | NF-e sem informação da IE do destinatário | MOC 7.03 | lib (3.2) |
+| E17-30 | 55 | 791 | Obrig. | NF-e com indicação de destinatário isento de IE, com a informação da IE do destinatário | MOC 7.03 | lib (3.2) |
+| E17-40 | 55 | 792 | Obrig. | Informada a IE do destinatário para operação com destinatário no Exterior | MOC 7.03 | lib (3.2) |
+| E17-50 | 55 | 210 | Obrig. | IE do destinatário inválida | MOC 7.03 | a fazer |
 | E18-10 | 65 | 730 | Obrig. | NFC-e com Inscrição Suframa | MOC 7.03 | a fazer (3.3) |
 | E18-20 | 55 | 235 | Obrig. | Inscrição SUFRAMA inválida | MOC 7.03 | a fazer |
 | E18-30 | 55 | 251 | Obrig. | UF/Município destinatário não pertence a SUFRAMA | NT 2025.002 v1.52 | a fazer |
@@ -531,8 +530,8 @@ Baixadas em 2026-10-22: as NTs do Portal Nacional da NF-e (Documentos > Notas T�
 | Regra | Modelo | Código | Aplic. | Mensagem | Fonte | Situação |
 |---|---|---|---|---|---|---|
 | F01-10 | 55/65 | 669 | Obrig. | Local de retirada informado indevidamente | NT 2026.002 v1.11 | a fazer |
-| F02-10 | 55/65 | 512 | Facul. | CNPJ do Local de Retirada inválido | MOC 7.03 | a fazer (3.2) |
-| F02a-10 | 55/65 | 540 | Facul. | CPF do Local de Retirada inválido | MOC 7.03 | a fazer (3.2) |
+| F02-10 | 55/65 | 512 | Facul. | CNPJ do Local de Retirada inválido | MOC 7.03 | lib (3.2) |
+| F02a-10 | 55/65 | 540 | Facul. | CPF do Local de Retirada inválido | MOC 7.03 | lib (3.2) |
 | F03 | 55/65 | 213 | Obrig. | CNPJ-Base do Emitente difere do CNPJ-Base do Certificado Digital | NT 2026.001 v1.02b | SEFAZ |
 | F03A | 55/65 | 227 | Obrig. | CPF do Emitente difere do CPF do Certificado Digital | NT 2021.002 v1.12 | a fazer |
 | F07-10 | 55/65 | 513 | Obrig. | Código Município do Local de Retirada deve ser 9999999 para UF retirada = “EX” | MOC 7.03 | a fazer |
@@ -546,8 +545,8 @@ Baixadas em 2026-10-22: as NTs do Portal Nacional da NF-e (Documentos > Notas T�
 | Regra | Modelo | Código | Aplic. | Mensagem | Fonte | Situação |
 |---|---|---|---|---|---|---|
 | G01-10 | 55/65 | 670 | Obrig. | Local de entrega informado indevidamente | NT 2026.002 v1.11 | a fazer |
-| G02-10 | 55/65 | 514 | Facul. | CNPJ do Local de Entrega inválido | MOC 7.03 | a fazer (3.2) |
-| G02a-10 | 55/65 | 541 | Facul. | CPF do Local de Entrega inválido | MOC 7.03 | a fazer (3.2) |
+| G02-10 | 55/65 | 514 | Facul. | CNPJ do Local de Entrega inválido | MOC 7.03 | lib (3.2) |
+| G02a-10 | 55/65 | 541 | Facul. | CPF do Local de Entrega inválido | MOC 7.03 | lib (3.2) |
 | G07-10 | 55/65 | 515 | Obrig. | Código Município do Local de Entrega deve ser 9999999 para UF entrega = “EX” | MOC 7.03 | a fazer |
 | G07-20 | 55/65 | 278 | Obrig. | Código Município do Local de Entrega inexistente | MOC 7.03 | SEFAZ (tabela) |
 | G07-30 | 55/65 | 279 | Obrig. | Código Município do Local de Entrega: difere da UF do Local de Entrega | MOC 7.03 | a fazer |
@@ -558,9 +557,9 @@ Baixadas em 2026-10-22: as NTs do Portal Nacional da NF-e (Documentos > Notas T�
 
 | Regra | Modelo | Código | Aplic. | Mensagem | Fonte | Situação |
 |---|---|---|---|---|---|---|
-| GA02-10 | 55/65 | 323 | Obrig. | CNPJ autorizado para download inválido | MOC 7.03 | a fazer (3.2) |
+| GA02-10 | 55/65 | 323 | Obrig. | CNPJ autorizado para download inválido | MOC 7.03 | lib (3.2) |
 | GA02-20 | 55/65 | 324 | Obrig. | CNPJ do destinatário já autorizado para download | MOC 7.03 | SEFAZ |
-| GA03-10 | 55/65 | 325 | Obrig. | CPF autorizado para download inválido | MOC 7.03 | a fazer (3.2) |
+| GA03-10 | 55/65 | 325 | Obrig. | CPF autorizado para download inválido | MOC 7.03 | lib (3.2) |
 | GA03-20 | 55/65 | 326 | Obrig. | CPF do destinatário já autorizado para download | MOC 7.03 | SEFAZ |
 
 #### Grupo H: Detalhamento Produtos e Serviços
@@ -583,7 +582,7 @@ Baixadas em 2026-10-22: as NTs do Portal Nacional da NF-e (Documentos > Notas T�
 | I05-30 | 65 | 779 | Obrig. | NFC-e com NCM incompatível [nItem:999] | MOC 7.03 | a fazer (3.3) |
 | I05c-10 | 55/65 | 446 | Obrig. | Informado CEST inexistente [nItem:999] | NT 2020.005 v1.21 | SEFAZ (tabela) |
 | I05e-10 | 55/65 | 879 | Obrig. | Informado item “Produzido em Escala NÃO Relevante”e não informado CNPJ do Fabricante [nItem:999] | MOC 7.03 | a fazer |
-| I05e-20 | 55/65 | 489 | Obrig. | CNPJ informado inválido (DV ou zeros) [nItem:999] | MOC 7.03 | a fazer (3.2) |
+| I05e-20 | 55/65 | 489 | Obrig. | CNPJ informado inválido (DV ou zeros) [nItem:999] | MOC 7.03 | lib (3.2) |
 | I05f-10 | 55/65 | 928 | Facul. | Informado código de benefício fiscal para CST sem benefício fiscal [nItem: nnn] | NT 2019.001 v1.70 | a fazer |
 | I05f-20 | 55/65 | 931 | Facul. | CST não corresponde ao tipo de código de benefício fiscal [nItem: nnn] | NT 2019.001 v1.70 | SEFAZ |
 | I05f-30 | 55/65 | 934 | Facul. | Não informado valor do ICMS desonerado ou o Motivo de desoneração [nItem: nnn] | NT 2019.001 v1.70 | a fazer |
@@ -595,18 +594,18 @@ Baixadas em 2026-10-22: as NTs do Portal Nacional da NF-e (Documentos > Notas T�
 | I08-04 | 55/65 | 770 | Obrig. | CFOP Inexistente [nItem:nnn] | MOC 7.03 | a fazer |
 | I08-10 | 55 | 518 | Facul. | CFOP de entrada para NF-e de saída | MOC 7.03 | a fazer |
 | I08-20 | 55 | 519 | Facul. | CFOP de saída para NF-e de entrada | MOC 7.03 | a fazer |
-| I08-30 | 55 | 731 | Obrig. | CFOP de operação com Exterior e idDest <> 3 | MOC 7.03 | a fazer (3.2) |
-| I08-40 | 55 | 732 | Obrig. | CFOP de operação interestadual e idDest <> 2 | MOC 7.03 | a fazer (3.2) |
-| I08-50 | 55 | 733 | Obrig. | CFOP de operação interna e idDest <> 1 | MOC 7.03 | a fazer (3.2) |
+| I08-30 | 55 | 731 | Obrig. | CFOP de operação com Exterior e idDest <> 3 | MOC 7.03 | lib (3.2) |
+| I08-40 | 55 | 732 | Obrig. | CFOP de operação interestadual e idDest <> 2 | MOC 7.03 | lib (3.2) |
+| I08-50 | 55 | 733 | Obrig. | CFOP de operação interna e idDest <> 1 | MOC 7.03 | lib (3.2) |
 | I08-60 | 55 | 520 | Facul. | CFOP de Operação com Exterior e UF destinatário difere de “EX” | MOC 7.03 | a fazer |
-| I08-70 | 55 | 521 | Facul. | Operação Interna e UF do emitente difere da UF do destinatário/remetente contribuinte do ICMS | MOC 7.03 | a fazer (3.2) |
+| I08-70 | 55 | 521 | Facul. | Operação Interna e UF do emitente difere da UF do destinatário/remetente contribuinte do ICMS | MOC 7.03 | a fazer |
 | I08-90 | 55 | 523 | Facul. | CFOP não é de Operação Estadual e UF emitente igual à UF destinatário [nItem: 999] | NT 2020.006 v1.31 | a fazer |
-| I08-94 | 55 | 771 | Facul. | Informado idEstrangeiro em operação interestadual | NT 2024.003 v1.10 | a fazer (3.2) |
+| I08-94 | 55 | 771 | Facul. | Informado idEstrangeiro em operação interestadual | NT 2024.003 v1.10 | a fazer |
 | I08-110 | 55 | 525 | Facul. | CFOP de Importação e não informado dados da DI [nItem:999] | MOC 7.03 | a fazer |
 | I08-120 | 55 | 597 | Facul. | CFOP de Importação e não informado dados de IPI | MOC 7.03 | a fazer |
 | I08-130 | 55 | 599 | Facul. | CFOP de Importação e não informado dados de II [nItem:999] | MOC 7.03 | a fazer |
 | I08-140 | 55 | 327 | Obrig. | CFOP inválido para Nota Fiscal de devolução ou de retorno de mercadoria [nItem:nnn] | NT 2025.002 v1.52 | a fazer |
-| I08-141 | 55 | 1179 | Obrig. | CFOP inválido para Nota Fiscal de devolução ou de retorno de mercadoria emitida por MEI [nItem:nnn] | NT 2025.002 v1.52 | a fazer (3.2) |
+| I08-141 | 55 | 1179 | Obrig. | CFOP inválido para Nota Fiscal de devolução ou de retorno de mercadoria emitida por MEI [nItem:nnn] | NT 2025.002 v1.52 | a fazer |
 | I08-144 | 55 | 328 | Obrig. | CFOP de devolução de mercadoria para NF-e que não é de devolução ou de retorno de mercadoria [nItem:nnn] | NT 2025.002 v1.52 | a fazer |
 | I08-150 | 55/65 | 725 | Obrig. | NFC-e ou NF-e com DANFE Simplificado Tipo 2 com CFOP inválido[nItem:nnn] | NT 2026.002 v1.11 | a fazer |
 | I08-160 | 55/65 | 374 | Obrig. | CFOP incompatível com o grupo de tributação [nItem:999] | NT 2019.001 v1.70 | a fazer |
@@ -630,16 +629,16 @@ Baixadas em 2026-10-22: as NTs do Portal Nacional da NF-e (Documentos > Notas T�
 | I12-40 | 55/65 | 886 | Obrig. | GTIN da unidade tributável informado, mas não informado o GTIN [nItem:999] | NT 2021.003 v1.50 | a fazer |
 | I12-60 | 55/65 | 888 | Obrig. | GTIN da unidade tributável (cEANTrib) sem informação [nItem:999] | NT 2021.003 v1.50 | a fazer |
 | I13-10 | 65 | 735 | Obrig. | NFC-e com Unidade de Tributação inválida [nItem:999] | MOC 7.03 | a fazer (3.3) |
-| I13-20 | 55/65 | 854 | Obrig. | Unidade Tributável (tag:uTrib) incompatível com produto informado [nItem: 999] | NT 2023.001 v1.60 | a fazer (3.2) |
+| I13-20 | 55/65 | 854 | Obrig. | Unidade Tributável (tag:uTrib) incompatível com produto informado [nItem: 999] | NT 2023.001 v1.60 | a fazer |
 | I14-10 | 55 | 817 | Obrig. | Unidade Tributável incompatível com o NCM informado na operação com Comércio Exterior [nItem:999] | MOC 7.03 | SEFAZ (tabela) |
 | I17-10 | 55/65 | 483 | Obrig. | Valor do desconto maior que valor do produto [nItem:nnn] | MOC 7.03 | a fazer |
 | I17b-10 | 55/65 | 774 | Obrig. | NFC-e ou NF-e com DANFE Simplificado Tipo 2 (tag:tpImp=6) com indicador de item não participante do total [nItem: 999] | NT 2026.002 v1.11 | a fazer |
 | I19-10 | 55 | 329 | Obrig. | Número da DI /DSI inválido | MOC 7.03 | a fazer |
-| I23-10 | 55 | 376 | Obrig. | Data do Desembaraço Aduaneiro inválida [nItem:nnn] | MOC 7.03 | a fazer (3.2) |
+| I23-10 | 55 | 376 | Obrig. | Data do Desembaraço Aduaneiro inválida [nItem:nnn] | MOC 7.03 | a fazer |
 | I23b-10 | 55 | 330 | Obrig. | Informar o Valor da AFRMM na importação por via marítima | MOC 7.03 | a fazer |
-| I23d1-10 | 55 | 332 | Obrig. | CNPJ/CPF do adquirente ou do encomendante da importação inválido’ Sistema | NT 2023.004 v1.20 | a fazer (3.2) |
+| I23d1-10 | 55 | 332 | Obrig. | CNPJ/CPF do adquirente ou do encomendante da importação inválido | NT 2023.004 v1.20 | lib (3.2) |
 | I23d-10 | 55 | 331 | Obrig. | Informar o CNPJ ou CPF do adquirente ou do encomendante nesta forma de importação | NT 2023.004 v1.20 | a fazer |
-| I23d-20 | 55 | 332 | Obrig. | CNPJ/CPF do adquirente ou do encomendante da importação inválido | NT 2023.004 v1.20 | a fazer (3.2) |
+| I23d-20 | 55 | 332 | Obrig. | CNPJ/CPF do adquirente ou do encomendante da importação inválido | NT 2023.004 v1.20 | lib (3.2) |
 | I23e-10 | 55 | 333 | Obrig. | Informar a UF do adquirente ou do encomendante nesta forma de importação | MOC 7.03 | a fazer |
 | I29a-10 | 55 | 334 | Obrig. | Número do processo de drawback não informado na importação | MOC 7.03 | a fazer |
 | I29a-20 | 55 | 335 | Obrig. | Número do processo de drawback na importação inválido | MOC 7.03 | a fazer |
@@ -648,14 +647,14 @@ Baixadas em 2026-10-22: as NTs do Portal Nacional da NF-e (Documentos > Notas T�
 | I51-20 | 55 | 339 | Obrig. | Número do processo de drawback na exportação inválido | MOC 7.03 | a fazer |
 | I52-10 | 55 | 340 | Facul. | Não informado o grupo de exportação indireta no item | MOC 7.03 | a fazer |
 | I53-10 | 55 | 341 | Obrig. | Número do registro de exportação inválido | MOC 7.03 | a fazer |
-| I54-10 | 55 | 342 | Facul. | Chave de Acesso informada na Exportação Indireta com DV inválido | MOC 7.03 | a fazer (3.2) |
+| I54-10 | 55 | 342 | Facul. | Chave de Acesso informada na Exportação Indireta com DV inválido | MOC 7.03 | lib (3.2) |
 | I54-20 | 55 | 343 | Facul. | Modelo da NF-e informada na Exportação Indireta diferente de 55 | MOC 7.03 | a fazer |
 | I54-30 | 55 | 344 | Facul. | Duplicidade de NF-e informada na Exportação Indireta (Chave de Acesso informada mais de uma vez) | MOC 7.03 | SEFAZ |
 | I54-40 | 55 | 345 | Facul. | Chave de Acesso informada na Exportação Indireta não consta como NF-e referenciada | MOC 7.03 | a fazer |
 | I55-10 | 55 | 346 | Facul. | Somatório das quantidades informadas na Exportação Indireta não corresponde a quantidade total do item | MOC 7.03 | a fazer |
 | I70-10 | 55/65 | 465 | Facul. | Número de Controle da FCI inexistente | MOC 7.03 | SEFAZ |
-| I83-10 | 55/65 | 877 | Obrig. | Data de fabricação maior que a data de processamento[nItem:999] | MOC 7.03 | a fazer (3.2) |
-| I84-10 | 55/65 | 870 | Obrig. | Data de validade incompatível com data de fabricação [nItem:999] | MOC 7.03 | a fazer (3.2) |
+| I83-10 | 55/65 | 877 | Obrig. | Data de fabricação maior que a data de processamento[nItem:999] | MOC 7.03 | lib (3.2) |
+| I84-10 | 55/65 | 870 | Obrig. | Data de validade incompatível com data de fabricação [nItem:999] | MOC 7.03 | lib (3.2) |
 | I86-10 | 55/65 | 820 | Obrig. | Informado produto fiscal de NFF | NT 2021.002 v1.12 | a fazer |
 | I87-10 | 55/65 | 833 | Obrig. | Informada embalagem do produto | NT 2021.002 v1.12 | a fazer |
 
@@ -685,8 +684,8 @@ Baixadas em 2026-10-22: as NTs do Portal Nacional da NF-e (Documentos > Notas T�
 
 | Regra | Modelo | Código | Aplic. | Mensagem | Fonte | Situação |
 |---|---|---|---|---|---|---|
-| LA01-20 | 55/65 | 660 | Facul. | CFOP de Combustível e não informado grupo de combustível da NF-e [nItem:nnn] | MOC 7.03 | a fazer (3.2) |
-| LA01-30 | 55/65 | 1106 | Obrig. | Não informado grupo de combustível para cClassTrib de Combustível [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.2) |
+| LA01-20 | 55/65 | 660 | Facul. | CFOP de Combustível e não informado grupo de combustível da NF-e [nItem:nnn] | MOC 7.03 | a fazer |
+| LA01-30 | 55/65 | 1106 | Obrig. | Não informado grupo de combustível para cClassTrib de Combustível [nItem: 999] | NT 2025.002 v1.52 | a fazer |
 | LA02-10 | 55/65 | 761 | Obrig. | Código de Produto ANP inexistente [nItem:999] | MOC 7.03 | SEFAZ (tabela) |
 | LA03c-10 | 55/65 | 461 | Obrig. | Informado campos de percentual de GLP e/ouGLGNne/ou GLGNi para produto diferente de GLP [nItem:999] | MOC 7.03 | a fazer |
 | LA03c-20 | 55/65 | 855 | Obrig. | Somatório percentuais de GLP derivado do petróleo,GLGNne GLGNi diferente de 100 [nItem: 999] | MOC 7.03 | a fazer |
@@ -716,20 +715,20 @@ Baixadas em 2026-10-22: as NTs do Portal Nacional da NF-e (Documentos > Notas T�
 |---|---|---|---|---|---|---|
 | N01-10 | 55 | 161 | Obrig. | Proibido informar ICMS para contribuinte exclusivo do IBS/CBS [nItem:999] | NT 2026.007 v1.10 | a fazer |
 | N07-10 | 55 | 929 | Facul. | Informado CST de diferimento sem as informações de diferimento [nItem: nnn] | NT 2019.001 v1.70 | a fazer |
-| N08-10 | 55 | 858 | Obrig. | Grupo de Tributação informado indevidamente [nItem:999] | MOC 7.03 | a fazer (3.2) |
+| N08-10 | 55 | 858 | Obrig. | Grupo de Tributação informado indevidamente [nItem:999] | MOC 7.03 | a fazer |
 | N11-10 | 55/65 | 966 | Obrig. | Obrigatório o preenchimento da origem da mercadoria [nItem:nnn] | NT 2025.002 v1.52 | a fazer |
-| N12-10 | 55 | 527 | Facul. | Operação de Exportação com informação de ICMS incompatível | MOC 7.03 | a fazer (3.2) |
+| N12-10 | 55 | 527 | Facul. | Operação de Exportação com informação de ICMS incompatível | MOC 7.03 | a fazer |
 | N12-20 | 55/65 | 590 | Facul. | Informado CST para emissor do Simples Nacional (CRT=1) [nItem:999] | NT 2023.001 v1.60 | a fazer |
-| N12-30 | 55/65 | 766 | Obrig. | Item com CST indevido [nItem:nnn] | NT 2026.002 v1.11 | a fazer (3.2) |
-| N12-34 | 55/65 | 381 | Obrig. | Grupo de tributação ICMS90, informando dados do ICMS-ST [nItem:nnn] | NT 2026.002 v1.11 | a fazer (3.2) |
-| N12-40 | 55/65 | 382 | Obrig. | CFOP não permitido para o CST informado [nItem:nnn] | NT 2026.002 v1.11 | a fazer (3.2) |
-| N12-44 | 55/65 | 382 | Obrig. | CFOP não permitido para o CST informado [nItem:nnn] | NT 2026.002 v1.11 | a fazer (3.2) |
+| N12-30 | 55/65 | 766 | Obrig. | Item com CST indevido [nItem:nnn] | NT 2026.002 v1.11 | a fazer |
+| N12-34 | 55/65 | 381 | Obrig. | Grupo de tributação ICMS90, informando dados do ICMS-ST [nItem:nnn] | NT 2026.002 v1.11 | a fazer |
+| N12-40 | 55/65 | 382 | Obrig. | CFOP não permitido para o CST informado [nItem:nnn] | NT 2026.002 v1.11 | a fazer |
+| N12-44 | 55/65 | 382 | Obrig. | CFOP não permitido para o CST informado [nItem:nnn] | NT 2026.002 v1.11 | a fazer |
 | N12-50 | 55/65 | 741 | Obrig. | NFC-e ou NF-e com DANFE Simplificado Tipo 2 com Partilha de ICMS entre UF | NT 2026.002 v1.11 | a fazer |
 | N12-60 | 55/65 | 740 | Obrig. | Item com Repasse de ICMS retido por Substituto Tributário [nItem: nnn] | NT 2026.002 v1.11 | a fazer |
-| N12-70 | 55 | 508 | Obrig. | CST incompatível na operação com Não Contribuinte [nItem: 999] | NT 2023.003 v1.40 | a fazer (3.2) |
-| N12-80 | 55 | 529 | Obrig. | CST incompatível na operação com Contribuinte Isento de Inscrição Estadual [nItem: 999] | NT 2020.005 v1.21 | a fazer (3.2) |
+| N12-70 | 55 | 508 | Obrig. | CST incompatível na operação com Não Contribuinte [nItem: 999] | NT 2023.003 v1.40 | a fazer |
+| N12-80 | 55 | 529 | Obrig. | CST incompatível na operação com Contribuinte Isento de Inscrição Estadual [nItem: 999] | NT 2020.005 v1.21 | a fazer |
 | N12-81 | 55/65 | 938 | Facul. | Não informada BCST, pST e ICMSST retido na operação anterior [nItem:999] | MOC 7.03 | a fazer |
-| N12-82 | 55/65 | 906 | Facul. | Não informados os campos para informações do ICMS Efetivo. [nItem:nnn] | MOC 7.03 | a fazer (3.2) |
+| N12-82 | 55/65 | 906 | Facul. | Não informados os campos para informações do ICMS Efetivo. [nItem:nnn] | MOC 7.03 | a fazer |
 | N12-84 | 55/65 | 930 | Facul. | CST com benefício fiscal e não informado o código de benefício fiscal [nItem: nnn] | NT 2019.001 v1.70 | SEFAZ |
 | N12-85 | 55/65 | 930 | Facul. | CST com benefício fiscal e não informado o código de benefício fiscal [nItem: nnn] | NT 2019.001 v1.70 | SEFAZ |
 | N12-86 | 55/65 | 928 | Facul. | Informado código de benefício fiscal para CST sem benefício fiscal [nItem: nnn] | NT 2019.001 v1.70 | SEFAZ |
@@ -738,25 +737,25 @@ Baixadas em 2026-10-22: as NTs do Portal Nacional da NF-e (Documentos > Notas T�
 | N12-94 | 55/65 | 931 | Facul. | Informado código de benefício fiscal incompatível com CST e UF [nItem: nnn] | NT 2019.001 v1.70 | SEFAZ |
 | N12-97 | 55 | 929 | Facul. | Informado CST de diferimento sem as informações de diferimento [nItem: nnn] | NT 2019.001 v1.70 | a fazer |
 | N12-98 | 55/65 | 946 | Facul. | Informado código de benefício fiscal incorreto ou inexistente na UF [nItem: nnn] | NT 2019.001 v1.70 | SEFAZ |
-| N12-100 | 55/65 | 959 | Obrig. | NF-e não pode ter preenchimento de Grupo de Tributação do ICMS monofásica sobre combustíveis. [nItem:999] | NT 2023.001 v1.60 | a fazer (3.2) |
-| N12-110 | 55/65 | 960 | Obrig. | Obrigatório o preenchimento de Grupo de Tributação do ICMS monofásica sobre combustíveis. [nItem:999] | NT 2025.002 v1.52 | a fazer (3.2) |
+| N12-100 | 55/65 | 959 | Obrig. | NF-e não pode ter preenchimento de Grupo de Tributação do ICMS monofásica sobre combustíveis. [nItem:999] | NT 2023.001 v1.60 | a fazer |
+| N12-110 | 55/65 | 960 | Obrig. | Obrigatório o preenchimento de Grupo de Tributação do ICMS monofásica sobre combustíveis. [nItem:999] | NT 2025.002 v1.52 | a fazer |
 | N12a-10 | 55/65 | 591 | Facul. | Informado CSOSN para emissor que não é do Simples Nacional (CRT diferente de 1 ou 4) [nItem:nnn] | NT 2024.001 v1.20 | a fazer |
-| N12a-20 | 55/65 | 383 | Obrig. | Item com CSOSN indevido [nItem: nnn] | NT 2026.002 v1.11 | a fazer (3.2) |
-| N12a-30 | 55/65 | 384 | Obrig. | CSOSN não permitido para a UF [nItem: nnn] | NT 2026.002 v1.11 | a fazer (3.2) |
-| N12a-34 | 55/65 | 385 | Obrig. | Grupo de tributação ICMSSN900, informando dados do ICMS-ST [nItem: nnn] | NT 2026.002 v1.11 | a fazer (3.2) |
-| N12a-40 | 55/65 | 386 | Obrig. | CFOP não permitido para o CSOSN informado [nItem: nnn] | NT 2026.002 v1.11 | a fazer (3.2) |
-| N12a-44 | 55/65 | 386 | Obrig. | CFOP não permitido para o CSOSN informado [nItem: nnn] | NT 2026.002 v1.11 | a fazer (3.2) |
+| N12a-20 | 55/65 | 383 | Obrig. | Item com CSOSN indevido [nItem: nnn] | NT 2026.002 v1.11 | a fazer |
+| N12a-30 | 55/65 | 384 | Obrig. | CSOSN não permitido para a UF [nItem: nnn] | NT 2026.002 v1.11 | a fazer |
+| N12a-34 | 55/65 | 385 | Obrig. | Grupo de tributação ICMSSN900, informando dados do ICMS-ST [nItem: nnn] | NT 2026.002 v1.11 | a fazer |
+| N12a-40 | 55/65 | 386 | Obrig. | CFOP não permitido para o CSOSN informado [nItem: nnn] | NT 2026.002 v1.11 | a fazer |
+| N12a-44 | 55/65 | 386 | Obrig. | CFOP não permitido para o CSOSN informado [nItem: nnn] | NT 2026.002 v1.11 | a fazer |
 | N12a-50 | 55/65 | 938 | Facul. | Não informada BCST, pST e ICMSST retido na operação anterior [nItem:999] | MOC 7.03 | a fazer |
-| N12a-60 | 55/65 | 906 | Facul. | Não informados os campos para informações do ICMS Efetivo. [nItem:nnn] | MOC 7.03 | a fazer (3.2) |
-| N12a-70 | 55 | 600 | Obrig. | CSOSN incompatível na operação com Não Contribuinte [nItem: 999] | NT 2024.003 v1.10 | a fazer (3.2) |
+| N12a-60 | 55/65 | 906 | Facul. | Não informados os campos para informações do ICMS Efetivo. [nItem:nnn] | MOC 7.03 | a fazer |
+| N12a-70 | 55 | 600 | Obrig. | CSOSN incompatível na operação com Não Contribuinte [nItem: 999] | NT 2024.003 v1.10 | a fazer |
 | N12a-80 | 55 | 782 | Obrig. | CSOSN inválido para emitente MEI (CRT=4) [nItem:nnn] | NT 2024.001 v1.20 | a fazer |
 | N12a-81 | 55/65 | 782 | Obrig. | CSOSN inválido para emitente MEI (CRT=4) [nItem:nnn] | NT 2026.002 v1.11 | a fazer |
-| N12a-90 | 55 | 337 | Obrig. | CFOP inválido para emitente MEI (CRT=4) [nItem:nnn] | NT 2024.001 v1.20 | a fazer (3.2) |
-| N12a-91 | 55/65 | 337 | Obrig. | CFOP inválido para emitente MEI (CRT=4) [nItem:nnn] | NT 2026.002 v1.11 | a fazer (3.2) |
+| N12a-90 | 55 | 337 | Obrig. | CFOP inválido para emitente MEI (CRT=4) [nItem:nnn] | NT 2024.001 v1.20 | a fazer |
+| N12a-91 | 55/65 | 337 | Obrig. | CFOP inválido para emitente MEI (CRT=4) [nItem:nnn] | NT 2026.002 v1.11 | a fazer |
 | N14a-10 | 55 | 665 | Facul. | Não informado código de benefício fiscal de redução de BC (cBenefRBC) quando percentual de redução de BC for maior que zero | NT 2019.001 v1.70 | a fazer |
 | N14a-20 | 55 | 666 | Facul. | Informado código de benefício fiscal de redução de BC (cBenefRBC) incorreto, inexistente ou incompatível na UF [nItem: nnn] | NT 2019.001 v1.70 | SEFAZ |
-| N16-04 | 55 | 663 | Facul. | Alíquota do ICMS com valor superior a 4 por cento na operação de saída interestadual com produtos importados [nItem:999] | MOC 7.03 | a fazer (3.2) |
-| N16-20 | 55 | 693 | Obrig. | Alíquota de ICMS superior à definida para a operação interestadual [nItem:999] | MOC 7.03 | a fazer (3.2) |
+| N16-04 | 55 | 663 | Facul. | Alíquota do ICMS com valor superior a 4 por cento na operação de saída interestadual com produtos importados [nItem:999] | MOC 7.03 | a fazer |
+| N16-20 | 55 | 693 | Obrig. | Alíquota de ICMS superior à definida para a operação interestadual [nItem:999] | MOC 7.03 | a fazer |
 | N16a-10 | 55 | 351 | Facul. | Valor do ICMS da Operação no CST=51 difere do produto BC e Alíquota [nItem:999] | MOC 7.03 | a fazer |
 | N16c-10 | 55 | 352 | Facul. | Valor do ICMS Diferido no CST=51 difere do produto Valor ICMS Operação e percentual diferimento [nItem:999] | MOC 7.03 | a fazer |
 | N17-10 | 55 | 353 | Facul. | Valor do ICMS no CST=51 não corresponde a diferença do ICMS operação e ICMS diferido [nItem: 999] | MOC 7.03 | a fazer |
@@ -764,11 +763,11 @@ Baixadas em 2026-10-22: as NTs do Portal Nacional da NF-e (Documentos > Notas T�
 | N17b-10 | 55/65 | 880 | Obrig. | Percentual de FCP igual a zero [nItem:999] | MOC 7.03 | a fazer |
 | N17b-20 | 55/65 | 874 | Obrig. | Percentual de FCP inválido [nItem:999] | MOC 7.03 | SEFAZ |
 | N17c-10 | 55/65 | 860 | Obrig. | Valor do FCP informado difere de base de cálculo*alíquota [nItem: 999] | NT 2020.005 v1.21 | a fazer |
-| N17c-20 | 55 | 876 | Obrig. | Operação interestadual para Consumidor Final e valor do FCP informado em campo diferente de vFCPUFDest(id:NA13) [nItem:999] | MOC 7.03 | a fazer (3.2) |
+| N17c-20 | 55 | 876 | Obrig. | Operação interestadual para Consumidor Final e valor do FCP informado em campo diferente de vFCPUFDest(id:NA13) [nItem:999] | MOC 7.03 | a fazer |
 | N17c-30 | 55 | 474 | Obrig. | FCP não deve ser destacado na NF-e conforme legislação estadual [nItem:999] | NT 2024.001 v1.20 | a fazer |
 | N18-10 | 55 | 932 | Facul. | Informada modalidade de determinação da BC da ST como MVA e não informado o campo pMVAST [nItem: nnn] | NT 2019.001 v1.70 | a fazer |
 | N18-20 | 55 | 933 | Facul. | Informada modalidade de determinação da BC da ST diferente de MVA e informado o campo pMVAST [nItem: nnn] | NT 2019.001 v1.70 | a fazer |
-| N23-10 | 55 | 806 | Obrig. | Operação com ICMS-ST sem informação do CEST [nItem: 999] | MOC 7.03 | a fazer (3.2) |
+| N23-10 | 55 | 806 | Obrig. | Operação com ICMS-ST sem informação do CEST [nItem: 999] | MOC 7.03 | a fazer |
 | N23b-10 | 55 | 881 | Obrig. | Percentual de FCPST igual a zero [nItem:999] | MOC 7.03 | a fazer |
 | N23b-20 | 55 | 875 | Obrig. | Percentual de FCPST inválido [nItem:999] | MOC 7.03 | SEFAZ |
 | N23d-10 | 55 | 860 | Obrig. | Valor do FCP informado difere de base de cálculo*alíquota [nItem: 999] | MOC 7.03 | a fazer |
@@ -779,7 +778,7 @@ Baixadas em 2026-10-22: as NTs do Portal Nacional da NF-e (Documentos > Notas T�
 | N28-12 | 55 | 652 | Obrig. | informado indicador de desoneração inválido para a ZFM [nItem: 999] | NT 2023.004 v1.20 | a fazer |
 | N28-20 | 55 | 626 | Facul. | CFOP de operação isenta para ZFM diferente do previsto [nItem: 999] | NT 2019.001 v1.70 | a fazer |
 | N28-30 | 55/65 | 627 | Facul. | O valor do ICMS desonerado deve ser informado [nItem:999] | MOC 7.03 | a fazer |
-| N33-10 | 55/65 | 906 | Facul. | Não informados os campos do grupo opcional para informações do ICMS Efetivo, Obrigo quando CST = 60 ou CSOSN=500 e operação com consumidor final [nItem:nnn] | MOC 7.03 | a fazer (3.2) |
+| N33-10 | 55/65 | 906 | Facul. | Não informados os campos do grupo opcional para informações do ICMS Efetivo, Obrigo quando CST = 60 ou CSOSN=500 e operação com consumidor final [nItem:nnn] | MOC 7.03 | a fazer |
 | N37a-10 | 55 | 767 | Obrig. | Obrigatório o preenchimento da Quantidade tributada [nItem:999] | NT 2023.001 v1.60 | a fazer |
 | N38-10 | 55 | 961 | Obrig. | Alíquota adrem do imposto difere do definido na legislação para o produto. [nItem:999] | NT 2023.001 v1.60 | a fazer |
 | N39-10 | 55/65 | 962 | Obrig. | Valor do ICMS próprio difere do calculado. [nItem:999] | NT 2023.001 v1.60 | a fazer |
@@ -796,15 +795,15 @@ Baixadas em 2026-10-22: as NTs do Portal Nacional da NF-e (Documentos > Notas T�
 | Regra | Modelo | Código | Aplic. | Mensagem | Fonte | Situação |
 |---|---|---|---|---|---|---|
 | NA01-10 | 55/65 | 807 | Obrig. | NFC-e ou NF-e com DANFE Simplificado Tipo 2 com grupo de ICMS para a UF do destinatário | NT 2026.002 v1.11 | a fazer |
-| NA01-20 | 55 | 694 | Obrig. | Não informado o grupo de ICMS para a UF de destino [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.2) |
-| NA01-30 | 55 | 695 | Obrig. | Informado indevidamente o grupo de ICMS para a UF de destino [nItem:999] | MOC 7.03 | a fazer (3.2) |
-| NA09-10 | 55 | 697 | Obrig. | Alíquota interestadual do ICMS com origem diferente do previsto [nItem:999] | MOC 7.03 | a fazer (3.2) |
-| NA09-20 | 55 | 697 | Obrig. | Alíquota interestadual do ICMS com origem diferente do previsto [nItem:999] | MOC 7.03 | a fazer (3.2) |
-| NA09-30 | 55 | 698 | Obrig. | Alíquota interestadual do ICMS incompatível com as UF envolvidas na operação [nItem:999] | MOC 7.03 | a fazer (3.2) |
-| NA11-10 | 55 | 699 | Obrig. | Percentual do ICMS Interestadual para a UF de destino difere do previsto para o ano da Data de Emissão [nItem:999] | MOC 7.03 | a fazer (3.2) |
-| NA13-10 | 55 | 793 | Obrig. | Valor do ICMS relativo ao Fundo de Combate à Pobreza na UF de destino difere do calculado [nItem: 999] | MOC 7.03 | a fazer (3.2) |
-| NA15-10 | 55 | 815 | Obrig. | Valor do ICMS Interestadual para UF de Destino difere do calculado [nItem: 999] | NT 2020.005 v1.21 | a fazer (3.2) |
-| NA17-10 | 55 | 816 | Obrig. | Valor do ICMS Interestadual para UF do Remetente difere do calculado [nItem: 999] | NT 2020.005 v1.21 | a fazer (3.2) |
+| NA01-20 | 55 | 694 | Obrig. | Não informado o grupo de ICMS para a UF de destino [nItem: 999] | NT 2025.002 v1.52 | a fazer |
+| NA01-30 | 55 | 695 | Obrig. | Informado indevidamente o grupo de ICMS para a UF de destino [nItem:999] | MOC 7.03 | a fazer |
+| NA09-10 | 55 | 697 | Obrig. | Alíquota interestadual do ICMS com origem diferente do previsto [nItem:999] | MOC 7.03 | a fazer |
+| NA09-20 | 55 | 697 | Obrig. | Alíquota interestadual do ICMS com origem diferente do previsto [nItem:999] | MOC 7.03 | a fazer |
+| NA09-30 | 55 | 698 | Obrig. | Alíquota interestadual do ICMS incompatível com as UF envolvidas na operação [nItem:999] | MOC 7.03 | a fazer |
+| NA11-10 | 55 | 699 | Obrig. | Percentual do ICMS Interestadual para a UF de destino difere do previsto para o ano da Data de Emissão [nItem:999] | MOC 7.03 | a fazer |
+| NA13-10 | 55 | 793 | Obrig. | Valor do ICMS relativo ao Fundo de Combate à Pobreza na UF de destino difere do calculado [nItem: 999] | MOC 7.03 | a fazer |
+| NA15-10 | 55 | 815 | Obrig. | Valor do ICMS Interestadual para UF de Destino difere do calculado [nItem: 999] | NT 2020.005 v1.21 | a fazer |
+| NA17-10 | 55 | 816 | Obrig. | Valor do ICMS Interestadual para UF do Remetente difere do calculado [nItem: 999] | NT 2020.005 v1.21 | a fazer |
 
 #### Grupo NB: ICMS Previsto no Pagamento Antecipado
 
@@ -820,7 +819,7 @@ Baixadas em 2026-10-22: as NTs do Portal Nacional da NF-e (Documentos > Notas T�
 |---|---|---|---|---|---|---|
 | O01-10 | 55/65 | 742 | Obrig. | NFC-e ou NF-e com DANFE Simplificado Tipo 2 com grupo do IPI | NT 2026.002 v1.11 | a fazer |
 | O06-10 | 55 | 387 | Obrig. | Código de Enquadramento Legal do IPI inválido [nItem:nnn] | MOC 7.03 | a fazer |
-| O09-10 | 55 | 388 | Obrig. | Código de Situação Tributária do IPI incompatível com o Código de Enquadramento Legal do IPI [nItem:nnn] | MOC 7.03 | a fazer (3.2) |
+| O09-10 | 55 | 388 | Obrig. | Código de Situação Tributária do IPI incompatível com o Código de Enquadramento Legal do IPI [nItem:nnn] | MOC 7.03 | a fazer |
 
 #### Grupo P: Item / Tributo: II
 
@@ -829,7 +828,7 @@ Baixadas em 2026-10-22: as NTs do Portal Nacional da NF-e (Documentos > Notas T�
 | P01-10 | 55/65 | 743 | Obrig. | NFC-e ou NF-e com DANFE Simplificado Tipo 2 com grupo do II | NT 2026.002 v1.11 | a fazer |
 | P21-10 | 55/65 | 466 | Obrig. | Evento com Tipo de Autor incompatível | NT 2026.006 v1.00 | SEFAZ |
 | P26-10 | 55/65 | 1273 | Obrig. | Meio de pagamento inválido | NT 2026.006 v1.00 | a fazer |
-| P27-10 | 55/65 | 1274 | Obrig. | CNPJ do recebedor do pagamento inválido | NT 2026.006 v1.00 | a fazer (3.2) |
+| P27-10 | 55/65 | 1274 | Obrig. | CNPJ do recebedor do pagamento inválido | NT 2026.006 v1.00 | a fazer |
 
 #### Grupo Q: Item / Tributo: PIS
 
@@ -878,157 +877,157 @@ Baixadas em 2026-10-22: as NTs do Portal Nacional da NF-e (Documentos > Notas T�
 
 | Regra | Modelo | Código | Aplic. | Mensagem | Fonte | Situação |
 |---|---|---|---|---|---|---|
-| UB01-10 | 55/65 | 1011 | Obrig. | Não é permitido uso do Imposto Seletivo para esta classificação da operação [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.2) |
-| UB01-20 | 55/65 | 1012 | Obrig. | É exigido o uso do Imposto Seletivo para esta classificação da operação [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.2) |
+| UB01-10 | 55/65 | 1011 | Obrig. | Não é permitido uso do Imposto Seletivo para esta classificação da operação [nItem: 999] | NT 2025.002 v1.52 | a fazer |
+| UB01-20 | 55/65 | 1012 | Obrig. | É exigido o uso do Imposto Seletivo para esta classificação da operação [nItem: 999] | NT 2025.002 v1.52 | a fazer |
 | UB01-30 | 55/65 | 1013 | Obrig. | É exigido o uso do Imposto Seletivo para esta classificação da operação para este NCM [nItem: 999] | NT 2025.002 v1.52 | a fazer |
 | UB02-10 | 55/65 | 1014 | Obrig. | CST do Imposto Seletivo informado inexistente [nItem: 999] | NT 2025.002 v1.52 | a fazer |
-| UB03-10 | 55/65 | 1015 | Obrig. | Classificação Tributária do Imposto Seletivo informada inexistente [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.2) |
+| UB03-10 | 55/65 | 1015 | Obrig. | Classificação Tributária do Imposto Seletivo informada inexistente [nItem: 999] | NT 2025.002 v1.52 | a fazer |
 | UB05-10 | 55/65 | 1103 | Obrig. | Valor da Base de cálculo do Imposto Seletivo difere do somatório dos valores que a compõem [nItem: 999] | NT 2025.002 v1.52 | a fazer |
-| UB06-10 | 55/65 | 1016 | Obrig. | CST do Imposto Seletivo obriga informação de alíquota de Imposto Seletivo [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.2) |
+| UB06-10 | 55/65 | 1016 | Obrig. | CST do Imposto Seletivo obriga informação de alíquota de Imposto Seletivo [nItem: 999] | NT 2025.002 v1.52 | a fazer |
 | UB07-10 | 55 | 1017 | Obrig. | Obrigatório informação de alíquota específica de Imposto Seletivo [nItem: 999] | NT 2025.002 v1.52 | a fazer |
 | UB08-10 | 55/65 | 1018 | Obrig. | Unidade tributável (uTrib) e Quantidade tributável (qTrib) do imposto seletivo não informados [nItem: 999] | NT 2025.002 v1.52 | a fazer |
 | UB11-10 | 55/65 | 1019 | Obrig. | Valor do Imposto Seletivo difere do calculado [nItem: 999] | NT 2025.002 v1.52 | a fazer |
-| UB12-10 | 55/65 | 1115 | Obrig. | Grupo IBSCBS não informado [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.2) |
+| UB12-10 | 55/65 | 1115 | Obrig. | Grupo IBSCBS não informado [nItem: 999] | NT 2025.002 v1.52 | a fazer |
 | UB12-11 | 55 | 162 | Obrig. | Grupo IBS/CBS obrigatório para contribuinte exclusivo do IBS/CBS [nItem:999] | NT 2026.007 v1.10 | a fazer |
 | UB13-10 | 55/65 | 1020 | Obrig. | CST do IBS/CBS informado inexistente [nItem: 999] | NT 2025.002 v1.52 | a fazer |
-| UB13-20 | 55/65 | 1021 | Obrig. | Grupo gIBSCBS informado indevidamente [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.2) |
-| UB13-30 | 55/65 | 1022 | Obrig. | Grupo gIBSCBS não informado [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.2) |
-| UB13-39 | 55/65 | 1151 | Obrig. | Grupo gIBSCBSMono informado indevidamente [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.2) |
-| UB13-40 | 55/65 | 1116 | Obrig. | Grupo gIBSCBSMono não informado [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.2) |
-| UB13-44 | 55/65 | 1131 | Obrig. | Grupo de transferência de crédito informado indevidamente [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.2) |
-| UB13-45 | 55/65 | 1132 | Obrig. | Grupo de transferência de crédito não informado [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.2) |
-| UB14-10 | 55/65 | 1023 | Obrig. | Classificação Tributária do IBS/CBS informada inexistente [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.2) |
-| UB14-20 | 55/65 | 1024 | Obrig. | Rejeição: Classificação Tributária do IBS e da CBS incompatível com o CST informado [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.2) |
-| UB14-25 | 55/65 | 1025 | Obrig. | cClassTrib do IBS/CBS não permitido neste modelo de DFe [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.2) |
-| UB14-30 | 55 | 1043 | Obrig. | Índice de mistura do Biocombustível inferior ao obrigatório para esta Classificação Tributária do IBS e CBS [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.2) |
-| UB14-50 | 55 | 1059 | Obrig. | Índice de mistura do Biocombustível superior ao obrigatório para esta Classificação Tributária do IBS e CBS [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.2) |
-| UB14-60 | 55 | 1202 | Obrig. | cClassTrib incompatível com a finalidade da nota ou com o tipo de Nota de Débito ou Crédito [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.2) |
-| UB14-70 | 55 | 1200 | Obrig. | cClassTrib incompatível com o tipo de Nota de Débito [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.2) |
-| UB14-80 | 55 | 1201 | Obrig. | cClassTrib incompatível com o tipo de Nota de Crédito [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.2) |
+| UB13-20 | 55/65 | 1021 | Obrig. | Grupo gIBSCBS informado indevidamente [nItem: 999] | NT 2025.002 v1.52 | a fazer |
+| UB13-30 | 55/65 | 1022 | Obrig. | Grupo gIBSCBS não informado [nItem: 999] | NT 2025.002 v1.52 | a fazer |
+| UB13-39 | 55/65 | 1151 | Obrig. | Grupo gIBSCBSMono informado indevidamente [nItem: 999] | NT 2025.002 v1.52 | a fazer |
+| UB13-40 | 55/65 | 1116 | Obrig. | Grupo gIBSCBSMono não informado [nItem: 999] | NT 2025.002 v1.52 | a fazer |
+| UB13-44 | 55/65 | 1131 | Obrig. | Grupo de transferência de crédito informado indevidamente [nItem: 999] | NT 2025.002 v1.52 | a fazer |
+| UB13-45 | 55/65 | 1132 | Obrig. | Grupo de transferência de crédito não informado [nItem: 999] | NT 2025.002 v1.52 | a fazer |
+| UB14-10 | 55/65 | 1023 | Obrig. | Classificação Tributária do IBS/CBS informada inexistente [nItem: 999] | NT 2025.002 v1.52 | a fazer |
+| UB14-20 | 55/65 | 1024 | Obrig. | Rejeição: Classificação Tributária do IBS e da CBS incompatível com o CST informado [nItem: 999] | NT 2025.002 v1.52 | a fazer |
+| UB14-25 | 55/65 | 1025 | Obrig. | cClassTrib do IBS/CBS não permitido neste modelo de DFe [nItem: 999] | NT 2025.002 v1.52 | a fazer |
+| UB14-30 | 55 | 1043 | Obrig. | Índice de mistura do Biocombustível inferior ao obrigatório para esta Classificação Tributária do IBS e CBS [nItem: 999] | NT 2025.002 v1.52 | a fazer |
+| UB14-50 | 55 | 1059 | Obrig. | Índice de mistura do Biocombustível superior ao obrigatório para esta Classificação Tributária do IBS e CBS [nItem: 999] | NT 2025.002 v1.52 | a fazer |
+| UB14-60 | 55 | 1202 | Obrig. | cClassTrib incompatível com a finalidade da nota ou com o tipo de Nota de Débito ou Crédito [nItem: 999] | NT 2025.002 v1.52 | a fazer |
+| UB14-70 | 55 | 1200 | Obrig. | cClassTrib incompatível com o tipo de Nota de Débito [nItem: 999] | NT 2025.002 v1.52 | a fazer |
+| UB14-80 | 55 | 1201 | Obrig. | cClassTrib incompatível com o tipo de Nota de Crédito [nItem: 999] | NT 2025.002 v1.52 | a fazer |
 | UB16-10 | 55/65 | 1104 | Obrig. | Valor da Base de cálculo do IBS e CBS difere do somatório dos valores que a compõem [nItem: 999] | NT 2026.008 v1.00 | a fazer |
-| UB18-10 | 55/65 | 1026 | Obrig. | Alíquota do IBS da UF inválida [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.2) |
-| UB22-10 | 55/65 | 1029 | Obrig. | CST do IBS/CBS informado não permite informação de diferimento Estadual [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.2) |
-| UB22-20 | 55/65 | 1030 | Obrig. | CST do IBS/CBS informado obriga informação de diferimento Estadual [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.2) |
+| UB18-10 | 55/65 | 1026 | Obrig. | Alíquota do IBS da UF inválida [nItem: 999] | NT 2025.002 v1.52 | a fazer |
+| UB22-10 | 55/65 | 1029 | Obrig. | CST do IBS/CBS informado não permite informação de diferimento Estadual [nItem: 999] | NT 2025.002 v1.52 | a fazer |
+| UB22-20 | 55/65 | 1030 | Obrig. | CST do IBS/CBS informado obriga informação de diferimento Estadual [nItem: 999] | NT 2025.002 v1.52 | a fazer |
 | UB23-10 | 55/65 | 1031 | Obrig. | Valor do Diferimento da UF difere do calculado [nItem: 999] | NT 2025.002 v1.52 | a fazer |
 | UB24-10 | 55/65 | 1111 | Obrig. | Grupo de Devolução do IBS da UF informado indevidamente [nItem: 999] | NT 2025.002 v1.52 | a fazer |
-| UB26-10 | 55/65 | 1032 | Obrig. | CST do IBS/CBS informado não permite informação de redução de alíquota Estadual [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.2) |
-| UB26-20 | 55/65 | 1033 | Obrig. | Não informado o grupo de redução de alíquota Estadual [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.2) |
-| UB27-10 | 55/65 | 1034 | Obrig. | Percentual de redução de alíquota da UF não é válido para este cClassTrib [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.2) |
+| UB26-10 | 55/65 | 1032 | Obrig. | CST do IBS/CBS informado não permite informação de redução de alíquota Estadual [nItem: 999] | NT 2025.002 v1.52 | a fazer |
+| UB26-20 | 55/65 | 1033 | Obrig. | Não informado o grupo de redução de alíquota Estadual [nItem: 999] | NT 2025.002 v1.52 | a fazer |
+| UB27-10 | 55/65 | 1034 | Obrig. | Percentual de redução de alíquota da UF não é válido para este cClassTrib [nItem: 999] | NT 2025.002 v1.52 | a fazer |
 | UB28-10 | 55/65 | 1035 | Obrig. | Valor da Alíquota Efetiva do IBS da UF calculado incorretamente [nItem: 999] | NT 2025.002 v1.52 | a fazer |
 | UB35-10 | 55/65 | 1041 | Obrig. | Valor do IBS da UF difere do calculado [nItem: 999] | NT 2025.002 v1.52 | a fazer |
-| UB37-10 | 55/65 | 1036 | Obrig. | Alíquota do IBS do Município inválida [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.2) |
-| UB40-10 | 55/65 | 1044 | Obrig. | CST do IBS/CBS informado obriga informação de diferimento Municipal [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.2) |
-| UB40-20 | 55/65 | 1083 | Obrig. | CST do IBS/CBS informado não permite informação de diferimento Municipal [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.2) |
+| UB37-10 | 55/65 | 1036 | Obrig. | Alíquota do IBS do Município inválida [nItem: 999] | NT 2025.002 v1.52 | a fazer |
+| UB40-10 | 55/65 | 1044 | Obrig. | CST do IBS/CBS informado obriga informação de diferimento Municipal [nItem: 999] | NT 2025.002 v1.52 | a fazer |
+| UB40-20 | 55/65 | 1083 | Obrig. | CST do IBS/CBS informado não permite informação de diferimento Municipal [nItem: 999] | NT 2025.002 v1.52 | a fazer |
 | UB42-10 | 55/65 | 1045 | Obrig. | Valor do Diferimento do Município difere do calculado [nItem: 999] | NT 2025.002 v1.52 | a fazer |
 | UB43-10 | 55/65 | 1112 | Obrig. | Grupo de Devolução do IBS do Município informado indevidamente [nItem: 999] | NT 2025.002 v1.52 | a fazer |
-| UB45-10 | 55/65 | 1007 | Obrig. | CST do IBS/CBS informado não permite informação de redução de alíquota municipal [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.2) |
-| UB45-20 | 55/65 | 1074 | Obrig. | Não informado o grupo de redução de alíquota Municipal [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.2) |
-| UB46-10 | 55/65 | 1046 | Obrig. | Percentual de redução de alíquota do Município não é válido para este cClassTrib [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.2) |
+| UB45-10 | 55/65 | 1007 | Obrig. | CST do IBS/CBS informado não permite informação de redução de alíquota municipal [nItem: 999] | NT 2025.002 v1.52 | a fazer |
+| UB45-20 | 55/65 | 1074 | Obrig. | Não informado o grupo de redução de alíquota Municipal [nItem: 999] | NT 2025.002 v1.52 | a fazer |
+| UB46-10 | 55/65 | 1046 | Obrig. | Percentual de redução de alíquota do Município não é válido para este cClassTrib [nItem: 999] | NT 2025.002 v1.52 | a fazer |
 | UB47-10 | 55/65 | 1047 | Obrig. | Valor da Alíquota Efetiva do IBS do Município calculado incorretamente [nItem: 999] | NT 2025.002 v1.52 | a fazer |
 | UB54-10 | 55/65 | 1052 | Obrig. | Valor do IBS Municipal difere do calculado [nItem: 999] | NT 2025.002 v1.52 | a fazer |
 | UB54a-10 | 55/65 | 1150 | Obrig. | Valor do IBS do Item (vIBS) difere do calculado [nItem: 999] | NT 2025.002 v1.52 | a fazer |
-| UB56-10 | 55/65 | 1037 | Obrig. | Alíquota da CBS inválida [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.2) |
-| UB56-20 | 55/65 | 1037 | Obrig. | Alíquota da CBS inválida [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.2) |
-| UB59-10 | 55/65 | 1061 | Obrig. | CST do IBS/CBS informado obriga informação de diferimento da CBS [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.2) |
-| UB59-20 | 55/65 | 1090 | Obrig. | CST do IBS/CBS informado não permite informação de diferimento da CBS [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.2) |
+| UB56-10 | 55/65 | 1037 | Obrig. | Alíquota da CBS inválida [nItem: 999] | NT 2025.002 v1.52 | a fazer |
+| UB56-20 | 55/65 | 1037 | Obrig. | Alíquota da CBS inválida [nItem: 999] | NT 2025.002 v1.52 | a fazer |
+| UB59-10 | 55/65 | 1061 | Obrig. | CST do IBS/CBS informado obriga informação de diferimento da CBS [nItem: 999] | NT 2025.002 v1.52 | a fazer |
+| UB59-20 | 55/65 | 1090 | Obrig. | CST do IBS/CBS informado não permite informação de diferimento da CBS [nItem: 999] | NT 2025.002 v1.52 | a fazer |
 | UB61-10 | 55/65 | 1062 | Obrig. | Valor do Diferimento da CBS difere do calculado [nItem: 999] | NT 2025.002 v1.52 | a fazer |
 | UB62-10 | 65 | 1187 | Obrig. | Grupo de Devolução da CBS informado indevidamente [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.3) |
 | UB62a-10 | 55 | 1188 | Obrig. | Percentual de devolução da CBS não informado [nItem: 999] | NT 2025.002 v1.52 | a fazer |
 | UB63-10 | 55 | 1189 | Obrig. | Valor da CBS devolvida difere do calculado [nItem: 999] | NT 2025.002 v1.52 | a fazer |
-| UB64-10 | 55/65 | 1028 | Obrig. | CST do IBS/CBS informado não permite informação de redução de alíquota da CBS [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.2) |
-| UB64-20 | 55/65 | 1079 | Obrig. | Não informado o grupo de redução de alíquota da CBS [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.2) |
-| UB65-10 | 55/65 | 1063 | Obrig. | Percentual de redução de alíquota da CBS não é válido para este cClassTrib [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.2) |
+| UB64-10 | 55/65 | 1028 | Obrig. | CST do IBS/CBS informado não permite informação de redução de alíquota da CBS [nItem: 999] | NT 2025.002 v1.52 | a fazer |
+| UB64-20 | 55/65 | 1079 | Obrig. | Não informado o grupo de redução de alíquota da CBS [nItem: 999] | NT 2025.002 v1.52 | a fazer |
+| UB65-10 | 55/65 | 1063 | Obrig. | Percentual de redução de alíquota da CBS não é válido para este cClassTrib [nItem: 999] | NT 2025.002 v1.52 | a fazer |
 | UB66-10 | 55/65 | 1064 | Obrig. | Valor da Alíquota Efetiva da CBS calculado incorretamente [nItem: 999] | NT 2025.002 v1.52 | a fazer |
 | UB66a-10 | 55/65 | 1190 | Obrig. | Inscrição do emitente na Suframa não informado | NT 2025.002 v1.52 | a fazer |
 | UB66a-20 | 55/65 | 1191 | Obrig. | Grupo de operações em áreas incentivadas (ALC/ZFM) - CBS (alíquota zero) não permitido [nItem: 999] | NT 2025.002 v1.52 | a fazer |
 | UB66c-10 | 55/65 | 1192 | Obrig. | Número do processo na Suframa não informado [nItem: 999] | NT 2025.002 v1.52 | a fazer |
 | UB66e-10 | 55/65 | 1218 | Obrig. | Valor da CBS para operação fora de áreas ou regimes incentivado difere do calculado [nItem: 999] | NT 2025.002 v1.52 | a fazer |
 | UB67-10 | 55/65 | 1069 | Obrig. | Valor da CBS difere do calculado [nItem: 999] | NT 2025.002 v1.52 | a fazer |
-| UB68-10 | 55/65 | 1065 | Obrig. | Classificação Tributária do IBS e da CBS informada obriga informação da tributação regular [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.2) |
-| UB68-11 | 55/65 | 1114 | Obrig. | Classificação Tributária do IBS e da CBS informada não permite informação da tributação regular [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.2) |
-| UB69-10 | 55/65 | 1066 | Obrig. | CST do IBS e da CBS informado no grupo de tributação regular inexistente [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.2) |
-| UB70-10 | 55/65 | 1067 | Obrig. | Classificação Tributária do IBS e da CBS informada no grupo de tributação regular inexistente [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.2) |
+| UB68-10 | 55/65 | 1065 | Obrig. | Classificação Tributária do IBS e da CBS informada obriga informação da tributação regular [nItem: 999] | NT 2025.002 v1.52 | a fazer |
+| UB68-11 | 55/65 | 1114 | Obrig. | Classificação Tributária do IBS e da CBS informada não permite informação da tributação regular [nItem: 999] | NT 2025.002 v1.52 | a fazer |
+| UB69-10 | 55/65 | 1066 | Obrig. | CST do IBS e da CBS informado no grupo de tributação regular inexistente [nItem: 999] | NT 2025.002 v1.52 | a fazer |
+| UB70-10 | 55/65 | 1067 | Obrig. | Classificação Tributária do IBS e da CBS informada no grupo de tributação regular inexistente [nItem: 999] | NT 2025.002 v1.52 | a fazer |
 | UB72-10 | 55/65 | 1040 | Obrig. | Valor do Tributo Regular da UF difere do calculado [nItem: 999] | NT 2025.002 v1.52 | a fazer |
 | UB72b-10 | 55/65 | 1051 | Obrig. | Valor do Tributo Regular do Município difere do calculado [nItem: 999] | NT 2025.002 v1.52 | a fazer |
 | UB72d-10 | 55/65 | 1068 | Obrig. | Valor do Tributo Regular da CBS difere do calculado [nItem: 999] | NT 2025.002 v1.52 | a fazer |
 | UB82a-10 | 55 | 1141 | Obrig. | Grupo de informações da composição do valor do IBS e da CBS em compras governamentais não informado [nItem: 999] | NT 2025.002 v1.52 | a fazer |
 | UB82a-20 | 55 | 1142 | Obrig. | Soma dos valores de IBS e CBS em compras governamentais divergente [nItem: 999] | NT 2025.002 v1.52 | a fazer |
 | UB82a-30 | 55 | 1144 | Obrig. | Grupo de informações da composição do valor do IBS e da CBS em compras governamentais informado indevidamente [nItem: 999] | NT 2025.002 v1.52 | a fazer |
-| UB85a-10 | 55/65 | 1219 | Obrig. | Tributação Monofásica Ad Rem do IBS informada indevidamente [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.2) |
-| UB85a-20 | 55/65 | 1220 | Obrig. | Não informada Tributação Monofásica Ad Rem do IBS [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.2) |
-| UB86-10 | 55/65 | 1125 | Obrig. | Não informada a Tributação Monofásica Padrão de Combustível do IBS Ad Rem [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.2) |
-| UB86-20 | 55/65 | 1126 | Obrig. | Informada indevidamente a Tributação Monofásica Padrão de Combustível do IBS Ad Rem [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.2) |
+| UB85a-10 | 55/65 | 1219 | Obrig. | Tributação Monofásica Ad Rem do IBS informada indevidamente [nItem: 999] | NT 2025.002 v1.52 | a fazer |
+| UB85a-20 | 55/65 | 1220 | Obrig. | Não informada Tributação Monofásica Ad Rem do IBS [nItem: 999] | NT 2025.002 v1.52 | a fazer |
+| UB86-10 | 55/65 | 1125 | Obrig. | Não informada a Tributação Monofásica Padrão de Combustível do IBS Ad Rem [nItem: 999] | NT 2025.002 v1.52 | a fazer |
+| UB86-20 | 55/65 | 1126 | Obrig. | Informada indevidamente a Tributação Monofásica Padrão de Combustível do IBS Ad Rem [nItem: 999] | NT 2025.002 v1.52 | a fazer |
 | UB86c-10 | 55/65 | 1221 | Obrig. | Valor do IBS Monofásico Padrão Ad Rem difere do calculado [nItem: 999] | NT 2025.002 v1.52 | a fazer |
-| UB87-10 | 55/65 | 1127 | Obrig. | Não informada a Tributação Monofásica de Combustível com Retenção do IBS Ad Rem [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.2) |
-| UB87-20 | 55/65 | 1128 | Obrig. | Informada indevidamente a Tributação Monofásica de Combustível com Retenção do IBS Ad Rem [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.2) |
+| UB87-10 | 55/65 | 1127 | Obrig. | Não informada a Tributação Monofásica de Combustível com Retenção do IBS Ad Rem [nItem: 999] | NT 2025.002 v1.52 | a fazer |
+| UB87-20 | 55/65 | 1128 | Obrig. | Informada indevidamente a Tributação Monofásica de Combustível com Retenção do IBS Ad Rem [nItem: 999] | NT 2025.002 v1.52 | a fazer |
 | UB87c-10 | 55/65 | 1222 | Obrig. | Valor do IBS Monofásico Ad Rem com Retenção difere do calculado [nItem: 999] | NT 2025.002 v1.52 | a fazer |
-| UB88-10 | 55/65 | 1108 | Obrig. | Não informada a Tributação Monofásica Retida Anteriormente do IBS Ad Rem [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.2) |
-| UB88-20 | 55/65 | 1109 | Obrig. | Informada indevidamente a Tributação Monofásica Retida Anteriormente do IBS Ad Rem [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.2) |
+| UB88-10 | 55/65 | 1108 | Obrig. | Não informada a Tributação Monofásica Retida Anteriormente do IBS Ad Rem [nItem: 999] | NT 2025.002 v1.52 | a fazer |
+| UB88-20 | 55/65 | 1109 | Obrig. | Informada indevidamente a Tributação Monofásica Retida Anteriormente do IBS Ad Rem [nItem: 999] | NT 2025.002 v1.52 | a fazer |
 | UB88a-10 | 55/65 | 1223 | Obrig. | Valor do IBS Monofásico Ad Rem retido anteriormente difere do calculado [nItem: 999] | NT 2025.002 v1.52 | a fazer |
-| UB89-10 | 55/65 | 1224 | Obrig. | Não informado o grupo de informações sobre mistura de EAC com gasolina A em percentual inferior ou superior ao obrigatório do IBS Monofásico Ad Rem [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.2) |
-| UB89-20 | 55/65 | 1225 | Obrig. | Informado indevidamente o grupo de informações sobre mistura de EAC com gasolina A em percentual inferior ou superior ao obrigatório do IBS Monofásico Ad Rem [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.2) |
+| UB89-10 | 55/65 | 1224 | Obrig. | Não informado o grupo de informações sobre mistura de EAC com gasolina A em percentual inferior ou superior ao obrigatório do IBS Monofásico Ad Rem [nItem: 999] | NT 2025.002 v1.52 | a fazer |
+| UB89-20 | 55/65 | 1225 | Obrig. | Informado indevidamente o grupo de informações sobre mistura de EAC com gasolina A em percentual inferior ou superior ao obrigatório do IBS Monofásico Ad Rem [nItem: 999] | NT 2025.002 v1.52 | a fazer |
 | UB89a-10 | 55/65 | 1226 | Obrig. | Quantidade de Biocombustível (EAC) a recolher ou a ressarcir do IBS Monofásico Ad Rem difere do calculado [nItem: 999] | NT 2025.002 v1.52 | a fazer |
 | UB89b-10 | 55/65 | 1227 | Obrig. | Valor do IBS Monofásico Ad Rem correspondente a diferença em relação ao pBioObrigatorio difere do calculado [nItem: 999] | NT 2025.002 v1.52 | a fazer |
-| UB90-10 | 55/65 | 1228 | Obrig. | Tributação Monofásica Ad Valorem do IBS informada indevidamente [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.2) |
-| UB90-20 | 55/65 | 1229 | Obrig. | Não informada Tributação Monofásica Ad Valorem do IBS [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.2) |
-| UB91-10 | 55/65 | 1230 | Obrig. | Não informada a Tributação Monofásica Padrão de Combustível do IBS Ad Valorem [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.2) |
-| UB91-20 | 55/65 | 1231 | Obrig. | Informada indevidamente a Tributação Monofásica Padrão de Combustível do IBS Ad Valorem [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.2) |
+| UB90-10 | 55/65 | 1228 | Obrig. | Tributação Monofásica Ad Valorem do IBS informada indevidamente [nItem: 999] | NT 2025.002 v1.52 | a fazer |
+| UB90-20 | 55/65 | 1229 | Obrig. | Não informada Tributação Monofásica Ad Valorem do IBS [nItem: 999] | NT 2025.002 v1.52 | a fazer |
+| UB91-10 | 55/65 | 1230 | Obrig. | Não informada a Tributação Monofásica Padrão de Combustível do IBS Ad Valorem [nItem: 999] | NT 2025.002 v1.52 | a fazer |
+| UB91-20 | 55/65 | 1231 | Obrig. | Informada indevidamente a Tributação Monofásica Padrão de Combustível do IBS Ad Valorem [nItem: 999] | NT 2025.002 v1.52 | a fazer |
 | UB91c-10 | 55/65 | 1232 | Obrig. | Valor do IBS Monofásico Padrão Ad Valorem Estadual difere do calculado [nItem: 999] | NT 2025.002 v1.52 | a fazer |
 | UB91e-10 | 55/65 | 1233 | Obrig. | Valor do IBS Monofásico Padrão Ad Valorem Municipal difere do calculado [nItem: 999] | NT 2025.002 v1.52 | a fazer |
 | UB91f-10 | 55/65 | 1234 | Obrig. | Valor do IBS Monofásico Padrão Ad Valorem difere do calculado [nItem: 999] | NT 2025.002 v1.52 | a fazer |
-| UB92-10 | 55/65 | 1235 | Obrig. | Não informada a Tributação Monofásica de Combustível com Retenção do IBS Ad Valorem [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.2) |
-| UB92-20 | 55/65 | 1236 | Obrig. | Informada indevidamente a Tributação Monofásica de Combustível com Retenção do IBS Ad Valorem [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.2) |
+| UB92-10 | 55/65 | 1235 | Obrig. | Não informada a Tributação Monofásica de Combustível com Retenção do IBS Ad Valorem [nItem: 999] | NT 2025.002 v1.52 | a fazer |
+| UB92-20 | 55/65 | 1236 | Obrig. | Informada indevidamente a Tributação Monofásica de Combustível com Retenção do IBS Ad Valorem [nItem: 999] | NT 2025.002 v1.52 | a fazer |
 | UB92c-10 | 55/65 | 1237 | Obrig. | Valor do IBS Monofásico Ad Valorem com Retenção difere do calculado [nItem: 999] | NT 2025.002 v1.52 | a fazer |
-| UB93-10 | 55/65 | 1238 | Obrig. | Não informada a Tributação Monofásica Retida Anteriormente do IBS Ad Valorem [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.2) |
-| UB93-20 | 55/65 | 1239 | Obrig. | Informada indevidamente a Tributação Monofásica Retida Anteriormente do IBS Ad Valorem [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.2) |
+| UB93-10 | 55/65 | 1238 | Obrig. | Não informada a Tributação Monofásica Retida Anteriormente do IBS Ad Valorem [nItem: 999] | NT 2025.002 v1.52 | a fazer |
+| UB93-20 | 55/65 | 1239 | Obrig. | Informada indevidamente a Tributação Monofásica Retida Anteriormente do IBS Ad Valorem [nItem: 999] | NT 2025.002 v1.52 | a fazer |
 | UB93a-10 | 55/65 | 1240 | Obrig. | Valor do IBS Monofásico Ad Valorem retido anteriormente difere do calculado [nItem: 999] | NT 2025.002 v1.52 | a fazer |
-| UB94-10 | 55/65 | 1241 | Obrig. | Não informado o grupo de informações sobre mistura de EAC com gasolina A em percentual inferior ou superior ao obrigatório do IBS Monofásico Ad Valorem [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.2) |
-| UB94-20 | 55/65 | 1242 | Obrig. | Informado indevidamente o grupo de informações sobre mistura de EAC com gasolina A em percentual inferior ou superior ao obrigatório do IBS Monofásico Ad Valorem [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.2) |
+| UB94-10 | 55/65 | 1241 | Obrig. | Não informado o grupo de informações sobre mistura de EAC com gasolina A em percentual inferior ou superior ao obrigatório do IBS Monofásico Ad Valorem [nItem: 999] | NT 2025.002 v1.52 | a fazer |
+| UB94-20 | 55/65 | 1242 | Obrig. | Informado indevidamente o grupo de informações sobre mistura de EAC com gasolina A em percentual inferior ou superior ao obrigatório do IBS Monofásico Ad Valorem [nItem: 999] | NT 2025.002 v1.52 | a fazer |
 | UB94a-10 | 55/65 | 1243 | Obrig. | Quantidade de Biocombustível (EAC) a recolher ou a ressarcir do IBS Monofásico Ad Valorem difere do calculado [nItem: 999] | NT 2025.002 v1.52 | a fazer |
 | UB94b-10 | 55/65 | 1244 | Obrig. | Valor do IBS Monofásico Ad Valorem correspondente a diferença em relação ao pBioObrigatorio difere do calculado [nItem: 999] | NT 2025.002 v1.52 | a fazer |
-| UB95a-10 | 55/65 | 1245 | Obrig. | Tributação Monofásica Ad Rem da CBS informada indevidamente [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.2) |
-| UB95a-20 | 55/65 | 1246 | Obrig. | Não informada Tributação Monofásica Ad Rem da CBS [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.2) |
-| UB96-10 | 55/65 | 1247 | Obrig. | Não informada a Tributação Monofásica Padrão de Combustível da CBS Ad Rem [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.2) |
-| UB96-20 | 55/65 | 1248 | Obrig. | Informada indevidamente a Tributação Monofásica Padrão de Combustível da CBS Ad Rem [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.2) |
+| UB95a-10 | 55/65 | 1245 | Obrig. | Tributação Monofásica Ad Rem da CBS informada indevidamente [nItem: 999] | NT 2025.002 v1.52 | a fazer |
+| UB95a-20 | 55/65 | 1246 | Obrig. | Não informada Tributação Monofásica Ad Rem da CBS [nItem: 999] | NT 2025.002 v1.52 | a fazer |
+| UB96-10 | 55/65 | 1247 | Obrig. | Não informada a Tributação Monofásica Padrão de Combustível da CBS Ad Rem [nItem: 999] | NT 2025.002 v1.52 | a fazer |
+| UB96-20 | 55/65 | 1248 | Obrig. | Informada indevidamente a Tributação Monofásica Padrão de Combustível da CBS Ad Rem [nItem: 999] | NT 2025.002 v1.52 | a fazer |
 | UB96c-10 | 55/65 | 1249 | Obrig. | Valor da CBS Monofásica Padrão Ad Rem difere do calculado [nItem: 999] | NT 2025.002 v1.52 | a fazer |
-| UB97-10 | 55/65 | 1250 | Obrig. | Não informada a Tributação Monofásica de Combustível com Retenção da CBS Ad Rem [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.2) |
-| UB97-20 | 55/65 | 1251 | Obrig. | Informada indevidamente a Tributação Monofásica de Combustível com Retenção da CBS Ad Rem [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.2) |
+| UB97-10 | 55/65 | 1250 | Obrig. | Não informada a Tributação Monofásica de Combustível com Retenção da CBS Ad Rem [nItem: 999] | NT 2025.002 v1.52 | a fazer |
+| UB97-20 | 55/65 | 1251 | Obrig. | Informada indevidamente a Tributação Monofásica de Combustível com Retenção da CBS Ad Rem [nItem: 999] | NT 2025.002 v1.52 | a fazer |
 | UB97c-10 | 55/65 | 1252 | Obrig. | Valor da CBS Monofásica Ad Rem com Retenção difere do calculado [nItem: 999] | NT 2025.002 v1.52 | a fazer |
-| UB98-10 | 55/65 | 1253 | Obrig. | Não informada a Tributação Monofásica Retida Anteriormente da CBS Ad Rem [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.2) |
-| UB98-20 | 55/65 | 1254 | Obrig. | Informada indevidamente a Tributação Monofásica Retida Anteriormente da CBS Ad Rem [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.2) |
+| UB98-10 | 55/65 | 1253 | Obrig. | Não informada a Tributação Monofásica Retida Anteriormente da CBS Ad Rem [nItem: 999] | NT 2025.002 v1.52 | a fazer |
+| UB98-20 | 55/65 | 1254 | Obrig. | Informada indevidamente a Tributação Monofásica Retida Anteriormente da CBS Ad Rem [nItem: 999] | NT 2025.002 v1.52 | a fazer |
 | UB98a-10 | 55/65 | 1255 | Obrig. | Valor da CBS Monofásica Ad Rem retido anteriormente difere do calculado [nItem: 999] | NT 2025.002 v1.52 | a fazer |
-| UB99-10 | 55/65 | 1148 | Obrig. | Não informado o grupo de informações sobre mistura de EAC com gasolina A em percentual inferior ou superior ao obrigatório da CBS Monofásica Ad Rem [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.2) |
-| UB99-20 | 55/65 | 1149 | Obrig. | Informado indevidamente o grupo de informações sobre mistura de EAC com gasolina A em percentual inferior ou superior ao obrigatório da CBS Monofásica Ad Rem [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.2) |
+| UB99-10 | 55/65 | 1148 | Obrig. | Não informado o grupo de informações sobre mistura de EAC com gasolina A em percentual inferior ou superior ao obrigatório da CBS Monofásica Ad Rem [nItem: 999] | NT 2025.002 v1.52 | a fazer |
+| UB99-20 | 55/65 | 1149 | Obrig. | Informado indevidamente o grupo de informações sobre mistura de EAC com gasolina A em percentual inferior ou superior ao obrigatório da CBS Monofásica Ad Rem [nItem: 999] | NT 2025.002 v1.52 | a fazer |
 | UB99a-10 | 55/65 | 1256 | Obrig. | Quantidade de Biocombustível (EAC) a recolher ou a ressarcir da CBS Monofásica Ad Rem difere do calculado [nItem: 999] | NT 2025.002 v1.52 | a fazer |
 | UB99b-10 | 55/65 | 1257 | Obrig. | Valor da CBS Monofásica Ad Rem correspondente a diferença em relação ao pBioObrigatorio difere do calculado [nItem: 999] | NT 2025.002 v1.52 | a fazer |
-| UB100-10 | 55/65 | 1258 | Obrig. | Tributação Monofásica Ad Valorem da CBS informada indevidamente [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.2) |
-| UB100-20 | 55/65 | 1259 | Obrig. | Não informada Tributação Monofásica Ad Valorem da CBS [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.2) |
-| UB101-10 | 55/65 | 1260 | Obrig. | Não informada a Tributação Monofásica Padrão de Combustível da CBS Ad Valorem [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.2) |
-| UB101-20 | 55/65 | 1261 | Obrig. | Informada indevidamente a Tributação Monofásica Padrão de Combustível da CBS Ad Valorem [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.2) |
+| UB100-10 | 55/65 | 1258 | Obrig. | Tributação Monofásica Ad Valorem da CBS informada indevidamente [nItem: 999] | NT 2025.002 v1.52 | a fazer |
+| UB100-20 | 55/65 | 1259 | Obrig. | Não informada Tributação Monofásica Ad Valorem da CBS [nItem: 999] | NT 2025.002 v1.52 | a fazer |
+| UB101-10 | 55/65 | 1260 | Obrig. | Não informada a Tributação Monofásica Padrão de Combustível da CBS Ad Valorem [nItem: 999] | NT 2025.002 v1.52 | a fazer |
+| UB101-20 | 55/65 | 1261 | Obrig. | Informada indevidamente a Tributação Monofásica Padrão de Combustível da CBS Ad Valorem [nItem: 999] | NT 2025.002 v1.52 | a fazer |
 | UB101c-10 | 55/65 | 1262 | Obrig. | Valor da CBS Monofásica Padrão Ad Valorem difere do calculado [nItem: 999] | NT 2025.002 v1.52 | a fazer |
-| UB102-10 | 55/65 | 1263 | Obrig. | Não informada a Tributação Monofásica de Combustível com Retenção da CBS Ad Valorem [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.2) |
-| UB102-20 | 55/65 | 1264 | Obrig. | Informada indevidamente a Tributação Monofásica de Combustível com Retenção da CBS Ad Valorem [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.2) |
+| UB102-10 | 55/65 | 1263 | Obrig. | Não informada a Tributação Monofásica de Combustível com Retenção da CBS Ad Valorem [nItem: 999] | NT 2025.002 v1.52 | a fazer |
+| UB102-20 | 55/65 | 1264 | Obrig. | Informada indevidamente a Tributação Monofásica de Combustível com Retenção da CBS Ad Valorem [nItem: 999] | NT 2025.002 v1.52 | a fazer |
 | UB102c-10 | 55/65 | 1265 | Obrig. | Valor da CBS Monofásica Ad Valorem com Retenção difere do calculado [nItem: 999] | NT 2025.002 v1.52 | a fazer |
-| UB103-10 | 55/65 | 1266 | Obrig. | Não informada a Tributação Monofásica Retida Anteriormente da CBS Ad Valorem [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.2) |
-| UB103-20 | 55/65 | 1267 | Obrig. | Informada indevidamente a Tributação Monofásica Retida Anteriormente da CBS Ad Valorem [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.2) |
+| UB103-10 | 55/65 | 1266 | Obrig. | Não informada a Tributação Monofásica Retida Anteriormente da CBS Ad Valorem [nItem: 999] | NT 2025.002 v1.52 | a fazer |
+| UB103-20 | 55/65 | 1267 | Obrig. | Informada indevidamente a Tributação Monofásica Retida Anteriormente da CBS Ad Valorem [nItem: 999] | NT 2025.002 v1.52 | a fazer |
 | UB103a-10 | 55/65 | 1268 | Obrig. | Valor da CBS Monofásica Ad Valorem retido anteriormente difere do calculado [nItem: 999] | NT 2025.002 v1.52 | a fazer |
-| UB104-10 | 55/65 | 1269 | Obrig. | Não informado o grupo de informações sobre mistura de EAC com gasolina A em percentual inferior ou superior ao obrigatório da CBS Monofásica Ad Valorem [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.2) |
-| UB104-20 | 55/65 | 1270 | Obrig. | Informado indevidamente o grupo de informações sobre mistura de EAC com gasolina A em percentual inferior ou superior ao obrigatório da CBS Monofásica Ad Valorem [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.2) |
+| UB104-10 | 55/65 | 1269 | Obrig. | Não informado o grupo de informações sobre mistura de EAC com gasolina A em percentual inferior ou superior ao obrigatório da CBS Monofásica Ad Valorem [nItem: 999] | NT 2025.002 v1.52 | a fazer |
+| UB104-20 | 55/65 | 1270 | Obrig. | Informado indevidamente o grupo de informações sobre mistura de EAC com gasolina A em percentual inferior ou superior ao obrigatório da CBS Monofásica Ad Valorem [nItem: 999] | NT 2025.002 v1.52 | a fazer |
 | UB104a-10 | 55/65 | 1271 | Obrig. | Quantidade de Biocombustível (EAC) a recolher ou a ressarcir da CBS Monofásica Ad Valorem difere do calculado [nItem: 999] | NT 2025.002 v1.52 | a fazer |
 | UB104b-10 | 55/65 | 1272 | Obrig. | Valor da CBS Monofásica Ad Valorem correspondente a diferença em relação ao pBioObrigatorio difere do calculado [nItem: 999] | NT 2025.002 v1.52 | a fazer |
 | UB105a-10 | 55/65 | 1070 | Obrig. | Valor do IBS monofásico difere do calculado [nItem: 999] | NT 2025.002 v1.52 | a fazer |
 | UB105b-10 | 55/65 | 1071 | Obrig. | Valor da CBS monofásico difere do calculado [nItem: 999] | NT 2025.002 v1.52 | a fazer |
-| UB106-30 | 55 | 1133 | Obrig. | Finalidade de Emissão da Nota Fiscal incompatível com o CST [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.2) |
-| UB106-31 | 55 | 1168 | Obrig. | Tipo de Nota de Débito incompatível com o CST [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.2) |
+| UB106-30 | 55 | 1133 | Obrig. | Finalidade de Emissão da Nota Fiscal incompatível com o CST [nItem: 999] | NT 2025.002 v1.52 | a fazer |
+| UB106-31 | 55 | 1168 | Obrig. | Tipo de Nota de Débito incompatível com o CST [nItem: 999] | NT 2025.002 v1.52 | a fazer |
 | UB106-40 | 55 | 1129 | Obrig. | Valor do IBS ou da CBS deve ser maior que zero na transferência de crédito. [nItem: 999] | NT 2025.002 v1.52 | a fazer |
-| UB112-10 | 55/65 | 1169 | Obrig. | Grupo de Ajuste de Competência informado indevidamente [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.2) |
-| UB112-20 | 55 | 1170 | Obrig. | Grupo de Ajuste de Competência não informado [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.2) |
+| UB112-10 | 55/65 | 1169 | Obrig. | Grupo de Ajuste de Competência informado indevidamente [nItem: 999] | NT 2025.002 v1.52 | a fazer |
+| UB112-20 | 55 | 1170 | Obrig. | Grupo de Ajuste de Competência não informado [nItem: 999] | NT 2025.002 v1.52 | a fazer |
 | UB112-30 | 55 | 1171 | Obrig. | Valor do IBS ou da CBS deve ser maior que zero no ajuste de competência [nItem: 999] | NT 2025.002 v1.52 | a fazer |
-| UB116-10 | 55/65 | 1172 | Obrig. | Grupo de Estorno de Crédito informado indevidamente [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.2) |
-| UB116-20 | 55 | 1173 | Obrig. | Grupo de Estorno de Crédito não informado [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.2) |
+| UB116-10 | 55/65 | 1172 | Obrig. | Grupo de Estorno de Crédito informado indevidamente [nItem: 999] | NT 2025.002 v1.52 | a fazer |
+| UB116-20 | 55 | 1173 | Obrig. | Grupo de Estorno de Crédito não informado [nItem: 999] | NT 2025.002 v1.52 | a fazer |
 | UB116-30 | 55 | 1174 | Obrig. | Valor do IBS ou da CBS deve ser maior que zero no estorno de crédito [nItem: 999] | NT 2025.002 v1.52 | a fazer |
 | UB120-10 | 65 | 1049 | Obrig. | Não é permitido o uso de Crédito Presumido na NFC-e modelo 65 [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.3) |
-| UB120-20 | 55 | 1175 | Obrig. | Grupo de Crédito Presumido na Operação informado indevidamente [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.2) |
+| UB120-20 | 55 | 1175 | Obrig. | Grupo de Crédito Presumido na Operação informado indevidamente [nItem: 999] | NT 2025.002 v1.52 | a fazer |
 | UB122-10 | 55 | 1055 | Obrig. | Código de Crédito Presumido (cCredPres) da Operação inexistente [nItem: 999] | NT 2025.002 v1.52 | a fazer |
 | UB123-10 | 55 | 1053 | Obrig. | Crédito Presumido para o IBS informado indevidamente [nItem: 999] | NT 2025.002 v1.52 | a fazer |
 | UB123-20 | 55 | 1054 | Obrig. | Crédito Presumido para o IBS não informado [nItem: 999] | NT 2025.002 v1.52 | a fazer |
@@ -1039,11 +1038,11 @@ Baixadas em 2026-10-22: as NTs do Portal Nacional da NF-e (Documentos > Notas T�
 | UB129-10 | 55 | 1124 | Obrig. | Valor do Crédito Presumido da CBS não pode ser superior a vProd [nItem: 999] | NT 2025.002 v1.52 | a fazer |
 | UB130-10 | 55 | 1060 | Obrig. | Valor do Crédito Presumido da CBS informado indevidamente [nItem: 999] | NT 2025.002 v1.52 | a fazer |
 | UB131-10 | 65 | 1138 | Obrig. | Não é permitido o uso de Crédito Presumido ZFM na NFC-e modelo 65 [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.3) |
-| UB131-20 | 55 | 1134 | Obrig. | CST do IBS/CBS informado não permite informação do grupo para apropriação de crédito presumido de IBS sobre o saldo devedor na ZFM [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.2) |
-| UB131-30 | 55 | 1135 | Obrig. | CST do IBS/CBS informado exige a informação do grupo para apropriação de crédito presumido de IBS sobre o saldo devedor na ZFM [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.2) |
+| UB131-20 | 55 | 1134 | Obrig. | CST do IBS/CBS informado não permite informação do grupo para apropriação de crédito presumido de IBS sobre o saldo devedor na ZFM [nItem: 999] | NT 2025.002 v1.52 | a fazer |
+| UB131-30 | 55 | 1135 | Obrig. | CST do IBS/CBS informado exige a informação do grupo para apropriação de crédito presumido de IBS sobre o saldo devedor na ZFM [nItem: 999] | NT 2025.002 v1.52 | a fazer |
 | UB131-40 | 55 | 1158 | Obrig. | Tipo de Nota de Crédito não permite o grupo para apropriação de crédito presumido de IBS sobre o saldo devedor na ZFM [nItem: 999] | NT 2025.002 v1.52 | a fazer |
 | UB131-50 | 55 | 1159 | Obrig. | Tipo de Nota de Crédito exige o grupo para apropriação de crédito presumido de IBS sobre o saldo devedor na ZFM [nItem: 999] | NT 2025.002 v1.52 | a fazer |
-| UB132-10 | 55 | 1160 | Obrig. | Ano e mês referência do período de apuração superior ao ano e mês atual [nItem: 999] | NT 2025.002 v1.52 | a fazer (3.2) |
+| UB132-10 | 55 | 1160 | Obrig. | Ano e mês referência do período de apuração superior ao ano e mês atual [nItem: 999] | NT 2025.002 v1.52 | a fazer |
 | UB133-10 | 55 | 1136 | Obrig. | Não é possível repetir o Tipo de Classificação para o cálculo do crédito presumido na ZFM neste DFe [nItem: 999] | NT 2025.002 v1.52 | a fazer |
 
 #### Grupo VB: Total do item
@@ -1051,8 +1050,8 @@ Baixadas em 2026-10-22: as NTs do Portal Nacional da NF-e (Documentos > Notas T�
 | Regra | Modelo | Código | Aplic. | Mensagem | Fonte | Situação |
 |---|---|---|---|---|---|---|
 | VB01-05 | 55/65 | 1137 | Obrig. | Valor total do Item (vItem) não informado [nItem: 999] | NT 2025.002 v1.52 | a fazer |
-| VB01-10 | 55/65 | 1105 | Obrig. | Valor total do Item (vItem) difere do somatório dos valores que o compõem [nItem: 999] | NT 2026.008 v1.00 | a fazer (3.2) |
-| VB01-20 | 55 | 1105 | Obrig. | Valor total do Item (vItem) difere do somatório dos valores que o compõem [nItem: 999] | NT 2026.008 v1.00 | a fazer (3.2) |
+| VB01-10 | 55/65 | 1105 | Obrig. | Valor total do Item (vItem) difere do somatório dos valores que o compõem [nItem: 999] | NT 2026.008 v1.00 | a fazer |
+| VB01-20 | 55 | 1105 | Obrig. | Valor total do Item (vItem) difere do somatório dos valores que o compõem [nItem: 999] | NT 2026.008 v1.00 | a fazer |
 
 #### Grupo VC: Referenciamento de item de outro documento
 
@@ -1065,7 +1064,7 @@ Baixadas em 2026-10-22: as NTs do Portal Nacional da NF-e (Documentos > Notas T�
 | VC02-14 | 55 | 321 | Obrig. | NF-e de devolução de mercadoria não possui documento fiscal referenciado por item [nItem: 999] | NT 2025.002 v1.52 | a fazer |
 | VC02-20 | 55 | 1072 | Obrig. | DFe/Item referenciado em duplicidade [nItem: 999] | NT 2025.002 v1.52 | SEFAZ |
 | VC02-30 | 55 | 1130 | Obrig. | Mais de um documento fiscal referenciado [nItem: 999] | NT 2025.002 v1.52 | a fazer |
-| VC02-40 | 55 | 679 | Obrig. | Chave de Acesso referenciada com Modelo inválido [nItem:nnn] | NT 2026.002 v1.11 | a fazer (3.2) |
+| VC02-40 | 55 | 679 | Obrig. | Chave de Acesso referenciada com Modelo inválido [nItem:nnn] | NT 2026.002 v1.11 | a fazer |
 | VC02-40 | 55 | 1193 | Obrig. | Emitente das NFe Referenciadas deve ser o mesmo em todos os itens [nItem: 999] | NT 2025.002 v1.52 | a fazer |
 | VC02-50 | 55 | 708 | Obrig. | NFC-e ou NF-e com DANFE Simplificado Tipo 2 não pode referenciar documento fiscal | NT 2026.002 v1.11 | a fazer |
 | VC02-50 | 55 | 1194 | Obrig. | Destintário da NF-e deve ser o igual ao Emitente da NF referenciada [nItem: 999] | NT 2025.002 v1.52 | a fazer |
@@ -1077,82 +1076,82 @@ Baixadas em 2026-10-22: as NTs do Portal Nacional da NF-e (Documentos > Notas T�
 | Regra | Modelo | Código | Aplic. | Mensagem | Fonte | Situação |
 |---|---|---|---|---|---|---|
 | W01a-10 | 55/65 | 1282 | Obrig. | Total Líquido não informado | NT 2026.008 v1.00 | a fazer |
-| W01a-20 | 55/65 | 1283 | Obrig. | Total Líquido difere do somatório dos itens | NT 2026.008 v1.00 | a fazer (3.2) |
-| W03-10 | 55/65 | 531 | Facul. | Total da BC ICMS difere do somatório dos itens | MOC 7.03 | a fazer (3.2) |
+| W01a-20 | 55/65 | 1283 | Obrig. | Total Líquido difere do somatório dos itens | NT 2026.008 v1.00 | a fazer |
+| W03-10 | 55/65 | 531 | Facul. | Total da BC ICMS difere do somatório dos itens | MOC 7.03 | lib (3.2) |
 | W03-20 | 55/65 | 935 | Facul. | Valor total da Base de Cálculo superior ao valor limite estabelecido [Valor Limite: R$ XXX.XXX,XX] (valor definido pela UF) | NT 2019.001 v1.70 | SEFAZ |
-| W04-10 | 55/65 | 532 | Facul. | Total do ICMS difere do somatório dos itens | MOC 7.03 | a fazer (3.2) |
+| W04-10 | 55/65 | 532 | Facul. | Total do ICMS difere do somatório dos itens | MOC 7.03 | lib (3.2) |
 | W04-20 | 55/65 | 417 | Facul. | Total do ICMS superior ao valor limite estabelecido | MOC 7.03 | SEFAZ |
-| W04a-10 | 55/65 | 795 | Facul. | Total do ICMS desonerado difere do somatório dos itens | MOC 7.03 | a fazer (3.2) |
-| W04b-10 | 55/65 | 861 | Obrig. | Total do FCP difere do somatório dos itens | MOC 7.03 | a fazer (3.2) |
-| W04c-10 | 55 | 798 | Obrig. | Valor total do ICMS relativo Fundo de Combate à Pobreza (FCP) da UF de destino difere do somatório do valor dos itens | MOC 7.03 | a fazer (3.2) |
-| W04e-10 | 55 | 799 | Obrig. | Valor total do ICMS Interestadual da UF de destino difere do somatório dos itens | MOC 7.03 | a fazer (3.2) |
-| W04g-10 | 55 | 800 | Obrig. | Valor total do ICMS Interestadual da UF do remetente difere do somatório dos itens | MOC 7.03 | a fazer (3.2) |
-| W05-10 | 55/65 | 533 | Facul. | Total da BC ICMS-ST difere do somatório dos itens | MOC 7.03 | a fazer (3.2) |
-| W06-10 | 55/65 | 534 | Facul. | Total do ICMS-ST difere do somatório dos itens | MOC 7.03 | a fazer (3.2) |
+| W04a-10 | 55/65 | 795 | Facul. | Total do ICMS desonerado difere do somatório dos itens | MOC 7.03 | lib (3.2) |
+| W04b-10 | 55/65 | 861 | Obrig. | Total do FCP difere do somatório dos itens | MOC 7.03 | lib (3.2) |
+| W04c-10 | 55 | 798 | Obrig. | Valor total do ICMS relativo Fundo de Combate à Pobreza (FCP) da UF de destino difere do somatório do valor dos itens | MOC 7.03 | lib (3.2) |
+| W04e-10 | 55 | 799 | Obrig. | Valor total do ICMS Interestadual da UF de destino difere do somatório dos itens | MOC 7.03 | lib (3.2) |
+| W04g-10 | 55 | 800 | Obrig. | Valor total do ICMS Interestadual da UF do remetente difere do somatório dos itens | MOC 7.03 | lib (3.2) |
+| W05-10 | 55/65 | 533 | Facul. | Total da BC ICMS-ST difere do somatório dos itens | MOC 7.03 | lib (3.2) |
+| W06-10 | 55/65 | 534 | Facul. | Total do ICMS-ST difere do somatório dos itens | MOC 7.03 | lib (3.2) |
 | W06-20 | 55/65 | 418 | Facul. | Total do ICMS ST superior ao valor limite estabelecido | MOC 7.03 | SEFAZ |
-| W06a-10 | 55 | 862 | Obrig. | Total do FCP ST difere do somatório dos itens | MOC 7.03 | a fazer (3.2) |
-| W06b.1-10 | 55 | 700 | Facul. | Total da quantidade tributada do ICMS monofásico próprio difere do somatório dos itens | NT 2023.001 v1.60 | a fazer (3.2) |
-| W06b-10 | 55 | 859 | Obrig. | Total do FCP retido anteriormente por Substituição Tributária difere do somatório dos itens | MOC 7.03 | a fazer (3.2) |
-| W06c.1-10 | 55 | 723 | Facul. | Total da quantidade tributada do ICMS monofásico sujeito a retenção difere do somatório dos itens | NT 2023.001 v1.60 | a fazer (3.2) |
-| W06c-10 | 55 | 967 | Facul. | Total do ICMS monofásico próprio difere do somatório dos itens | NT 2023.001 v1.60 | a fazer (3.2) |
-| W06d.1-10 | 55/65 | 744 | Facul. | Total da quantidade tributada do ICMS monofásico retido anteriormente difere do somatório dos itens | NT 2023.001 v1.60 | a fazer (3.2) |
-| W06d-10 | 55 | 968 | Facul. | Total do ICMS monofásico sujeito a retenção difere do somatório dos itens | NT 2023.001 v1.60 | a fazer (3.2) |
-| W06e-10 | 55/65 | 969 | Facul. | Total do ICMS monofásico retido anteriormente difere do somatório dos itens | NT 2023.001 v1.60 | a fazer (3.2) |
-| W07-10 | 55/65 | 564 | Obrig. | Total do Produto / Serviço difere do somatório dos itens | NT 2025.002 v1.52 | a fazer (3.2) |
-| W08-10 | 55/65 | 535 | Facul. | Total do Frete difere do somatório dos itens | MOC 7.03 | a fazer (3.2) |
-| W09-10 | 55/65 | 536 | Facul. | Total do Seguro difere do somatório dos itens | MOC 7.03 | a fazer (3.2) |
-| W10-10 | 55/65 | 537 | Facul. | Total do Desconto difere do somatório dos itens | MOC 7.03 | a fazer (3.2) |
-| W11-10 | 55 | 601 | Facul. | Total do II difere do somatório dos itens | MOC 7.03 | a fazer (3.2) |
-| W12-10 | 55 | 538 | Facul. | Total do IPI difere do somatório dos itens | MOC 7.03 | a fazer (3.2) |
-| W12a-10 | 55 | 863 | Facul. | Total do IPI devolvido difere do somatório dos itens | MOC 7.03 | a fazer (3.2) |
-| W13-10 | 55/65 | 602 | Facul. | Total do PIS difere do somatório dos itens sujeitos ao ICMS | MOC 7.03 | a fazer (3.2) |
-| W14-10 | 55/65 | 603 | Facul. | Total da COFINS difere do somatório dos itens sujeitos ao ICMS | MOC 7.03 | a fazer (3.2) |
-| W15-10 | 55/65 | 604 | Facul. | Total do vOutro difere do somatório dos itens | MOC 7.03 | a fazer (3.2) |
-| W16-10 | 55/65 | 610 | Facul. | Total da NF difere do somatório dos Valores que compõe o valor Total da NF | NT 2023.001 v1.60 | a fazer (3.2) |
+| W06a-10 | 55 | 862 | Obrig. | Total do FCP ST difere do somatório dos itens | MOC 7.03 | lib (3.2) |
+| W06b.1-10 | 55 | 700 | Facul. | Total da quantidade tributada do ICMS monofásico próprio difere do somatório dos itens | NT 2023.001 v1.60 | a fazer |
+| W06b-10 | 55 | 859 | Obrig. | Total do FCP retido anteriormente por Substituição Tributária difere do somatório dos itens | MOC 7.03 | lib (3.2) |
+| W06c.1-10 | 55 | 723 | Facul. | Total da quantidade tributada do ICMS monofásico sujeito a retenção difere do somatório dos itens | NT 2023.001 v1.60 | a fazer |
+| W06c-10 | 55 | 967 | Facul. | Total do ICMS monofásico próprio difere do somatório dos itens | NT 2023.001 v1.60 | a fazer |
+| W06d.1-10 | 55/65 | 744 | Facul. | Total da quantidade tributada do ICMS monofásico retido anteriormente difere do somatório dos itens | NT 2023.001 v1.60 | a fazer |
+| W06d-10 | 55 | 968 | Facul. | Total do ICMS monofásico sujeito a retenção difere do somatório dos itens | NT 2023.001 v1.60 | a fazer |
+| W06e-10 | 55/65 | 969 | Facul. | Total do ICMS monofásico retido anteriormente difere do somatório dos itens | NT 2023.001 v1.60 | a fazer |
+| W07-10 | 55/65 | 564 | Obrig. | Total do Produto / Serviço difere do somatório dos itens | NT 2025.002 v1.52 | lib (3.2) |
+| W08-10 | 55/65 | 535 | Facul. | Total do Frete difere do somatório dos itens | MOC 7.03 | lib (3.2) |
+| W09-10 | 55/65 | 536 | Facul. | Total do Seguro difere do somatório dos itens | MOC 7.03 | lib (3.2) |
+| W10-10 | 55/65 | 537 | Facul. | Total do Desconto difere do somatório dos itens | MOC 7.03 | lib (3.2) |
+| W11-10 | 55 | 601 | Facul. | Total do II difere do somatório dos itens | MOC 7.03 | lib (3.2) |
+| W12-10 | 55 | 538 | Facul. | Total do IPI difere do somatório dos itens | MOC 7.03 | lib (3.2) |
+| W12a-10 | 55 | 863 | Facul. | Total do IPI devolvido difere do somatório dos itens | MOC 7.03 | lib (3.2) |
+| W13-10 | 55/65 | 602 | Facul. | Total do PIS difere do somatório dos itens sujeitos ao ICMS | MOC 7.03 | lib (3.2) |
+| W14-10 | 55/65 | 603 | Facul. | Total da COFINS difere do somatório dos itens sujeitos ao ICMS | MOC 7.03 | lib (3.2) |
+| W15-10 | 55/65 | 604 | Facul. | Total do vOutro difere do somatório dos itens | MOC 7.03 | lib (3.2) |
+| W16-10 | 55/65 | 610 | Facul. | Total da NF difere do somatório dos Valores que compõe o valor Total da NF | NT 2023.001 v1.60 | lib (3.2) |
 | W16-20 | 55 | 628 | Facul. | Total da NF superior ao valor limite estabelecido pela SEFAZ [Limite] | MOC 7.03 | SEFAZ |
 | W16-30 | 55/65 | 780 | Obrig. | Total da NFC-e ou NF-e com DANFE Simplificado Tipo 2 superior ao valor limite estabelecido pela SEFAZ [Limite] | NT 2026.002 v1.11 | SEFAZ |
 | W16-40 | 55/65 | 750 | Obrig. | NFC-e ou NF-e com DANFE Simplificado Tipo 2 com valor total superior ao permitido para destinatário não identificado (Código) [Limite] | NT 2026.002 v1.11 | a fazer |
 | W16-50 | 55/65 | 751 | Facul. | NFC-e ou NF-e com DANFE Simplificado Tipo 2 com valor total superior ao permitido para destinatário não identificado (Nome) [Limite] | NT 2026.002 v1.11 | a fazer |
 | W16-60 | 55/65 | 752 | Obrig. | NFC-e ou NF-e com DANFE Simplificado Tipo 2 com valor total superior ao permitido para destinatário não identificado (Endereço) [Limite] | NT 2026.002 v1.11 | a fazer |
-| W16a-10 | 55/65 | 685 | Facul. | Total do Valor Aproximado dos Tributos difere do somatório dos itens | MOC 7.03 | a fazer (3.2) |
-| W18-10 | 55/65 | 605 | Facul. | Total do vServ difere do somatório do vProd dos itens sujeitos ao ISSQN | MOC 7.03 | a fazer (3.2) |
-| W19-10 | 55/65 | 606 | Facul. | Total do vBC do ISS difere do somatório dos itens | MOC 7.03 | a fazer (3.2) |
-| W20-10 | 55/65 | 607 | Facul. | Total do ISS difere do somatório dos itens | MOC 7.03 | a fazer (3.2) |
-| W21-10 | 55/65 | 608 | Facul. | Total do PIS difere do somatório dos itens sujeitos ao ISSQN | MOC 7.03 | a fazer (3.2) |
-| W22-10 | 55/65 | 609 | Facul. | Total da COFINS difere do somatório dos itens sujeitos ao ISSQN | MOC 7.03 | a fazer (3.2) |
-| W22b-10 | 55/65 | 364 | Obrig. | Total do valor da dedução do ISS difere do somatório dos itens | MOC 7.03 | a fazer (3.2) |
-| W22c-10 | 55/65 | 365 | Obrig. | Total de outras retenções difere do somatório dos itens | MOC 7.03 | a fazer (3.2) |
-| W22d-10 | 55/65 | 366 | Obrig. | Total do desconto incondicionado ISS difere do somatório dos itens | MOC 7.03 | a fazer (3.2) |
-| W22e-10 | 55/65 | 367 | Obrig. | Total do desconto condicionado ISS difere do somatório dos itens | MOC 7.03 | a fazer (3.2) |
-| W22f-10 | 55/65 | 368 | Obrig. | Total de ISS retido difere do somatório dos itens | MOC 7.03 | a fazer (3.2) |
+| W16a-10 | 55/65 | 685 | Facul. | Total do Valor Aproximado dos Tributos difere do somatório dos itens | MOC 7.03 | lib (3.2) |
+| W18-10 | 55/65 | 605 | Facul. | Total do vServ difere do somatório do vProd dos itens sujeitos ao ISSQN | MOC 7.03 | lib (3.2) |
+| W19-10 | 55/65 | 606 | Facul. | Total do vBC do ISS difere do somatório dos itens | MOC 7.03 | lib (3.2) |
+| W20-10 | 55/65 | 607 | Facul. | Total do ISS difere do somatório dos itens | MOC 7.03 | lib (3.2) |
+| W21-10 | 55/65 | 608 | Facul. | Total do PIS difere do somatório dos itens sujeitos ao ISSQN | MOC 7.03 | lib (3.2) |
+| W22-10 | 55/65 | 609 | Facul. | Total da COFINS difere do somatório dos itens sujeitos ao ISSQN | MOC 7.03 | lib (3.2) |
+| W22b-10 | 55/65 | 364 | Obrig. | Total do valor da dedução do ISS difere do somatório dos itens | MOC 7.03 | lib (3.2) |
+| W22c-10 | 55/65 | 365 | Obrig. | Total de outras retenções difere do somatório dos itens | MOC 7.03 | lib (3.2) |
+| W22d-10 | 55/65 | 366 | Obrig. | Total do desconto incondicionado ISS difere do somatório dos itens | MOC 7.03 | lib (3.2) |
+| W22e-10 | 55/65 | 367 | Obrig. | Total do desconto condicionado ISS difere do somatório dos itens | MOC 7.03 | lib (3.2) |
+| W22f-10 | 55/65 | 368 | Obrig. | Total de ISS retido difere do somatório dos itens | MOC 7.03 | lib (3.2) |
 | W31-10 | 55/65 | 1073 | Obrig. | Total de IS informado indevidamente | NT 2025.002 v1.52 | a fazer |
 | W31-20 | 55/65 | 1117 | Obrig. | Total de IS não informado | NT 2025.002 v1.52 | a fazer |
-| W33-10 | 55/65 | 1075 | Obrig. | Total do Imposto Seletivo difere da soma dos itens | NT 2025.002 v1.52 | a fazer (3.2) |
+| W33-10 | 55/65 | 1075 | Obrig. | Total do Imposto Seletivo difere da soma dos itens | NT 2025.002 v1.52 | a fazer |
 | W34-10 | 55/65 | 1118 | Obrig. | Total de IBS e CBS informado indevidamente | NT 2025.002 v1.52 | a fazer |
 | W34-20 | 55/65 | 1119 | Obrig. | Total de IBS e CBS não informado | NT 2025.002 v1.52 | a fazer |
-| W35-10 | 55/65 | 1076 | Obrig. | Total da BC do IBS e da CBS difere da soma dos itens | NT 2025.002 v1.52 | a fazer (3.2) |
-| W38-10 | 55/65 | 1077 | Obrig. | Total de Diferimento do IBS UF difere da soma dos itens | NT 2025.002 v1.52 | a fazer (3.2) |
-| W39-10 | 55/65 | 1078 | Obrig. | Total Devolvido do IBS UF difere da soma dos itens | NT 2025.002 v1.52 | a fazer (3.2) |
-| W41-10 | 55/65 | 1080 | Obrig. | Total de IBS UF difere da soma dos itens | NT 2025.002 v1.52 | a fazer (3.2) |
-| W43-10 | 55/65 | 1081 | Obrig. | Total de Diferimento do IBS Municipal difere da soma dos itens | NT 2025.002 v1.52 | a fazer (3.2) |
-| W44-10 | 55/65 | 1082 | Obrig. | Total Devolvido do IBS Municipal difere da soma dos itens | NT 2025.002 v1.52 | a fazer (3.2) |
-| W46-10 | 55/65 | 1084 | Obrig. | Total de IBS Municipal difere da soma dos itens | NT 2025.002 v1.52 | a fazer (3.2) |
-| W47-10 | 55/65 | 1085 | Obrig. | Total do IBS difere da soma do vIBS dos itens | NT 2025.002 v1.52 | a fazer (3.2) |
-| W48-10 | 55/65 | 1086 | Obrig. | Total de Crédito Presumido do IBS UF difere da soma dos itens | NT 2025.002 v1.52 | a fazer (3.2) |
-| W53-10 | 55/65 | 1088 | Obrig. | Total de Diferimento da CBS difere da soma dos itens | NT 2025.002 v1.52 | a fazer (3.2) |
-| W54-10 | 55/65 | 1089 | Obrig. | Total Devolvido da CBS difere da soma dos itens | NT 2025.002 v1.52 | a fazer (3.2) |
-| W56-10 | 55/65 | 1091 | Obrig. | Total de CBS difere da soma dos itens | NT 2025.002 v1.52 | a fazer (3.2) |
-| W56a-10 | 55/65 | 1087 | Obrig. | Total de Crédito Presumido da CBS difere da soma dos itens | NT 2025.002 v1.52 | a fazer (3.2) |
-| W58-10 | 55/65 | 1092 | Obrig. | Total do IBS monofásico difere da soma dos itens | NT 2025.002 v1.52 | a fazer (3.2) |
-| W59-10 | 55/65 | 1093 | Obrig. | Total da CBS monofásica difere da soma dos itens | NT 2025.002 v1.52 | a fazer (3.2) |
-| W59a-10 | 55/65 | 1120 | Obrig. | Total do IBS monofásico sujeito à retenção difere da soma dos itens | NT 2025.002 v1.52 | a fazer (3.2) |
-| W59b-10 | 55/65 | 1121 | Obrig. | Total da CBS monofásica sujeita à retenção difere da soma dos itens | NT 2025.002 v1.52 | a fazer (3.2) |
-| W59c-10 | 55/65 | 1122 | Obrig. | Total do IBS monofásico retido anteriormente difere da soma dos itens | NT 2025.002 v1.52 | a fazer (3.2) |
-| W59d-10 | 55/65 | 1123 | Obrig. | Total da CBS monofásica retida anteriormente difere da soma dos itens | NT 2025.002 v1.52 | a fazer (3.2) |
-| W59f-10 | 55/65 | 1176 | Obrig. | Total do IBS estornado difere da soma dos itens | NT 2025.002 v1.52 | a fazer (3.2) |
-| W59g-10 | 55/65 | 1177 | Obrig. | Total da CBS estornada difere da soma dos itens | NT 2025.002 v1.52 | a fazer (3.2) |
+| W35-10 | 55/65 | 1076 | Obrig. | Total da BC do IBS e da CBS difere da soma dos itens | NT 2025.002 v1.52 | a fazer |
+| W38-10 | 55/65 | 1077 | Obrig. | Total de Diferimento do IBS UF difere da soma dos itens | NT 2025.002 v1.52 | a fazer |
+| W39-10 | 55/65 | 1078 | Obrig. | Total Devolvido do IBS UF difere da soma dos itens | NT 2025.002 v1.52 | a fazer |
+| W41-10 | 55/65 | 1080 | Obrig. | Total de IBS UF difere da soma dos itens | NT 2025.002 v1.52 | a fazer |
+| W43-10 | 55/65 | 1081 | Obrig. | Total de Diferimento do IBS Municipal difere da soma dos itens | NT 2025.002 v1.52 | a fazer |
+| W44-10 | 55/65 | 1082 | Obrig. | Total Devolvido do IBS Municipal difere da soma dos itens | NT 2025.002 v1.52 | a fazer |
+| W46-10 | 55/65 | 1084 | Obrig. | Total de IBS Municipal difere da soma dos itens | NT 2025.002 v1.52 | a fazer |
+| W47-10 | 55/65 | 1085 | Obrig. | Total do IBS difere da soma do vIBS dos itens | NT 2025.002 v1.52 | a fazer |
+| W48-10 | 55/65 | 1086 | Obrig. | Total de Crédito Presumido do IBS UF difere da soma dos itens | NT 2025.002 v1.52 | a fazer |
+| W53-10 | 55/65 | 1088 | Obrig. | Total de Diferimento da CBS difere da soma dos itens | NT 2025.002 v1.52 | a fazer |
+| W54-10 | 55/65 | 1089 | Obrig. | Total Devolvido da CBS difere da soma dos itens | NT 2025.002 v1.52 | a fazer |
+| W56-10 | 55/65 | 1091 | Obrig. | Total de CBS difere da soma dos itens | NT 2025.002 v1.52 | a fazer |
+| W56a-10 | 55/65 | 1087 | Obrig. | Total de Crédito Presumido da CBS difere da soma dos itens | NT 2025.002 v1.52 | a fazer |
+| W58-10 | 55/65 | 1092 | Obrig. | Total do IBS monofásico difere da soma dos itens | NT 2025.002 v1.52 | a fazer |
+| W59-10 | 55/65 | 1093 | Obrig. | Total da CBS monofásica difere da soma dos itens | NT 2025.002 v1.52 | a fazer |
+| W59a-10 | 55/65 | 1120 | Obrig. | Total do IBS monofásico sujeito à retenção difere da soma dos itens | NT 2025.002 v1.52 | a fazer |
+| W59b-10 | 55/65 | 1121 | Obrig. | Total da CBS monofásica sujeita à retenção difere da soma dos itens | NT 2025.002 v1.52 | a fazer |
+| W59c-10 | 55/65 | 1122 | Obrig. | Total do IBS monofásico retido anteriormente difere da soma dos itens | NT 2025.002 v1.52 | a fazer |
+| W59d-10 | 55/65 | 1123 | Obrig. | Total da CBS monofásica retida anteriormente difere da soma dos itens | NT 2025.002 v1.52 | a fazer |
+| W59f-10 | 55/65 | 1176 | Obrig. | Total do IBS estornado difere da soma dos itens | NT 2025.002 v1.52 | a fazer |
+| W59g-10 | 55/65 | 1177 | Obrig. | Total da CBS estornada difere da soma dos itens | NT 2025.002 v1.52 | a fazer |
 | W60-05 | 55/65 | 1004 | Obrig. | Valor total da NF-e com IBS / CBS / IS (vNFTot) não informado | NT 2025.002 v1.52 | a fazer |
-| W60-10 | 55/65 | 1094 | Obrig. | Total da NFe difere da soma do total dos itens da Nota | NT 2025.002 v1.52 | a fazer (3.2) |
+| W60-10 | 55/65 | 1094 | Obrig. | Total da NFe difere da soma do total dos itens da Nota | NT 2025.002 v1.52 | a fazer |
 
 #### Grupo X: Transporte da NF-e
 
@@ -1164,7 +1163,7 @@ Baixadas em 2026-10-22: as NTs do Portal Nacional da NF-e (Documentos > Notas T�
 | X03-20 | 65 | 786 | Obrig. | NFC-e de entrega a domicílio sem dados do Transportador | NT 2023.004 v1.20 | a fazer (3.3) |
 | X03-30 | 55 | 845 | Obrig. | O Grupo Transportador não pode ser preenchido para Modalidade do frete informada | NT 2021.004 v1.35 | a fazer |
 | X04-10 | 55 | 362 | Facul. | Venda de combustível sem informação do Transportador | NT 2022.002 v1.30a | a fazer |
-| X04-20 | 55/65 | 542 | Obrig. | CNPJ do Transportador inválido | MOC 7.03 | a fazer (3.2) |
+| X04-20 | 55/65 | 542 | Obrig. | CNPJ do Transportador inválido | MOC 7.03 | lib (3.2) |
 | X04-30 | 55 | 846 | Obrig. | Transporte próprio por conta do Remetente e CNPJ Base ou CPF do Transportador difere do CNPJ Base ou CPF do Remetente | NT 2021.004 v1.35 | a fazer |
 | X04-40 | 55 | 846 | Obrig. | Transporte próprio por conta do Remetente e CNPJ Base ou CPF do Transportador difere do CNPJ Base ou CPF do Remetente | NT 2021.004 v1.35 | a fazer |
 | X04-50 | 55 | 847 | Obrig. | Transporte não é próprio por conta do Remetente e CNPJ Base ou CPF do Transportador igual ao CNPJ Base ou CPF do Remetente | NT 2021.004 v1.35 | a fazer |
@@ -1173,7 +1172,7 @@ Baixadas em 2026-10-22: as NTs do Portal Nacional da NF-e (Documentos > Notas T�
 | X04-80 | 55 | 848 | Obrig. | Transporte próprio por conta do Destinatário e CNPJ Base ou CPF do Transportador difere do CNPJ Base ou CPF do Destinatário | NT 2021.004 v1.35 | a fazer |
 | X04-90 | 55 | 849 | Obrig. | Transporte não é próprio por conta do Destinatário e CNPJ Base ou CPF do Transportador igual ao CNPJ Base ou CPF do Destinatário | NT 2021.004 v1.35 | a fazer |
 | X04-100 | 55 | 849 | Obrig. | Transporte não é próprio por conta do Destinatário e CNPJ Base ou CPF do Transportador igual ao CNPJ Base ou CPF do Destinatário | NT 2021.004 v1.35 | a fazer |
-| X05-10 | 55/65 | 543 | Obrig. | CPF do Transportador inválido | MOC 7.03 | a fazer (3.2) |
+| X05-10 | 55/65 | 543 | Obrig. | CPF do Transportador inválido | MOC 7.03 | lib (3.2) |
 | X07-10 | 55/65 | 559 | Obrig. | UF do Transportador não informada | MOC 7.03 | a fazer |
 | X07-20 | 55/65 | 544 | Obrig. | IE do Transportador inválida | MOC 7.03 | a fazer |
 | X11-10 | 55/65 | 755 | Obrig. | NFC-e ou NF-e com DANFE Simplificado Tipo 2 com dados de Retenção do ICMS no Transporte | NT 2026.002 v1.11 | a fazer |
@@ -1193,10 +1192,10 @@ Baixadas em 2026-10-22: as NTs do Portal Nacional da NF-e (Documentos > Notas T�
 | Y05-10 | 55 | 901 | Obrig. | Valor do Desconto da Fatura maior que Valor Original da Fatura | MOC 7.03 | a fazer |
 | Y06-10 | 55 | 902 | Obrig. | Valor Liquido da Fatura difere do Valor Original menos o Valor do Desconto | MOC 7.03 | a fazer |
 | Y08-10 | 55 | 852 | Obrig. | Número da parcela inválido ou não informado [nOcor: 999] | MOC 7.03 | a fazer |
-| Y09-20 | 55 | 900 | Obrig. | Data de vencimento da parcela não informada ou menor que Data de Emissão [nOcor: 999] | MOC 7.03 | a fazer (3.2) |
-| Y09-30 | 55 | 850 | Obrig. | Data de vencimento da parcela não informada ou menor que a Data de vencimento da parcela anterior [nOcor: 999] | MOC 7.03 | a fazer (3.2) |
+| Y09-20 | 55 | 900 | Obrig. | Data de vencimento da parcela não informada ou menor que Data de Emissão [nOcor: 999] | MOC 7.03 | lib (3.2) |
+| Y09-30 | 55 | 850 | Obrig. | Data de vencimento da parcela não informada ou menor que a Data de vencimento da parcela anterior [nOcor: 999] | MOC 7.03 | lib (3.2) |
 | Y09-40 | 55 | 853 | Obrig. | Dados de cobrança não devem ser informados para pagamento à vista | NT 2025.001 v1.03 | a fazer |
-| Y09-50 | 55 | 797 | Obrig. | Data de vencimento da parcela superior a 10 anos da data atual [nOcor: 999] | NT 2025.001 v1.03 | a fazer (3.2) |
+| Y09-50 | 55 | 797 | Obrig. | Data de vencimento da parcela superior a 10 anos da data atual [nOcor: 999] | NT 2025.001 v1.03 | a fazer |
 | Y10-10 | 55 | 851 | Obrig. | Soma do valor das parcelas difere do Valor Líquido da Fatura | MOC 7.03 | a fazer |
 
 #### Grupo YA: Formas de Pagamento
@@ -1213,14 +1212,14 @@ Baixadas em 2026-10-22: as NTs do Portal Nacional da NF-e (Documentos > Notas T�
 | YA03-10 | 55/65 | 865 | Facul. (55), Obrig. (65) | Total dos pagamentos menor que o total da nota | NT 2025.001 v1.03 | a fazer |
 | YA03-20 | 55/65 | 866 | Facul. (55), Obrig. (65) | Ausência de troco quando o valor dos pagamentos informados for maior que o total da nota | NT 2025.001 v1.03 | outra operação (4.4) |
 | YA03-30 | 55/65 | 904 | Facul. (55), Obrig. (65) | Informado indevidamente campo valor de pagamento | NT 2025.001 v1.03 | a fazer |
-| YA03a-10 | 55/65 | 657 | Obrig. | Data de Pagamento inválida [nOcor:999] | NT 2023.004 v1.20 | a fazer (3.2) |
-| YA03c-10 | 55/65 | 961 | Obrig. | CNPJ transacional do pagamento inválido [nOcor:999] | NT 2023.004 v1.20 | a fazer (3.2) |
-| YA04-10 | 55/65 | 391 | Facul. (55), Obrig. (65) | Não informados os dados do cartão de crédito / débito nas Formas de Pagamento da Nota Fiscal | NT 2025.001 v1.03 | a fazer (3.2) |
-| YA04-20 | 55/65 | 796 | Obrig. | CNPJ recebedor do pagamento inválido [nOcor:999] | NT 2023.004 v1.20 | a fazer (3.2) |
+| YA03a-10 | 55/65 | 657 | Obrig. | Data de Pagamento inválida [nOcor:999] | NT 2023.004 v1.20 | a fazer |
+| YA03c-10 | 55/65 | 961 | Obrig. | CNPJ transacional do pagamento inválido [nOcor:999] | NT 2023.004 v1.20 | lib (3.2) |
+| YA04-10 | 55/65 | 391 | Facul. (55), Obrig. (65) | Não informados os dados do cartão de crédito / débito nas Formas de Pagamento da Nota Fiscal | NT 2025.001 v1.03 | a fazer |
+| YA04-20 | 55/65 | 796 | Obrig. | CNPJ recebedor do pagamento inválido [nOcor:999] | NT 2023.004 v1.20 | a fazer |
 | YA04-20 | 55/65 | 963 | Obrig. | Tipo de pagamento não aceita o grupo de cartões ou boletos. [nOcor:999] | NT 2023.004 v1.20 | a fazer |
 | YA04a-20 | 55/65 | 737 | Facul. | Pagamento com cartão de crédito em sistema de automação não integrado | MOC 7.03 | a fazer |
 | YA05-10 | 55/65 | 392 | Facul. (55), Obrig. (65) | Não informados os dados da operação de pagamento por cartão de crédito / débito | NT 2025.001 v1.03 | SEFAZ |
-| YA05-20 | 55/65 | 437 | Facul. (55), Obrig. (65) | CNPJ da instituição de pagamento inválido | NT 2025.001 v1.03 | a fazer (3.2) |
+| YA05-20 | 55/65 | 437 | Facul. (55), Obrig. (65) | CNPJ da instituição de pagamento inválido | NT 2025.001 v1.03 | a fazer |
 | YA06-10 | 55/65 | 443 | Facul. (55), Obrig. (65) | Código da bandeira de cartão de crédito e/ou débito inexistente | NT 2025.001 v1.03 | a fazer |
 | YA09-10 | 55/65 | 869 | Obrig. | Valor do troco incorreto | MOC 7.03 | a fazer |
 | YA09-20 | 55/65 | 965 | Obrig. | Valor do troco acima do permitido | NT 2023.004 v1.20 | a fazer |
@@ -1231,7 +1230,7 @@ Baixadas em 2026-10-22: as NTs do Portal Nacional da NF-e (Documentos > Notas T�
 |---|---|---|---|---|---|---|
 | YB01-10 | 55/65 | 438 | Obrig. | Obrigatória as informações do intermediador da transação para operação por site de terceiros | NT 2020.006 v1.31 | a fazer |
 | YB01-20 | 55/65 | 439 | Obrig. | Informações do intermediador da transação para operação por site de terceiros preenchido indevidamente | NT 2020.006 v1.31 | a fazer |
-| YB02-10 | 55/65 | 440 | Obrig. | CNPJ do intermediador da transação inválido | NT 2020.006 v1.31 | a fazer (3.2) |
+| YB02-10 | 55/65 | 440 | Obrig. | CNPJ do intermediador da transação inválido | NT 2020.006 v1.31 | lib (3.2) |
 
 #### Grupo YC: Vinculação com a transação de pagamento
 
@@ -1240,7 +1239,7 @@ Baixadas em 2026-10-22: as NTs do Portal Nacional da NF-e (Documentos > Notas T�
 | YC03-10 | 55/65 | 215 | Obrig. | Falha no esquema XML | NT 2026.006 v1.00 | a fazer |
 | YC04-20 | 55/65 | 215 | Obrig. | Falha no esquema XML | NT 2026.006 v1.00 | a fazer |
 | YC05-10 | 55/65 | 1273 | Obrig. | Meio de pagamento inválido [nPag: 999] | NT 2026.006 v1.00 | a fazer |
-| YC06-10 | 55/65 | 1274 | Obrig. | CNPJ do recebedor do pagamento inválido [nPag: 999] | NT 2026.006 v1.00 | a fazer (3.2) |
+| YC06-10 | 55/65 | 1274 | Obrig. | CNPJ do recebedor do pagamento inválido [nPag: 999] | NT 2026.006 v1.00 | a fazer |
 
 #### Grupo Z: Informação Adicional da NF-e
 
@@ -1278,7 +1277,7 @@ Baixadas em 2026-10-22: as NTs do Portal Nacional da NF-e (Documentos > Notas T�
 | Regra | Modelo | Código | Aplic. | Mensagem | Fonte | Situação |
 |---|---|---|---|---|---|---|
 | ZD01-10 | 55/65 | 972 | Facul. | Obrigatória as informações do responsável técnico | NT 2021.002 v1.12 | a fazer |
-| ZD02-10 | 55/65 | 973 | Facul. | CNPJ do responsável técnico inválido | NT 2021.002 v1.12 | a fazer (3.2) |
+| ZD02-10 | 55/65 | 973 | Facul. | CNPJ do responsável técnico inválido | NT 2021.002 v1.12 | lib (3.2) |
 | ZD07-10 | 55/65 | 975 | Facul. | Obrigatória a informação do identificador do CSRT e do Hash do CSRT | NT 2021.002 v1.12 | a fazer |
 
 #### Grupo ZE: Nota Fiscal Fácil (NFF)
@@ -1294,7 +1293,7 @@ Baixadas em 2026-10-22: as NTs do Portal Nacional da NF-e (Documentos > Notas T�
 |---|---|---|---|---|---|---|
 | ZF02-10 | 55 | 835 | Facul. | Em algum item da NF-e foi informado produto agrotóxico e não informado número da receita do defensivo agrícola. [nItem: 999] | NT 2024.003 v1.10 | a fazer |
 | ZF02-20 | 55 | 309 | Facul. | Nenhum item da NF-e é defensivo agrícola e informada receita de agrotóxico | NT 2024.003 v1.10 | a fazer |
-| ZF03a-10 | 55 | 308 | Obrig. | CPF inválido para Responsável Técnico do de agrotóxico. receituário de agrotóxico | NT 2024.003 v1.10 | a fazer (3.2) |
+| ZF03a-10 | 55 | 308 | Obrig. | CPF inválido para Responsável Técnico do de agrotóxico. receituário de agrotóxico | NT 2024.003 v1.10 | a fazer |
 | ZF05-10 | 55 | 836 | Facul. | Não informada Guia de Trânsito Animal [nItem: 999] | NT 2024.003 v1.10 | SEFAZ (tabela) |
 | ZF05-14 | 55 | 310 | Facul. | Informação indevida de Guia de Trânsito Animal | NT 2024.003 v1.10 | a fazer |
 | ZF05-20 | 55 | 311 | Facul. | Não Informada Guia de Trânsito Vegetal [nItem: 999] | NT 2024.003 v1.10 | SEFAZ (tabela) |
@@ -1319,7 +1318,7 @@ Baixadas em 2026-10-22: as NTs do Portal Nacional da NF-e (Documentos > Notas T�
 | Regra | Modelo | Código | Aplic. | Mensagem | Fonte | Situação |
 |---|---|---|---|---|---|---|
 | ZX01-10 | 55 | 393 | Obrig. | NF-e com o grupo de Informações Suplementares | MOC 7.03 | a fazer |
-| ZX02-10 | 55/65 | 394 | Obrig. | Nota Fiscal sem a informação do QR-Code | NT 2026.002 v1.11 | a fazer (3.2) |
+| ZX02-10 | 55/65 | 394 | Obrig. | Nota Fiscal sem a informação do QR-Code | NT 2026.002 v1.11 | a fazer |
 | ZX02-15 | 65 | 903 | Obrig. | Versão informada no QR-Code (“100”) não é mais válida para a data de emissão | MOC 7.03 | a fazer (3.3) |
 | ZX02-20 | 55/65 | 395 | Obrig. | Endereço do site da UF da Consulta via QR- Code diverge do previsto | NT 2026.002 v1.11 | a fazer |
 | ZX02-22 | 65 | 813 | Obrig. | QR-Code com sequência de escape para o e-comercial. Usar CDATA | MOC 7.03 | a fazer (3.3) |
@@ -1540,3 +1539,17 @@ As NTs 2019.001 (EPEC), 2025.002 (os eventos da RTC), 2026.001 (o cancelamento p
 | P81-40 | 55 | 895 | Obrig. | Chave do Emitente para o PAA inválida | NT 2026.001 v1.02b | outra operação (6) |
 | P81-50 | 55 | 776 | Obrig. | Emissão por PAA deve ser assinada pelo CNPJ do Provedor de Assinatura | NT 2026.001 v1.02b | outra operação (6) |
 | P83-10 | 55 | 856 | Obrig. | Emissão por PAA com Assinatura RSA inválida | NT 2026.001 v1.02b | outra operação (6) |
+
+## 11. O lote da etapa 3.2 (2026-10-22)
+
+**Decisão do usuário (2026-10-22):** a validação se apoia no **schema**, que confere a forma de cada campo e agora devolve também o `xs:documentation` do campo e do tipo (`FalhaSchema.Documentacao` e `DocumentacaoTipo`, `PROJETO.md` 6.4). Das regras do MOC, a lib implementa só **um lote pequeno**: as que pegam o erro comum de quem emite, que o schema não vê, e que quase não mudam com as NTs. O resto do catálogo fica como referência do que a SEFAZ confere. Foi a opção 2 de três (a 1, só o schema; a 3, as 296 regras marcadas para a 3.2). Com isso, a tabela do `cClassTrib` **não é embutida** nesta etapa (a escolha anterior da mesma sessão, de embuti-la, valia para as regras do grupo UB, que ficaram de fora).
+
+- **As 68 regras implementadas** (situação "lib (3.2)"), em `RegrasNFe400` (um arquivo por assunto):
+  - **CPF e CNPJ** (`RegrasNFe400.Documentos.cs`): o emitente, o destinatário, a retirada, a entrega, os autorizados a baixar o XML, o fabricante, o adquirente da importação, o transportador, o CNPJ do pagamento, o intermediador e o responsável técnico (com zeros, repetidos ou com o DV errado, pelo `Cnpj.Valido` e o `Cpf.Valido` do núcleo; o alfanumérico incluído). O documento errado não vai na mensagem.
+  - **DV das chaves informadas** (no mesmo arquivo): a NF-e e o CT-e referenciados, a exportação indireta e o documento anterior da compra governamental. Só o DV; o resto da chave referenciada (UF, mês, modelo) ficou fora.
+  - **Totais** (`RegrasNFe400.Totais.cs`): cada campo do `ICMSTot` contra a soma dos itens (W03 a W16a) e do `ISSQNtot` contra a soma dos itens com ISSQN (W18 a W22f). Os valores vão no detalhe (`vProd 999,50; soma dos itens 1000,00`). O campo não informado vale zero; a soma é exata, salvo o `vNF` (W16-10), com a tolerância de R$ 0,50 do MOC e as três exceções (faturamento direto de veículo, importação, ICMS desonerado não descontado). O W07-10 soma os itens com `indTot=1` sem o grupo ISSQN (os sujeitos ao ICMS ou ao IBS, à CBS e ao IS, NT 2025.002).
+  - **Combinações e datas** (`RegrasNFe400.Operacao.cs`): CFOP × `idDest` (I08-30, I08-40, I08-50, com a exceção do combustível consumido no exterior); `indIEDest` × IE e consumidor final (E16a-40, E17-20, E17-30, E17-40); a emissão no futuro além de 5 minutos (B09-10, pelo `ConfiguracaoDFe.Relogio`), a saída antes da emissão (B10-40), a fabricação e a validade do rastro (I83-10, I84-10) e o vencimento das duplicatas (Y09-20, Y09-30).
+- **As outras 223 linhas que estavam "a fazer (3.2)"** voltaram para "a fazer", sem etapa. Ficam para a SEFAZ conferir, ou para uma etapa futura, se pedida. Entre elas: as do IBS e da CBS que dependem das tabelas de CST e `cClassTrib`; as que dependem da tabela de CFOP (`indRetor`, `indComb`), da de combustíveis monofásicos ou da de biocombustível; a IE por UF (210); as alíquotas do ICMS interestadual e da partilha; as da NFC-e e do DANFE Simplificado Tipo 2 que estavam neste lote; as das NTs 2026.006 e 2026.008, que ainda não têm pacote de schemas (`vProdLiq`, `gPgtoVinc`); as marcadas como implementação futura na fonte; e a F03 (227), que é da verificação da assinatura (`AssinaturaDigital.Verificar`, 1.4), na autorização (4.4).
+- **Correção do levantamento da 3.1:** a extração do texto dos PDFs não via o tachado. A NT 2026.002 v1.11 exclui as regras BA05-10, BA06-10, BA12-10, BA13-10 e BA14-10 (conferido nas páginas 9 e 10 do PDF), agora "excluída". Outras linhas do catálogo podem ter o mesmo problema; quem implementar uma regra confere o PDF.
+- **Testes** (`RegrasLoteTestes`): as duas notas de teste passam sem problema nenhum; um caso por regra, com a nota que a SEFAZ rejeitaria (a mudança na NF-e de teste, o código e o caminho do problema); a lista e os casos conferidos nos dois sentidos; o detalhe dos valores, o CPF fora da mensagem, a tolerância e as exceções do `vNF`, a do CFOP de exportação e as regras só da NF-e. As chaves referenciadas da NF-e de teste estavam com o DV errado e foram corrigidas.
+

@@ -3,7 +3,7 @@ using OpenDFe.NFe;
 
 namespace OpenDFe.Testes;
 
-// As regras do leiaute (REGRAS.md 4): a estrutura da 3.1, com regras de teste; as regras do MOC entram na 3.2.
+// As regras do leiaute (REGRAS.md 4): a estrutura da 3.1, com regras de teste; o lote da 3.2 está em RegrasLoteTestes.
 public class RegrasNFe400Testes
 {
     private static ContextoRegra Contexto(Documento documento = Documento.NFe) =>
@@ -19,7 +19,7 @@ public class RegrasNFe400Testes
     [Fact]
     public void OLeiauteDeclaraAsRegrasNosDoisDocumentos()
     {
-        Assert.Empty(RegrasNFe400.Lista);
+        Assert.NotEmpty(RegrasNFe400.Lista);
         var regras = typeof(DeclaracaoLeiaute).GetProperty("Regras", BindingFlags.NonPublic | BindingFlags.Instance)!;
         foreach (var documento in (Documento[])[Documento.NFe, Documento.NFCe])
         {

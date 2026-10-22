@@ -144,6 +144,8 @@ OpenDFe.FacetaSchema.TipoPrimitivo = 1 -> OpenDFe.FacetaSchema
 OpenDFe.FacetaSchema.TotalDigitos = 7 -> OpenDFe.FacetaSchema
 OpenDFe.FalhaSchema
 OpenDFe.FalhaSchema.Coluna.get -> int?
+OpenDFe.FalhaSchema.Documentacao.get -> string?
+OpenDFe.FalhaSchema.DocumentacaoTipo.get -> string?
 OpenDFe.FalhaSchema.Esperados.get -> System.Collections.Generic.IReadOnlyList<string!>!
 OpenDFe.FalhaSchema.Linha.get -> int?
 OpenDFe.FalhaSchema.MensagemOriginal.get -> string!
