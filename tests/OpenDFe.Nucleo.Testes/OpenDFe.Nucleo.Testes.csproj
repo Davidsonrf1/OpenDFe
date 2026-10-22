@@ -8,6 +8,13 @@
     <ProjectReference Include="../../src/OpenDFe.Nucleo/OpenDFe.Nucleo.csproj" />
   </ItemGroup>
 
+  <!-- O transporte (4.1) contra um Kestrel local com TLS mútuo e contra a SEFAZ emulada (PROJETO.md 13.5), que
+       também dá a AC de teste e o certificado do servidor. -->
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <ProjectReference Include="../OpenDFe.SefazEmulada/OpenDFe.SefazEmulada.csproj" />
+  </ItemGroup>
+
   <!-- O gerador do certificado de teste (PROJETO.md 13.1), compartilhado entre os projetos de teste. -->
   <ItemGroup>
     <Compile Include="../Compartilhado/**/*.cs" LinkBase="Compartilhado" />

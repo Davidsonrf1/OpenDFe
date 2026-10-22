@@ -1,56 +1,51 @@
-using System.Net;
-using System.Net.Http.Headers;
 using System.Net.Security;
-using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
-using System.Text;
 
 namespace OpenDFe.Testes;
 
-// O HttpClient da prova: TLS mútuo com o certificado do titular, a confiança do sistema, da ICP-Brasil ou
-// da AC do emulador (ConfiancaServidor) e o POST SOAP 1.2. Um por certificado, como o pool da 4.1
-// (PROJETO.md 8.5).
+// De onde veio a confiança no certificado do servidor, na prova. Público: é parâmetro de teste.
+public enum OrigemProva
+{
+    Recusado = 0,
+    Sistema = 1,      // a AC raiz está no repositório da máquina (MG e o Ambiente Nacional: ACs públicas)
+    IcpBrasil = 2,    // a cadeia sobe a uma das raízes ICP-Brasil embutidas no núcleo (SVRS, SP, PR e a maioria)
+    Emulador = 3,     // a cadeia sobe à AC de teste da SEFAZ emulada (PROJETO.md 13.5), só quando informada
+}
+
+// O cliente da prova, desde a 4.1 sobre o transporte da lib (ConexoesSefaz): a fábrica ajusta o handler padrão
+// com as intermediárias do PFX no handshake e com a AC do emulador, quando informada, e guarda de onde veio a
+// confiança (a avaliação do núcleo, ConfiancaServidor).
 internal sealed class ClienteSefaz : IDisposable
 {
-    private readonly HttpClient _http;
+    private readonly ConexoesSefaz _conexoes;
+    private readonly X509Certificate2 _certificado;
     private volatile int _origem;
 
     public ClienteSefaz(X509Certificate2 certificado, X509Certificate2Collection intermediarias, X509Certificate2? raizEmulador = null)
     {
-        var handler = new SocketsHttpHandler
+        _certificado = certificado;
+        _conexoes = new ConexoesSefaz(conexao =>
         {
-            ConnectTimeout = TimeSpan.FromSeconds(15),
-            PooledConnectionLifetime = TimeSpan.FromMinutes(5),
-            SslOptions = new SslClientAuthenticationOptions
+            var handler = conexao.CriarPadrao();
+            handler.SslOptions.ClientCertificateContext = SslStreamCertificateContext.Create(conexao.Certificado, intermediarias, offline: true);
+            handler.SslOptions.RemoteCertificateValidationCallback = (_, servidor, cadeia, erros) =>
             {
-                // O contexto leva as intermediárias no handshake; offline: não busca as que faltam na rede.
-                ClientCertificateContext = SslStreamCertificateContext.Create(certificado, intermediarias, offline: true),
-                EnabledSslProtocols = SslProtocols.Tls12 | SslProtocols.Tls13,
-                CertificateRevocationCheckMode = X509RevocationMode.NoCheck,
-                RemoteCertificateValidationCallback = (_, servidor, cadeia, erros) =>
-                {
-                    var origem = ConfiancaServidor.Avaliar(servidor, cadeia, erros, raizEmulador);
-                    _origem = (int)origem;
-                    return origem != OrigemConfianca.Recusado;
-                },
-            },
-        };
-        _http = new HttpClient(handler) { Timeout = TimeSpan.FromSeconds(60) };
+                var origem = raizEmulador is not null && ConexaoTeste.SobeAutoridade(raizEmulador, servidor, erros)
+                    ? OrigemProva.Emulador
+                    : (OrigemProva)(int)ConfiancaServidor.Avaliar(servidor, cadeia, erros);
+                _origem = (int)origem;
+                return origem != OrigemProva.Recusado;
+            };
+            return handler;
+        });
     }
 
     // A confiança da última conexão aberta.
-    public OrigemConfianca UltimaOrigem => (OrigemConfianca)_origem;
+    public OrigemProva UltimaOrigem => (OrigemProva)_origem;
 
-    public async Task<RespostaSoap> EnviarAsync(Uri url, string acao, string envelope, CancellationToken cancellationToken)
-    {
-        using var conteudo = new StringContent(envelope, Encoding.UTF8);
-        conteudo.Headers.ContentType = MediaTypeHeaderValue.Parse($"application/soap+xml; charset=utf-8; action=\"{acao}\"");
-        using var resposta = await _http.PostAsync(url, conteudo, cancellationToken);
-        var texto = await resposta.Content.ReadAsStringAsync(cancellationToken);
-        return new RespostaSoap(resposta.StatusCode, resposta.Version, texto);
-    }
+    // A mensagem do nfeResultMsg; a falha, como o transporte a classifica (FalhaTransporte).
+    public Task<string> EnviarAsync(Uri url, string mensagem, CancellationToken cancellationToken) =>
+        _conexoes.Transporte().EnviarAsync(new EnvioSefaz(_certificado, Destino.MG, url, StatusServico.Servico, mensagem), cancellationToken);
 
-    public void Dispose() => _http.Dispose();
+    public void Dispose() => _conexoes.Dispose();
 }
-
-internal sealed record RespostaSoap(HttpStatusCode Status, Version VersaoHttp, string Texto);

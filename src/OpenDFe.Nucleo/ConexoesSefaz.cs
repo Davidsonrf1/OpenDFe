@@ -1,9 +1,9 @@
 namespace OpenDFe;
 
 /// <summary>
-/// O pool de conexões com os autorizadores: um <see cref="HttpMessageHandler"/> por certificado (PROJETO.md
-/// 8.5), com as ACs raiz da ICP-Brasil. Um por processo (ou por contêiner de injeção de dependência),
-/// compartilhado por todos os núcleos (<see cref="ConfiguracaoDFe.Conexoes"/>).
+/// O pool de conexões com os autorizadores (PROJETO.md 8.5): um <see cref="HttpMessageHandler"/> por certificado e
+/// política de cifras, que transmite em SOAP 1.2 com TLS mútuo. Um por processo (ou por contêiner de injeção de
+/// dependência), compartilhado por todos os núcleos (<see cref="ConfiguracaoDFe.Conexoes"/>).
 /// </summary>
 /// <remarks>
 /// <para>
@@ -12,31 +12,84 @@ namespace OpenDFe;
 /// concorrente.
 /// </para>
 /// <para>
-/// A transmissão SOAP 1.2 com o TLS da ICP-Brasil entra na etapa 4.1 do plano: até lá, toda transmissão por
-/// esta instância falha com <see cref="FalhaTransmissaoException"/> (a causa, uma
-/// <see cref="NotSupportedException"/>, em <see cref="Exception.InnerException"/>).
+/// O handler é criado na primeira transmissão de cada certificado (pela impressão SHA-256) e descartado depois de
+/// <see cref="TempoOcioso"/> sem uso, conferido a cada transmissão, sem timer; um handler em uso nunca é descartado.
 /// </para>
 /// </remarks>
 public sealed class ConexoesSefaz : IDisposable
 {
     private readonly ITransporteSefaz _transporte;
+    private readonly TimeSpan _tempoConexao = TimeSpan.FromSeconds(15);
+    private readonly TimeSpan _tempoResposta = TimeSpan.FromSeconds(60);
+    private readonly TimeSpan _tempoOcioso = TimeSpan.FromMinutes(30);
     private int _descartado;
 
-    /// <summary>Cria o pool, vazio: as conexões são abertas na primeira transmissão de cada certificado.</summary>
+    /// <summary>Cria o pool, vazio, com o handler da lib (<see cref="ConexaoSefaz.CriarPadrao"/>).</summary>
     public ConexoesSefaz()
-        : this(new TransportePendente())
+        : this(c => c.CriarPadrao())
     {
     }
 
-    // A costura do transporte: os testes injetam um transporte falso (até a 4.1, o único que transmite).
+    /// <summary>Cria o pool, vazio, com a fábrica de handlers de quem usa (PROJETO.md 2.3).</summary>
+    /// <param name="fabrica">
+    /// A fábrica: recebe o certificado e as cifras e devolve o handler, que passa a ser do pool (descartado por ele).
+    /// Chamada uma vez por certificado e política de cifras, dentro da trava do pool: rápida e sem I/O.
+    /// </param>
+    /// <exception cref="ArgumentNullException">A fábrica é nula.</exception>
+    public ConexoesSefaz(Func<ConexaoSefaz, HttpMessageHandler> fabrica)
+        : this(fabrica, TimeProvider.System)
+    {
+    }
+
+    // O relógio do tempo ocioso e do tempo de resposta: os testes o trocam.
+    internal ConexoesSefaz(Func<ConexaoSefaz, HttpMessageHandler> fabrica, TimeProvider relogio)
+    {
+        ArgumentNullException.ThrowIfNull(fabrica);
+        _transporte = new TransporteSoap(this, fabrica, relogio);
+    }
+
+    // A costura do transporte: os testes do núcleo injetam um transporte falso.
     internal ConexoesSefaz(ITransporteSefaz transporte)
     {
         _transporte = transporte;
     }
 
+    /// <summary>O tempo para abrir a conexão, com o handshake; o padrão é 15 segundos.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">O tempo não é positivo.</exception>
+    public TimeSpan TempoConexao
+    {
+        get => _tempoConexao;
+        init => _tempoConexao = Positivo(value);
+    }
+
+    /// <summary>
+    /// O tempo de cada transmissão, do envio ao fim da resposta (com a conexão); o padrão é 60 segundos. Esgotado,
+    /// <see cref="FalhaTransmissaoException"/> com <see cref="TipoFalhaTransmissao.TempoEsgotado"/>.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException">O tempo não é positivo.</exception>
+    public TimeSpan TempoResposta
+    {
+        get => _tempoResposta;
+        init => _tempoResposta = Positivo(value);
+    }
+
+    /// <summary>
+    /// Depois de quanto tempo sem uso o handler de um certificado é descartado; o padrão é 30 minutos. No ERP com
+    /// muitos certificados, é o que libera os que não transmitem mais.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException">O tempo não é positivo.</exception>
+    public TimeSpan TempoOcioso
+    {
+        get => _tempoOcioso;
+        init => _tempoOcioso = Positivo(value);
+    }
+
     internal bool Descartado => Volatile.Read(ref _descartado) != 0;
 
-    /// <summary>Fecha as conexões. Chamar de novo não faz nada.</summary>
+    // O transporte real, para os testes do pool (também depois do descarte); nulo com o transporte falso.
+    internal TransporteSoap? Soap => _transporte as TransporteSoap;
+
+    /// <summary>Fecha as conexões e descarta os handlers. Chamar de novo não faz nada.</summary>
     public void Dispose()
     {
         if (Interlocked.Exchange(ref _descartado, 1) != 0)
@@ -51,10 +104,9 @@ public sealed class ConexoesSefaz : IDisposable
         return _transporte;
     }
 
-    // Até a 4.1: nada transmite.
-    private sealed class TransportePendente : ITransporteSefaz
+    private static TimeSpan Positivo(TimeSpan valor, [System.Runtime.CompilerServices.CallerMemberName] string nome = "")
     {
-        public Task<string> EnviarAsync(EnvioSefaz envio, CancellationToken cancellationToken) =>
-            Task.FromException<string>(new NotSupportedException("A transmissão SOAP com a SEFAZ entra na etapa 4.1 da OpenDFe."));
+        ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(valor, TimeSpan.Zero, nome);
+        return valor;
     }
 }

@@ -435,7 +435,40 @@ Pré-lançamentos (`0.x`) no NuGet.org a partir do fim da fase 5, quando o PDV p
 - Conferido (Windows): build sem aviso em Debug e Release, `dotnet test --solution OpenDFe.slnx` com código 0 (1.100 testes, 13 pulados, os de homologação sem variável), `dotnet pack -c Release` e `eng/ConferirPacotes.ps1` aprovando os pacotes. No Linux (WSL Ubuntu 26.04), os 424 do `NFe.Testes` e os 475 do `Nucleo.Testes` passam. Sem dependência nova.
 - Entra no mesmo commit uma linha em branco em `AssinaturaDigital.cs` (`ElementosId`), que estava pendente no repositório, a pedido do usuário.
 
-**A fase 3 fechou.** **Próxima: fase 4, 4.1. Transporte** (branch `fase-4-transmissao` a partir desta), só quando pedida.
+**A fase 3 fechou.**
+
+### Fase 4 (branch `fase-4-transmissao`)
+
+Criada a partir da `fase-3-regras`, com a `main` mesclada no início (a trilha da SEFAZ emulada até a E.6 e o Docker; sem conflito).
+
+**4.1. Transporte. Feita (2026-10-22).** Desenho aprovado pelo usuário na mesma sessão, todas as decisões pela recomendação ("pode implementar").
+- **API pública nova no núcleo** (no `PublicAPI.Unshipped.txt`; desenho no `PROJETO.md` 8.5 e no `CONTRATOS.md` 2.3, 2.4 e 2.9):
+  - `ConexoesSefaz(Func<ConexaoSefaz, HttpMessageHandler> fabrica)` e as propriedades `init` `TempoConexao` (15 s), `TempoResposta` (60 s) e `TempoOcioso` (30 min), que recusam o tempo não positivo;
+  - `ConexaoSefaz` (construtor interno): o `Certificado` (a cópia do pool), as `Cifras` e o `CriarPadrao()`, o `SocketsHttpHandler` da lib;
+  - `ServicoSoap(nome, namespaceWsdl, acao)` e, na declaração, `DeclararServico`, `DeclararCifras(Destino, IEnumerable<TlsCipherSuite>)`, `Servicos` e `Cifras`;
+  - `FalhaTransmissaoException.Tipo` e o enum `TipoFalhaTransmissao` (`Conexao`, `Tls`, `CertificadoRecusado`, `TempoEsgotado`, `Http`, `FalhaSoap`, `RespostaIlegivel`).
+- **Interno:**
+  - `TransporteSoap`: o pool (a chave é a impressão SHA-256 do certificado mais as cifras; a fábrica chamada uma vez por chave, dentro da trava; a cópia do certificado vive com o handler; o ocioso descartado na transmissão seguinte, nunca o que está em uso, inclusive no `Dispose`), o POST com `HttpMessageInvoker`, HTTP/1.1, o corpo em UTF-8 com a ação no `Content-Type`, o envio marcado quando o corpo foi escrito inteiro, o `TempoResposta` por transmissão (separado do cancelamento de quem chama) e a classificação de cada falha (`FalhaTransporte`);
+  - `EnvelopeSoap`: o envelope escrito à mão (a declaração XML e o BOM da mensagem tirados) e a leitura (sem DTD; o `nfeResultMsg` em qualquer namespace e em qualquer profundidade do `Body`; a falha SOAP 1.2 com o código e o motivo, `FalhaSoapException`);
+  - `ConfiancaServidor` e `RaizesIcpBrasil`, trazidos da prova da 1.7, e as 7 raízes em `src/OpenDFe.Nucleo/Raizes/`, embutidas;
+  - no `DFe`: o `Criar` recusa a URL (do leiaute ou trocada) de um serviço sem o `ServicoSoap` declarado; o envio leva o serviço SOAP e as cifras do autorizador; a falha do transporte vira a `FalhaTransmissaoException` com a espécie, e o corpo recebido vai ao rastro. A `ConexoesSefaz()` sem argumentos deixou de falhar toda transmissão.
+- **A prova da 1.7** (`tests/OpenDFe.Homologacao.Testes/ProvaRisco`) passou a usar o transporte da lib: o `ClienteSefaz` monta o `ConexoesSefaz` com uma fábrica que põe as intermediárias do PFX no handshake e registra a origem da confiança (`OrigemProva`, antes `OrigemConfianca`); o `EnvelopeSoap`, a `ConfiancaServidor` e as raízes saíram dela, e os testes offline da confiança foram para o `Nucleo.Testes`.
+- **Testes** (`Nucleo.Testes` com 556, 82 novos, em `Transporte/`; o `Nucleo.Testes` passa a referenciar a SEFAZ emulada, que lhe abre os internos, e o `Microsoft.AspNetCore.App`):
+  - `TransporteSoapTestes`, pelo `ExecutarAsync` inteiro contra um Kestrel local com TLS mútuo (`ServidorLocal`, com a AC e o certificado do servidor do emulador): o envelope, a ação e o certificado do cliente no servidor; 14 formas de resposta, cada uma com a espécie, o processado e o corpo no rastro (403 em HTML, 404, 500, 502, falha `Sender`, `VersionMismatch` e `Receiver`, o envelope sem `nfeResultMsg` ou vazio ou cortado, o leiaute que não lê); o tempo esgotado, o cancelamento de quem chama, a conexão derrubada, a recusada e o nome que não resolve; o padrão recusando a AC desconhecida; a fábrica que devolve nulo; o pool (um handler por certificado entre núcleos, a cópia do certificado, o ocioso descartado e o em uso mantido, o descarte);
+  - `SefazEmuladaTestes`, o encontro com a trilha: o status de MG, da SVRS e de SP (107) com o autoassinado e a AC do emulador pela fábrica de teste, a paralisação (108), o atraso, e cada falha comandada pelo `Controle` com a espécie (tempo esgotado, atraso além do tempo, conexão derrubada antes e depois, resposta ilegível, falha SOAP, o namespace errado);
+  - `EnvelopeSoapTestes`, `ConfiancaServidorTestes` (com a raiz ICP-Brasil falsificada) e `ConexoesTestes` (os padrões e as recusas dos tempos, o handler padrão, as cifras só no Linux, a declaração do serviço e das cifras, a URL sem serviço, o envio com o serviço e as cifras, o pool separando pelas cifras);
+  - o leiaute falso declara os dois `ServicoSoap`; os testes de falha do `DFeTestes` conferem a espécie; o `AsConexoesSemOTransporteDaEtapa41Falham` saiu.
+- **A fábrica de teste** fica em `tests/Compartilhado/ConexaoTeste.cs`, só com a API pública: o handler padrão aceitando também a cadeia que sobe à AC de teste (o `PROJETO.md` 13.5 diz isso agora). É o modelo para o ErpCore e o PDV no build de teste.
+- **Decisões tomadas sem perguntar** (o desenho não cobria; o conservador):
+  - a mensagem da resposta é o elemento relido e escrito de novo (equivalente, não byte a byte: `<ok/>` sai `<ok />`); o rastro da falha com resposta guarda o corpo como veio;
+  - o 200 com a falha SOAP é falha SOAP; o não 200 com o envelope ilegível vale pelo HTTP; o 4xx diferente do 403 não foi processado, o 5xx pode ter sido;
+  - a exceção da fábrica e o handler nulo viram falha de `Conexao` não processada; o transporte sem classificação (o falso dos testes) dá `TempoEsgotado` para o cancelamento que não é de quem chama, `RespostaIlegivel` para a resposta nula e `Conexao` para o resto;
+  - o handler padrão: `PooledConnectionLifetime` de 5 minutos, sem redirecionamento, cookies nem descompressão, o certificado do cliente num `SslStreamCertificateContext` sem buscar intermediárias na rede (as do PFX entram pela fábrica);
+  - os `ServicoSoap` da NF-e (o namespace e a ação de cada WSDL) **ficam para a 4.2**, junto com as URLs, conferidos nos WSDLs do Portal Nacional: nesta etapa o leiaute da NF-e não declara serviço nem URL.
+- **Conferido:** build sem aviso (Debug e Release); `dotnet test --solution OpenDFe.slnx` com código 0 (1.537 testes, 13 pulados, os de homologação); a prova contra o emulador de pé (`OPENDFE_EMULADOR`), 4 aprovados no Windows; no Linux (WSL Ubuntu 26.04), `Nucleo.Testes` 556, `NFe.Testes` 461 e `SefazEmulada.Testes` 504 aprovados, e com `OPENDFE_HOMOLOGACAO=1` a cadeia real com as raízes agora no núcleo: AN pelo sistema, SVRS e SP pela ICP-Brasil, MG e PR exigindo o certificado no handshake (como na 1.7); `dotnet pack -c Release` com os mesmos três pacotes e o `eng/ConferirPacotes.ps1` aprovando. A regra de nomes não acusa nada fora dos métodos de teste e do `NoCheck` do .NET. Sem pacote novo.
+- **Pendente até o PFX** (`PROJETO.md` 17): o TLS mútuo com a SEFAZ real (a cadeia ICP-Brasil do cliente, o handshake de MG e do PR, as cifras de cada autorizador), junto com o fechamento da 1.7.
+
+**Próxima: 4.2. Destinos e URLs** (a tabela do leiaute e os `ServicoSoap` da NF-e, conferidos nos portais e nos WSDLs), só quando pedida.
 
 ### Trilha paralela: SEFAZ emulada (branch `sefaz-emulada`, worktree `../OpenDFe-sefaz-emulada`)
 

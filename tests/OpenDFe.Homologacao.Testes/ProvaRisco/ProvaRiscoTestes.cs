@@ -11,7 +11,8 @@ namespace OpenDFe.Testes;
 
 // Prova de risco (PLANO.md 1.7): o RSA-SHA1 com o certificado real (risco 1) e o TLS mútuo com a SEFAZ
 // (risco 2), no Windows e no Linux. Os que falam com a SEFAZ são pulados sem as variáveis de
-// AmbienteHomologacao; os offline rodam sempre. O código é descartável: a 4.1 o refaz no núcleo.
+// AmbienteHomologacao; os offline rodam sempre. Desde a 4.1, sobre o transporte da lib (ClienteSefaz): a confiança e as
+// raízes foram para o núcleo, e os testes offline delas para o Nucleo.Testes (ConfiancaServidorTestes).
 public class ProvaRiscoTestes
 {
     private const string UrlStatusMG = "https://hnfe.fazenda.mg.gov.br/nfe2/services/NFeStatusServico4";
@@ -21,61 +22,12 @@ public class ProvaRiscoTestes
 
     private static void Registrar(string texto) => TestContext.Current.TestOutputHelper?.WriteLine(texto);
 
-    // Offline: as raízes e a confiança
-
-    [Fact]
-    public void CarregaAsRaizesIcpBrasilVigentes()
-    {
-        var raizes = RaizesIcpBrasil.Todas;
-
-        Assert.Equal(7, raizes.Count);
-        foreach (var raiz in raizes)
-        {
-            Assert.Equal(raiz.SubjectName.Name, raiz.IssuerName.Name);
-            Assert.Contains("Autoridade Certificadora Raiz Brasileira", raiz.Subject, StringComparison.Ordinal);
-            Assert.True(raiz.NotAfter > DateTime.Now, $"{raiz.Subject} venceu em {raiz.NotAfter:yyyy-MM-dd}.");
-            var restricoes = Assert.Single(raiz.Extensions.OfType<X509BasicConstraintsExtension>());
-            Assert.True(restricoes.CertificateAuthority);
-        }
-    }
-
-    [Fact]
-    public void AceitaOQueOSistemaAceita()
-    {
-        using var servidor = ServidorAutoassinado();
-
-        Assert.Equal(OrigemConfianca.Sistema, ConfiancaServidor.Avaliar(servidor, null, SslPolicyErrors.None));
-    }
-
-    [Fact]
-    public void RecusaOServidorQueNaoSobeAUmaRaiz()
-    {
-        using var servidor = ServidorAutoassinado();
-        using var cadeia = new X509Chain();
-        cadeia.ChainPolicy.RevocationMode = X509RevocationMode.NoCheck;
-        Assert.False(cadeia.Build(servidor));
-
-        Assert.Equal(OrigemConfianca.Recusado, ConfiancaServidor.Avaliar(servidor, cadeia, SslPolicyErrors.RemoteCertificateChainErrors));
-    }
-
-    [Theory]
-    [InlineData(SslPolicyErrors.RemoteCertificateNameMismatch)]
-    [InlineData(SslPolicyErrors.RemoteCertificateNameMismatch | SslPolicyErrors.RemoteCertificateChainErrors)]
-    [InlineData(SslPolicyErrors.RemoteCertificateNotAvailable)]
-    public void RecusaONomeDivergenteEOCertificadoAusente(SslPolicyErrors erros)
-    {
-        using var servidor = ServidorAutoassinado();
-
-        Assert.Equal(OrigemConfianca.Recusado, ConfiancaServidor.Avaliar(servidor, null, erros));
-        Assert.Equal(OrigemConfianca.Recusado, ConfiancaServidor.Avaliar(null, null, SslPolicyErrors.None));
-    }
-
     // Offline: o envelope e o status
 
     [Fact]
     public void MontaOEnvelopeDoStatus()
     {
-        var envelope = XDocument.Parse(EnvelopeSoap.Montar(StatusServico.NamespaceWsdl, StatusServico.Pedido(UF.MG)));
+        var envelope = XDocument.Parse(EnvelopeSoap.Montar(StatusServico.Servico, StatusServico.Pedido(UF.MG)));
 
         var corpo = Assert.Single(envelope.Root!.Elements());
         Assert.Equal(XName.Get("Body", EnvelopeSoap.NamespaceSoap), corpo.Name);
@@ -96,7 +48,7 @@ public class ProvaRiscoTestes
             + "<cStat>107</cStat><xMotivo>Servico em Operacao</xMotivo><cUF>31</cUF><dhRecbto>2026-10-19T16:00:00-03:00</dhRecbto><tMed>1</tMed>"
             + "</retConsStatServ></nfeResultMsg></soap:Body></soap:Envelope>";
 
-        var retorno = StatusServico.Ler(EnvelopeSoap.LerResultado(resposta));
+        var retorno = StatusServico.Ler(EnvelopeSoap.Ler(resposta));
 
         Assert.Equal(new RetornoStatus("2", "MG-4.00", "107", "Servico em Operacao", "31", "2026-10-19T16:00:00-03:00", "1"), retorno);
     }
@@ -108,7 +60,7 @@ public class ProvaRiscoTestes
             + "<soap:Code><soap:Value>soap:Receiver</soap:Value></soap:Code><soap:Reason><soap:Text xml:lang=\"pt\">Erro interno</soap:Text></soap:Reason>"
             + "</soap:Fault></soap:Body></soap:Envelope>";
 
-        var erro = Assert.Throws<InvalidOperationException>(() => EnvelopeSoap.LerResultado(resposta));
+        var erro = Assert.Throws<FalhaSoapException>(() => EnvelopeSoap.Ler(resposta));
         Assert.Contains("Erro interno", erro.Message, StringComparison.Ordinal);
     }
 
@@ -117,12 +69,12 @@ public class ProvaRiscoTestes
     // pula, e a cadeia dele fica para o status com o PFX.
 
     [Theory]
-    [InlineData("hnfe.fazenda.mg.gov.br", OrigemConfianca.Sistema)]
-    [InlineData("hom1.nfe.fazenda.gov.br", OrigemConfianca.Sistema)]
-    [InlineData("nfe-homologacao.svrs.rs.gov.br", OrigemConfianca.IcpBrasil)]
-    [InlineData("homologacao.nfe.fazenda.sp.gov.br", OrigemConfianca.IcpBrasil)]
-    [InlineData("homologacao.nfe.sefa.pr.gov.br", OrigemConfianca.IcpBrasil)]
-    public async Task OServidorDeHomologacaoTemCadeiaConfiavel(string servidor, OrigemConfianca esperada)
+    [InlineData("hnfe.fazenda.mg.gov.br", OrigemProva.Sistema)]
+    [InlineData("hom1.nfe.fazenda.gov.br", OrigemProva.Sistema)]
+    [InlineData("nfe-homologacao.svrs.rs.gov.br", OrigemProva.IcpBrasil)]
+    [InlineData("homologacao.nfe.fazenda.sp.gov.br", OrigemProva.IcpBrasil)]
+    [InlineData("homologacao.nfe.sefa.pr.gov.br", OrigemProva.IcpBrasil)]
+    public async Task OServidorDeHomologacaoTemCadeiaConfiavel(string servidor, OrigemProva esperada)
     {
         AmbienteHomologacao.ExigirRede();
 
@@ -182,24 +134,22 @@ public class ProvaRiscoTestes
     }
 
     [Theory]
-    [InlineData(UF.MG, UrlStatusMG, OrigemConfianca.Sistema)]
-    [InlineData(UF.SC, UrlStatusSVRS, OrigemConfianca.IcpBrasil)]
-    public async Task ConsultaOStatusDoServicoEmHomologacao(UF uf, string url, OrigemConfianca confianca)
+    [InlineData(UF.MG, UrlStatusMG, OrigemProva.Sistema)]
+    [InlineData(UF.SC, UrlStatusSVRS, OrigemProva.IcpBrasil)]
+    public async Task ConsultaOStatusDoServicoEmHomologacao(UF uf, string url, OrigemProva confianca)
     {
         using var certificado = AmbienteHomologacao.AbrirPfx();
         var intermediarias = AmbienteHomologacao.AbrirIntermediarias();
         try
         {
             using var cliente = new ClienteSefaz(certificado, intermediarias);
-            var envelope = EnvelopeSoap.Montar(StatusServico.NamespaceWsdl, StatusServico.Pedido(uf));
 
             var relogio = Stopwatch.StartNew();
-            var resposta = await cliente.EnviarAsync(new Uri(url), StatusServico.Acao, envelope, Ct);
+            var resposta = await cliente.EnviarAsync(new Uri(url), StatusServico.Pedido(uf), Ct);
             relogio.Stop();
 
-            Registrar($"{uf} ({url}): HTTP {(int)resposta.Status} {resposta.VersaoHttp}, {relogio.ElapsedMilliseconds} ms, confiança {cliente.UltimaOrigem}");
-            Assert.True(resposta.Status == HttpStatusCode.OK, $"HTTP {(int)resposta.Status}: {resposta.Texto}");
-            var retorno = StatusServico.Ler(EnvelopeSoap.LerResultado(resposta.Texto));
+            Registrar($"{uf} ({url}): {relogio.ElapsedMilliseconds} ms, confiança {cliente.UltimaOrigem}");
+            var retorno = StatusServico.Ler(resposta);
             Registrar($"cStat {retorno.Situacao} {retorno.Motivo}; verAplic {retorno.VersaoAplicativo}; dhRecbto {retorno.Recebimento}; tMed {retorno.TempoMedio}");
             Assert.Equal("2", retorno.TipoAmbiente);
             Assert.Equal("107", retorno.Situacao);       // Serviço em Operação
@@ -226,19 +176,17 @@ public class ProvaRiscoTestes
         using var raiz = AmbienteHomologacao.AbrirACEmulador();
         using var certificado = CertificadoDigital.AbrirPfx(new CertificadoTeste { Cnpj = "11222333000181" }.GerarPfx("senha"), "senha");
         using var cliente = new ClienteSefaz(certificado, [], raiz);
-        var envelope = EnvelopeSoap.Montar(StatusServico.NamespaceWsdl, StatusServico.Pedido(uf));
 
         var relogio = Stopwatch.StartNew();
-        var resposta = await cliente.EnviarAsync(url, StatusServico.Acao, envelope, Ct);
+        var resposta = await cliente.EnviarAsync(url, StatusServico.Pedido(uf), Ct);
         relogio.Stop();
 
-        Registrar($"{uf} ({url}): HTTP {(int)resposta.Status} {resposta.VersaoHttp}, {relogio.ElapsedMilliseconds} ms, confiança {cliente.UltimaOrigem}");
-        Assert.True(resposta.Status == HttpStatusCode.OK, $"HTTP {(int)resposta.Status}: {resposta.Texto}");
-        var retorno = StatusServico.Ler(EnvelopeSoap.LerResultado(resposta.Texto));
+        Registrar($"{uf} ({url}): {relogio.ElapsedMilliseconds} ms, confiança {cliente.UltimaOrigem}");
+        var retorno = StatusServico.Ler(resposta);
         Registrar($"cStat {retorno.Situacao} {retorno.Motivo}; verAplic {retorno.VersaoAplicativo}; cUF {retorno.CodigoUF}");
         Assert.Equal("2", retorno.TipoAmbiente);
         Assert.Equal("107", retorno.Situacao);
-        Assert.Equal(OrigemConfianca.Emulador, cliente.UltimaOrigem);
+        Assert.Equal(OrigemProva.Emulador, cliente.UltimaOrigem);
     }
 
     [Fact]
@@ -247,36 +195,27 @@ public class ProvaRiscoTestes
         var url = new Uri(AmbienteHomologacao.Emulador(), "MG/NFeStatusServico4");
         using var certificado = CertificadoDigital.AbrirPfx(new CertificadoTeste { Cnpj = "11222333000181" }.GerarPfx("senha"), "senha");
         using var cliente = new ClienteSefaz(certificado, []);
-        var envelope = EnvelopeSoap.Montar(StatusServico.NamespaceWsdl, StatusServico.Pedido(UF.MG));
 
-        await Assert.ThrowsAsync<HttpRequestException>(() => cliente.EnviarAsync(url, StatusServico.Acao, envelope, Ct));
-        Assert.Equal(OrigemConfianca.Recusado, cliente.UltimaOrigem);
+        var falha = await Assert.ThrowsAsync<FalhaTransporte>(() => cliente.EnviarAsync(url, StatusServico.Pedido(UF.MG), Ct));
+        Assert.Equal(TipoFalhaTransmissao.Tls, falha.Tipo);
+        Assert.False(falha.PodeTerSidoProcessado);
+        Assert.Equal(OrigemProva.Recusado, cliente.UltimaOrigem);
     }
 
     // A esperada é a do Linux, cujo repositório (o do Mozilla) não traz a ICP-Brasil. O do Windows traz a
     // Raiz v10 (conferido em 2026-10-19): lá, a cadeia ICP-Brasil já passa pelo sistema.
-    private static void ConferirOrigem(OrigemConfianca esperada, OrigemConfianca origem)
+    private static void ConferirOrigem(OrigemProva esperada, OrigemProva origem)
     {
-        if (OperatingSystem.IsWindows() && esperada == OrigemConfianca.IcpBrasil)
-            Assert.NotEqual(OrigemConfianca.Recusado, origem);
+        if (OperatingSystem.IsWindows() && esperada == OrigemProva.IcpBrasil)
+            Assert.NotEqual(OrigemProva.Recusado, origem);
         else
             Assert.Equal(esperada, origem);
     }
 
-    private static X509Certificate2 ServidorAutoassinado()
-    {
-        using var chave = RSA.Create(2048);
-        var pedido = new CertificateRequest("CN=servidor.teste", chave, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
-        pedido.CertificateExtensions.Add(new X509EnhancedKeyUsageExtension([new Oid("1.3.6.1.5.5.7.3.1")], false));
-        var agora = DateTimeOffset.UtcNow;
-        using var autoassinado = pedido.CreateSelfSigned(agora.AddDays(-1), agora.AddDays(1));
-        return X509CertificateLoader.LoadCertificate(autoassinado.RawData);
-    }
-
     // O handshake sem o certificado do cliente: a avaliação do certificado do servidor e como terminou.
-    private static async Task<(OrigemConfianca? Origem, string? Erro)> AvaliarServidorAsync(string servidor)
+    private static async Task<(OrigemProva? Origem, string? Erro)> AvaliarServidorAsync(string servidor)
     {
-        OrigemConfianca? origem = null;
+        OrigemProva? origem = null;
         using var tcp = new TcpClient();
         await tcp.ConnectAsync(servidor, 443, Ct);
         await using var ssl = new SslStream(tcp.GetStream(), false);
@@ -287,8 +226,8 @@ public class ProvaRiscoTestes
             CertificateRevocationCheckMode = X509RevocationMode.NoCheck,
             RemoteCertificateValidationCallback = (_, certificado, cadeia, erros) =>
             {
-                origem = ConfiancaServidor.Avaliar(certificado, cadeia, erros);
-                return origem != OrigemConfianca.Recusado;
+                origem = (OrigemProva)(int)ConfiancaServidor.Avaliar(certificado, cadeia, erros);
+                return origem != OrigemProva.Recusado;
             },
         };
         try

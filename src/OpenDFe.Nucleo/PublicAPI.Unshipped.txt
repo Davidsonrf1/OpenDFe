@@ -368,3 +368,32 @@ OpenDFe.DocumentoPedido.Propriedade.get -> System.Func<string!, string?>?
 OpenDFe.DocumentoPedido.Propriedade.init -> void
 OpenDFe.PedidoWS.Documentos.get -> System.Collections.Generic.IReadOnlyList<OpenDFe.DocumentoPedido!>!
 OpenDFe.PedidoWS.Documentos.init -> void
+OpenDFe.ConexaoSefaz
+OpenDFe.ConexaoSefaz.Certificado.get -> System.Security.Cryptography.X509Certificates.X509Certificate2!
+OpenDFe.ConexaoSefaz.Cifras.get -> System.Collections.Generic.IReadOnlyList<System.Net.Security.TlsCipherSuite>?
+OpenDFe.ConexaoSefaz.CriarPadrao() -> System.Net.Http.SocketsHttpHandler!
+OpenDFe.ConexoesSefaz.ConexoesSefaz(System.Func<OpenDFe.ConexaoSefaz!, System.Net.Http.HttpMessageHandler!>! fabrica) -> void
+OpenDFe.ConexoesSefaz.TempoConexao.get -> System.TimeSpan
+OpenDFe.ConexoesSefaz.TempoConexao.init -> void
+OpenDFe.ConexoesSefaz.TempoOcioso.get -> System.TimeSpan
+OpenDFe.ConexoesSefaz.TempoOcioso.init -> void
+OpenDFe.ConexoesSefaz.TempoResposta.get -> System.TimeSpan
+OpenDFe.ConexoesSefaz.TempoResposta.init -> void
+OpenDFe.DeclaracaoLeiaute.Cifras.get -> System.Collections.Generic.IReadOnlyDictionary<OpenDFe.Destino, System.Collections.Generic.IReadOnlyList<System.Net.Security.TlsCipherSuite>!>!
+OpenDFe.DeclaracaoLeiaute.DeclararCifras(OpenDFe.Destino autorizador, System.Collections.Generic.IEnumerable<System.Net.Security.TlsCipherSuite>! cifras) -> void
+OpenDFe.DeclaracaoLeiaute.DeclararServico(OpenDFe.ServicoSoap! servico) -> void
+OpenDFe.DeclaracaoLeiaute.Servicos.get -> System.Collections.Generic.IReadOnlyList<OpenDFe.ServicoSoap!>!
+OpenDFe.FalhaTransmissaoException.Tipo.get -> OpenDFe.TipoFalhaTransmissao
+OpenDFe.ServicoSoap
+OpenDFe.ServicoSoap.Acao.get -> string!
+OpenDFe.ServicoSoap.NamespaceWsdl.get -> string!
+OpenDFe.ServicoSoap.Nome.get -> string!
+OpenDFe.ServicoSoap.ServicoSoap(string! nome, string! namespaceWsdl, string! acao) -> void
+OpenDFe.TipoFalhaTransmissao
+OpenDFe.TipoFalhaTransmissao.CertificadoRecusado = 3 -> OpenDFe.TipoFalhaTransmissao
+OpenDFe.TipoFalhaTransmissao.Conexao = 1 -> OpenDFe.TipoFalhaTransmissao
+OpenDFe.TipoFalhaTransmissao.FalhaSoap = 6 -> OpenDFe.TipoFalhaTransmissao
+OpenDFe.TipoFalhaTransmissao.Http = 5 -> OpenDFe.TipoFalhaTransmissao
+OpenDFe.TipoFalhaTransmissao.RespostaIlegivel = 7 -> OpenDFe.TipoFalhaTransmissao
+OpenDFe.TipoFalhaTransmissao.TempoEsgotado = 4 -> OpenDFe.TipoFalhaTransmissao
+OpenDFe.TipoFalhaTransmissao.Tls = 2 -> OpenDFe.TipoFalhaTransmissao

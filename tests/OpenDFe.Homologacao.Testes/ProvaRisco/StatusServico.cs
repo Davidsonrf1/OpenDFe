@@ -9,11 +9,14 @@ internal static class StatusServico
     public const string NamespaceWsdl = "http://www.portalfiscal.inf.br/nfe/wsdl/NFeStatusServico4";
     public const string Acao = NamespaceWsdl + "/nfeStatusServicoNF";
 
+    public static readonly ServicoSoap Servico = new("NFeStatusServico4", NamespaceWsdl, Acao);
+
     public static string Pedido(UF uf) =>
         $"<consStatServ xmlns=\"{NamespaceNFe}\" versao=\"4.00\"><tpAmb>2</tpAmb><cUF>{uf.Codigo()}</cUF><xServ>STATUS</xServ></consStatServ>";
 
-    public static RetornoStatus Ler(XElement retorno)
+    public static RetornoStatus Ler(string mensagem)
     {
+        var retorno = XElement.Parse(mensagem);
         if (retorno.Name != XName.Get("retConsStatServ", NamespaceNFe))
             throw new FormatException($"Esperado o retConsStatServ; veio o {retorno.Name.LocalName}.");
         string? Campo(string nome) => retorno.Element(XName.Get(nome, NamespaceNFe))?.Value;

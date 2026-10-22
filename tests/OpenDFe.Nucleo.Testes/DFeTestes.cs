@@ -567,6 +567,7 @@ public class DFeTestes
         var falha = await Assert.ThrowsAsync<FalhaTransmissaoException>(() => dfe.ExecutarAsync(new EcoFalso(), Ct));
 
         Assert.False(falha.PodeTerSidoProcessado);
+        Assert.Equal(TipoFalhaTransmissao.Conexao, falha.Tipo);
         Assert.Same(causa, falha.InnerException);
         Assert.Equal(Assert.Single(transporte.Envios).Xml, falha.Rastro.XmlPedido);
         Assert.Contains("<Signature", falha.Rastro.XmlPedido, StringComparison.Ordinal);
@@ -591,6 +592,7 @@ public class DFeTestes
         var falha = await Assert.ThrowsAsync<FalhaTransmissaoException>(() => dfe.ExecutarAsync(new EcoFalso(), Ct));
 
         Assert.True(falha.PodeTerSidoProcessado);
+        Assert.Equal(TipoFalhaTransmissao.Conexao, falha.Tipo);
         Assert.IsType<IOException>(falha.InnerException);
     }
 
@@ -607,6 +609,7 @@ public class DFeTestes
         var falha = await Assert.ThrowsAsync<FalhaTransmissaoException>(() => dfe.ExecutarAsync(new EcoFalso(), Ct));
 
         Assert.True(falha.PodeTerSidoProcessado);
+        Assert.Equal(TipoFalhaTransmissao.TempoEsgotado, falha.Tipo);
         Assert.IsType<TaskCanceledException>(falha.InnerException);
     }
 
@@ -625,21 +628,10 @@ public class DFeTestes
         var falha = await Assert.ThrowsAsync<FalhaTransmissaoException>(() => dfe.ExecutarAsync(new EcoFalso(), Ct));
 
         Assert.True(falha.PodeTerSidoProcessado);
+        Assert.Equal(TipoFalhaTransmissao.RespostaIlegivel, falha.Tipo);
         Assert.IsType(causa, falha.InnerException);
         Assert.Equal(resposta, falha.Rastro.XmlRetorno);
         Assert.NotNull(falha.Rastro.DuracaoTransmissao);
-    }
-
-    [Fact]
-    public async Task AsConexoesSemOTransporteDaEtapa41Falham()
-    {
-        using var conexoes = new ConexoesSefaz();
-        var dfe = DFe.Criar(new LeiauteFalso(), Documento.NFe, Configuracao(conexoes));
-
-        var falha = await Assert.ThrowsAsync<FalhaTransmissaoException>(() => dfe.ExecutarAsync(new StatusFalso(), Ct));
-
-        Assert.False(falha.PodeTerSidoProcessado);
-        Assert.IsType<NotSupportedException>(falha.InnerException);
     }
 
     [Fact]

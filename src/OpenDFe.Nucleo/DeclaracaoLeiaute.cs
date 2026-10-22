@@ -1,9 +1,11 @@
+using System.Net.Security;
+
 namespace OpenDFe;
 
 /// <summary>
 /// O que um leiaute declara para um documento: as operações, os atendimentos (UF × tipo de emissão →
-/// autorizador), as URLs (autorizador × ambiente × serviço), a configuração do documento, as formas de leitura e as
-/// regras. Criada pelo núcleo,
+/// autorizador), as URLs (autorizador × ambiente × serviço), os serviços SOAP, as cifras de cada autorizador, a
+/// configuração do documento, as formas de leitura e as regras. Criada pelo núcleo,
 /// que a passa a <see cref="ILeiaute.Declarar"/>.
 /// </summary>
 /// <remarks>
@@ -19,6 +21,9 @@ public sealed class DeclaracaoLeiaute
     private readonly Dictionary<(UF, TipoEmissao), Atendimento> _atendimentosChave = [];
     private readonly List<EnderecoServico> _enderecos = [];
     private readonly HashSet<(Destino, Ambiente, string)> _enderecosChave = [];
+    private readonly List<ServicoSoap> _servicos = [];
+    private readonly Dictionary<string, ServicoSoap> _servicosNome = new(StringComparer.Ordinal);
+    private readonly Dictionary<Destino, IReadOnlyList<TlsCipherSuite>> _cifras = [];
     private readonly List<FormaLeitura> _leituras = [];
     private readonly List<Func<DocumentoVerificado, ContextoOperacao, IEnumerable<Problema>>> _regras = [];
     private OperacaoSuportada[] _operacoes = [];
@@ -72,6 +77,12 @@ public sealed class DeclaracaoLeiaute
 
     /// <summary>As URLs declaradas, na ordem da declaração.</summary>
     public IReadOnlyList<EnderecoServico> Enderecos => _enderecos.AsReadOnly();
+
+    /// <summary>Os serviços SOAP declarados, na ordem da declaração.</summary>
+    public IReadOnlyList<ServicoSoap> Servicos => _servicos.AsReadOnly();
+
+    /// <summary>As cifras de TLS declaradas por autorizador (só os que não usam o padrão da máquina).</summary>
+    public IReadOnlyDictionary<Destino, IReadOnlyList<TlsCipherSuite>> Cifras => _cifras.AsReadOnly();
 
     /// <summary>As formas de XML que o leiaute lê para o documento (<see cref="DFe.Detectar"/>), na ordem da declaração.</summary>
     public IReadOnlyList<FormaLeitura> Leituras => _leituras.AsReadOnly();
@@ -146,6 +157,47 @@ public sealed class DeclaracaoLeiaute
         _enderecos.Add(endereco);
     }
 
+    /// <summary>
+    /// Declara o envelope SOAP de um serviço: o namespace do WSDL e a ação (PROJETO.md 8.2). Toda URL, do leiaute
+    /// ou trocada por quem usa, precisa do serviço dela declarado (<see cref="DFe.Criar"/> confere).
+    /// </summary>
+    /// <param name="servico">O serviço.</param>
+    /// <exception cref="ArgumentNullException">O serviço é nulo.</exception>
+    /// <exception cref="ArgumentException">O serviço, pelo nome, já foi declarado.</exception>
+    /// <exception cref="InvalidOperationException">Fora de <see cref="ILeiaute.Declarar"/>.</exception>
+    public void DeclararServico(ServicoSoap servico)
+    {
+        ConferirAberta();
+        ArgumentNullException.ThrowIfNull(servico);
+        if (!_servicosNome.TryAdd(servico.Nome, servico))
+            throw new ArgumentException($"O serviço {servico.Nome} já foi declarado.", nameof(servico));
+        _servicos.Add(servico);
+    }
+
+    /// <summary>
+    /// Declara as cifras de TLS que o autorizador negocia, quando ele só aceita cifras que a máquina não oferece por
+    /// padrão (PROJETO.md 8.5): o pool usa um handler próprio para ele, sem rebaixar o padrão da máquina inteira.
+    /// Só vale no Linux; no Windows, o .NET não aplica a política de cifras e vale o padrão do sistema.
+    /// </summary>
+    /// <param name="autorizador">O autorizador.</param>
+    /// <param name="cifras">As cifras, na ordem de preferência.</param>
+    /// <exception cref="ArgumentOutOfRangeException">O autorizador não é conhecido.</exception>
+    /// <exception cref="ArgumentNullException">A lista é nula.</exception>
+    /// <exception cref="ArgumentException">A lista está vazia, ou o autorizador já tem cifras declaradas.</exception>
+    /// <exception cref="InvalidOperationException">Fora de <see cref="ILeiaute.Declarar"/>.</exception>
+    public void DeclararCifras(Destino autorizador, IEnumerable<TlsCipherSuite> cifras)
+    {
+        ConferirAberta();
+        if (!Enum.IsDefined(autorizador))
+            throw new ArgumentOutOfRangeException(nameof(autorizador), autorizador, "O valor não é um destino.");
+        ArgumentNullException.ThrowIfNull(cifras);
+        TlsCipherSuite[] lista = [.. cifras];
+        if (lista.Length == 0)
+            throw new ArgumentException("A lista de cifras está vazia.", nameof(cifras));
+        if (!_cifras.TryAdd(autorizador, lista.AsReadOnly()))
+            throw new ArgumentException($"O autorizador {autorizador.Sigla()} já tem cifras declaradas.", nameof(autorizador));
+    }
+
     /// <summary>Declara uma forma de XML que o leiaute lê para o documento (PROJETO.md 3.3).</summary>
     /// <param name="forma">A forma: a raiz e os caminhos da versão e do modelo.</param>
     /// <exception cref="ArgumentNullException">A forma é nula.</exception>
@@ -201,6 +253,12 @@ public sealed class DeclaracaoLeiaute
 
     internal bool TentarExecutor(Type parametro, out ExecutorOperacao? executor) =>
         _executoresTipo.TryGetValue(parametro, out executor);
+
+    internal bool TentarServico(string nome, out ServicoSoap? servico) =>
+        _servicosNome.TryGetValue(nome, out servico);
+
+    internal IReadOnlyList<TlsCipherSuite>? CifrasAutorizador(Destino autorizador) =>
+        _cifras.GetValueOrDefault(autorizador);
 
     internal bool TentarAtendimento(UF uf, TipoEmissao emissao, out Atendimento? atendimento) =>
         _atendimentosChave.TryGetValue((uf, emissao), out atendimento);

@@ -10,8 +10,14 @@
     <PackageReference Include="System.Security.Cryptography.Xml" />
   </ItemGroup>
 
+  <!-- As ACs raiz da ICP-Brasil vigentes, baixadas do ITI na etapa 1.7 (PROJETO.md 8.5). -->
+  <ItemGroup>
+    <EmbeddedResource Include="Raizes/*.crt" LogicalName="Raizes/%(Filename)%(Extension)" />
+  </ItemGroup>
+
   <ItemGroup>
     <InternalsVisibleTo Include="OpenDFe.Nucleo.Testes" />
+    <InternalsVisibleTo Include="OpenDFe.Homologacao.Testes" />
   </ItemGroup>
 
 </Project>

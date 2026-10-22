@@ -50,7 +50,8 @@ public sealed class DFe
     /// declarada pelo leiaute; a UF não tem atendimento no tipo de emissão; o tipo de emissão é diferente de
     /// <see cref="TipoEmissao.Normal"/> sem a <see cref="ConfiguracaoDFe.Contingencia"/>, ou é
     /// <see cref="TipoEmissao.Normal"/> com ela; uma URL trocada é nula ou repetida; a lista das regras rebaixadas a
-    /// aviso é nula ou tem um código nulo ou vazio.
+    /// aviso é nula ou tem um código nulo ou vazio; uma URL, do leiaute ou trocada, é de um serviço sem o envelope SOAP
+    /// declarado (<see cref="DeclaracaoLeiaute.DeclararServico"/>).
     /// </exception>
     /// <exception cref="CryptographicException">O certificado não tem a chave privada, ou ela não é RSA.</exception>
     /// <exception cref="ObjectDisposedException">As conexões já foram descartadas.</exception>
@@ -73,6 +74,15 @@ public sealed class DFe
                 nameof(configuracao));
         }
         var enderecos = Sobrepor(declaracao.Enderecos, configuracao);
+        foreach (var endereco in enderecos)
+        {
+            if (!declaracao.TentarServico(endereco.Servico, out _))
+            {
+                throw new ArgumentException(
+                    $"O leiaute não declara o envelope SOAP do serviço {endereco.Servico} (a URL de {endereco.Autorizador.Sigla()}, {endereco.Ambiente}).",
+                    nameof(configuracao));
+            }
+        }
         CertificadoDigital.ExigirChavePrivadaRsa(configuracao.Certificado);
         ObjectDisposedException.ThrowIf(configuracao.Conexoes.Descartado, configuracao.Conexoes);
 
@@ -308,7 +318,8 @@ public sealed class DFe
         var (autorizador, url) = EscolherUrl(parametro.Destino ?? pedido.Destino, pedido.Emissao, pedido.Servico);
         cancellationToken.ThrowIfCancellationRequested();
         var transporte = Configuracao.Conexoes.Transporte();
-        var envio = new EnvioSefaz(Configuracao.Certificado, autorizador, url, pedido.Servico, xml);
+        _declaracao.TentarServico(pedido.Servico, out var servico);
+        var envio = new EnvioSefaz(Configuracao.Certificado, autorizador, url, servico!, xml, _declaracao.CifrasAutorizador(autorizador));
         var marcaTransmissao = relogio.GetTimestamp();
         string xmlRetorno;
         try
@@ -321,11 +332,25 @@ public sealed class DFe
         {
             throw;
         }
+        catch (FalhaTransporte e)
+        {
+            var rastroFalha = Rastro(xml, e.Resposta, autorizador, url, relogio.GetElapsedTime(marcaTransmissao));
+            throw new FalhaTransmissaoException(
+                $"A transmissão de {pedido.Servico} a {autorizador.Sigla()} falhou: {e.Message}", rastroFalha, e.Tipo,
+                e.PodeTerSidoProcessado, e.InnerException ?? e);
+        }
         catch (Exception e)
         {
+            // Um transporte sem a classificação (o falso dos testes): o tempo esgotado ou a conexão.
             var rastroFalha = Rastro(xml, null, autorizador, url, relogio.GetElapsedTime(marcaTransmissao));
+            var tipoFalha = e switch
+            {
+                OperationCanceledException => TipoFalhaTransmissao.TempoEsgotado,
+                InvalidDataException => TipoFalhaTransmissao.RespostaIlegivel,
+                _ => TipoFalhaTransmissao.Conexao,
+            };
             throw new FalhaTransmissaoException(
-                $"A transmissão de {pedido.Servico} a {autorizador.Sigla()} falhou: {e.Message}", rastroFalha, envio.Enviado, e);
+                $"A transmissão de {pedido.Servico} a {autorizador.Sigla()} falhou: {e.Message}", rastroFalha, tipoFalha, envio.Enviado, e);
         }
         var duracaoTransmissao = relogio.GetElapsedTime(marcaTransmissao);
 
@@ -340,7 +365,8 @@ public sealed class DFe
         {
             throw new FalhaTransmissaoException(
                 $"A resposta de {pedido.Servico} de {autorizador.Sigla()} não pôde ser lida: {e.Message}",
-                Rastro(xml, xmlRetorno, autorizador, url, duracaoTransmissao), podeTerSidoProcessado: true, e);
+                Rastro(xml, xmlRetorno, autorizador, url, duracaoTransmissao), TipoFalhaTransmissao.RespostaIlegivel,
+                podeTerSidoProcessado: true, e);
         }
         problemas.AddRange(leitura.Problemas);
         return ResultadoWS<TRetorno>.CriarProcessado(leitura, problemas.ToArray(), Rastro(xml, xmlRetorno, autorizador, url, duracaoTransmissao));

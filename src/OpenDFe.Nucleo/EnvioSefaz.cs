@@ -1,3 +1,4 @@
+using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 
 namespace OpenDFe;
@@ -7,13 +8,16 @@ internal sealed class EnvioSefaz
 {
     private int _enviado;
 
-    public EnvioSefaz(X509Certificate2 certificado, Destino autorizador, Uri url, string servico, string xml)
+    public EnvioSefaz(
+        X509Certificate2 certificado, Destino autorizador, Uri url, ServicoSoap servico, string xml,
+        IReadOnlyList<TlsCipherSuite>? cifras = null)
     {
         Certificado = certificado;
         Autorizador = autorizador;
         Url = url;
-        Servico = servico;
+        Soap = servico;
         Xml = xml;
+        Cifras = cifras;
     }
 
     public X509Certificate2 Certificado { get; }
@@ -22,9 +26,15 @@ internal sealed class EnvioSefaz
 
     public Uri Url { get; }
 
-    public string Servico { get; }
+    /// <summary>O namespace do WSDL e a ação do serviço.</summary>
+    public ServicoSoap Soap { get; }
+
+    public string Servico => Soap.Nome;
 
     public string Xml { get; }
+
+    /// <summary>As cifras que o leiaute declara para o autorizador; <see langword="null"/> = o padrão da máquina.</summary>
+    public IReadOnlyList<TlsCipherSuite>? Cifras { get; }
 
     /// <summary>A mensagem saiu inteira: a SEFAZ pode tê-la processado.</summary>
     public bool Enviado => Volatile.Read(ref _enviado) != 0;

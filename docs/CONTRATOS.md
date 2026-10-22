@@ -138,11 +138,23 @@ public sealed class Contingencia
 public sealed class ConexoesSefaz : IDisposable
 {
     public ConexoesSefaz();
+    public ConexoesSefaz(Func<ConexaoSefaz, HttpMessageHandler> fabrica);   // 4.1
+    public TimeSpan TempoConexao { get; init; }   // 4.1; 15 s
+    public TimeSpan TempoResposta { get; init; }  // 4.1; 60 s
+    public TimeSpan TempoOcioso { get; init; }    // 4.1; 30 min
     public void Dispose();
+}
+
+/// O que a fábrica recebe (4.1); construtor interno.
+public sealed class ConexaoSefaz
+{
+    public X509Certificate2 Certificado { get; }              // a cópia do pool
+    public IReadOnlyList<TlsCipherSuite>? Cifras { get; }     // null = o padrão da máquina
+    public SocketsHttpHandler CriarPadrao();
 }
 ```
 
-A fábrica de handler substituível (2.3), o tempo limite e o descarte dos handlers sem uso entram na 4.1, como sobrecarga do construtor e propriedades `init` (versão menor).
+A fábrica de handler substituível (2.3), os tempos e o descarte dos handlers sem uso entraram na 4.1, como sobrecarga do construtor e propriedades `init` (versão menor); o desenho está no `PROJETO.md` 8.5.
 
 ### 2.4. `ILeiaute` e a declaração
 
@@ -180,6 +192,8 @@ public sealed class DeclaracaoLeiaute
 
     /// A URL do serviço ("NFeStatusServico4") no autorizador e no ambiente.
     public void DeclararEndereco(EnderecoServico endereco);
+    public void DeclararServico(ServicoSoap servico);                                  // 4.1: namespace do WSDL e ação
+    public void DeclararCifras(Destino autorizador, IEnumerable<TlsCipherSuite> cifras); // 4.1: só no Linux
 
     /// O tipo da configuração do documento; obrigatoria: o Criar recusa a configuração sem ela.
     public void DeclararConfiguracaoDocumento<TConfiguracao>(bool obrigatoria)
@@ -375,7 +389,8 @@ public sealed class FalhaTransmissaoException : Exception
     /// O pedido saiu inteiro e a resposta não veio (ou não se leu): a SEFAZ pode ter processado. Na autorização,
     /// é o caso da RecuperacaoAutorizacao (8.6). false: com certeza não chegou (DNS, conexão recusada, TLS).
     public bool PodeTerSidoProcessado { get; }
-}
+    public TipoFalhaTransmissao Tipo { get; }   // 4.1: Conexao, Tls, CertificadoRecusado, TempoEsgotado, Http,
+}                                               // FalhaSoap, RespostaIlegivel (PROJETO.md 8.5)
 ```
 
 ### 2.10. Callbacks de validação (6.3)

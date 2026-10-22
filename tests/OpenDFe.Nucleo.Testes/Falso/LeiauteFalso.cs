@@ -6,8 +6,9 @@ namespace OpenDFe.Testes;
 
 /// <summary>
 /// Um leiaute falso, só para os testes dos contratos (CONTRATOS.md 10): duas operações (o status e um eco
-/// assinado), os atendimentos de MG e do AC, as URLs de quatro autorizadores nos dois ambientes e, na NFC-e, uma
-/// configuração do documento obrigatória. As mensagens seguem o <c>Schemas/Falso/eco_v1.00.xsd</c>.
+/// assinado), o envelope SOAP dos dois, os atendimentos de MG e do AC, as URLs de quatro autorizadores nos dois
+/// ambientes e, na NFC-e, uma configuração do documento obrigatória. As mensagens seguem o
+/// <c>Schemas/Falso/eco_v1.00.xsd</c>.
 /// </summary>
 internal sealed class LeiauteFalso : ILeiaute
 {
@@ -15,6 +16,10 @@ internal sealed class LeiauteFalso : ILeiaute
     public const string ServicoStatus = "StatusFalso";
     public const string ServicoEco = "EcoFalso";
     public const string CodigoSchema = "215";
+    public const string NamespaceWsdl = "urn:opendfe:teste:wsdl";
+
+    public static readonly ServicoSoap SoapStatus = new(ServicoStatus, NamespaceWsdl, NamespaceWsdl + "/status");
+    public static readonly ServicoSoap SoapEco = new(ServicoEco, NamespaceWsdl, NamespaceWsdl + "/eco");
 
     public static readonly SchemaXml Schema =
         SchemaXml.Carregar(typeof(LeiauteFalso).Assembly, "Schemas/Falso/eco_v1.00.xsd", CodigoSchema);
@@ -42,6 +47,8 @@ internal sealed class LeiauteFalso : ILeiaute
         if (declaracao.Documento == Documento.NFCe)
             declaracao.DeclararConfiguracaoDocumento<ConfiguracaoFalsa>(obrigatoria: true);
 
+        declaracao.DeclararServico(SoapStatus);
+        declaracao.DeclararServico(SoapEco);
         declaracao.DeclararAtendimento(UF.MG, TipoEmissao.Normal, Destino.MG);
         declaracao.DeclararAtendimento(UF.MG, TipoEmissao.ContingenciaSvcAN, Destino.SvcAN);
         declaracao.DeclararAtendimento(UF.AC, TipoEmissao.Normal, Destino.SVRS);
