@@ -13,9 +13,9 @@ namespace OpenDFe.NFe;
 /// uma operação os usa.
 /// </para>
 /// <para>
-/// Ainda não declara operações, atendimentos nem URLs, que entram nas fases 4 e 5; até lá, <see cref="DFe.Criar"/>
-/// recusa a configuração, porque nenhuma UF tem atendimento. Declara as formas de XML que lê (o <c>NFe</c> e o
-/// <c>nfeProc</c>), para o <see cref="DFe.Detectar"/>, e lê a nota (<see cref="Ler"/>) sem núcleo.
+/// Declara os serviços SOAP, quem atende cada UF em cada tipo de emissão e as URLs dos autorizadores nos dois
+/// ambientes (etapa 4.2); as operações entram da etapa 4.3 em diante. Declara também as formas de XML que lê (o
+/// <c>NFe</c> e o <c>nfeProc</c>), para o <see cref="DFe.Detectar"/>, e lê a nota (<see cref="Ler"/>) sem núcleo.
 /// </para>
 /// </remarks>
 public sealed class LeiauteNFe400 : ILeiaute
@@ -35,9 +35,10 @@ public sealed class LeiauteNFe400 : ILeiaute
     public IReadOnlyList<Documento> Documentos => Atendidos;
 
     /// <summary>
-    /// Declara o que o leiaute tem para o documento: hoje, as formas de XML que ele lê (o <c>NFe</c> e o
-    /// <c>nfeProc</c>), iguais para a NF-e e a NFC-e (o modelo do XML diz qual dos dois), e as regras do MOC que ele
-    /// confere antes de transmitir (docs/REGRAS.md).
+    /// Declara o que o leiaute tem para o documento: as formas de XML que ele lê (o <c>NFe</c> e o <c>nfeProc</c>),
+    /// iguais para a NF-e e a NFC-e (o modelo do XML diz qual dos dois), as regras do MOC que ele confere antes de
+    /// transmitir (docs/REGRAS.md) e os autorizadores do documento: os serviços SOAP, os atendimentos e as URLs
+    /// (docs/NTS.md 3).
     /// </summary>
     /// <param name="declaracao">Onde declarar.</param>
     /// <exception cref="ArgumentNullException">A declaração é nula.</exception>
@@ -47,6 +48,7 @@ public sealed class LeiauteNFe400 : ILeiaute
         declaracao.DeclararLeitura(FormaNFe);
         declaracao.DeclararLeitura(FormaNfeProc);
         declaracao.DeclararRegras(RegrasNFe400.Conferir);
+        AutorizadoresNFe400.Declarar(declaracao);
     }
 
     /// <summary>

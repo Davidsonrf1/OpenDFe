@@ -146,3 +146,31 @@ A leitura aceita a nota de qualquer NT do 4.00 (`PROJETO.md` 5.2). Em 2026-10-21
 3. Criar a pasta nova em `Schemas/` com os arquivos do pacote e os que ele não republica (a mensagem mais recente publicada de cada um), apagar a antiga e trocar `SchemasNFe400.Pacote`.
 4. Atualizar as tabelas daqui (arquivos, SHA-256, NTs, vigência, versão da OpenDFe) e a tabela do teste `SchemasNFe400Testes`.
 5. NT nova sem quebra é versão menor (`PROJETO.md` 12.3).
+
+## 3. Autorizadores, serviços e URLs (`AutorizadoresNFe400`)
+
+Conferidos em 2026-10-22 (etapa 4.2). A tabela fica em `src/OpenDFe.Leiaute.NFe.v400/AutorizadoresNFe400.cs` (os serviços SOAP e os atendimentos) e `AutorizadoresNFe400.Urls.cs` (as URLs), e o teste `AutorizadoresNFe400Testes` confere a forma dela.
+
+### 3.1. Fontes
+
+| O quê | Fonte |
+|---|---|
+| Serviços SOAP: nome do serviço e método | NT 2016.002 v1.61 (10/09/2018), 2.3, do portal (SHA-256 `4fa4bb19dbedf7653f00768ed418216395ba3fd5a9cf189f473688556d6987f0`). O namespace do WSDL é `http://www.portalfiscal.inf.br/nfe/wsdl/<serviço>`, e a ação, o namespace mais `/<método>` |
+| NF-e: autorizadores, UFs de cada um e URLs de produção | "Relação de Serviços Web" do Portal Nacional (`www.nfe.fazenda.gov.br/portal/webServices.aspx?tipoConteudo=OUC/YVNWZfo=`) |
+| NF-e: URLs de homologação | a mesma página no portal de homologação (`hom.nfe.fazenda.gov.br/portal/webServices.aspx?tipoConteudo=OUC/YVNWZfo=`) |
+| NFC-e: autorizadores e URLs dos dois ambientes | "Relação de Serviços Web" do Portal da NFC-e na SVRS (`dfe-portal.svrs.rs.gov.br/Nfce/Servicos`): AM, GO, MS, MT, PR, RS, SP e SVRS |
+| NFC-e de MG, que a SVRS não lista | "Web Services" da SEF-MG (`portalsped.fazenda.mg.gov.br/spedmg/nfce/web-services/`) |
+
+Os WSDLs mesmo não foram abertos: todos os autorizadores pedem o certificado do cliente já para o `?wsdl` (HTTP 403 sem ele). O Portal da NFC-e da ENCAT (`nfce.encat.org`) estava fora do ar.
+
+### 3.2. O que a tabela diz
+
+- **NF-e, normal:** AM, BA, GO, MG, MS, MT, PE, PR, RS e SP com autorizador próprio; MA na SVAN; as outras 16 UFs na SVRS. A mesma tabela vale para os tipos de emissão que transmitem depois ao autorizador normal: FS-IA (2), EPEC (4, a nota; o evento vai ao AN pelo destino do pedido), FS-DA (5) e o offline (9, o do DANFE Simplificado Tipo 2, NT 2025.001).
+- **NF-e, contingência SVC:** SVC-AN (6) para AC, AL, AP, CE, DF, ES, MG, PA, PB, PI, RJ, RN, RO, RR, RS, SC, SE, SP e TO; SVC-RS (7) para AM, BA, GO, MA, MS, MT, PE, PR e PI. **O PI está nas duas** (decisão do usuário na 4.2): o portal de produção o põe na SVC-AN, e o de homologação, na SVC-RS; quem usa escolhe pelo tipo de emissão.
+- **NFC-e:** AM, GO, MG, MS, MT, PR, RS e SP com autorizador próprio; as outras 19 UFs na SVRS (BA, PE e MA inclusive: nenhuma das fontes lista autorizador próprio de NFC-e para elas). Só o normal e o offline (9): sem SVC nem EPEC.
+- **As URLs:** as das páginas, sem o `?wsdl` que GO, MT, PE e PR trazem na lista (é o endereço do WSDL; o serviço é o mesmo caminho sem ele). A SVC-AN tem os endereços da SVAN, e a SVC-RS os da SVRS, sem a inutilização. A consulta cadastro na NF-e nas 10 UFs e na SVRS (que só consulta AC, ES, RN, PB e SC; quem confere a UF é a operação, na 8.2); na NFC-e, só onde a página dela a lista (GO, MS, PR). O AN, só com o `NFeRecepcaoEvento4` (manifestação e EPEC).
+- **Fora:** a distribuição DF-e (`NFeDistribuicaoDFe`, no AN), cujo `nfeDadosMsg` vai dentro do elemento da operação (`nfeDistDFeInteresse`), que o envelope do núcleo ainda não escreve; entra na 8.1 com o membro novo no `ServicoSoap` (decisão do usuário na 4.2). As cifras de TLS por autorizador (`DeclararCifras`) continuam vazias: sem o PFX, não há como conferir o que cada autorizador negocia.
+
+### 3.3. Como atualizar
+
+Baixar de novo as páginas da 3.1 (o Portal Nacional pede cookie: `curl -c` e `-b` com o mesmo arquivo), comparar com a tabela e trocar as linhas que mudaram. URL trocada é versão menor (`PROJETO.md` 12.3). Até a versão nova sair, quem usa troca a URL na configuração (`ConfiguracaoDFe.Urls`).

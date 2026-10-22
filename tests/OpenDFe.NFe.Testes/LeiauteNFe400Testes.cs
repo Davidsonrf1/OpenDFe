@@ -2,7 +2,8 @@ using OpenDFe.NFe;
 
 namespace OpenDFe.Testes;
 
-// O leiaute (etapas 2.1 e 2.5): a versão, os documentos e a declaração, que só tem as formas de leitura.
+// O leiaute (etapas 2.1 e 2.5): a versão, os documentos e a declaração, com as formas de leitura (os autorizadores,
+// da 4.2, em AutorizadoresNFe400Testes).
 public class LeiauteNFe400Testes
 {
     [Fact]
@@ -30,14 +31,14 @@ public class LeiauteNFe400Testes
     [Theory]
     [InlineData(Documento.NFe)]
     [InlineData(Documento.NFCe)]
-    public void ADeclaracaoSoTemAsFormasDeLeitura(Documento documento)
+    public void ADeclaracaoTemAsFormasDeLeituraEAindaNenhumaOperacao(Documento documento)
     {
         var declaracao = DeclaracaoLeiaute.Criar(new LeiauteNFe400(), documento);
 
         Assert.Equal(documento, declaracao.Documento);
         Assert.Empty(declaracao.Operacoes);
-        Assert.Empty(declaracao.Atendimentos);
-        Assert.Empty(declaracao.Enderecos);
+        Assert.NotEmpty(declaracao.Atendimentos);
+        Assert.NotEmpty(declaracao.Enderecos);
         Assert.Null(declaracao.TipoConfiguracaoDocumento);
         Assert.Collection(declaracao.Leituras,
             f => Assert.Equal(("http://www.portalfiscal.inf.br/nfe", "NFe", "infNFe/@versao", "infNFe/ide/mod"),
