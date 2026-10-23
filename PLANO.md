@@ -541,6 +541,15 @@ Criada a partir da `fase-3-regras`, com a `main` mesclada no início (a trilha d
 
 **Próxima: 5.1. QR Code e CSC** (a configuração do documento, o QR Code, o `infNFeSupl`, e a autorização, a consulta do recibo, o preparo e a recuperação registrados para a NFC-e; desenho aprovado antes), só quando pedida.
 
+### Fase 5 (branch `fase-5-nfce`)
+
+Criada a partir da `fase-4-transmissao`.
+
+**5.1. QR Code e CSC. Desenho para aprovação (2026-10-23)** em **`docs/CONTRATOS.md` 16**: API pública nova só no leiaute (`ConfiguracaoNFCe`, `VersaoQrCode`, `CodigoSeguranca`, `UrlConsultaNFCe` e `LeiauteNFe400.UrlsConsulta`); o núcleo não muda. Doze decisões (16.4), com as regras fora do schema para aprovação (decisão 10: 393, 444, 672, `NFE-QRCODE` e `NFE-NUCLEO`).
+- **Conferido na fonte (2026-10-23):** a NT 2025.001 (as versões 2 e 3, o 444, o 407 retirado), o Manual do DANFE NFC-e e QR Code 6.0 (os parâmetros, o hash, o CSC; os dois exemplos de hash recalculados) e a NT 2026.002 (a NF-e com `tpImp` 6 só na versão 3, com a URL da NFC-e).
+- **Pendente na implementação:** conferir as URLs de consulta por UF (o QR Code e a consulta pela chave) na ENCAT, fora do ar hoje, ou no portal de cada UF, e registrá-las em `docs/NTS.md` 4.
+- **Ler antes da implementação:** `docs/CONTRATOS.md` 14, 15 e 16, o `MODELO.md` decisão 15, o `REGRAS.md` 10.4 (grupo ZX) e o `docs/SEFAZ_EMULADA.md` (QR Code e CSC).
+
 ### Trilha paralela: SEFAZ emulada (branch `sefaz-emulada`, worktree `../OpenDFe-sefaz-emulada`)
 
 **E.1. Servidor e status. Feita (2026-10-19).**

@@ -984,3 +984,156 @@ Como no desenho, com estes ajustes (a conferir pelo usuário):
 - **O `chNFe` zerado** das rejeições da mensagem (o emulador e a SEFAZ o mandam assim) fica nulo sem aviso; o ilegível, nulo com o `NFE-VALOR`. O `protNFe` repetido é `NFE-REPETIDO`, e vale o primeiro.
 - **O complemento do motivo** (`[chNFe:...]`, `[nRec:...]`) é lido por um apoio interno (`MotivoSefaz`), sem expressão regular: os dígitos entre os dois-pontos e o colchete, com os espaços em volta, no tamanho exato (44 e 15); fora disso, nulo.
 - **Os eventos** são o `procEventoNFe` escrito de novo pelo `XElement`, com a declaração do namespace (`<procEventoNFe versao="1.00" xmlns="...">`): equivalentes, não byte a byte, como o `protNFe` do `nfeProc`.
+
+## 16. A NFC-e: QR Code e CSC (etapa 5.1)
+
+**Desenho para aprovação (2026-10-23).** A parte da configuração que é da NFC-e (`PROJETO.md` 3.2 e 9.1), o QR Code e o `infNFeSupl` escritos pela lib, a tabela das URLs de consulta por UF, e a autorização, a consulta do recibo, o preparo e a recuperação registrados também para a NFC-e (a decisão 12 da 4.4 e a 12 da 4.5). O núcleo não muda: a configuração do documento (`ConfiguracaoDocumento`, `DeclararConfiguracaoDocumento`) existe desde a 1.6. A contingência offline (o QR Code com o `digVal` ou com a assinatura) é da 5.2.
+
+**Conferido na fonte (2026-10-23):**
+- a **NT 2025.001** (v1.02, a cópia da 3.1, SHA-256 `44b71f16…`; o catálogo cita a v1.03, `333b69f7…`, que só muda regras da autorização): a **versão 3** do QR Code, sem CSC (a online só com a chave, a versão e o ambiente; a offline assinada em RSA-SHA1 com o certificado da nota), ao lado da **versão 2**, com o CSC; o emitente CPF só na versão 3 (444); o 407 (a UF que não aceita a versão 3) saiu na v1.01, "considerando que todas as UF irão disponibilizar o layout do qrCode v3"; o fim do CSC está "previsto, sem data definida";
+- o **Manual de Padrões Técnicos do DANFE NFC-e e QR Code 6.0** (março de 2025, do Portal Nacional, SHA-256 `bf906cc2…`, o mesmo da E.3): os parâmetros de cada forma (4.3.1, 4.3.2, 4.4.1 e 4.4.2), o hash da versão 2 (4.3.4 e 4.3.5), o CSC (4.6: de 16 a 36 caracteres, o identificador com até 6 dígitos, escrito sem os zeros à esquerda), e as URLs por UF no Portal da NFC-e da ENCAT (`nfce.encat.org/desenvolvedor/qrcode/`). Os dois exemplos de hash do manual conferem (`DC6AE2C2…` e `4615A93B…`) com o CSC `SEU-CODIGO-CSC-CONTRIBUINTE-36-CARACTERES`, que tem 41 caracteres (o manual o lista sem o `SEU-`, que não dá o hash);
+- a **NT 2026.002 v1.11** (`72c033b2…`): a NF-e com o DANFE Simplificado Tipo 2 (`tpImp` 6) leva o QR Code, só na versão 3 (672), e "a URL de consulta do qrCode será a mesma URL da NFC-e" (ZX02-20, observação 3);
+- o **schema** do `PL_010f_v1.04`: o `infNFeSupl` com o `qrCode` (60 a 1000 caracteres, um padrão por forma: a 100, a 2 e a 3, online e offline) e o `urlChave` (21 a 85), os dois obrigatórios no grupo;
+- **as URLs por UF:** o Portal da ENCAT está fora do ar hoje (a 4.2 já o achou assim); a página do QR Code foi salva em 2026-10-19 (as duas tabelas, produção e homologação, com datas de troca em GO, MG, RJ, RN e SP no próprio texto), e a da consulta pela chave só existe no Wayback Machine (de 2019). A implementação confere as duas de novo (a ENCAT, senão o portal de cada UF) e registra em `docs/NTS.md` 4, que nasce nela.
+
+### 16.1. No leiaute (`OpenDFe.NFe`)
+
+```csharp
+/// A parte da configuração que é da NFC-e (PROJETO.md 3.2, 9.1). Opcional: sem ela, o QR Code sai na versão 3
+/// com as URLs do leiaute. Imutável.
+public sealed class ConfiguracaoNFCe : ConfiguracaoDocumento
+{
+    /// O QR Code na versão 3, sem CSC.
+    public ConfiguracaoNFCe();
+    /// O QR Code na versão 2, com o CSC da UF. ArgumentNullException no CSC nulo.
+    public ConfiguracaoNFCe(CodigoSeguranca csc);
+
+    public VersaoQrCode QrCode { get; }          // V3 no construtor vazio; V2 com o CSC
+    public CodigoSeguranca? Csc { get; }         // null na versão 3
+
+    /// Trocam as da tabela do leiaute (LeiauteNFe400.UrlsConsulta) na UF e no ambiente do núcleo.
+    /// UrlQrCode: o endereço sem a query (a lib acrescenta o "?p="); UrlChave: como vai no urlChave.
+    /// ArgumentException: URL relativa, fora de http e https, ou com query no UrlQrCode.
+    public Uri? UrlQrCode { get; init; }
+    public Uri? UrlChave { get; init; }
+}
+
+/// A versão do QR Code que a lib escreve. A 100 (a primeira) só se lê: a SEFAZ a recusa (903).
+public enum VersaoQrCode
+{
+    V2 = 2,
+    V3 = 3,
+}
+
+/// O CSC (Código de Segurança do Contribuinte) que a SEFAZ da UF deu à empresa (Manual 4.6). O ToString não mostra
+/// o código, que é segredo.
+public sealed class CodigoSeguranca
+{
+    /// ArgumentOutOfRangeException: identificador fora de 1 a 999999.
+    /// ArgumentException: código com menos de 16 ou mais de 36 caracteres, ou com caractere fora do ASCII visível,
+    /// ou com a barra vertical.
+    public CodigoSeguranca(int identificador, string codigo);
+    public int Identificador { get; }            // escrito sem os zeros à esquerda
+    public string Codigo { get; }
+    public override string ToString();           // "CSC 1"
+}
+
+/// A URL de consulta da NFC-e de uma UF num ambiente: uma linha da tabela do leiaute. Construtor interno.
+public sealed class UrlConsultaNFCe
+{
+    public UF UF { get; }
+    public Ambiente Ambiente { get; }
+    public Uri QrCode { get; }                   // sem a query
+    public Uri Chave { get; }                    // o urlChave
+}
+
+public sealed class LeiauteNFe400
+{
+    /// Novo: a tabela das URLs de consulta (PROJETO.md 2.6), as 27 UFs nos dois ambientes, para listar (a tela de
+    /// configuração). A NF-e com tpImp 6 usa a mesma (NT 2026.002).
+    public IReadOnlyList<UrlConsultaNFCe> UrlsConsulta { get; }
+}
+```
+
+**O que muda na declaração** (o `Declarar` do leiaute): para a NFC-e, a `Autorizacao`, a `ConsultaRecibo`, a `RecuperacaoAutorizacao` e o preparo passam a ser registrados (eram só da NF-e), e a `ConfiguracaoNFCe` é declarada opcional (`obrigatoria: false`); para a NF-e, também opcional, só pelas URLs (decisão 8). A `ConsultaProtocolo` já estava nos dois.
+
+**A escrita** (o `EscritorNFe`, que o `Montar` da autorização e o do preparo usam) passa a gerar o `infNFeSupl` depois do `infNFe`, na NFC-e e na NF-e com `tpImp` 6, com a chave da nota, o ambiente do núcleo e a configuração. O `infNFeSupl` fica fora do `infNFe`, que é o que a assinatura cobre (a referência `#NFe<chave>`): escrito antes de assinar, ele não muda o `DigestValue`.
+
+### 16.2. Exemplo de uso
+
+```csharp
+// A NFC-e com o QR Code na versão 3: nada a configurar.
+var nfce = DFe.Criar(new LeiauteNFe400(), Documento.NFCe, new ConfiguracaoDFe
+{
+    Ambiente = Ambiente.Homologacao, UF = UF.MG, Certificado = certificado, Conexoes = conexoes,
+});
+var r = await nfce.ExecutarAsync(new Autorizacao(nota), ct);
+// r.Retorno.Notas[0].XmlProcessado: o nfeProc com o infNFeSupl gerado (qrCode e urlChave)
+
+// Com o CSC (versão 2) e a URL do QR Code trocada:
+var comCsc = DFe.Criar(new LeiauteNFe400(), Documento.NFCe, new ConfiguracaoDFe
+{
+    Ambiente = Ambiente.Homologacao, UF = UF.MG, Certificado = certificado, Conexoes = conexoes,
+    Documento = new ConfiguracaoNFCe(new CodigoSeguranca(1, csc)) { UrlQrCode = new Uri("https://nova.exemplo.gov.br/qrcode") },
+});
+
+var preparado = nfce.Preparar(nota);                              // o XML assinado, já com o QR Code
+var mg = new LeiauteNFe400().UrlsConsulta.First(u => u.UF == UF.MG && u.Ambiente == Ambiente.Producao);
+```
+
+### 16.3. O QR Code (Manual 6.0, 4.3 e 4.4)
+
+O texto é a URL de consulta da UF, o `?p=` e os parâmetros separados por `|`:
+
+| Forma | Parâmetros |
+|---|---|
+| Versão 2, online | `chave\|2\|tpAmb\|idCSC\|hash`; o hash é o SHA-1 de `chave\|2\|tpAmb\|idCSC` com o CSC colado no fim, em hexadecimal (40 caracteres) |
+| Versão 3, online | `chave\|3\|tpAmb` |
+| Versão 2, offline (5.2) | `chave\|2\|tpAmb\|dia\|vNF\|digVal em hexadecimal\|idCSC\|hash` |
+| Versão 3, offline (5.2) | `chave\|3\|tpAmb\|dia\|vNF\|tipo do destinatário\|documento\|assinatura`; a assinatura é RSA-SHA1 dos sete primeiros, em Base64, com o certificado da nota |
+
+O `idCSC` sem zeros à esquerda; o hash em maiúsculas, como nos exemplos do manual (a SEFAZ não distingue); o texto em UTF-8 (4.5.3), sem CDATA (a NT 2025.001, nota 4, dispensa nas versões 2 e 3). O `urlChave` é a URL de consulta pela chave da tabela, como está. A imagem do QR Code (nível M, 25 mm) é do DANFCE, na fase 7.
+
+### 16.4. Decisões
+
+1. **As versões.** (a) **a versão 3 por padrão e a 2 só com o CSC configurado**; (b) só a versão 3, sem CSC na lib; (c) a versão 2 por padrão, com o CSC obrigatório (o exemplo do `PROJETO.md` 3.2). Recomendo (a): a 3 é o rumo da NT (o CSC vai acabar), é a única do emitente CPF e dispensa segredo na configuração; a 2 custa pouco (um SHA-1), o emulador já a confere, e quem já tem o CSC cadastrado continua com ele. (b) seria mais simples, mas tiraria a escolha de quem já opera com a 2. **Diverge do `PROJETO.md` 3.2 e 9.1**, que a implementação atualiza.
+2. **A forma da configuração.** (a) **dois construtores, a versão sai de qual foi usado (`new ConfiguracaoNFCe()` é a 3; `new ConfiguracaoNFCe(csc)`, a 2); imutável**; (b) propriedades `init` (`QrCode`, `IdCsc`, `Csc`), com o problema na montagem quando não combinam (a 2 sem o CSC). Recomendo (a): a combinação errada não se escreve, e o erro sai na hora de configurar, não na nota. **Diverge do exemplo do `PROJETO.md` 3.2** (`{ IdCsc = "1", Csc = csc }`) **e do `CONTRATOS.md` 4 e 5**.
+3. **Obrigatória?** (a) **opcional: sem a configuração, a versão 3 com as URLs da tabela**; (b) obrigatória, como o exemplo do `CONTRATOS.md` 5 (`obrigatoria: true`). Recomendo (a): com a versão 3 não há nada a configurar, e o PDV cria o núcleo sem pedir nada ao usuário.
+4. **O CSC.** (a) **um tipo próprio, `CodigoSeguranca(identificador, codigo)`, com o identificador numérico (1 a 999999, escrito sem zeros) e o código conferido (16 a 36 caracteres ASCII visíveis, sem a barra vertical, que quebraria os parâmetros); o `ToString` não mostra o código**; (b) duas propriedades de texto na configuração. Recomendo (a): o identificador como texto deixa passar `"01"` (o manual manda sem os zeros, e o hash sai diferente); o código é segredo e não pode cair num log pelo `ToString`. O manual diz "alfanuméricos", mas o exemplo dele tem hífen: a conferência fica no que quebra o QR Code, não no alfabeto.
+5. **As URLs.** (a) **uma tabela interna do leiaute, UF × ambiente → URL do QR Code e URL da consulta pela chave, listada pelo `LeiauteNFe400.UrlsConsulta`, com a troca na `ConfiguracaoNFCe` (só a da UF e do ambiente do núcleo, que são os da nota); a UF sem URL na tabela e sem a troca é `Erro` na montagem (`NFE-QRCODE`)**; (b) a troca pelas `ConfiguracaoDFe.Urls`, como as dos web services. Recomendo (a): o `EnderecoServico` é de autorizador e serviço SOAP, só aceita HTTPS (várias consultas são `http`) e não tem UF; a troca na configuração do documento é o lugar que o `PROJETO.md` 3.2 já dá a essa parte. URL trocada na tabela é versão menor (`PROJETO.md` 12.3).
+6. **Onde o QR Code é escrito.** (a) **na escrita da nota (a montagem), depois do `infNFe`: as formas online só dependem da chave, do ambiente e da configuração, e o `infNFeSupl` está fora do que a assinatura cobre**; (b) no núcleo, depois de assinar, por um passo novo. Recomendo (a) para a 5.1: nada muda no núcleo. As formas offline precisam do `DigestValue` (a 2) ou de assinar com o certificado (a 3); como o `DigestValue` do `infNFe` já se calcula antes da assinatura (a transformação é *enveloped*, e a `Signature` fica fora do `infNFe`), a 5.2 decide se o leiaute o calcula ou se o núcleo ganha um passo, sem mudar o que a 5.1 publica.
+7. **O `Suplementares` preenchido por quem usa** (a decisão 15 do `MODELO.md`, confirmada). (a) **a lib gera sempre; preenchido igual ao gerado passa, e diferente é `Erro` (`NFE-NUCLEO`, como o campo que o núcleo já sabe, `MODELO.md` decisão 6)**; (b) o preenchido vence. Recomendo (a): o QR Code de outra chave ou de outro CSC daria rejeição (397, 464) ou um DANFCE que não consulta. Para reenviar, o caminho seguro continua sendo o XML assinado (4.4, decisão 13).
+8. **A NF-e com o DANFE Simplificado Tipo 2** (`tpImp` 6, NT 2026.002). (a) **a lib gera o QR Code também nela, sempre na versão 3 (a única aceita, 672), com a URL da NFC-e da UF; a `ConfiguracaoNFCe` passa a ser aceita (opcional) no núcleo de NF-e só pelas URLs, e a versão 2 nela é `Erro` (a regra 672 da decisão 10)**; (b) gera com a tabela, sem troca de URL na NF-e; (c) fica para depois, e quem usa preenche. Recomendo (a): sem o QR Code a nota é rejeitada (394), e (c) poria quem usa montando o QR Code à mão, o que a decisão 7 recusa. O nome `ConfiguracaoNFCe` num núcleo de NF-e é estranho, mas é a configuração da consulta da NFC-e, que a NT manda usar.
+9. **A contingência offline antes da 5.2.** (a) **a nota com `tpEmis` 9 (NFC-e, ou NF-e com `tpImp` 6) é `Erro` na montagem (`NFE-QRCODE`: o QR Code da contingência offline entra na etapa 5.2)**; (b) escrita sem o `infNFeSupl`. Recomendo (a): (b) passaria pelo schema (o grupo é opcional) e seria rejeitada (394) só na transmissão, que pode ser horas depois.
+10. **As regras fora do schema** (`PROJETO.md` 2.9: listadas para aprovação). (a) **estas, como regras do leiaute (`RegraNFe`, depois do schema) e como problemas da montagem**:
+
+    | Regra | Código | Severidade | O que confere |
+    |---|---|---|---|
+    | ZX01-10 | 393 | Erro | a NF-e sem `tpImp` 6 com o `Suplementares` preenchido (a lib não gera nela; o grupo veio de quem usa) |
+    | ZX02-222 | 444 | Erro | a versão 2 (o CSC configurado) com o emitente CPF |
+    | ZX02-220 | 672 | Erro | a NF-e com `tpImp` 6 e a versão 2 configurada |
+    | (lib) | `NFE-QRCODE` | Erro | na montagem: a UF sem URL na tabela e sem a troca (decisão 5); a contingência offline antes da 5.2 (decisão 9) |
+    | (lib) | `NFE-NUCLEO` | Erro | na montagem: o `Suplementares` preenchido e diferente do gerado (decisão 7) |
+
+    As outras do grupo ZX ficam como estão no catálogo, com a situação revista: os parâmetros, o hash e a versão (396, 397, 398, 400, 464, 903, 813) a montagem evita ("escrita"); o CSC não cadastrado e o revogado (462, 463) e a URL divergente da tabela da UF (395, 878) ficam para a SEFAZ: a lib usa a tabela, mas não tem como saber o CSC que a SEFAZ tem; as da offline (445, 474, 583 e as de dia, valor, `digVal` e destinatário) vão para a 5.2. (b) nenhuma, tudo para a SEFAZ. Recomendo (a).
+11. **A NFC-e nas operações da 4.4 e da 4.5.** (a) **a autorização (síncrona com uma nota, lote de 2 a 50, como na NF-e: a NT 2025.001 obriga a síncrona com uma nota nos dois modelos), a consulta do recibo, o preparo e a recuperação registrados para a NFC-e, com o mesmo código da NF-e**; (b) a NFC-e só na síncrona. Recomendo (a): a NFC-e emitida offline vai em lote depois (5.2), e as regras do lote da 4.4 (476, 765, 560, 297, `NFE-LOTE`) já valem para os dois modelos.
+12. **Sem gerar a imagem.** (a) **a lib escreve só o texto do QR Code; a imagem (nível M, UTF-8) é do DANFCE (fase 7)**; (b) um método que desenha o QR Code agora. Recomendo (a): é a ordem do `PLANO.md`, e o texto já está no `nfeProc`.
+
+### 16.5. Testes previstos
+
+- **Leiaute:**
+  - a configuração: os dois construtores, cada recusa do `CodigoSeguranca` (o identificador 0 e 1000000; o código com 15 e 37 caracteres, com espaço, com a barra vertical, com acento), o `ToString` sem o código, as URLs trocadas e as recusadas;
+  - o hash contra os dois exemplos do manual (pelo cálculo interno, porque o CSC do exemplo tem 41 caracteres) e contra o emulador;
+  - a escrita: a versão 3 e a 2 online na NFC-e, nos dois ambientes, com a URL da tabela e a trocada; o `infNFeSupl` válido no schema depois de assinado; a assinatura que não muda com ele; a NF-e com `tpImp` 6 (versão 3) e sem ele (sem o grupo); o `Suplementares` igual (passa) e diferente (`NFE-NUCLEO`); a UF sem URL; o `tpEmis` 9;
+  - cada regra da decisão 10;
+  - a tabela: as 27 UFs nos dois ambientes, as URLs absolutas, a do QR Code sem query, o `urlChave` de 21 a 85 caracteres;
+  - o registro das operações na NFC-e (`LeiauteNFe400Testes`) e a configuração aceita nos dois documentos;
+  - o `Preparar` da NFC-e e a autorização do XML preparado.
+- **Contra a SEFAZ emulada:** a NFC-e autorizada (100) na versão 3 e na 2 com o CSC padrão do emulador (`1`, `OPENDFE-SEFAZ-EMULADA-CSC-PADRAO`); o CSC não cadastrado (462) e o revogado (463) pela rota `/_controle/csc`; o CSC errado (464); o emitente CPF na versão 3; a NF-e com `tpImp` 6; o lote de duas NFC-e com a consulta do recibo; o `Preparar` e a autorização do XML; a recuperação depois da queda.
+- **Homologação real:** a NFC-e autorizada em MG, pulada sem o PFX (e, na versão 2, sem o CSC de homologação: `PROJETO.md` 17).
+
+### 16.6. Fora desta etapa
+
+- **A contingência offline** (5.2): as duas formas offline do QR Code, o `dhCont` e o `xJust`, o `Preparar` em `tpEmis` 9 e a transmissão depois.
+- **A imagem do QR Code e o DANFCE** (fase 7).
+- **O CSC por web service** (Manual 4.6, "a critério da UF"): não há especificação nacional publicada; quem usa cadastra o CSC no portal da UF.
