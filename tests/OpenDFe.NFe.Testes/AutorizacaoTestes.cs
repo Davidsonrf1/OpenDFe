@@ -33,14 +33,14 @@ public partial class AutorizacaoTestes
     }
 
     [Fact]
-    public void ANFCeAindaNaoTemAAutorizacaoNemOPreparo()
+    public void ANFCeTemAAutorizacaoAConsultaDoReciboEOPreparo()
     {
         using var conexoes = new ConexoesSefaz();
         var nfce = DFe.Criar(new LeiauteNFe400(), Documento.NFCe, Configuracao(conexoes));
 
-        Assert.False(nfce.Suporta<Autorizacao>());
-        Assert.False(nfce.Suporta<ConsultaRecibo>());
-        Assert.Throws<NotSupportedException>(() => nfce.Preparar(NotasTeste.NFCe()));
+        Assert.True(nfce.Suporta<Autorizacao>());
+        Assert.True(nfce.Suporta<ConsultaRecibo>());
+        Assert.True(nfce.Preparar(NotasTeste.NFCe()).Preparado);
     }
 
     // Os parâmetros

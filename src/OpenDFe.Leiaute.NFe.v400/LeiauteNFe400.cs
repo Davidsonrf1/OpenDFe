@@ -14,11 +14,11 @@ namespace OpenDFe.NFe;
 /// </para>
 /// <para>
 /// Declara os serviços SOAP, quem atende cada UF em cada tipo de emissão e as URLs dos autorizadores nos dois
-/// ambientes (etapa 4.2), e as operações: o status do serviço (<see cref="ConsultaStatus"/>, etapa 4.3), nos dois
-/// documentos; a autorização (<see cref="NFe.Autorizacao"/>), a consulta do recibo (<see cref="ConsultaRecibo"/>) e o
-/// preparo da nota (<see cref="DFe.Preparar{TDocumento}"/>), etapa 4.4, só na NF-e (a NFC-e entra com o QR Code, na
-/// 5.1); a consulta do protocolo (<see cref="ConsultaProtocolo"/>), nos dois documentos, e a recuperação da
-/// autorização (<see cref="RecuperacaoAutorizacao"/>), só na NF-e, etapa 4.5. Declara também as formas de XML que lê (o
+/// ambientes (etapa 4.2), e as operações, nos dois documentos: o status do serviço (<see cref="ConsultaStatus"/>, etapa
+/// 4.3); a autorização (<see cref="NFe.Autorizacao"/>), a consulta do recibo (<see cref="ConsultaRecibo"/>) e o preparo
+/// da nota (<see cref="DFe.Preparar{TDocumento}"/>), etapa 4.4, e a NFC-e com o QR Code que a lib escreve (etapa 5.1,
+/// <see cref="ConfiguracaoNFCe"/>); a consulta do protocolo (<see cref="ConsultaProtocolo"/>) e a recuperação da
+/// autorização (<see cref="RecuperacaoAutorizacao"/>), etapa 4.5. Declara também as formas de XML que lê (o
 /// <c>NFe</c> e o <c>nfeProc</c>), para o <see cref="DFe.Detectar"/>, e lê a nota (<see cref="Ler"/>) sem núcleo.
 /// </para>
 /// </remarks>
@@ -51,6 +51,15 @@ public sealed class LeiauteNFe400 : ILeiaute
     public IReadOnlyList<Documento> Documentos => Atendidos;
 
     /// <summary>
+    /// A tabela das URLs de consulta da NFC-e (docs/NTS.md 4): a do QR Code e a da consulta pela chave, por UF e ambiente,
+    /// só as linhas conferidas em fonte primária; a UF que não consta usa a URL da <see cref="ConfiguracaoNFCe"/>. A
+    /// NF-e com <c>tpImp</c> 6 usa a mesma tabela (NT 2026.002).
+    /// </summary>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static",
+        Justification = "A tabela é do leiaute, que quem usa recebe do DFe.Detectar ou cria; docs/CONTRATOS.md 16.1.")]
+    public IReadOnlyList<UrlConsultaNFCe> UrlsConsulta => UrlsConsultaNFCe.Todas;
+
+    /// <summary>
     /// Declara o que o leiaute tem para o documento: as operações e o preparo, as formas de XML que ele lê (o <c>NFe</c> e o <c>nfeProc</c>),
     /// iguais para a NF-e e a NFC-e (o modelo do XML diz qual dos dois), as regras do MOC que ele confere antes de
     /// transmitir (docs/REGRAS.md) e os autorizadores do documento: os serviços SOAP, os atendimentos e as URLs
@@ -63,13 +72,11 @@ public sealed class LeiauteNFe400 : ILeiaute
         ArgumentNullException.ThrowIfNull(declaracao);
         declaracao.RegistrarOperacao(Status);
         declaracao.RegistrarOperacao(Consulta);
-        if (declaracao.Documento == Documento.NFe)
-        {
-            declaracao.RegistrarOperacao(Autorizacao);
-            declaracao.RegistrarOperacao(Recibo);
-            declaracao.RegistrarOperacao(Recuperacao);
-            declaracao.RegistrarPreparo(Preparo);
-        }
+        declaracao.RegistrarOperacao(Autorizacao);
+        declaracao.RegistrarOperacao(Recibo);
+        declaracao.RegistrarOperacao(Recuperacao);
+        declaracao.RegistrarPreparo(Preparo);
+        declaracao.DeclararConfiguracaoDocumento<ConfiguracaoNFCe>(obrigatoria: false);
         declaracao.DeclararLeitura(FormaNFe);
         declaracao.DeclararLeitura(FormaNfeProc);
         declaracao.DeclararRegras(RegrasNFe400.Conferir);

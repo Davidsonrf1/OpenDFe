@@ -21,6 +21,9 @@ internal sealed class ValoresNucleo
     /// <summary>A contingência (<c>dhCont</c> e <c>xJust</c>); nula na emissão normal.</summary>
     public Contingencia? Contingencia { get; init; }
 
+    /// <summary>A configuração da NFC-e (o CSC e as URLs de consulta); nula quando não foi configurada.</summary>
+    public ConfiguracaoNFCe? NFCe { get; init; }
+
     /// <summary>Os valores da configuração do núcleo da operação.</summary>
     public static ValoresNucleo Criar(ContextoOperacao contexto)
     {
@@ -32,6 +35,7 @@ internal sealed class ValoresNucleo
             Ambiente = configuracao.Ambiente,
             Emissao = configuracao.Emissao,
             Contingencia = configuracao.Contingencia,
+            NFCe = configuracao.Documento as ConfiguracaoNFCe,
         };
     }
 }

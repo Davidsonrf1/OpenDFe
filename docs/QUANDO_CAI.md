@@ -139,6 +139,10 @@ Por isso:
 - reenvie sempre esse XML, com os mesmos bytes;
 - só gere uma nota nova (outro número) depois de ter certeza, pela recuperação, de que a anterior não consta.
 
+## 8. A NFC-e
+
+Desde a etapa 5.1, a NFC-e usa as mesmas operações da NF-e: `Autorizacao` (a síncrona com uma nota, o lote de 2 a 50), `ConsultaRecibo`, `RecuperacaoAutorizacao`, `ConsultaProtocolo` e o `Preparar`. **Este guia vale para as duas**, caso a caso, sem diferença: guarde o XML assinado (que já leva o `infNFeSupl` com o QR Code, gerado pela lib), reenvie sempre esse XML e recupere pelo XML. O QR Code não muda ao reenviar: ele depende só da chave, do ambiente e do CSC. A NFC-e em contingência offline (`tpEmis` 9, etapa 5.2) acrescenta o caso de transmitir depois, que a 5.2 documenta aqui.
+
 ## Resumo
 
 | Situação | O que fazer |
@@ -154,5 +158,3 @@ Por isso:
 | Lote: o 103 caiu | Recuperar nota a nota |
 | Lote: a consulta do recibo caiu | Consultar o recibo de novo |
 | Contingência com nota em dúvida | Não reusar a numeração dela até recuperar |
-
-A NFC-e ganha a autorização e a recuperação na etapa 5.1, com o QR Code. A consulta do protocolo já vale para ela.

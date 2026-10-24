@@ -7,9 +7,14 @@ namespace OpenDFe.Testes;
 // nota do Simples Nacional, de venda a consumidor final em MG, com o emitente do PFX e a inscrição estadual em
 // OPENDFE_EMITENTE_IE. Pulado sem o PFX: até ele chegar, as etapas fecham na SEFAZ emulada (AutorizacaoEmuladaTestes,
 // QuedaEmuladaTestes, PROJETO.md 17). Outro regime ou outra UF pedem o item e o endereço ajustados.
+//
+// A NFC-e (etapa 5.1) em MG, com o QR Code na versão 3 (nada a configurar) e na versão 2, esta com o CSC de homologação
+// da empresa em OPENDFE_CSC_ID e OPENDFE_CSC (PROJETO.md 13.3); pulados sem o PFX, e a versão 2 também sem o CSC.
 public class AutorizacaoHomologacaoTestes
 {
     private const string VariavelInscricao = "OPENDFE_EMITENTE_IE";
+    private const string VariavelIdCsc = "OPENDFE_CSC_ID";
+    private const string VariavelCsc = "OPENDFE_CSC";
 
     [Fact]
     public async Task UmaNFeEAutorizadaConsultadaERecuperadaEmHomologacao()
@@ -50,6 +55,58 @@ public class AutorizacaoHomologacaoTestes
         var recuperada = await dfe.ExecutarAsync(new RecuperacaoAutorizacao(nota.Xml!), TestContext.Current.CancellationToken);
         Assert.True(recuperada.Processado, string.Join(Environment.NewLine, recuperada.Problemas));
         Assert.NotNull(Assert.Single(recuperada.Retorno.Notas).XmlProcessado);
+    }
+
+    [Fact]
+    public Task UmaNFCeEAutorizadaEmHomologacaoNaVersao3() => AutorizarNFCe(versao2: false);
+
+    [Fact]
+    public Task UmaNFCeEAutorizadaEmHomologacaoNaVersao2ComOCsc() => AutorizarNFCe(versao2: true);
+
+    private static async Task AutorizarNFCe(bool versao2)
+    {
+        using var certificado = AmbienteHomologacao.AbrirPfx();
+        var inscricao = Environment.GetEnvironmentVariable(VariavelInscricao);
+        Assert.SkipWhen(string.IsNullOrEmpty(inscricao), $"Sem {VariavelInscricao}: a nota precisa da inscrição estadual do emitente.");
+        var idCsc = Environment.GetEnvironmentVariable(VariavelIdCsc);
+        var csc = Environment.GetEnvironmentVariable(VariavelCsc);
+        Assert.SkipWhen(versao2 && (!int.TryParse(idCsc, out _) || string.IsNullOrEmpty(csc)),
+            $"Sem {VariavelIdCsc} e {VariavelCsc}: a versão 2 do QR Code precisa do CSC de homologação da empresa.");
+        var cnpj = CertificadoDigital.LerTitular(certificado)?.Cnpj;
+        Assert.SkipWhen(cnpj is null, "O PFX não é de um CNPJ.");
+        var intermediarias = AmbienteHomologacao.AbrirIntermediarias();
+        using var conexoes = new ConexoesSefaz(conexao =>
+        {
+            var handler = conexao.CriarPadrao();
+            handler.SslOptions.ClientCertificateContext = SslStreamCertificateContext.Create(conexao.Certificado, intermediarias, offline: true);
+            return handler;
+        });
+        var dfe = DFe.Criar(new LeiauteNFe400(), Documento.NFCe, new ConfiguracaoDFe
+        {
+            Ambiente = Ambiente.Homologacao,
+            UF = UF.MG,
+            Certificado = certificado,
+            Conexoes = conexoes,
+            Documento = versao2 ? new ConfiguracaoNFCe(new CodigoSeguranca(int.Parse(idCsc!, System.Globalization.CultureInfo.InvariantCulture), csc!)) : null,
+        });
+
+        var resultado = await dfe.ExecutarAsync(new Autorizacao(NotaNFCe(cnpj!, inscricao!)), TestContext.Current.CancellationToken);
+
+        Assert.True(resultado.Processado, string.Join(Environment.NewLine, resultado.Problemas));
+        var nota = Assert.Single(resultado.Retorno.Notas);
+        Assert.True(nota.Autorizada, $"{nota.Protocolo?.Status} {nota.Protocolo?.Motivo}");
+        Assert.NotNull(nota.XmlProcessado);
+    }
+
+    // A NFC-e de venda a consumidor final: a nota da NF-e sem a saída, o destinatário e o endereço, no formato do DANFE NFC-e.
+    private static NotaFiscal NotaNFCe(string cnpj, string inscricao)
+    {
+        var nota = Nota(cnpj, inscricao);
+        nota.Identificacao.SaidaEntrada = null;
+        nota.Identificacao.FormatoImpressao = FormatoImpressao.DanfeNFCe;
+        nota.Identificacao.VersaoAplicativo = "OpenDFe 5.1";
+        nota.Destinatario = null;
+        return nota;
     }
 
     // A venda de um item a um consumidor final de MG, no Simples Nacional, com o número sorteado (a homologação guarda

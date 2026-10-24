@@ -22,6 +22,12 @@ internal static class CodigosEscrita
     internal const string NaoSuportado = "NFE-NAO-SUPORTADO";
 
     /// <summary>
+    /// O QR Code não pôde ser gerado (docs/CONTRATOS.md 16, decisões 5 e 9): a UF sem URL de consulta na tabela e sem a
+    /// troca na configuração, ou a contingência offline (que entra na etapa 5.2).
+    /// </summary>
+    internal const string QrCode = "NFE-QRCODE";
+
+    /// <summary>
     /// A composição do lote da autorização (docs/CONTRATOS.md 14, decisão 10): a mesma chave duas vezes, ou tipos de
     /// emissão diferentes.
     /// </summary>

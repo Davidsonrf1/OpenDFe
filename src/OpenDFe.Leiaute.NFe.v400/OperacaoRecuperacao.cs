@@ -3,8 +3,8 @@ namespace OpenDFe.NFe;
 /// <summary>
 /// A recuperação da autorização (<c>NFeConsultaProtocolo4</c>, PROJETO.md 8.6, docs/CONTRATOS.md 15): a nota assinada
 /// lida até a chave (com a assinatura conferida, como na autorização), o <c>consSitNFe</c> da chave e, achado o protocolo
-/// de autorização ou de denegação do mesmo XML (o <c>digVal</c>), o <c>nfeProc</c>. Só a NF-e nesta versão, como a
-/// autorização (decisão 12).
+/// de autorização ou de denegação do mesmo XML (o <c>digVal</c>), o <c>nfeProc</c>. Vale para a NF-e e para a NFC-e,
+/// como a autorização.
 /// </summary>
 internal sealed class OperacaoRecuperacao : IOperacao<RecuperacaoAutorizacao, RetornoAutorizacao>
 {

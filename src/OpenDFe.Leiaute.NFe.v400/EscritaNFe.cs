@@ -188,6 +188,18 @@ internal sealed class EscritaNFe
     internal void RegistrarInfNFe(string codigo, string mensagem, string caminho, string propriedade) =>
         Registrar(codigo, mensagem, "NFe/infNFe/" + caminho, propriedade, caminho[(caminho.LastIndexOf('/') + 1)..]);
 
+    /// <summary>
+    /// Um problema no <c>infNFeSupl</c>, que fica ao lado do <c>infNFe</c>: <paramref name="tag"/> é o campo do grupo
+    /// (<c>qrCode</c>, <c>urlChave</c>) e <paramref name="propriedade"/> o dele no modelo; sem campo, o grupo.
+    /// </summary>
+    internal void RegistrarSuplementares(string codigo, string mensagem, string? tag = null, string? propriedade = null) =>
+        Problemas.Add(new Problema(codigo, Severidade.Erro, mensagem)
+        {
+            Tag = tag ?? "infNFeSupl",
+            Caminho = tag is null ? "NFe/infNFeSupl" : "NFe/infNFeSupl/" + tag,
+            Propriedade = propriedade is null ? "Suplementares" : "Suplementares." + propriedade,
+        });
+
     private void Divergente(string tag, string propriedade, string descricao) =>
         Registrar(CodigosEscrita.Nucleo,
             $"O campo {tag} difere da configuração do núcleo ({descricao}): deixe-o nulo para usar o valor do núcleo.",

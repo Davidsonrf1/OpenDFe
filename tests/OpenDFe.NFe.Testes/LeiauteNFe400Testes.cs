@@ -32,7 +32,7 @@ public class LeiauteNFe400Testes
     {
         // a NFC-e ganha a autorização e a recuperação com o QR Code, na 5.1 (CONTRATOS.md 14 e 15, decisão 12)
         { Documento.NFe, [typeof(ConsultaStatus), typeof(ConsultaProtocolo), typeof(Autorizacao), typeof(ConsultaRecibo), typeof(RecuperacaoAutorizacao)] },
-        { Documento.NFCe, [typeof(ConsultaStatus), typeof(ConsultaProtocolo)] },
+        { Documento.NFCe, [typeof(ConsultaStatus), typeof(ConsultaProtocolo), typeof(Autorizacao), typeof(ConsultaRecibo), typeof(RecuperacaoAutorizacao)] },
     };
 
     [Theory]
@@ -48,7 +48,8 @@ public class LeiauteNFe400Testes
         Assert.All(declaracao.Operacoes.Skip(2), o => Assert.Equal(typeof(RetornoAutorizacao), o.Retorno));
         Assert.NotEmpty(declaracao.Atendimentos);
         Assert.NotEmpty(declaracao.Enderecos);
-        Assert.Null(declaracao.TipoConfiguracaoDocumento);
+        Assert.Equal(typeof(ConfiguracaoNFCe), declaracao.TipoConfiguracaoDocumento);
+        Assert.False(declaracao.ConfiguracaoDocumentoObrigatoria);
         Assert.Collection(declaracao.Leituras,
             f => Assert.Equal(("http://www.portalfiscal.inf.br/nfe", "NFe", "infNFe/@versao", "infNFe/ide/mod"),
                 (f.EspacoNomes, f.Raiz, f.CaminhoVersao, f.CaminhoModelo)),

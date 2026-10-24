@@ -6,7 +6,7 @@ namespace OpenDFe.NFe;
 
 /// <summary>
 /// A consulta do recibo (<c>NFeRetAutorizacao4</c>, docs/CONTRATOS.md 14): o <c>consReciNFe</c> e o
-/// <c>retConsReciNFe</c> com os protocolos do lote. Só a NF-e nesta versão, como a autorização.
+/// <c>retConsReciNFe</c> com os protocolos do lote. Vale para a NF-e e para a NFC-e, como a autorização.
 /// </summary>
 /// <remarks>
 /// Com as notas do lote no parâmetro, a consulta vai ao autorizador da chave da primeira (o lote foi para lá) e cada

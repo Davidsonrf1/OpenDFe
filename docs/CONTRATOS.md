@@ -456,7 +456,7 @@ var dfe = DFe.Criar(new LeiauteNFe400(), Documento.NFCe, new ConfiguracaoDFe
     UF          = UF.MG,
     Certificado = certificado,
     Conexoes    = conexoes,
-    Documento   = new ConfiguracaoNFCe { IdCsc = "1", Csc = csc },
+    Documento   = new ConfiguracaoNFCe(new CodigoSeguranca(1, csc)),   // a versão 2 do QR Code; sem a configuração, a 3 (5.1)
     Urls        = [new EnderecoServico(Destino.MG, Ambiente.Homologacao, "NFeStatusServico4", urlNova)],
     Validacao   = new ValidacaoCallback
     {
@@ -498,8 +498,7 @@ public sealed class LeiauteNFe400 : ILeiaute
     {
         d.RegistrarOperacao(new OperacaoStatus());
         d.RegistrarOperacao(new OperacaoAutorizacao());
-        if (d.Documento == Documento.NFCe)
-            d.DeclararConfiguracaoDocumento<ConfiguracaoNFCe>(obrigatoria: true);
+        d.DeclararConfiguracaoDocumento<ConfiguracaoNFCe>(obrigatoria: false);   // a versão 3 do QR Code não precisa de nada (5.1)
 
         foreach (var a in Tabelas.Atendimentos(d.Documento))     // tabela embutida, conferida na 4.2
             d.DeclararAtendimento(a.UF, a.Emissao, a.Autorizador);
@@ -987,7 +986,7 @@ Como no desenho, com estes ajustes (a conferir pelo usuário):
 
 ## 16. A NFC-e: QR Code e CSC (etapa 5.1)
 
-**Desenho para aprovação (2026-10-23).** A parte da configuração que é da NFC-e (`PROJETO.md` 3.2 e 9.1), o QR Code e o `infNFeSupl` escritos pela lib, a tabela das URLs de consulta por UF, e a autorização, a consulta do recibo, o preparo e a recuperação registrados também para a NFC-e (a decisão 12 da 4.4 e a 12 da 4.5). O núcleo não muda: a configuração do documento (`ConfiguracaoDocumento`, `DeclararConfiguracaoDocumento`) existe desde a 1.6. A contingência offline (o QR Code com o `digVal` ou com a assinatura) é da 5.2.
+**Aprovado em 2026-10-24, as 12 decisões pela recomendação**, com as regras fora do schema da decisão 10 (393, 444, 672, `NFE-QRCODE` e `NFE-NUCLEO`), e implementado na etapa 5.1 com os ajustes da 16.7. Desenho de 2026-10-23: a parte da configuração que é da NFC-e (`PROJETO.md` 3.2 e 9.1), o QR Code e o `infNFeSupl` escritos pela lib, a tabela das URLs de consulta por UF, e a autorização, a consulta do recibo, o preparo e a recuperação registrados também para a NFC-e (a decisão 12 da 4.4 e a 12 da 4.5). O núcleo não muda: a configuração do documento (`ConfiguracaoDocumento`, `DeclararConfiguracaoDocumento`) existe desde a 1.6. A contingência offline (o QR Code com o `digVal` ou com a assinatura) é da 5.2.
 
 **Conferido na fonte (2026-10-23):**
 - a **NT 2025.001** (v1.02, a cópia da 3.1, SHA-256 `44b71f16…`; o catálogo cita a v1.03, `333b69f7…`, que só muda regras da autorização): a **versão 3** do QR Code, sem CSC (a online só com a chave, a versão e o ambiente; a offline assinada em RSA-SHA1 com o certificado da nota), ao lado da **versão 2**, com o CSC; o emitente CPF só na versão 3 (444); o 407 (a UF que não aceita a versão 3) saiu na v1.01, "considerando que todas as UF irão disponibilizar o layout do qrCode v3"; o fim do CSC está "previsto, sem data definida";
@@ -1137,3 +1136,18 @@ O `idCSC` sem zeros à esquerda; o hash em maiúsculas, como nos exemplos do man
 - **A contingência offline** (5.2): as duas formas offline do QR Code, o `dhCont` e o `xJust`, o `Preparar` em `tpEmis` 9 e a transmissão depois.
 - **A imagem do QR Code e o DANFCE** (fase 7).
 - **O CSC por web service** (Manual 4.6, "a critério da UF"): não há especificação nacional publicada; quem usa cadastra o CSC no portal da UF.
+
+### 16.7. Implementação (etapa 5.1, 2026-10-24)
+
+Como no desenho, com estes ajustes (a conferir pelo usuário):
+
+- **A tabela de URLs tem só MG.** A ENCAT e o Wayback Machine estavam fora do ar, e o portal das outras UFs não deu as duas URLs de forma que se possa tomar como fonte primária (`docs/NTS.md` 4). Pela regra "nunca inventar URL", as 26 UFs restantes ficam fora, e o `NFE-QRCODE` da decisão 5 acusa na montagem: quem emite fora de MG informa `UrlQrCode` e `UrlChave` na `ConfiguracaoNFCe`. O teste "as 27 UFs nos dois ambientes" virou "as UFs conferidas", com a lista das que faltam (`UFsPendentes`) no teste. A linha de MG segue a página da SEF-MG, que lista o mesmo QR Code nos dois ambientes (a conferir com o PFX).
+- **`UrlQrCode` e `UrlChave` são validadas no `init`** (`ArgumentException`: relativa, fora de http e https, ou, no QR Code, com query ou fragmento), e a lib usa a URL como foi dada (`OriginalString`), sem normalizar.
+- **A troca de URL vale por campo:** a `UrlQrCode` trocada e a `UrlChave` da tabela (ou o contrário) é aceito; na UF sem linha na tabela, as duas têm de estar na configuração, e o `NFE-QRCODE` diz qual falta.
+- **A versão 2 só vale na NFC-e.** Na NF-e com `tpImp` 6 a lib escreve sempre a versão 3, mesmo com o CSC na configuração; a configuração com o CSC é o erro da 672 (regra do leiaute depois do schema), não da escrita.
+- **O 393 (ZX01-10) é só da NF-e sem `tpImp` 6.** A escrita nesse caso não gera nem recusa o grupo: escreve o que veio, e a regra o acusa. Na NFC-e e na NF-e com `tpImp` 6, o grupo preenchido que difere do gerado é `NFE-NUCLEO`, campo a campo (`qrCode`, `urlChave`), com o caminho `NFe/infNFeSupl/<campo>` e a propriedade `Suplementares.<campo>`; o campo nulo ou vazio no que veio não diverge.
+- **O 444 (ZX02-222) é só da NFC-e** (modelo 65 no catálogo) e confere o emitente com CPF contra a versão 2 da configuração; o 672 (ZX02-220), só da NF-e.
+- **O 407 do catálogo** (ZX02-220, modelo 65, "NFC-e com qrCode na versão 3") vai para "excluída": a própria NT 2025.001 o tirou na v1.01. Não está no código.
+- **Catálogo (`REGRAS.md` 15):** 3 linhas "lib (5.1)" (393, 444, 672); as parâmetro/hash/versão (394, 396, 397, 398, 399, 400, 464, 813, 903) "escrita"; 395, 462, 463 e 878 "SEFAZ"; 445, 474, 583 e os 397 de dia, valor, `digVal` e destinatário "a fazer (5.2)".
+- **O `NFE-QRCODE` da contingência offline** (decisão 9) vale para a NFC-e e para a NF-e com `tpImp` 6; a nota com `tpEmis` 9 sem o `tpImp` 6 na NF-e não leva QR Code e passa.
+- **Testes antigos mudados por consequência da etapa** (a lib passa a gerar o grupo): o suporte da NFC-e nas operações e a declaração (`LeiauteNFe400Testes`, `AutorizacaoTestes`), o final do XML da NFC-e escrita (`EscritaFormaTestes.OXmlSaiSemDeclaracao...` e `AsSuplementaresSaemDepoisDoInfNFe`), a contingência da NFC-e (`AContingenciaIgualANucleoNaoEProblema` agora também vê o `NFE-QRCODE`) e a ida e volta da leitura (`LeitorNFeTestes.AssertIdaVolta` copia o grupo gerado para a nota de origem). Nenhum teste foi enfraquecido para passar.

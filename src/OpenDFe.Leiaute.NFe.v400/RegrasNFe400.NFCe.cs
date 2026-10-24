@@ -118,6 +118,20 @@ internal static partial class RegrasNFe400
             (n, _) => MeiosPagamento(n, MeioPagamento.DuplicataMercantil)),
         Regra("YA02-40", "899", SoNFCe, AplicacaoRegra.Obrigatoria, "Informado incorretamente o campo meio de pagamento",
             (n, _) => MeiosPagamento(n, MeioPagamento.Nenhum)),
+        // O QR Code (docs/CONTRATOS.md 16, decisão 10): as três que a montagem não evita, porque dependem do que quem usa
+        // configurou ou preencheu. As outras do grupo ZX a lib evita gerando o grupo (escrita) ou deixa para a SEFAZ.
+        Regra("ZX01-10", "393", SoNFe, AplicacaoRegra.Obrigatoria, "NF-e com o grupo de Informações Suplementares",
+            (n, _) => n.Suplementares is not null && n.Identificacao.FormatoImpressao != FormatoImpressao.DanfeSimplificadoTipo2
+                ? [new OcorrenciaRegra("NFe/infNFeSupl", null, "Suplementares")]
+                : []),
+        Regra("ZX02-222", "444", SoNFCe, AplicacaoRegra.Obrigatoria, "NFC-e com qrCode na versão 2 para Pessoa Física",
+            (n, c) => c.Nucleo.NFCe is { QrCode: VersaoQrCode.V2 } && !string.IsNullOrEmpty(n.Emitente.Cpf)
+                ? [new OcorrenciaRegra($"{Raiz}/emit/CPF")]
+                : []),
+        Regra("ZX02-220", "672", SoNFe, AplicacaoRegra.Obrigatoria, "NF-e com DANFE Simplificado Tipo 2 com versão de qrCode não permitida",
+            (n, c) => n.Identificacao.FormatoImpressao == FormatoImpressao.DanfeSimplificadoTipo2 && c.Nucleo.NFCe is { QrCode: VersaoQrCode.V2 }
+                ? [new OcorrenciaRegra("NFe/infNFeSupl/qrCode", "versão 2", "Suplementares.QrCode")]
+                : []),
         Regra("ZA01-30", "814", SoNFCe, AplicacaoRegra.Obrigatoria, "Nota Fiscal com grupo de comércio exterior",
             (n, _) => n.Exportacao is not null ? [new OcorrenciaRegra($"{Raiz}/exporta")] : []),
     ];

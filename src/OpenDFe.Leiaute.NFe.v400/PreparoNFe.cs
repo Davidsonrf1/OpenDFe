@@ -2,8 +2,8 @@ namespace OpenDFe.NFe;
 
 /// <summary>
 /// O preparo da nota (<see cref="DFe.Preparar{TDocumento}"/>, docs/CONTRATOS.md 14): a nota escrita com os valores do
-/// núcleo, para o núcleo assinar e validar sem transmitir. A propriedade dos problemas é a da nota, sem prefixo. Só a
-/// NF-e nesta versão: a NFC-e entra com o QR Code (decisão 12).
+/// núcleo, para o núcleo assinar e validar sem transmitir. A propriedade dos problemas é a da nota, sem prefixo. Vale
+/// para a NF-e e para a NFC-e (etapa 5.1).
 /// </summary>
 internal sealed class PreparoNFe : IPreparo<NotaFiscal>
 {

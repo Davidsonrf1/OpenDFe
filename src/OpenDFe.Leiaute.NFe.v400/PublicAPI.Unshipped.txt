@@ -66,3 +66,30 @@ OpenDFe.NFe.RetornoProtocolo.Recebimento.get -> System.DateTimeOffset?
 OpenDFe.NFe.RetornoProtocolo.Status.get -> int
 OpenDFe.NFe.RetornoProtocolo.UF.get -> OpenDFe.UF?
 OpenDFe.NFe.RetornoProtocolo.VersaoAplicativo.get -> string?
+const OpenDFe.NFe.CodigoSeguranca.MaiorCodigo = 36 -> int
+const OpenDFe.NFe.CodigoSeguranca.MaiorIdentificador = 999999 -> int
+const OpenDFe.NFe.CodigoSeguranca.MenorCodigo = 16 -> int
+const OpenDFe.NFe.CodigoSeguranca.MenorIdentificador = 1 -> int
+OpenDFe.NFe.CodigoSeguranca
+OpenDFe.NFe.CodigoSeguranca.Codigo.get -> string!
+OpenDFe.NFe.CodigoSeguranca.CodigoSeguranca(int identificador, string! codigo) -> void
+OpenDFe.NFe.CodigoSeguranca.Identificador.get -> int
+OpenDFe.NFe.ConfiguracaoNFCe
+OpenDFe.NFe.ConfiguracaoNFCe.ConfiguracaoNFCe() -> void
+OpenDFe.NFe.ConfiguracaoNFCe.ConfiguracaoNFCe(OpenDFe.NFe.CodigoSeguranca! csc) -> void
+OpenDFe.NFe.ConfiguracaoNFCe.Csc.get -> OpenDFe.NFe.CodigoSeguranca?
+OpenDFe.NFe.ConfiguracaoNFCe.QrCode.get -> OpenDFe.NFe.VersaoQrCode
+OpenDFe.NFe.ConfiguracaoNFCe.UrlChave.get -> System.Uri?
+OpenDFe.NFe.ConfiguracaoNFCe.UrlChave.init -> void
+OpenDFe.NFe.ConfiguracaoNFCe.UrlQrCode.get -> System.Uri?
+OpenDFe.NFe.ConfiguracaoNFCe.UrlQrCode.init -> void
+OpenDFe.NFe.LeiauteNFe400.UrlsConsulta.get -> System.Collections.Generic.IReadOnlyList<OpenDFe.NFe.UrlConsultaNFCe!>!
+OpenDFe.NFe.UrlConsultaNFCe
+OpenDFe.NFe.UrlConsultaNFCe.Ambiente.get -> OpenDFe.Ambiente
+OpenDFe.NFe.UrlConsultaNFCe.Chave.get -> System.Uri!
+OpenDFe.NFe.UrlConsultaNFCe.QrCode.get -> System.Uri!
+OpenDFe.NFe.UrlConsultaNFCe.UF.get -> OpenDFe.UF
+OpenDFe.NFe.VersaoQrCode
+OpenDFe.NFe.VersaoQrCode.V2 = 2 -> OpenDFe.NFe.VersaoQrCode
+OpenDFe.NFe.VersaoQrCode.V3 = 3 -> OpenDFe.NFe.VersaoQrCode
+override OpenDFe.NFe.CodigoSeguranca.ToString() -> string!

@@ -56,7 +56,7 @@ var dfe = DFe.Criar(new LeiauteNFe400(), Documento.NFCe, new ConfiguracaoDFe
     Emissao      = TipoEmissao.ContingenciaOffline,
     Contingencia = new Contingencia(inicio, justificativa),   // dhCont e xJust; obrigatória fora do Normal
     Urls         = urlsTrocadas,                   // só as que mudam; o resto vem do padrão do leiaute
-    Documento    = new ConfiguracaoNFCe { IdCsc = "1", Csc = csc }   // a parte que o leiaute declara
+    Documento    = new ConfiguracaoNFCe(new CodigoSeguranca(1, csc))   // a parte que o leiaute declara; opcional (sem ela, o QR Code versão 3)
 });
 ```
 
@@ -191,7 +191,7 @@ Serviços SOAP por trás: `NFeAutorizacao4` (síncrona, `indSinc=1`, e por lote)
 
 ## 9. NFC-e
 
-9.1. **QR Code** com o CSC (identificador e token, na configuração do documento, 3.2), nas versões que a NT vigente aceita, e a URL de consulta por UF (tabela do leiaute, 2.6).
+9.1. **QR Code** gerado pela lib (texto do `qrCode` e `urlChave` do `infNFeSupl`; a imagem é do DANFCE, fase 7): a **versão 3** por padrão (sem CSC, a única do emitente CPF e da NF-e com `tpImp` 6) e a **versão 2** só com o `CodigoSeguranca` (identificador numérico e código, na `ConfiguracaoNFCe`, 3.2); a URL de consulta por UF vem da tabela do leiaute (2.6; só as UFs conferidas, as outras na `ConfiguracaoNFCe`). As formas offline entram na etapa 5.2. Decidido na 5.1 (`CONTRATOS.md` 16).
 
 9.2. **Contingência offline** (`tpEmis=9`): num núcleo com esse tipo de emissão, `Preparar` emite e assina a nota sem a SEFAZ, com a justificativa e a data de entrada em contingência, e o QR Code do modo offline; a transmissão posterior é a autorização normal do XML preparado, dentro do prazo da legislação. A lib não guarda a fila: devolve o XML pronto, e o aplicativo transmite quando a rede volta.
 
@@ -227,7 +227,7 @@ Cancelamento (110111), cancelamento por substituição (110112, NFC-e), carta de
 
 13.2. **Todo XML gerado passa pelo XSD** nos testes, e a leitura de volta reproduz o objeto.
 
-13.3. **Homologação da SEFAZ:** testes de integração opcionais, ligados por variável de ambiente (caminho e senha do PFX, CSC), rodados localmente ou num pipeline com os segredos, nunca em PR de terceiros.
+13.3. **Homologação da SEFAZ:** testes de integração opcionais, ligados por variável de ambiente (caminho e senha do PFX, `OPENDFE_EMITENTE_IE`, e o CSC de homologação em `OPENDFE_CSC_ID` e `OPENDFE_CSC`, só para a NFC-e na versão 2), rodados localmente ou num pipeline com os segredos, nunca em PR de terceiros.
 
 13.4. **CI em Linux e Windows**, porque o TLS e o certificado se comportam diferente nos dois.
 

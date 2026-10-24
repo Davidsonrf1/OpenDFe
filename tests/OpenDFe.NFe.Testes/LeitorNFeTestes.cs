@@ -54,6 +54,9 @@ public partial class LeitorNFeTestes
         var assinado = NotasTeste.Assinar(escrita);
 
         var lida = Ler(assinado);
+        // A lib gera o infNFeSupl da NFC-e (etapa 5.1): o modelo lido o traz, e o de teste não o tinha preenchido.
+        if (nota.Suplementares is null && lida.Nota?.Suplementares is { } gerado)
+            nota.Suplementares = new InformacoesSuplementares { QrCode = gerado.QrCode, UrlChave = gerado.UrlChave };
 
         Assert.True(lida.Problemas.Count == 0, string.Join(Environment.NewLine, lida.Problemas.Select(p => $"{p} [{p.Caminho}]")));
         Assert.Same(assinado, lida.Xml);

@@ -45,12 +45,12 @@ public partial class AutorizacaoTestes
     };
 
     private static async Task<(ResultadoWS<TRetorno> Resultado, Envio? Envio)> Executar<TRetorno>(ParametroWS<TRetorno> parametro,
-        Func<string, string> responder)
+        Func<string, string> responder, Documento documento = Documento.NFe)
         where TRetorno : class
     {
         var envios = new List<Envio>();
         using var conexoes = new ConexoesSefaz(_ => new HandlerResposta(responder, envios));
-        var dfe = DFe.Criar(new LeiauteNFe400(), Documento.NFe, Configuracao(conexoes));
+        var dfe = DFe.Criar(new LeiauteNFe400(), documento, Configuracao(conexoes));
 
         var resultado = await dfe.ExecutarAsync(parametro, Ct);
 

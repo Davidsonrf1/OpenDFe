@@ -102,9 +102,9 @@ public class RegrasLoteTestes
     [Fact]
     public void CadaRegraTemOSeuCaso()
     {
-        // As da NFC-e (3.3) têm os casos em RegrasNFCeTestes.
+        // As da NFC-e (3.3) têm os casos em RegrasNFCeTestes; as do QR Code (5.1), em RegrasQrCodeTestes.
         Assert.Equal(RegrasNFe400.Lista.Select(r => r.Identificador).Order(StringComparer.Ordinal),
-            Mudancas.Keys.Concat(RegrasNFCeTestes.Mudancas.Keys).Order(StringComparer.Ordinal));
+            Mudancas.Keys.Concat(RegrasNFCeTestes.Mudancas.Keys).Concat(RegrasQrCodeTestes.Mudancas.Keys).Order(StringComparer.Ordinal));
         Assert.Equal(RegrasNFe400.Lista.Count, RegrasNFe400.Lista.Select(r => (r.Identificador, r.Codigo)).Distinct().Count());
     }
 

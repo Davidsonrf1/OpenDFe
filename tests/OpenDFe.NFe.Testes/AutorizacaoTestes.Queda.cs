@@ -13,7 +13,7 @@ public partial class AutorizacaoTestes
     // O suporte e os parâmetros
 
     [Fact]
-    public void AConsultaValeNosDoisDocumentosEARecuperacaoSoNaNFe()
+    public void AConsultaEARecuperacaoValemNosDoisDocumentos()
     {
         using var conexoes = new ConexoesSefaz();
         var nfe = DFe.Criar(new LeiauteNFe400(), Documento.NFe, Configuracao(conexoes));
@@ -22,7 +22,7 @@ public partial class AutorizacaoTestes
         Assert.True(nfe.Suporta<ConsultaProtocolo>());
         Assert.True(nfe.Suporta<RecuperacaoAutorizacao>());
         Assert.True(nfce.Suporta<ConsultaProtocolo>());
-        Assert.False(nfce.Suporta<RecuperacaoAutorizacao>());
+        Assert.True(nfce.Suporta<RecuperacaoAutorizacao>());   // a NFC-e entra na 5.1
     }
 
     [Fact]

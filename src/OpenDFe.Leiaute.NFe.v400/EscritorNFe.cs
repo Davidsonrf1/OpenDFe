@@ -62,7 +62,7 @@ internal static partial class EscritorNFe
                 xml.WriteAttributeString("Id", "NFe" + chave);
             Escrever(e, nota);
             e.Fechar();
-            if (nota.Suplementares is { } suplementares)
+            if (Suplementares(e, nota, nucleo) is { } suplementares)
             {
                 e.Abrir("infNFeSupl", "Suplementares");
                 Escrever(e, suplementares);

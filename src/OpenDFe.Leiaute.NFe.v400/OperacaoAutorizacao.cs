@@ -6,7 +6,7 @@ namespace OpenDFe.NFe;
 
 /// <summary>
 /// A autorização (<c>NFeAutorizacao4</c>, docs/CONTRATOS.md 14): o <c>enviNFe</c> com as notas e o <c>retEnviNFe</c>
-/// com o recibo (103) ou o protocolo da síncrona. Só a NF-e nesta versão: a NFC-e entra com o QR Code (decisão 12).
+/// com o recibo (103) ou o protocolo da síncrona. Vale para a NF-e e para a NFC-e (etapa 5.1).
 /// </summary>
 /// <remarks>
 /// <para>

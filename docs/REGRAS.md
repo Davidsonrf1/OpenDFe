@@ -205,20 +205,20 @@ Baixadas em 2026-10-22: as NTs do Portal Nacional da NF-e (Documentos > Notas T�
 - **Extração:** o texto de cada PDF pelo `pdftotext -raw`, uma linha por regra (o identificador, o modelo, o texto da regra, a aplicação, o código e a descrição do erro); as palavras que a extração colou separadas pelo vocabulário da extração `-layout`. Dez regras com a aplicação e o código em linhas separadas foram conferidas e preenchidas à mão (YA03 a YA06 da NT 2025.001, BA02a-10 da NT 2022.002, ZG02-36 e ZG02-40 da NT 2026.001).
 - **Mescla:** uma linha por regra e código. Primeiro o Anexo I 7.03; depois as NTs, na ordem da publicação da versão vigente (10.1). A regra que uma NT republica substitui a do Anexo (ou a da NT anterior) com o mesmo identificador e o mesmo código; a regra que uma NT marca como excluída fica com a situação "excluída".
 - **A mensagem** é a descrição do erro na fonte, sem o "Rejeição: " e sem as observações; os marcadores como `[nItem:nnn]` ficam como estão.
-- **A situação** é uma primeira classificação, por critérios explícitos sobre o texto da regra (o script fica fora do repositório, como o do escritor da 2.4): "SEFAZ" para o banco de dados do autorizador (cadastro, duplicidade, outra nota, credenciamento), a denegação, o limite que a SEFAZ define e o PAA; "SEFAZ (tabela)" para a tabela oficial que a lib não embute (município, NCM, CEST); "escrita" para o que a montagem já garante (o `Id` montado pelos campos, o namespace sem prefixo, o UTF-8, o modelo e a UF do núcleo, a assinatura); "schema" para a 215 e a 225; "outra operação" para o lote (4.4) e os eventos (6); "a fazer (3.3)" para as do modelo 65 sozinho; "a fazer (3.2)" para as do primeiro lote do plano (chave e DV, CPF e CNPJ, totais contra a soma dos itens, CST × grupo, CFOP × `idDest`, `indIEDest` × IE, datas, `cClassTrib`); "a fazer" para o resto que cabe na lib, sem etapa. **As etapas 3.2 e 3.3 revisam a situação das regras que tocam**, e a classificação errada se corrige na linha.
+- **A situação** é uma primeira classificação, por critérios explícitos sobre o texto da regra (o script fica fora do repositório, como o do escritor da 2.4): "SEFAZ" para o banco de dados do autorizador (cadastro, duplicidade, outra nota, credenciamento), a denegação, o limite que a SEFAZ define e o PAA; "SEFAZ (tabela)" para a tabela oficial que a lib não embute (município, NCM, CEST); "escrita" para o que a montagem já garante (o `Id` montado pelos campos, o namespace sem prefixo, o UTF-8, o modelo e a UF do núcleo, a assinatura); "schema" para a 215 e a 225; "outra operação" para o lote (4.4) e os eventos (6); "a fazer (3.3)" para as do modelo 65 sozinho; "a fazer (3.2)" para as do primeiro lote do plano (chave e DV, CPF e CNPJ, totais contra a soma dos itens, CST × grupo, CFOP × `idDest`, `indIEDest` × IE, datas, `cClassTrib`); "a fazer" para o resto que cabe na lib, sem etapa. **As etapas 3.2, 3.3 e 5.1 revisam a situação das regras que tocam**, e a classificação errada se corrige na linha. A 5.1 acrescentou "a fazer (5.2)" (as da contingência offline) e "lib (5.1)", e zerou o "a fazer (5.1)" (`REGRAS.md` 15).
 - **Fora do catálogo:** as regras de consumo indevido (Anexo I, 4.3, código 656), só da SEFAZ; e as NTs só de evento, DANFE ou outro serviço (EPEC 2014.001, manifestação 2020.001, comprovante de entrega 2021.001, ator interessado 2020.007, conciliação financeira 2024.002, insucesso na entrega 2023.005, distribuição 2014.002, DANFE 2020.004, 2026.003 e 2026.010), que entram com as fases delas.
 
 | Situação | Regras |
 |---|---|
-| lib | 104 |
-| a fazer (5.1) | 36 |
-| a fazer | 640 |
+| lib | 107 |
+| a fazer (5.2) | 7 |
+| a fazer | 620 |
 | schema | 2 |
-| escrita | 17 |
-| SEFAZ | 193 |
+| escrita | 58 |
+| SEFAZ | 197 |
 | SEFAZ (tabela) | 15 |
 | outra operação (6) | 53 |
-| excluída | 8 |
+| excluída | 9 |
 | **total** | **1068** |
 
 ### 10.3. Regras gerais (Anexo I, 4.1)
@@ -1315,64 +1315,64 @@ Baixadas em 2026-10-22: as NTs do Portal Nacional da NF-e (Documentos > Notas T�
 
 | Regra | Modelo | Código | Aplic. | Mensagem | Fonte | Situação |
 |---|---|---|---|---|---|---|
-| ZX01-10 | 55 | 393 | Obrig. | NF-e com o grupo de Informações Suplementares | MOC 7.03 | a fazer |
-| ZX02-10 | 55/65 | 394 | Obrig. | Nota Fiscal sem a informação do QR-Code | NT 2026.002 v1.11 | a fazer |
-| ZX02-15 | 65 | 903 | Obrig. | Versão informada no QR-Code (“100”) não é mais válida para a data de emissão | MOC 7.03 | a fazer (5.1) |
-| ZX02-20 | 55/65 | 395 | Obrig. | Endereço do site da UF da Consulta via QR- Code diverge do previsto | NT 2026.002 v1.11 | a fazer |
-| ZX02-22 | 65 | 813 | Obrig. | QR-Code com sequência de escape para o e-comercial. Usar CDATA | MOC 7.03 | a fazer (5.1) |
-| ZX02-24 | 65 | 396 | Obrig. | Parâmetro do QR-Code inexistente (chAcesso) | MOC 7.03 | a fazer (5.1) |
-| ZX02-28 | 65 | 397 | Obrig. | Parâmetro do QR-Code divergente da Nota Fiscal (chAcesso) | MOC 7.03 | a fazer (5.1) |
-| ZX02-32 | 65 | 396 | Obrig. | Parâmetro do QR-Code inexistente (nVersao) | MOC 7.03 | a fazer (5.1) |
-| ZX02-40 | 65 | 396 | Obrig. | Parâmetro do QR-Code inexistente (tpAmp) | MOC 7.03 | a fazer (5.1) |
-| ZX02-44 | 65 | 397 | Obrig. | Parâmetro do QR-Code divergente da Nota Fiscal (tpAmb) | MOC 7.03 | a fazer (5.1) |
-| ZX02-48 | 65 | 396 | Obrig. | Parâmetro do QR-Code inexistente (cDest) | MOC 7.03 | a fazer (5.1) |
-| ZX02-52 | 65 | 399 | Obrig. | Parâmetro de Identificação do destinatário no QR-Code para Nota Fiscal sem identificação do destinatário | MOC 7.03 | a fazer (5.1) |
-| ZX02-56 | 65 | 397 | Obrig. | Parâmetro do QR-Code divergente da Nota Fiscal (cDest) | MOC 7.03 | a fazer (5.1) |
-| ZX02-60 | 65 | 396 | Obrig. | Parâmetro do QR-Code inexistente (dhEmi) | MOC 7.03 | a fazer (5.1) |
-| ZX02-64 | 65 | 400 | Obrig. | Parâmetro do QR-Code não está no formato hexadecimal (dhEmi) | MOC 7.03 | a fazer (5.1) |
-| ZX02-68 | 65 | 397 | Obrig. | Parâmetro do QR-Code divergente da Nota Fiscal (dhEmi) | MOC 7.03 | a fazer (5.1) |
-| ZX02-72 | 65 | 396 | Obrig. | Parâmetro do QR-Code inexistente (vNF) | MOC 7.03 | a fazer (5.1) |
-| ZX02-76 | 65 | 397 | Obrig. | Parâmetro do QR-Code divergente da Nota Fiscal (vNF) | MOC 7.03 | a fazer (5.1) |
-| ZX02-80 | 65 | 396 | Obrig. | Parâmetro do QR-Code inexistente (vICMS) | MOC 7.03 | a fazer (5.1) |
-| ZX02-84 | 65 | 397 | Obrig. | Parâmetro do QR-Code divergente da Nota Fiscal (vICMS) | MOC 7.03 | a fazer (5.1) |
-| ZX02-88 | 65 | 396 | Obrig. | Parâmetro do QR-Code inexistente (digVal) | MOC 7.03 | a fazer (5.1) |
-| ZX02-92 | 65 | 400 | Obrig. | Parâmetro do QR-Code não está no formato hexadecimal (digVal) | MOC 7.03 | a fazer (5.1) |
-| ZX02-96 | 65 | 397 | Obrig. | Parâmetro do QR-Code divergente da Nota Fiscal (digVal) | MOC 7.03 | a fazer (5.1) |
-| ZX02-100 | 65 | 396 | Obrig. | Parâmetro do QR-Code inexistente (cIdToken) | MOC 7.03 | a fazer (5.1) |
+| ZX01-10 | 55 | 393 | Obrig. | NF-e com o grupo de Informações Suplementares | MOC 7.03 | lib (5.1) |
+| ZX02-10 | 55/65 | 394 | Obrig. | Nota Fiscal sem a informação do QR-Code | NT 2026.002 v1.11 | escrita |
+| ZX02-15 | 65 | 903 | Obrig. | Versão informada no QR-Code (“100”) não é mais válida para a data de emissão | MOC 7.03 | escrita |
+| ZX02-20 | 55/65 | 395 | Obrig. | Endereço do site da UF da Consulta via QR- Code diverge do previsto | NT 2026.002 v1.11 | SEFAZ |
+| ZX02-22 | 65 | 813 | Obrig. | QR-Code com sequência de escape para o e-comercial. Usar CDATA | MOC 7.03 | escrita |
+| ZX02-24 | 65 | 396 | Obrig. | Parâmetro do QR-Code inexistente (chAcesso) | MOC 7.03 | escrita |
+| ZX02-28 | 65 | 397 | Obrig. | Parâmetro do QR-Code divergente da Nota Fiscal (chAcesso) | MOC 7.03 | escrita |
+| ZX02-32 | 65 | 396 | Obrig. | Parâmetro do QR-Code inexistente (nVersao) | MOC 7.03 | escrita |
+| ZX02-40 | 65 | 396 | Obrig. | Parâmetro do QR-Code inexistente (tpAmp) | MOC 7.03 | escrita |
+| ZX02-44 | 65 | 397 | Obrig. | Parâmetro do QR-Code divergente da Nota Fiscal (tpAmb) | MOC 7.03 | escrita |
+| ZX02-48 | 65 | 396 | Obrig. | Parâmetro do QR-Code inexistente (cDest) | MOC 7.03 | escrita |
+| ZX02-52 | 65 | 399 | Obrig. | Parâmetro de Identificação do destinatário no QR-Code para Nota Fiscal sem identificação do destinatário | MOC 7.03 | escrita |
+| ZX02-56 | 65 | 397 | Obrig. | Parâmetro do QR-Code divergente da Nota Fiscal (cDest) | MOC 7.03 | escrita |
+| ZX02-60 | 65 | 396 | Obrig. | Parâmetro do QR-Code inexistente (dhEmi) | MOC 7.03 | escrita |
+| ZX02-64 | 65 | 400 | Obrig. | Parâmetro do QR-Code não está no formato hexadecimal (dhEmi) | MOC 7.03 | escrita |
+| ZX02-68 | 65 | 397 | Obrig. | Parâmetro do QR-Code divergente da Nota Fiscal (dhEmi) | MOC 7.03 | escrita |
+| ZX02-72 | 65 | 396 | Obrig. | Parâmetro do QR-Code inexistente (vNF) | MOC 7.03 | escrita |
+| ZX02-76 | 65 | 397 | Obrig. | Parâmetro do QR-Code divergente da Nota Fiscal (vNF) | MOC 7.03 | escrita |
+| ZX02-80 | 65 | 396 | Obrig. | Parâmetro do QR-Code inexistente (vICMS) | MOC 7.03 | escrita |
+| ZX02-84 | 65 | 397 | Obrig. | Parâmetro do QR-Code divergente da Nota Fiscal (vICMS) | MOC 7.03 | escrita |
+| ZX02-88 | 65 | 396 | Obrig. | Parâmetro do QR-Code inexistente (digVal) | MOC 7.03 | escrita |
+| ZX02-92 | 65 | 400 | Obrig. | Parâmetro do QR-Code não está no formato hexadecimal (digVal) | MOC 7.03 | escrita |
+| ZX02-96 | 65 | 397 | Obrig. | Parâmetro do QR-Code divergente da Nota Fiscal (digVal) | MOC 7.03 | escrita |
+| ZX02-100 | 65 | 396 | Obrig. | Parâmetro do QR-Code inexistente (cIdToken) | MOC 7.03 | escrita |
 | ZX02-104 | 65 | 462 | Obrig. | Código Identificador do CSC no QR-Code não cadastrado na SEFAZ | MOC 7.03 | SEFAZ |
-| ZX02-108 | 65 | 463 | Obrig. | Código Identificador do CSC no QR-Code foi revogado pela empresa | MOC 7.03 | a fazer (5.1) |
-| ZX02-112 | 65 | 396 | Obrig. | Parâmetro do QR-Code inexistente (cHashQRCode) | MOC 7.03 | a fazer (5.1) |
-| ZX02-116 | 65 | 400 | Obrig. | Parâmetro do QR-Code não está no formato hexadecimal (cHashQRCode) | MOC 7.03 | a fazer (5.1) |
-| ZX02-120 | 65 | 464 | Obrig. | Código de Hash no QR-Code difere do calculado | MOC 7.03 | a fazer (5.1) |
-| ZX02-220 | 65 | 407 | Obrig. | NFC-e com qrCode na versão 3 | NT 2025.001 v1.03 | a fazer (5.1) |
-| ZX02-220 | 55 | 672 | Obrig. | NF-e com DANFE Simplificado Tipo 2 com versão de qrCode não permitida | NT 2026.002 v1.11 | a fazer |
-| ZX02-222 | 65 | 444 | Obrig. | NFC-e com qrCode na versão 2 para Pessoa Física | NT 2025.001 v1.03 | a fazer (5.1) |
-| ZX02-224 | 55/65 | 396 | Obrig. | Parâmetro do QR-Code inexistente: [Param: xxx)] | NT 2026.002 v1.11 | a fazer |
-| ZX02-228 | 55/65 | 397 | Obrig. | Parâmetro do QR-Code divergente da Nota Fiscal [Param: xxx)] | NT 2026.002 v1.11 | a fazer |
-| ZX02-232 | 55/65 | 396 | Obrig. | Parâmetro do QR-Code inexistente: [Param: xxx)] | NT 2026.002 v1.11 | a fazer |
-| ZX02-236 | 55/65 | 398 | Obrig. | Parâmetro Versão informada no QR-Code diverge do previsto [Param: xxx] | NT 2026.002 v1.11 | a fazer |
-| ZX02-240 | 55/65 | 396 | Obrig. | Parâmetro do QR-Code inexistente: [Param: xxx] | NT 2026.002 v1.11 | a fazer |
-| ZX02-244 | 55/65 | 397 | Obrig. | Parâmetro do QR-Code divergente da Nota Fiscal: [Param: xxx] | NT 2026.002 v1.11 | a fazer |
-| ZX02-260 | 55/65 | 396 | Obrig. | Parâmetro do QR-Code inexistente: [Param: xxx] | NT 2026.002 v1.11 | a fazer |
-| ZX02-268 | 55/65 | 397 | Obrig. | Parâmetro do QR-Code divergente da Nota Fiscal: [Param: xxx] | NT 2026.002 v1.11 | a fazer |
-| ZX02-272 | 55/65 | 396 | Obrig. | Parâmetro do QR-Code inexistente: [Param: xxx] | NT 2026.002 v1.11 | a fazer |
-| ZX02-276 | 55/65 | 397 | Obrig. | Parâmetro do QR-Code divergente da Nota Fiscal: [Param: xxx] | NT 2026.002 v1.11 | a fazer |
-| ZX02-288 | 65 | 396 | Obrig. | Parâmetro do QR-Code inexistente:[Param: xxx) | MOC 7.03 | a fazer (5.1) |
-| ZX02-292 | 65 | 400 | Obrig. | Parâmetro Digest Value no QR-Code não está no formato hexadecimal (Caracteres: “0-9”, “a-f”,“A-F”) | MOC 7.03 | a fazer (5.1) |
-| ZX02-296 | 65 | 397 | Obrig. | Parâmetro do QR-Code divergente da Nota Fiscal: [Param: xxx)] | MOC 7.03 | a fazer (5.1) |
-| ZX02-300 | 65 | 396 | Obrig. | Parâmetro do QR-Code inexistente: [Param: xxx] | NT 2025.001 v1.03 | a fazer (5.1) |
+| ZX02-108 | 65 | 463 | Obrig. | Código Identificador do CSC no QR-Code foi revogado pela empresa | MOC 7.03 | SEFAZ |
+| ZX02-112 | 65 | 396 | Obrig. | Parâmetro do QR-Code inexistente (cHashQRCode) | MOC 7.03 | escrita |
+| ZX02-116 | 65 | 400 | Obrig. | Parâmetro do QR-Code não está no formato hexadecimal (cHashQRCode) | MOC 7.03 | escrita |
+| ZX02-120 | 65 | 464 | Obrig. | Código de Hash no QR-Code difere do calculado | MOC 7.03 | escrita |
+| ZX02-220 | 65 | 407 | Obrig. | NFC-e com qrCode na versão 3 | NT 2025.001 v1.03 | excluída |
+| ZX02-220 | 55 | 672 | Obrig. | NF-e com DANFE Simplificado Tipo 2 com versão de qrCode não permitida | NT 2026.002 v1.11 | lib (5.1) |
+| ZX02-222 | 65 | 444 | Obrig. | NFC-e com qrCode na versão 2 para Pessoa Física | NT 2025.001 v1.03 | lib (5.1) |
+| ZX02-224 | 55/65 | 396 | Obrig. | Parâmetro do QR-Code inexistente: [Param: xxx)] | NT 2026.002 v1.11 | escrita |
+| ZX02-228 | 55/65 | 397 | Obrig. | Parâmetro do QR-Code divergente da Nota Fiscal [Param: xxx)] | NT 2026.002 v1.11 | escrita |
+| ZX02-232 | 55/65 | 396 | Obrig. | Parâmetro do QR-Code inexistente: [Param: xxx)] | NT 2026.002 v1.11 | escrita |
+| ZX02-236 | 55/65 | 398 | Obrig. | Parâmetro Versão informada no QR-Code diverge do previsto [Param: xxx] | NT 2026.002 v1.11 | escrita |
+| ZX02-240 | 55/65 | 396 | Obrig. | Parâmetro do QR-Code inexistente: [Param: xxx] | NT 2026.002 v1.11 | escrita |
+| ZX02-244 | 55/65 | 397 | Obrig. | Parâmetro do QR-Code divergente da Nota Fiscal: [Param: xxx] | NT 2026.002 v1.11 | escrita |
+| ZX02-260 | 55/65 | 396 | Obrig. | Parâmetro do QR-Code inexistente: [Param: xxx] | NT 2026.002 v1.11 | escrita |
+| ZX02-268 | 55/65 | 397 | Obrig. | Parâmetro do QR-Code divergente da Nota Fiscal: [Param: xxx] | NT 2026.002 v1.11 | a fazer (5.2) |
+| ZX02-272 | 55/65 | 396 | Obrig. | Parâmetro do QR-Code inexistente: [Param: xxx] | NT 2026.002 v1.11 | escrita |
+| ZX02-276 | 55/65 | 397 | Obrig. | Parâmetro do QR-Code divergente da Nota Fiscal: [Param: xxx] | NT 2026.002 v1.11 | a fazer (5.2) |
+| ZX02-288 | 65 | 396 | Obrig. | Parâmetro do QR-Code inexistente:[Param: xxx) | MOC 7.03 | escrita |
+| ZX02-292 | 65 | 400 | Obrig. | Parâmetro Digest Value no QR-Code não está no formato hexadecimal (Caracteres: “0-9”, “a-f”,“A-F”) | MOC 7.03 | escrita |
+| ZX02-296 | 65 | 397 | Obrig. | Parâmetro do QR-Code divergente da Nota Fiscal: [Param: xxx)] | MOC 7.03 | a fazer (5.2) |
+| ZX02-300 | 65 | 396 | Obrig. | Parâmetro do QR-Code inexistente: [Param: xxx] | NT 2025.001 v1.03 | escrita |
 | ZX02-304 | 65 | 462 | Obrig. | Parâmetro Código Identificador do CSC no QR-Code não cadastrado na SEFAZ | MOC 7.03 | SEFAZ |
-| ZX02-308 | 65 | 463 | Obrig. | Parâmetro Código Identificador do CSC no QR-Code foi revogado pela empresa anteriormente a Data de Emissão | MOC 7.03 | a fazer (5.1) |
-| ZX02-312 | 65 | 396 | Obrig. | Parâmetro do QR-Code inexistente:[Param: xxx) | MOC 7.03 | a fazer (5.1) |
-| ZX02-316 | 65 | 400 | Obrig. | Parâmetro Hash no QR-Code não está no formato hexadecimal (Caracteres: “0-9”, “a-f”,“A-F”) | MOC 7.03 | a fazer (5.1) |
-| ZX02-320 | 65 | 464 | Obrig. | Parâmetro Hash no QR-Code diverge do calculado | MOC 7.03 | a fazer (5.1) |
-| ZX02-324 | 55/65 | 396 | Obrig. | Parâmetro do QR-Code inexistente: [Param: xxx] | NT 2026.002 v1.11 | a fazer |
-| ZX02-326 | 55/65 | 396 | Obrig. | Parâmetro do QR-Code inexistente: [Param: xxx] | NT 2026.002 v1.11 | a fazer |
-| ZX02-328 | 55/65 | 397 | Obrig. | Parâmetro do QR-Code divergente da Nota Fiscal (idDest) | NT 2026.002 v1.11 | a fazer |
-| ZX02-330 | 55/65 | 445 | Obrig. | Parâmetro assinatura não deve ser informado no qrCode | NT 2026.002 v1.11 | a fazer |
-| ZX02-334 | 55/65 | 474 | Obrig. | Parâmetro assinatura deve ser informado no qrCode | NT 2026.002 v1.11 | a fazer |
-| ZX02-338 | 55/65 | 583 | Obrig. | Valor da assinatura do qrCode difere do valor calculado | NT 2026.002 v1.11 | a fazer |
-| ZX03-20 | 65 | 878 | Facul. | Endereço do site da UFda Consulta por chave de acesso diverge do previsto | MOC 7.03 | a fazer (5.1) |
+| ZX02-308 | 65 | 463 | Obrig. | Parâmetro Código Identificador do CSC no QR-Code foi revogado pela empresa anteriormente a Data de Emissão | MOC 7.03 | SEFAZ |
+| ZX02-312 | 65 | 396 | Obrig. | Parâmetro do QR-Code inexistente:[Param: xxx) | MOC 7.03 | escrita |
+| ZX02-316 | 65 | 400 | Obrig. | Parâmetro Hash no QR-Code não está no formato hexadecimal (Caracteres: “0-9”, “a-f”,“A-F”) | MOC 7.03 | escrita |
+| ZX02-320 | 65 | 464 | Obrig. | Parâmetro Hash no QR-Code diverge do calculado | MOC 7.03 | escrita |
+| ZX02-324 | 55/65 | 396 | Obrig. | Parâmetro do QR-Code inexistente: [Param: xxx] | NT 2026.002 v1.11 | escrita |
+| ZX02-326 | 55/65 | 396 | Obrig. | Parâmetro do QR-Code inexistente: [Param: xxx] | NT 2026.002 v1.11 | escrita |
+| ZX02-328 | 55/65 | 397 | Obrig. | Parâmetro do QR-Code divergente da Nota Fiscal (idDest) | NT 2026.002 v1.11 | a fazer (5.2) |
+| ZX02-330 | 55/65 | 445 | Obrig. | Parâmetro assinatura não deve ser informado no qrCode | NT 2026.002 v1.11 | a fazer (5.2) |
+| ZX02-334 | 55/65 | 474 | Obrig. | Parâmetro assinatura deve ser informado no qrCode | NT 2026.002 v1.11 | a fazer (5.2) |
+| ZX02-338 | 55/65 | 583 | Obrig. | Valor da assinatura do qrCode difere do valor calculado | NT 2026.002 v1.11 | a fazer (5.2) |
+| ZX03-20 | 65 | 878 | Facul. | Endereço do site da UFda Consulta por chave de acesso diverge do previsto | MOC 7.03 | SEFAZ |
 
 ### 10.5. Banco de dados do autorizador (Anexo I, 4.2.1, e as NTs)
 
@@ -1595,3 +1595,19 @@ O resto do que era "a fazer (4.4)" e "outra operação (4.4)": o 214 (tamanho da
 | (lib) | `NFE-CHAVE` | Erro | a chave consultada (ou a do XML recuperado) é do modelo do núcleo: a de NFC-e num núcleo de NF-e, e o contrário, iria ao web service do outro documento |
 
 As regras J01 a J06 da consulta (Tabela 5-16) ficam com a SEFAZ: o DV, a UF, o ano, o mês, o CNPJ ou o CPF, o modelo e o número da chave (236, 614 a 619) a `ChaveAcesso` já garante antes de existir; o ambiente (252) é o do núcleo. A recuperação confere a assinatura do XML como a autorização confere a da nota recebida (seção 13, F02).
+
+## 15. O QR Code da NFC-e, etapa 5.1 (2026-10-24)
+
+**Aprovadas pelo usuário em 2026-10-24** (`PROJETO.md` 2.9; `CONTRATOS.md` 16, decisão 10): as três regras do QR Code que a montagem não evita, conferidas como `RegraNFe` depois do schema (`RegrasNFe400.NFCe.cs`), e os dois problemas de montagem da lib. O QR Code e a URL da consulta pela chave são gerados pela lib (`EscritorNFe.Suplementares.cs`), e por isso quase todas as regras do grupo ZX viram "escrita".
+
+| Regra | Código | Modelo | Severidade | O que confere |
+|---|---|---|---|---|
+| ZX01-10 | 393 | 55 | Erro | a NF-e sem `tpImp` 6 com o `infNFeSupl` preenchido: a lib não o gera nela, e o grupo veio de quem usa |
+| ZX02-222 | 444 | 65 | Erro | a versão 2 (o CSC configurado) com o emitente CPF |
+| ZX02-220 | 672 | 55 | Erro | a NF-e com `tpImp` 6 e a versão 2 (o CSC configurado): o QR Code dela é só a versão 3 |
+| (lib) | `NFE-QRCODE` | 55/65 | Erro | na montagem: a UF e o ambiente sem URL de consulta na tabela e sem a troca na `ConfiguracaoNFCe`; a contingência offline (`tpEmis` 9) até a 5.2 |
+| (lib) | `NFE-NUCLEO` | 55/65 | Erro | na montagem: o `Suplementares` preenchido e diferente do gerado (campo a campo) |
+
+**A situação das outras linhas do grupo ZX** (a revisão da 5.1): "escrita" nos parâmetros (396, 399, 400 e 398), na divergência com a nota que a lib monta igual (397 de `chNFe` e `tpAmb`), no hash (464), no formato (813), na versão 100 (903) e na ausência do grupo (394); "SEFAZ" no CSC não cadastrado e revogado (462 e 463: a lib não sabe o que a SEFAZ tem cadastrado) e nas URLs divergentes da tabela da UF (395 e 878); "a fazer (5.2)" nas da contingência offline (445, 474, 583 e os 397 de dia, valor, `digVal` e destinatário); e "excluída" no 407 (ZX02-220 do modelo 65, "NFC-e com qrCode na versão 3": a NT 2025.001 o tirou na v1.01).
+
+**Testes:** `RegrasQrCodeTestes` (um caso por regra, no campo certo, e cada condição nos dois sentidos) e `EscritaQrCodeTestes` (os problemas de montagem). O `CadaRegraTemOSeuCaso` soma os casos dos três arquivos.

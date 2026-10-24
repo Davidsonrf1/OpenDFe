@@ -38,7 +38,9 @@ public class EscritaFormaTestes
         var escrita = NotasTeste.Escrever(NotasTeste.NFCe());
 
         Assert.StartsWith("<NFe xmlns=\"http://www.portalfiscal.inf.br/nfe\"><infNFe versao=\"4.00\" Id=\"NFe", escrita.Xml, StringComparison.Ordinal);
-        Assert.EndsWith("</infNFe></NFe>", escrita.Xml, StringComparison.Ordinal);
+        // A NFC-e leva o infNFeSupl que a lib gera (etapa 5.1), depois do infNFe.
+        Assert.Contains("</infNFe><infNFeSupl><qrCode>", escrita.Xml, StringComparison.Ordinal);
+        Assert.EndsWith("</urlChave></infNFeSupl></NFe>", escrita.Xml, StringComparison.Ordinal);
         Assert.DoesNotContain("> <", escrita.Xml, StringComparison.Ordinal);
         Assert.DoesNotContain("\n", escrita.Xml, StringComparison.Ordinal);
         Assert.DoesNotContain(" />", escrita.Xml, StringComparison.Ordinal);
@@ -118,7 +120,8 @@ public class EscritaFormaTestes
         nota.Identificacao.TipoEmissao = TipoEmissao.ContingenciaOffline;
         var escrita = NotasTeste.Escrever(nota, NotasTeste.Nucleo(Documento.NFCe, TipoEmissao.ContingenciaOffline, contingencia));
 
-        Assert.Empty(escrita.Problemas);
+        // A contingência é a do núcleo e não diverge; o único problema é o QR Code offline, que entra na 5.2 (CONTRATOS.md 16, decisão 9).
+        Assert.Equal(["NFE-QRCODE"], escrita.Problemas.Select(p => p.Codigo));
         Assert.Equal(TipoEmissao.ContingenciaOffline, escrita.Chave!.TipoEmissao);
         Assert.Contains("<dhCont>2026-10-20T14:30:00-03:00</dhCont>", escrita.Xml, StringComparison.Ordinal);
     }
@@ -312,9 +315,10 @@ public class EscritaFormaTestes
     public void AsSuplementaresSaemDepoisDoInfNFe()
     {
         var nota = NotasTeste.NFCe();
-        nota.Suplementares = new InformacoesSuplementares { QrCode = "https://qr?p=1", UrlChave = "https://consulta" };
-        var xml = NotasTeste.Escrever(nota).Xml;
-        Assert.EndsWith("</infNFe><infNFeSupl><qrCode>https://qr?p=1</qrCode><urlChave>https://consulta</urlChave></infNFeSupl></NFe>", xml, StringComparison.Ordinal);
+        var escrita = NotasTeste.Escrever(nota);
+        var qrCode = $"https://portalsped.fazenda.mg.gov.br/portalnfce/sistema/qrcode.xhtml?p={escrita.Chave}|3|2";
+        Assert.EndsWith($"</infNFe><infNFeSupl><qrCode>{qrCode}</qrCode><urlChave>https://hportalsped.fazenda.mg.gov.br/portalnfce</urlChave></infNFeSupl></NFe>",
+            escrita.Xml, StringComparison.Ordinal);
     }
 
     [Fact]

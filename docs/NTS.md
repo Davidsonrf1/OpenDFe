@@ -174,3 +174,43 @@ Os WSDLs mesmo não foram abertos: todos os autorizadores pedem o certificado do
 ### 3.3. Como atualizar
 
 Baixar de novo as páginas da 3.1 (o Portal Nacional pede cookie: `curl -c` e `-b` com o mesmo arquivo), comparar com a tabela e trocar as linhas que mudaram. URL trocada é versão menor (`PROJETO.md` 12.3). Até a versão nova sair, quem usa troca a URL na configuração (`ConfiguracaoDFe.Urls`).
+
+## 4. URLs de consulta da NFC-e (`UrlsConsultaNFCe`)
+
+Conferidas em 2026-10-24 (etapa 5.1). A tabela fica em `src/OpenDFe.Leiaute.NFe.v400/UrlsConsultaNFCe.cs` e é listada por `LeiauteNFe400.UrlsConsulta`; o teste `UrlsConsultaTestes` confere a forma dela e a lista das UFs que faltam. Cada linha tem a URL do QR Code (sem a query: a lib acrescenta o `?p=`) e a da consulta pela chave (o `urlChave`). A NF-e com o DANFE Simplificado Tipo 2 usa a mesma tabela (NT 2026.002, ZX02-20, observação 3).
+
+### 4.1. Fontes
+
+| O quê | Fonte | Conferido |
+|---|---|---|
+| Manual de Padrões Técnicos do DANFE NFC-e e QR Code 6.0 (março de 2025) | Portal Nacional da NF-e (`exibirArquivo.aspx?conteudo=k/IuuaW4YiY%3D`), SHA-256 `bf906cc212f1edd19b1df7d1cdf4fbf5e73c3fec77567b6e69fa74453c95db5e` (baixado de novo, confere com o da E.3) | 2026-10-24: o parâmetro de cada forma (4.3 e 4.4), o hash (4.3.4 e 4.3.5) e o CSC (4.6). Os dois exemplos de hash do manual conferem (`DC6AE2C2B9A992BE59679AC365E29922DE6B7511` e `4615A93BB0D7C4E780F8D30EE77EDD5BA55C7D66`, com o CSC `SEU-CODIGO-CSC-CONTRIBUINTE-36-CARACTERES`, de 41 caracteres). **O manual não traz as URLs**: manda para o Portal da NFC-e da ENCAT (`nfce.encat.org/desenvolvedor/qrcode/`) |
+| NT 2025.001 v1.02 (QR Code versão 3, 444) e NT 2026.002 v1.11 (NF-e com `tpImp` 6, 672) | Portal Nacional | já conferidas (1.3a); só citadas |
+| Portal da NFC-e da ENCAT, as URLs por UF (QR Code e consulta pela chave) | `nfce.encat.org/desenvolvedor/qrcode/` | **fora do ar** em 2026-10-24 (nome não resolve; a 4.2 já o achou assim) |
+| Wayback Machine da página da ENCAT | `web.archive.org` | **fora do ar** em 2026-10-24 ("Temporarily Offline"; a API de disponibilidade só devolvia um retrato de 15/10/2022, velho demais para valer) |
+| Portal de cada UF | o site da SEFAZ | só o de MG deu as duas URLs de forma clara (4.2) |
+
+### 4.2. As linhas da tabela
+
+| UF | Ambiente | URL do QR Code | URL da consulta pela chave | Fonte |
+|---|---|---|---|---|
+| MG | produção | `https://portalsped.fazenda.mg.gov.br/portalnfce/sistema/qrcode.xhtml` | `https://portalsped.fazenda.mg.gov.br/portalnfce` | "Web Services" da SEF-MG (`portalsped.fazenda.mg.gov.br/spedmg/nfce/web-services/`), 2026-10-24 |
+| MG | homologação | `https://portalsped.fazenda.mg.gov.br/portalnfce/sistema/qrcode.xhtml` | `https://hportalsped.fazenda.mg.gov.br/portalnfce` | a mesma página, 2026-10-24 |
+
+A página da SEF-MG lista o **mesmo endereço do QR Code nos dois ambientes**, e só o da consulta pela chave muda. Um fórum (ACBr) relata que a ENCAT e a SEF-MG já divergiram na homologação; a linha segue a página da SEF-MG (fonte primária) e fica **a conferir com o PFX** (uma divergência seria a rejeição 395 ou 878, só na homologação).
+
+### 4.3. As UFs que ficaram fora (nenhuma fonte primária conferida)
+
+AC, AL, AM, AP, BA, CE, DF, ES, GO, MA, MS, MT, PA, PB, PE, PI, PR, RJ, RN, RO, RR, RS, SC, SE, SP e TO, nos dois ambientes: a ENCAT e o Wayback Machine estavam fora do ar, e o portal de cada UF ou não foi achado, ou não traz as duas URLs, ou bloqueia o acesso (o do RJ), ou a página é de 2016 e o endereço do QR Code não consta (GO). Nada foi tirado de blog nem de fórum: a regra é não inventar URL. Quem emite nessas UFs informa as duas na `ConfiguracaoNFCe` (`UrlQrCode` e `UrlChave`); sem elas, a montagem recusa a nota com `NFE-QRCODE` (o comportamento seguro). O SC não emite NFC-e (a lista `UFsPendentes` do teste o inclui só porque a tabela não o tem).
+
+O que as fontes consultadas disseram e **não** entrou na tabela, para quem completar:
+
+- **PR:** o portal da SEFA-PR (`sped.fazenda.pr.gov.br/NFCe/Pagina/QR-Code`) dá o QR Code `http://www.fazenda.pr.gov.br/nfce/qrcode`, o mesmo na produção e na homologação (o ambiente vai no `tpAmb` do parâmetro); falta a URL da consulta pela chave.
+- **GO:** os comunicados de 2016 (`goias.gov.br/economia/...`) trazem só `https://nfe.sefaz.go.gov.br/nfeweb/sites/nfce/danfeNFCe` (produção) e `https://homolog.sefaz.go.gov.br/nfeweb/sites/nfce/danfeNFCe` (homologação), de 2016; a SEFAZ-GO trocou a URL aceita depois (relato de 2021), e não há fonte atual.
+- **ES:** o portal (`sefaz.es.gov.br/qr-code` e `/url-dos-web-services`) deu as duas URLs de forma truncada ou ambígua (o QR Code como `www2.sefaz.es.gov.br/nfce/consulta` e a consulta pela chave com o domínio repetido); não foi usado.
+- **RJ:** a página `portal.fazenda.rj.gov.br/dfe` bloqueou o acesso. Pelo resumo de uma busca, o RJ trocou o QR Code (produção e homologação) para `https://consultadfe.fazenda.rj.gov.br/consultaNFCe/QRCode` em 19/12/2023, com o endereço antigo (`www4.fazenda.rj.gov.br`) valendo até 02/09/2024; **não conferido na página**.
+- **RN:** a SEFAZ-RN avisou em 18/05/2026 que o domínio da SET deixou de existir e que os links do QR Code mudaram (só do RN); o aviso (`sefaz.rn.gov.br/materia/atencao-desenvolvedores-nfc-e/`) respondeu 503, e as URLs novas não foram vistas.
+- **GO, MG, RJ, RN e SP** são as UFs que o texto da página da ENCAT (salva em 2026-10-19, que não está mais no repositório) dizia ter data de troca de endereço; as datas não foram confirmadas, e por isso o `docs/NTS.md` não as traz. Uma URL trocada vale versão menor da lib (`PROJETO.md` 12.3).
+
+### 4.4. Como completar
+
+Quando a ENCAT voltar, ou para cada UF: abrir a página, copiar as duas URLs de cada ambiente (a do QR Code sem a query), acrescentar as linhas em `UrlsConsultaNFCe.cs`, tirar a UF da lista `UFsPendentes` do `UrlsConsultaTestes` (o teste quebra se a lista e a tabela divergirem), e registrar aqui a fonte e a data.
