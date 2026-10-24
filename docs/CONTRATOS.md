@@ -1264,3 +1264,44 @@ Como no desenho, com estes ajustes (a conferir pelo usuário):
 - **O `ProcInutNFe`** tem o P maiúsculo (o nome do elemento no `procInutNFe_v4.00.xsd`).
 - **Teste antigo mudado por consequência da etapa:** `LeiauteNFe400Testes.ADeclaracaoTemAsFormasDeLeituraEAsOperacoesDoDocumento` (a lista das operações ganha o `EnvioEvento` e a `Inutilizacao`).
 - **Testes novos:** `AutorizacaoTestes.Evento` (montagem, recusas, destino e leitura, com o handler falso; um evento de teste derivado da base prova a extensão sem mudar o envio nem a operação), `EventoEmuladoTestes` e `InutilizacaoEmuladaTestes` (a lib inteira contra o emulador, com o relógio avançado nas 24 horas).
+
+## 18.5. A substituição e a carta de correção (etapa 6.2)
+
+**Aprovado em 2026-10-24, todas as decisões pela recomendação** (`docs/etapas/6.2-substituicao-carta-correcao.md`). Duas subclasses de `Evento`, **sem mudar** o `EnvioEvento`, a `OperacaoEvento`, o `RetornoEvento` nem o `ResultadoEvento`. O guia para quem usa é `docs/EVENTOS.md`.
+
+```csharp
+/// O cancelamento por substituição (110112) de uma NFC-e: cancela a NFC-e e aponta a que a substitui.
+public sealed class CancelamentoSubstituicao : Evento
+{
+    public CancelamentoSubstituicao(ChaveAcesso chave, string protocolo, string justificativa, ChaveAcesso chaveSubstituta);
+    public string Protocolo { get; }
+    public string Justificativa { get; }
+    public ChaveAcesso ChaveSubstituta { get; }          // chNFeRef
+    public string VersaoAplicativo { get; init; }        // verAplic; padrão "OpenDFe " + a versão do pacote; cortado em 20
+}
+
+/// A carta de correção (110110) de uma NF-e; a NFC-e não tem.
+public sealed class CartaCorrecao : Evento
+{
+    public CartaCorrecao(ChaveAcesso chave, int sequencia, string correcao);   // sequência de 1 a 20
+    public string Correcao { get; }                      // xCorrecao
+}
+```
+
+**O `detEvento`:**
+
+- **Substituição:** `descEvento` "Cancelamento por substituicao" (como o schema enumera), `cOrgaoAutor` (a UF da chave), `tpAutor` 1 (empresa emitente), `verAplic`, `nProt`, `xJust`, `chNFeRef`. Sequência sempre 1; autor, o emitente da chave. Vai ao autorizador normal da UF da chave (o tipo não aceita a SVC: só o cancelamento comum aceita). O `cOrgaoAutor` que a SEFAZ devolve no `retEvento` fica no `XmlProcessado`; o `ResultadoEvento` não ganhou o campo.
+- **Carta:** `descEvento` "Carta de Correcao", `xCorrecao` e `xCondUso` com o texto exato do `e110110_v1.00.xsd` (a forma sem acento; o schema aceita as duas). Um teste lê o XSD embutido e confere o texto com a enumeração (se uma NT mudar o texto, o teste acusa). Vai ao autorizador normal da UF (a SVC não registra CC-e), mesmo para a chave de uma nota da SVC.
+- A `Sequencia` da carta é de quem usa (a lib não sabe qual é a próxima): o guia explica (conte as cartas da consulta). O tamanho da correção (15 a 1000) e o da justificativa (15 a 255) são do schema (493, com a propriedade).
+- **Sem regra nova fora do schema** (`REGRAS.md` 18). As recusas dos construtores são validação de argumento: o modelo da chave (65 na substituição, as duas chaves; 55 na carta), as chaves iguais, os 15 dígitos do protocolo, a justificativa e a correção vazias, a sequência fora de 1 a 20.
+- **O `procEventoNFe`** da substituição e o da carta passam no `procEventoNFe_v1.00.xsd`. O `retConsSitNFe_v4.00` do PL_010d diverge no caso da substituição (o `TProcEvento` dele não tem o `cOrgaoAutor`: `SEFAZ_EMULADA.md`, "Divergência entre os schemas do Portal"): a lib não valida a resposta da consulta pelo schema e a documentação o registra.
+
+### 18.5.1. Implementação (etapa 6.2, 2026-10-24)
+
+Como no desenho, com estes ajustes (a conferir pelo usuário):
+
+- **A substituta é a NFC-e emitida offline (`tpEmis` 9), não a da emissão normal.** O arquivo da etapa dizia que o 920 e o 921 "dizem que a substituição é da emissão normal"; o MOC 7.0, Visão Geral, 5.9.3 (Tabela 5-38, conferido e registrado em `NTS.md` 5) diz outra coisa: o **920** rejeita a **cancelada** que não é da emissão normal (P12-48) e o **921** rejeita a **substituta** que é da emissão normal (5P31-44: "Tipo de emissão da NF-e substituta deve ser de contingência"). O emulador já fazia assim, a lib não confere nenhum dos dois (é da SEFAZ), e os testes e o guia usam a substituta offline. O destino da substituição é o autorizador normal da UF da chave da cancelada (que é da emissão normal).
+- **`Evento.Autor` deixou de ser abstrato:** o autor do cancelamento, da substituição e da carta é o mesmo (o emitente da chave), então a implementação passou à base (`internal virtual`), e o `Cancelamento` a perdeu. A manifestação (8.2) a sobrescreve (o destinatário). O `EventoFalso` do teste da 6.1 continua a sobrescrever.
+- **`CancelamentoSubstituicao.VersaoAplicativo`:** o nulo volta ao padrão e o que passa de 20 caracteres é cortado (o schema pede de 1 a 20); a versão padrão vem do `AssemblyInformationalVersion` sem o "+commit".
+- **A base da 6.1 bastou:** a `OperacaoEvento`, o `EnvioEvento` e os resultados não mudaram (provado pelas duas subclasses, contra o handler falso e contra o emulador).
+- **Testes novos:** `AutorizacaoTestes.EventoSubstituicaoCorrecao` (20), `SubstituicaoEmuladaTestes` (13) e `CartaCorrecaoEmuladaTestes` (7); `ApoioEmulado.Autorizar` (a nota do caso, também offline); dois casos pulados em `AutorizacaoHomologacaoTestes`.

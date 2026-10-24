@@ -33,6 +33,10 @@ internal static class SchemasNFe400
     private static readonly Lazy<SchemaXml> SchemaEventoProcessado = Preparar("procEventoNFe_v1.00.xsd", CodigoMensagem);
     private static readonly Lazy<SchemaXml> SchemaDetalheCancelamento =
         Preparar("e110111_v1.00.xsd", CodigoDetalhe, c => Detalhe(c, "nProt", "Protocolo", "xJust", "Justificativa"));
+    private static readonly Lazy<SchemaXml> SchemaDetalheSubstituicao =
+        Preparar("e110112_v1.00.xsd", CodigoDetalhe, c => Detalhe(c, "verAplic", "VersaoAplicativo", "nProt", "Protocolo", "xJust", "Justificativa", "chNFeRef", "ChaveSubstituta"));
+    private static readonly Lazy<SchemaXml> SchemaDetalheCartaCorrecao =
+        Preparar("e110110_v1.00.xsd", CodigoDetalhe, c => Detalhe(c, "xCorrecao", "Correcao"));
     private static readonly Lazy<SchemaXml> SchemaNotaProcessada = Preparar("procNFe_v4.00.xsd", CodigoMensagem, CaminhoModeloNFe.Propriedade);
 
     /// <summary>A nota sozinha (<c>NFe</c>): a que o <c>Preparar</c> gera e a que se lê.</summary>
@@ -67,6 +71,12 @@ internal static class SchemasNFe400
 
     /// <summary>O <c>detEvento</c> do cancelamento (110111).</summary>
     internal static SchemaXml DetalheCancelamento => SchemaDetalheCancelamento.Value;
+
+    /// <summary>O <c>detEvento</c> do cancelamento por substituição (110112).</summary>
+    internal static SchemaXml DetalheSubstituicao => SchemaDetalheSubstituicao.Value;
+
+    /// <summary>O <c>detEvento</c> da carta de correção (110110).</summary>
+    internal static SchemaXml DetalheCartaCorrecao => SchemaDetalheCartaCorrecao.Value;
 
     /// <summary>A inutilização com o registro (<c>ProcInutNFe</c>), a distribuível.</summary>
     internal static SchemaXml InutilizacaoProcessada => SchemaInutilizacaoProcessada.Value;

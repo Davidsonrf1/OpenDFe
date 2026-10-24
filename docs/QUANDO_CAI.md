@@ -171,7 +171,8 @@ catch (FalhaTransmissaoException falha) when (falha.PodeTerSidoProcessado)
 
 - Informe o `Momento` do evento e **guarde o evento** (o mesmo `Momento`, a mesma justificativa): o reenvio sai com os mesmos bytes e o mesmo `Id` (`ID` + `tpEvento` + chave + `nSeqEvento`). Sem o `Momento`, o `dhEvento` vem do relógio e muda a cada tentativa.
 - 573 no reenvio diz que o evento já foi registrado: a consulta traz o `procEventoNFe`.
-- 501 (prazo de 24 horas) não se resolve reenviando: o cancelamento fora do prazo depende da UF (155) ou do cancelamento por substituição (etapa 6.2).
+- 501 (prazo de 24 horas) não se resolve reenviando: o cancelamento fora do prazo depende da UF (155) ou, na NFC-e, do cancelamento por substituição (até 168 horas; `EVENTOS.md` 2).
+- O cancelamento por substituição e a carta de correção (etapa 6.2) se recuperam do mesmo jeito: consulte a chave (a carta aparece com a sequência; a substituição, com o 101) e reenvie o mesmo evento (o mesmo `Momento`) só se não consta. A carta e a substituição vão sempre ao autorizador normal da UF (a SVC registra só o cancelamento). O guia dos eventos é `EVENTOS.md`.
 - A nota autorizada na SVC é cancelada na SVC (o destino sai da chave); com o `Destino` do parâmetro, o cancelamento vai ao autorizador normal, que também a conhece.
 
 **Inutilização sem a resposta:** reenvie a mesma faixa. Se a primeira chegou, a SEFAZ responde **563** (a faixa já foi inutilizada), com a faixa e o `nProt` da primeira no retorno (`RetornoInutilizacao.Protocolo`); se não chegou, a segunda é homologada (102). O `ProcInutNFe` só vem no 102; no 563, guarde o protocolo.

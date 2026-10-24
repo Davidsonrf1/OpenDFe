@@ -94,6 +94,84 @@ public class AutorizacaoHomologacaoTestes
         Assert.NotNull(evento.XmlProcessado);
     }
 
+    // A carta de correção da nota que o teste autoriza, e o cancelamento por substituição de uma NFC-e normal por uma
+    // NFC-e emitida offline (etapa 6.2): pulados sem o PFX.
+    [Fact]
+    public async Task UmaCartaDeCorrecaoEhRegistradaEmHomologacao()
+    {
+        using var certificado = AmbienteHomologacao.AbrirPfx();
+        var inscricao = Environment.GetEnvironmentVariable(VariavelInscricao);
+        Assert.SkipWhen(string.IsNullOrEmpty(inscricao), $"Sem {VariavelInscricao}: a nota precisa da inscrição estadual do emitente.");
+        var cnpj = CertificadoDigital.LerTitular(certificado)?.Cnpj;
+        Assert.SkipWhen(cnpj is null, "O PFX não é de um CNPJ.");
+        using var conexoes = CriarConexoes();
+        var dfe = CriarNucleo(certificado, conexoes, Documento.NFe);
+        var autorizacao = await dfe.ExecutarAsync(new Autorizacao(Nota(cnpj!, inscricao!)), TestContext.Current.CancellationToken);
+        var nota = Assert.Single(autorizacao.Retorno!.Notas);
+        Assert.True(nota.Autorizada, $"{nota.Protocolo?.Status} {nota.Protocolo?.Motivo}");
+
+        var resultado = await dfe.ExecutarAsync(
+            new EnvioEvento(new CartaCorrecao(nota.Chave!, 1, "Correcao do teste de homologacao: endereco de entrega")),
+            TestContext.Current.CancellationToken);
+
+        Assert.True(resultado.Processado, string.Join(Environment.NewLine, resultado.Problemas));
+        var evento = Assert.Single(resultado.Retorno!.Eventos);
+        Assert.True(evento.Registrado, $"{evento.Status} {evento.Motivo}");
+        Assert.NotNull(evento.XmlProcessado);
+    }
+
+    [Fact]
+    public async Task UmaNFCeESubstituidaPorUmaNFCeOfflineEmHomologacao()
+    {
+        using var certificado = AmbienteHomologacao.AbrirPfx();
+        var inscricao = Environment.GetEnvironmentVariable(VariavelInscricao);
+        Assert.SkipWhen(string.IsNullOrEmpty(inscricao), $"Sem {VariavelInscricao}: a nota precisa da inscrição estadual do emitente.");
+        var cnpj = CertificadoDigital.LerTitular(certificado)?.Cnpj;
+        Assert.SkipWhen(cnpj is null, "O PFX não é de um CNPJ.");
+        using var conexoes = CriarConexoes();
+        var dfe = CriarNucleo(certificado, conexoes, Documento.NFCe);
+        var offline = CriarNucleo(certificado, conexoes, Documento.NFCe, TipoEmissao.ContingenciaOffline);
+        var cancelada = Assert.Single((await dfe.ExecutarAsync(new Autorizacao(NotaNFCe(cnpj!, inscricao!)), TestContext.Current.CancellationToken)).Retorno!.Notas);
+        Assert.True(cancelada.Autorizada, $"{cancelada.Protocolo?.Status} {cancelada.Protocolo?.Motivo}");
+        // a substituta: os mesmos itens, valor e destinatário, emitida offline e transmitida depois
+        var preparada = offline.Preparar(NotaNFCe(cnpj!, inscricao!));
+        Assert.True(preparada.Preparado, string.Join(Environment.NewLine, preparada.Problemas));
+        var substituta = Assert.Single((await dfe.ExecutarAsync(new Autorizacao(preparada.Xml!), TestContext.Current.CancellationToken)).Retorno!.Notas);
+        Assert.True(substituta.Autorizada, $"{substituta.Protocolo?.Status} {substituta.Protocolo?.Motivo}");
+
+        var resultado = await dfe.ExecutarAsync(
+            new EnvioEvento(new CancelamentoSubstituicao(cancelada.Chave!, cancelada.Protocolo!.Numero!, "Substituicao do teste de homologacao", substituta.Chave!)),
+            TestContext.Current.CancellationToken);
+
+        Assert.True(resultado.Processado, string.Join(Environment.NewLine, resultado.Problemas));
+        var evento = Assert.Single(resultado.Retorno!.Eventos);
+        Assert.True(evento.Registrado, $"{evento.Status} {evento.Motivo}");
+        Assert.NotNull(evento.XmlProcessado);
+    }
+
+    private static ConexoesSefaz CriarConexoes()
+    {
+        var intermediarias = AmbienteHomologacao.AbrirIntermediarias();
+        return new ConexoesSefaz(conexao =>
+        {
+            var handler = conexao.CriarPadrao();
+            handler.SslOptions.ClientCertificateContext = SslStreamCertificateContext.Create(conexao.Certificado, intermediarias, offline: true);
+            return handler;
+        });
+    }
+
+    private static DFe CriarNucleo(System.Security.Cryptography.X509Certificates.X509Certificate2 certificado, ConexoesSefaz conexoes,
+        Documento documento, TipoEmissao emissao = TipoEmissao.Normal) =>
+        DFe.Criar(new LeiauteNFe400(), documento, new ConfiguracaoDFe
+        {
+            Ambiente = Ambiente.Homologacao,
+            UF = UF.MG,
+            Certificado = certificado,
+            Conexoes = conexoes,
+            Emissao = emissao,
+            Contingencia = emissao == TipoEmissao.Normal ? null : new Contingencia(DateTimeOffset.UtcNow.AddHours(-2), "Teste de homologacao da contingencia offline"),
+        });
+
     [Fact]
     public async Task UmaFaixaEInutilizadaEmHomologacao()
     {

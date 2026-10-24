@@ -161,3 +161,13 @@ OpenDFe.NFe.TipoEvento.CienciaOperacao = 210210 -> OpenDFe.NFe.TipoEvento
 OpenDFe.NFe.TipoEvento.ConfirmacaoOperacao = 210200 -> OpenDFe.NFe.TipoEvento
 OpenDFe.NFe.TipoEvento.DesconhecimentoOperacao = 210220 -> OpenDFe.NFe.TipoEvento
 OpenDFe.NFe.TipoEvento.OperacaoNaoRealizada = 210240 -> OpenDFe.NFe.TipoEvento
+OpenDFe.NFe.CancelamentoSubstituicao
+OpenDFe.NFe.CancelamentoSubstituicao.CancelamentoSubstituicao(OpenDFe.ChaveAcesso! chave, string! protocolo, string! justificativa, OpenDFe.ChaveAcesso! chaveSubstituta) -> void
+OpenDFe.NFe.CancelamentoSubstituicao.ChaveSubstituta.get -> OpenDFe.ChaveAcesso!
+OpenDFe.NFe.CancelamentoSubstituicao.Justificativa.get -> string!
+OpenDFe.NFe.CancelamentoSubstituicao.Protocolo.get -> string!
+OpenDFe.NFe.CancelamentoSubstituicao.VersaoAplicativo.get -> string!
+OpenDFe.NFe.CancelamentoSubstituicao.VersaoAplicativo.init -> void
+OpenDFe.NFe.CartaCorrecao
+OpenDFe.NFe.CartaCorrecao.CartaCorrecao(OpenDFe.ChaveAcesso! chave, int sequencia, string! correcao) -> void
+OpenDFe.NFe.CartaCorrecao.Correcao.get -> string!

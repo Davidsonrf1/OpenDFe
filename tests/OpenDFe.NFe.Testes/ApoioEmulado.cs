@@ -57,6 +57,26 @@ internal static class ApoioEmulado
         return nota;
     }
 
+    // A nota do caso autorizada, com o ajuste que o caso precisa (outro valor, outro destinatário, outro item). Com o núcleo
+    // offline, a nota é preparada por ele (tpEmis 9) e o núcleo normal a transmite.
+    internal static async Task<ResultadoNota> Autorizar(DFe dfe, Documento documento, int numero, TimeProvider? relogio = null,
+        Action<NotaFiscal>? ajustar = null, DFe? offline = null)
+    {
+        var nota = Nota(documento, numero, (relogio ?? TimeProvider.System).GetUtcNow());
+        ajustar?.Invoke(nota);
+        var autorizacao = new OpenDFe.NFe.Autorizacao(nota);
+        if (offline is not null)
+        {
+            var preparada = offline.Preparar(nota);
+            Assert.True(preparada.Preparado);
+            autorizacao = new OpenDFe.NFe.Autorizacao(preparada.Xml!);
+        }
+        var resultado = await dfe.ExecutarAsync(autorizacao, TestContext.Current.CancellationToken);
+        var autorizada = Assert.Single(resultado.Retorno!.Notas);
+        Assert.True(autorizada.Autorizada, resultado.Retorno.Motivo + " / " + autorizada.Protocolo?.Motivo);
+        return autorizada;
+    }
+
     // O relógio do emulador e da lib, que avança sem esperar (as 24 horas do cancelamento).
     internal sealed class RelogioAvancavel : TimeProvider
     {

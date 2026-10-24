@@ -214,9 +214,9 @@ Baixadas em 2026-10-22: as NTs do Portal Nacional da NF-e (Documentos > Notas T�
 | a fazer | 617 |
 | schema | 2 |
 | escrita | 65 |
-| SEFAZ | 202 |
+| SEFAZ | 204 |
 | SEFAZ (tabela) | 15 |
-| outra operação (6) | 48 |
+| outra operação (6) | 46 |
 | excluída | 9 |
 | **total** | **1068** |
 
@@ -1524,8 +1524,8 @@ As NTs 2019.001 (EPEC), 2025.002 (os eventos da RTC), 2026.001 (o cancelamento p
 | P12-44 | 55/65 | 574 | Obrig. | Autor do evento diverge do emissor da NF-e | NT 2026.001 v1.02b | SEFAZ |
 | P14-10 | 55 | 669 | Obrig. | Ambiente de autorização inválido para emissão pelo PAA | NT 2026.001 v1.02b | outra operação (6) |
 | P14-20 | 55 | 669 | Obrig. | Ambiente de autorização inválido para emissão pelo PAA | NT 2026.001 v1.02b | outra operação (6) |
-| P31-26 | 55/65 | 910 | Obrig. | Chave de Acesso NF-e Substituta inválida (CNPJ/CPF) | NT 2026.001 v1.02b | outra operação (6) |
-| P31-46 | 55/65 | 911 | Obrig. | Chave de Acesso NF-e Substituta incorreta (CNPJ/CPF) | NT 2026.001 v1.02b | outra operação (6) |
+| P31-26 | 55/65 | 910 | Obrig. | Chave de Acesso NF-e Substituta inválida (CNPJ/CPF) | NT 2026.001 v1.02b | SEFAZ |
+| P31-46 | 55/65 | 911 | Obrig. | Chave de Acesso NF-e Substituta incorreta (CNPJ/CPF) | NT 2026.001 v1.02b | SEFAZ |
 | P80-10 | 55 | 893 | Obrig. | Grupo de informações do Provedor de Assinatura e Autorização informado indevidamente | NT 2026.001 v1.02b | outra operação (6) |
 | P80-20 | 55 | 893 | Obrig. | Grupo de informações do Provedor de Assinatura e Autorização informado indevidamente | NT 2026.001 v1.02b | outra operação (6) |
 | P80-30 | 55 | 867 | Obrig. | Grupo de informações do Provedor de Assinatura e Autorização não informado | NT 2026.001 v1.02b | outra operação (6) |
@@ -1639,3 +1639,11 @@ Também na montagem, sem regra do catálogo: o `detEvento` conferido pelo schema
 **Ficam com a SEFAZ**, sem regra na lib: o prazo do cancelamento (501), o protocolo (222), a nota inexistente (494), a sequência (594), o titular do certificado contra o autor (213, 227) e o autor contra o emitente da chave (574), a duplicidade do evento (573) e a situação da nota. As linhas do catálogo P09-10 (252), P12-26 (617), P12-40 (249), P12-44 (574) e 3B08-100 (206) passam de "outra operação (6)" a "SEFAZ"; as outras da seção 10.6 continuam com as etapas 6.2 e 8.2.
 
 **Testes:** `AutorizacaoTestes.Evento` (cada regra e cada recusa na montagem) e `EventoEmuladoTestes`.
+
+## 18. O cancelamento por substituição e a carta de correção, etapa 6.2 (2026-10-24)
+
+**Sem regra nova da lib** (`CONTRATOS.md` 18.5; `docs/etapas/6.2-substituicao-carta-correcao.md`, decisão 3): o `detEvento` de cada tipo é conferido pelo schema do tipo (`e110112`, `e110110`), com o código **493** (D06) e a propriedade do campo (`Eventos[0].Correcao`, `Eventos[0].ChaveSubstituta`), e o caractere que o XML não aceita é `NFE-CARACTERE`. Os construtores recusam o que a SEFAZ certamente recusaria (argumentos, não regras do MOC): a chave de outro modelo (a substituição é de NFC-e, a carta é de NF-e), as duas chaves da substituição iguais, o protocolo sem 15 dígitos, a justificativa ou a correção vazia e a sequência da carta fora de 1 a 20. O `NFE-CHAVE` e o `NFE-LOTE` da 6.1 já cobrem o modelo diferente do do núcleo e os destinos misturados.
+
+**Ficam com a SEFAZ**, sem regra na lib (MOC 7.0, Visão Geral, 5.9.3 e 5.10.3, Tabelas 5-38 e 5-40): a cancelada da emissão normal (920), a substituta de contingência (921; o MOC 5P31-44 manda a substituta ser **offline**, não normal), a chave da substituta (910, 911), a substituta na base (912 a 919), o prazo de 168 horas (501), a sequência da carta acima do registrado, a NFC-e na carta (784), a nota cancelada (580) e o `dhEvento` antes da emissão (577). As linhas P31-26 (910) e P31-46 (911) do catálogo passam de "outra operação (6)" a "SEFAZ".
+
+**Testes:** `AutorizacaoTestes.EventoSubstituicaoCorrecao` (os parâmetros, o `detEvento` no schema do tipo, o `xCondUso` contra o XSD embutido, os limites da correção, o destino e o lote) e, contra a SEFAZ emulada, `SubstituicaoEmuladaTestes` e `CartaCorrecaoEmuladaTestes`.

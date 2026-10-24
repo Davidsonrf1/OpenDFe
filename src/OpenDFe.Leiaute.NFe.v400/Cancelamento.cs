@@ -35,16 +35,6 @@ public sealed class Cancelamento : Evento
 
     internal override string Descricao => "Cancelamento";
 
-    // O autor é o emitente da chave: o CNPJ, ou o CPF (a chave o guarda com três zeros à esquerda).
-    internal override string Autor
-    {
-        get
-        {
-            var emitente = Chave.Emitente;
-            return Cnpj.Valido(emitente) || !emitente.StartsWith("000", StringComparison.Ordinal) ? emitente : emitente[3..];
-        }
-    }
-
     internal override bool AceitaContingencia => true;
 
     internal override SchemaXml SchemaDetalhe => SchemasNFe400.DetalheCancelamento;

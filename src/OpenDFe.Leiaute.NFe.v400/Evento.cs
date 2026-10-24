@@ -35,8 +35,17 @@ public abstract class Evento
     /// <summary>A descrição do evento (<c>descEvento</c>).</summary>
     internal abstract string Descricao { get; }
 
-    /// <summary>O CNPJ (14 posições) ou o CPF (11) do autor.</summary>
-    internal abstract string Autor { get; }
+    /// <summary>
+    /// O CNPJ (14 posições) ou o CPF (11) do autor: o emitente da chave (o CPF vem na chave com três zeros à esquerda).
+    /// </summary>
+    internal virtual string Autor
+    {
+        get
+        {
+            var emitente = Chave.Emitente;
+            return Cnpj.Valido(emitente) || !emitente.StartsWith("000", StringComparison.Ordinal) ? emitente : emitente[3..];
+        }
+    }
 
     /// <summary>A versão do detalhe (<c>verEvento</c> e o <c>versao</c> do <c>detEvento</c>).</summary>
     internal virtual string VersaoDetalhe => "1.00";
