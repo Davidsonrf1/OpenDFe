@@ -438,3 +438,121 @@ OpenDFe.DocumentoPreparado.Problemas.get -> System.Collections.Generic.IReadOnly
 OpenDFe.DocumentoPreparado.Xml.get -> string?
 OpenDFe.IPreparo<TDocumento>
 OpenDFe.IPreparo<TDocumento>.Montar(TDocumento! documento, OpenDFe.ContextoOperacao! contexto) -> OpenDFe.DocumentoMontado!
+OpenDFe.Impressao.AlinhamentoImpressao
+OpenDFe.Impressao.AlinhamentoImpressao.Centro = 1 -> OpenDFe.Impressao.AlinhamentoImpressao
+OpenDFe.Impressao.AlinhamentoImpressao.Direita = 2 -> OpenDFe.Impressao.AlinhamentoImpressao
+OpenDFe.Impressao.AlinhamentoImpressao.Esquerda = 0 -> OpenDFe.Impressao.AlinhamentoImpressao
+OpenDFe.Impressao.CampoImpressao
+OpenDFe.Impressao.CampoImpressao.Alinhamento.get -> OpenDFe.Impressao.AlinhamentoImpressao
+OpenDFe.Impressao.CampoImpressao.Alinhamento.init -> void
+OpenDFe.Impressao.CampoImpressao.CampoImpressao(string! rotulo, string! valor, double peso = 1) -> void
+OpenDFe.Impressao.CampoImpressao.Negrito.get -> bool
+OpenDFe.Impressao.CampoImpressao.Negrito.init -> void
+OpenDFe.Impressao.CampoImpressao.Peso.get -> double
+OpenDFe.Impressao.CampoImpressao.Rotulo.get -> string!
+OpenDFe.Impressao.CampoImpressao.Valor.get -> string!
+OpenDFe.Impressao.CelulaImpressao
+OpenDFe.Impressao.CelulaImpressao.Alinhamento.get -> OpenDFe.Impressao.AlinhamentoImpressao
+OpenDFe.Impressao.CelulaImpressao.Alinhamento.init -> void
+OpenDFe.Impressao.CelulaImpressao.CelulaImpressao(string! texto, double peso = 1) -> void
+OpenDFe.Impressao.CelulaImpressao.Negrito.get -> bool
+OpenDFe.Impressao.CelulaImpressao.Negrito.init -> void
+OpenDFe.Impressao.CelulaImpressao.Peso.get -> double
+OpenDFe.Impressao.CelulaImpressao.Quebrar(int colunas) -> System.Collections.Generic.IReadOnlyList<string!>!
+OpenDFe.Impressao.CelulaImpressao.Texto.get -> string!
+OpenDFe.Impressao.CodigoBarrasImpressao
+OpenDFe.Impressao.CodigoBarrasImpressao.AlturaMm.get -> double
+OpenDFe.Impressao.CodigoBarrasImpressao.AlturaMm.init -> void
+OpenDFe.Impressao.CodigoBarrasImpressao.CodigoBarrasImpressao(string! digitos) -> void
+OpenDFe.Impressao.CodigoBarrasImpressao.Digitos.get -> string!
+OpenDFe.Impressao.ColunaImpressao
+OpenDFe.Impressao.ColunaImpressao.Alinhamento.get -> OpenDFe.Impressao.AlinhamentoImpressao
+OpenDFe.Impressao.ColunaImpressao.ColunaImpressao(string! titulo, double peso, OpenDFe.Impressao.AlinhamentoImpressao alinhamento = OpenDFe.Impressao.AlinhamentoImpressao.Esquerda) -> void
+OpenDFe.Impressao.ColunaImpressao.Peso.get -> double
+OpenDFe.Impressao.ColunaImpressao.Titulo.get -> string!
+OpenDFe.Impressao.DocumentoImpressao
+OpenDFe.Impressao.DocumentoImpressao.DocumentoImpressao(OpenDFe.Impressao.PapelImpressao! papel, System.Collections.Generic.IReadOnlyList<OpenDFe.Impressao.ElementoImpressao!>! elementos) -> void
+OpenDFe.Impressao.DocumentoImpressao.Elementos.get -> System.Collections.Generic.IReadOnlyList<OpenDFe.Impressao.ElementoImpressao!>!
+OpenDFe.Impressao.DocumentoImpressao.Papel.get -> OpenDFe.Impressao.PapelImpressao!
+OpenDFe.Impressao.DocumentoImpressao.Titulo.get -> string?
+OpenDFe.Impressao.DocumentoImpressao.Titulo.init -> void
+OpenDFe.Impressao.ElementoImpressao
+OpenDFe.Impressao.EspacoImpressao
+OpenDFe.Impressao.EspacoImpressao.EspacoImpressao(int linhas) -> void
+OpenDFe.Impressao.EspacoImpressao.Linhas.get -> int
+OpenDFe.Impressao.EstiloSeparador
+OpenDFe.Impressao.EstiloSeparador.Cheio = 1 -> OpenDFe.Impressao.EstiloSeparador
+OpenDFe.Impressao.EstiloSeparador.Tracejado = 0 -> OpenDFe.Impressao.EstiloSeparador
+OpenDFe.Impressao.Imagem1Bit
+OpenDFe.Impressao.Imagem1Bit.Altura.get -> int
+OpenDFe.Impressao.Imagem1Bit.Bits.get -> System.ReadOnlyMemory<byte>
+OpenDFe.Impressao.Imagem1Bit.Imagem1Bit(int largura, int altura, System.ReadOnlyMemory<byte> bits) -> void
+OpenDFe.Impressao.Imagem1Bit.Largura.get -> int
+OpenDFe.Impressao.Imagem1Bit.Preto(int x, int y) -> bool
+OpenDFe.Impressao.ImagemImpressao
+OpenDFe.Impressao.ImagemImpressao.Alinhamento.get -> OpenDFe.Impressao.AlinhamentoImpressao
+OpenDFe.Impressao.ImagemImpressao.Alinhamento.init -> void
+OpenDFe.Impressao.ImagemImpressao.Imagem.get -> OpenDFe.Impressao.Imagem1Bit!
+OpenDFe.Impressao.ImagemImpressao.ImagemImpressao(OpenDFe.Impressao.Imagem1Bit! imagem) -> void
+OpenDFe.Impressao.ImagemImpressao.LarguraMm.get -> double?
+OpenDFe.Impressao.ImagemImpressao.LarguraMm.init -> void
+OpenDFe.Impressao.LinhaCamposImpressao
+OpenDFe.Impressao.LinhaCamposImpressao.Campos.get -> System.Collections.Generic.IReadOnlyList<OpenDFe.Impressao.CampoImpressao!>!
+OpenDFe.Impressao.LinhaCamposImpressao.LinhaCamposImpressao(System.Collections.Generic.IReadOnlyList<OpenDFe.Impressao.CampoImpressao!>! campos) -> void
+OpenDFe.Impressao.LinhaImpressao
+OpenDFe.Impressao.LinhaImpressao.Celulas.get -> System.Collections.Generic.IReadOnlyList<OpenDFe.Impressao.CelulaImpressao!>!
+OpenDFe.Impressao.LinhaImpressao.Larguras(int colunas) -> System.Collections.Generic.IReadOnlyList<int>!
+OpenDFe.Impressao.LinhaImpressao.LinhaImpressao(System.Collections.Generic.IReadOnlyList<OpenDFe.Impressao.CelulaImpressao!>! celulas) -> void
+OpenDFe.Impressao.PapelImpressao
+OpenDFe.Impressao.PapelImpressao.AlturaMm.get -> double?
+OpenDFe.Impressao.PapelImpressao.Colunas.get -> int
+OpenDFe.Impressao.PapelImpressao.ColunasTamanho(OpenDFe.Impressao.TamanhoTexto tamanho) -> int
+OpenDFe.Impressao.PapelImpressao.LarguraMm.get -> double
+OpenDFe.Impressao.PapelImpressao.MargemMm.get -> double
+OpenDFe.Impressao.PapelImpressao.Tipo.get -> OpenDFe.Impressao.TipoPapel
+OpenDFe.Impressao.QrCodeImpressao
+OpenDFe.Impressao.QrCodeImpressao.Alinhamento.get -> OpenDFe.Impressao.AlinhamentoImpressao
+OpenDFe.Impressao.QrCodeImpressao.Alinhamento.init -> void
+OpenDFe.Impressao.QrCodeImpressao.LadoMm.get -> double
+OpenDFe.Impressao.QrCodeImpressao.LadoMm.init -> void
+OpenDFe.Impressao.QrCodeImpressao.QrCodeImpressao(string! texto) -> void
+OpenDFe.Impressao.QrCodeImpressao.Texto.get -> string!
+OpenDFe.Impressao.QuebraPaginaImpressao
+OpenDFe.Impressao.QuebraPaginaImpressao.QuebraPaginaImpressao() -> void
+OpenDFe.Impressao.SecaoImpressao
+OpenDFe.Impressao.SecaoImpressao.Linhas.get -> System.Collections.Generic.IReadOnlyList<OpenDFe.Impressao.LinhaCamposImpressao!>!
+OpenDFe.Impressao.SecaoImpressao.SecaoImpressao(string? titulo, System.Collections.Generic.IReadOnlyList<OpenDFe.Impressao.LinhaCamposImpressao!>! linhas) -> void
+OpenDFe.Impressao.SecaoImpressao.Titulo.get -> string?
+OpenDFe.Impressao.SeparadorImpressao
+OpenDFe.Impressao.SeparadorImpressao.Estilo.get -> OpenDFe.Impressao.EstiloSeparador
+OpenDFe.Impressao.SeparadorImpressao.Estilo.init -> void
+OpenDFe.Impressao.SeparadorImpressao.SeparadorImpressao() -> void
+OpenDFe.Impressao.TabelaImpressao
+OpenDFe.Impressao.TabelaImpressao.Colunas.get -> System.Collections.Generic.IReadOnlyList<OpenDFe.Impressao.ColunaImpressao!>!
+OpenDFe.Impressao.TabelaImpressao.Linhas.get -> System.Collections.Generic.IReadOnlyList<System.Collections.Generic.IReadOnlyList<string!>!>!
+OpenDFe.Impressao.TabelaImpressao.TabelaImpressao(string? titulo, System.Collections.Generic.IReadOnlyList<OpenDFe.Impressao.ColunaImpressao!>! colunas, System.Collections.Generic.IReadOnlyList<System.Collections.Generic.IReadOnlyList<string!>!>! linhas) -> void
+OpenDFe.Impressao.TabelaImpressao.Titulo.get -> string?
+OpenDFe.Impressao.TamanhoTexto
+OpenDFe.Impressao.TamanhoTexto.Duplo = 2 -> OpenDFe.Impressao.TamanhoTexto
+OpenDFe.Impressao.TamanhoTexto.Normal = 1 -> OpenDFe.Impressao.TamanhoTexto
+OpenDFe.Impressao.TamanhoTexto.Pequeno = 0 -> OpenDFe.Impressao.TamanhoTexto
+OpenDFe.Impressao.TextoImpressao
+OpenDFe.Impressao.TextoImpressao.Alinhamento.get -> OpenDFe.Impressao.AlinhamentoImpressao
+OpenDFe.Impressao.TextoImpressao.Alinhamento.init -> void
+OpenDFe.Impressao.TextoImpressao.Invertido.get -> bool
+OpenDFe.Impressao.TextoImpressao.Invertido.init -> void
+OpenDFe.Impressao.TextoImpressao.Negrito.get -> bool
+OpenDFe.Impressao.TextoImpressao.Negrito.init -> void
+OpenDFe.Impressao.TextoImpressao.Quebrar(int colunas) -> System.Collections.Generic.IReadOnlyList<string!>!
+OpenDFe.Impressao.TextoImpressao.Tamanho.get -> OpenDFe.Impressao.TamanhoTexto
+OpenDFe.Impressao.TextoImpressao.Tamanho.init -> void
+OpenDFe.Impressao.TextoImpressao.Texto.get -> string!
+OpenDFe.Impressao.TextoImpressao.TextoImpressao(string! texto) -> void
+OpenDFe.Impressao.TipoPapel
+OpenDFe.Impressao.TipoPapel.Bobina = 0 -> OpenDFe.Impressao.TipoPapel
+OpenDFe.Impressao.TipoPapel.Folha = 1 -> OpenDFe.Impressao.TipoPapel
+static OpenDFe.Impressao.Imagem1Bit.Limiarizar(System.ReadOnlySpan<byte> cinza, int largura, int altura, byte limiar = 128) -> OpenDFe.Impressao.Imagem1Bit!
+static OpenDFe.Impressao.PapelImpressao.A4Paisagem.get -> OpenDFe.Impressao.PapelImpressao!
+static OpenDFe.Impressao.PapelImpressao.A4Retrato.get -> OpenDFe.Impressao.PapelImpressao!
+static OpenDFe.Impressao.PapelImpressao.Bobina58.get -> OpenDFe.Impressao.PapelImpressao!
+static OpenDFe.Impressao.PapelImpressao.Bobina80.get -> OpenDFe.Impressao.PapelImpressao!

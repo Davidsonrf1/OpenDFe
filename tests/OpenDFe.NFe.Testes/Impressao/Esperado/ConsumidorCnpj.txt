@@ -1,0 +1,25 @@
+B  |CNPJ: 11.222.333/0001-81 Razão Social da Empresa
+   | Av da Tecnologia, 030, Centro, Belo Horizonte,
+   |              MG, CEP: 30.110-000
+ P |  Documento Auxiliar da Nota Fiscal de Consumidor Eletrônica
+   |------------------------------------------------
+B  |Código Descrição
+B  |Qtde UN x Vl Unit                       Vl Total
+   |123 CAFE TORRADO 500G
+   |2 UN x 25,00                               50,00
+   |------------------------------------------------
+   |Qtde. total de itens                           1
+   |Valor total R$                             50,00
+   |FORMA PAGAMENTO                    VALOR PAGO R$
+   |Dinheiro                                  100,00
+   |Troco R$                                   50,00
+   |------------------------------------------------
+B  |        Consulte pela Chave de Acesso em
+ P |          www.fazenda.mg.gov.br/nfce/consulta
+ P |   3115 0311 2223 3300 0181 6500 1000 0000 0111 2345 6782
+   |      CONSUMIDOR CNPJ: 99.999.999/0001-99
+B  |NFC-e nº 000000001 Série 001 10/03/2015 15:03:53
+B  |   Protocolo de autorização: 131260000000019
+   |    Data de autorização 10/03/2015 15:03:58
+   |[QR 30mm: https://nfce.fazenda.mg.gov.br/portalnfce/sistema/qrcode.xhtml?p=CHAVE|2|1|1|ABCDEF0123456789ABCDEF0123456789ABCDEF01]
+   |------------------------------------------------

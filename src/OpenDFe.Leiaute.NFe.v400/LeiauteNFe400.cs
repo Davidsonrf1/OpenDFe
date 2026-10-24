@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using OpenDFe.Impressao;
 
 namespace OpenDFe.NFe;
 
@@ -110,4 +111,30 @@ public sealed class LeiauteNFe400 : ILeiaute
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static",
         Justification = "A leitura é do leiaute, que quem usa recebe do DFe.Detectar (docs/LEITURA.md, decisão 1).")]
     public NotaLida Ler(string xml) => LeitorNFe.Ler(xml);
+
+    /// <summary>
+    /// Monta o DANFE NFC-e (o DANFCE, a NFC-e impressa em bobina) de uma NFC-e lida: o <c>nfeProc</c> autorizado, ou o
+    /// <c>NFe</c> assinado em contingência offline, sem protocolo (etapa 7.2, docs/IMPRESSAO.md 1).
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// As divisões, o texto fixo e a ordem são os do Manual de Padrões Técnicos do DANFE NFC-e e QR Code 6.0. O QR Code do
+    /// documento é o das informações suplementares da nota (<c>qrCode</c>), sem alteração; a data e a hora são as que a nota
+    /// traz, sem conversão de fuso. Não confere o schema nem as regras do MOC, e a lib não decide quantas vias imprimir:
+    /// na contingência, quem imprime chama o método uma vez por via (<see cref="OpcoesDanfce.Via"/>). A NFC-e cancelada
+    /// não é tratada. Sem estado e seguro em paralelo.
+    /// </para>
+    /// </remarks>
+    /// <param name="nota">A nota lida (<see cref="Ler"/>).</param>
+    /// <param name="opcoes">O papel, o logotipo, a assinatura do software, o rodapé e a via; <see langword="null"/> é o padrão.</param>
+    /// <returns>O documento de impressão, para o renderizador do PDV ou do PDF.</returns>
+    /// <exception cref="ArgumentNullException">A nota lida é nula.</exception>
+    /// <exception cref="ArgumentException">
+    /// A leitura não achou a nota; a nota não é NFC-e (modelo 65); não tem a chave; não tem o QR Code e a URL de consulta
+    /// (<c>qrCode</c> e <c>urlChave</c>); o protocolo é de outra situação que não 100 ou 150; ou o papel das opções não é a
+    /// bobina de 80 ou de 58 mm.
+    /// </exception>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static",
+        Justification = "O DANFCE é do leiaute, que quem usa recebe do DFe.Detectar ou cria (docs/CONTRATOS.md 20).")]
+    public DocumentoImpressao Danfce(NotaLida nota, OpcoesDanfce? opcoes = null) => MontagemDanfce.Montar(nota, opcoes);
 }

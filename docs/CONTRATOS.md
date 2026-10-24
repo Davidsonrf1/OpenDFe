@@ -1342,3 +1342,102 @@ public static class RenderizadorPdf
 - O `README.md` do pacote substitui o da raiz no pacote (o `src/Directory.Build.props` empacota o da raiz; o csproj dele o remove).
 - Os testes do projeto novo: `CodigoBarras128Testes`, `QrCodeSvgTestes`, `ImagemBitSvgTestes`, `LicencaQuestPdfTestes`, `RenderizadorPdfTestes` (com o PdfPig).
 
+
+## 20. O modelo de impressão neutro e o DANFCE (etapa 7.2)
+
+**Aprovado em 2026-10-24, todas as decisões pela recomendação** (`docs/etapas/7.2-modelo-impressao-danfce.md`; o número sugerido no arquivo era o 21, o próximo livre era o 20). O modelo de impressão mora no **núcleo** (`src/OpenDFe.Nucleo/Impressao/`, namespace `OpenDFe.Impressao`) e **não conhece NF-e**; o DANFCE mora no **leiaute** (`src/OpenDFe.Leiaute.NFe.v400/Impressao/`, namespace `OpenDFe.NFe`). A conformidade contra o Manual de Padrões Técnicos do DANFE NFC-e e QR Code 6.0 está em `docs/IMPRESSAO.md` 1. Esta etapa não gera PDF nem ESC/POS: o PDV e a 7.4 consomem o mesmo `DocumentoImpressao`.
+
+### 20.1 O modelo (núcleo)
+
+Tudo imutável, público, sem lógica de renderização, seguro em paralelo; os construtores validam (`ArgumentException`, e `ArgumentNullException`/`ArgumentOutOfRangeException`, que derivam dela) e **copiam as listas** passadas.
+
+```csharp
+namespace OpenDFe.Impressao;
+
+public sealed class DocumentoImpressao                  // o papel e os elementos, de cima para baixo
+{
+    public DocumentoImpressao(PapelImpressao papel, IReadOnlyList<ElementoImpressao> elementos);
+    public PapelImpressao Papel { get; }  public IReadOnlyList<ElementoImpressao> Elementos { get; }
+    public string? Titulo { get; init; }                 // metadado (título do PDF)
+}
+
+public sealed class PapelImpressao                       // só as fábricas; construtor privado
+{
+    public static PapelImpressao Bobina80 { get; }       // 80 mm, 48 colunas, margem de 4 mm (72 mm impressos = 576 pontos a 203 dpi)
+    public static PapelImpressao Bobina58 { get; }       // 58 mm, 32 colunas, margem de 5 mm (48 mm impressos)
+    public static PapelImpressao A4Retrato { get; }  public static PapelImpressao A4Paisagem { get; }   // margem de 10 mm
+    public TipoPapel Tipo { get; }  public double LarguraMm { get; }  public double? AlturaMm { get; }
+    public int Colunas { get; }  public double MargemMm { get; }
+    public int ColunasTamanho(TamanhoTexto tamanho);     // normal = Colunas; pequeno = Colunas * 4 / 3 (fonte B); duplo = Colunas / 2
+}
+
+public abstract class ElementoImpressao { private protected ElementoImpressao(); }   // conjunto fechado
+
+public sealed class TextoImpressao : ElementoImpressao   // Texto, Alinhamento, Negrito, Tamanho (Pequeno, Normal, Duplo), Invertido
+{
+    public TextoImpressao(string texto);
+    public IReadOnlyList<string> Quebrar(int colunas);   // em espaço; a palavra maior que a linha é cortada; \n e linha vazia mantidos
+}
+public sealed class LinhaImpressao : ElementoImpressao   // células com peso
+{
+    public LinhaImpressao(IReadOnlyList<CelulaImpressao> celulas);
+    public IReadOnlyList<int> Larguras(int colunas);     // soma exatamente `colunas`
+}
+public sealed class CelulaImpressao { public CelulaImpressao(string texto, double peso = 1); /* Texto, Peso, Alinhamento, Negrito, Quebrar(colunas) */ }
+public sealed class SeparadorImpressao : ElementoImpressao { /* Estilo: Tracejado (padrão), Cheio */ }
+public sealed class EspacoImpressao : ElementoImpressao { public EspacoImpressao(int linhas); }
+public sealed class QrCodeImpressao : ElementoImpressao       // Texto, LadoMm (25 mm padrão, o total com a margem de silêncio), Alinhamento (centro)
+public sealed class CodigoBarrasImpressao : ElementoImpressao // Code 128 C: só dígitos, quantidade par; Digitos, AlturaMm (10)
+public sealed class Imagem1Bit                                // Largura, Altura, Bits (MSB primeiro, linha em bytes inteiros, 1 = preto), Preto(x, y), Limiarizar(cinza, largura, altura, limiar = 128)
+public sealed class ImagemImpressao : ElementoImpressao       // Imagem, Alinhamento (centro), LarguraMm (nula = natural a 203 dpi)
+public sealed class SecaoImpressao : ElementoImpressao        // DANFE (7.3): Titulo e LinhaCamposImpressao[], cada uma com CampoImpressao (Rotulo, Valor, Peso, Alinhamento, Negrito)
+public sealed class TabelaImpressao : ElementoImpressao       // DANFE (7.3): Titulo, ColunaImpressao[] (Titulo, Peso, Alinhamento) e as linhas (um texto por coluna)
+public sealed class QuebraPaginaImpressao : ElementoImpressao
+```
+
+Decisões do arquivo da etapa, cumpridas: (1) o modelo é do núcleo e não conhece NF-e; (2) o texto é sempre `string` já formatada; (3) é estrutural, sem fonte nem coordenada em pixel; (4) o conjunto de elementos é fechado por `private protected` (testado por reflexão); (5) `LinhaImpressao.Larguras` e `TextoImpressao.Quebrar` existem para o PDV não reescrevê-los; (6) `Imagem1Bit` confere o tamanho dos bits (`ceil(largura / 8) * altura`) e **copia** os bits.
+
+**`Larguras(colunas)`**: o método do maior resto (cada célula recebe a parte inteira da sua cota; as colunas que sobram vão às maiores frações, a célula da esquerda nos empates). Com `colunas` maior ou igual ao número de células, **nenhuma fica com zero** (a coluna que falta sai da célula mais larga); com menos, as de menor peso podem ficar com zero. A soma é sempre `colunas` (propriedade provada com pesos aleatórios de semente fixa, de 1 a 100 colunas).
+
+### 20.2 O DANFCE (leiaute)
+
+```csharp
+namespace OpenDFe.NFe;
+
+public enum ViaDanfce { Consumidor, Estabelecimento }
+
+public sealed class OpcoesDanfce
+{
+    public PapelImpressao Papel { get; init; } = PapelImpressao.Bobina80;   // Bobina80 ou Bobina58; outro papel → ArgumentException
+    public Imagem1Bit? Logotipo { get; init; }            // no topo
+    public Imagem1Bit? AssinaturaSoftware { get; init; }  // no fim, depois do rodapé
+    public string? TextoRodape { get; init; }             // uma linha livre depois do conteúdo da NFC-e
+    public ViaDanfce Via { get; init; } = ViaDanfce.Consumidor;
+}
+
+public sealed class LeiauteNFe400
+{
+    public DocumentoImpressao Danfce(NotaLida nota, OpcoesDanfce? opcoes = null);
+}
+```
+
+`Danfce` lê a `NotaLida` (o `nfeProc` autorizado ou o `NFe` assinado em contingência, sem protocolo) e **não** confere o schema nem as regras do MOC. `ArgumentException` (a mensagem cita o campo, nunca o valor): a leitura sem a nota; a nota que não é NFC-e (modelo 65, pelo `ide/mod` ou, na falta, pela chave); sem a chave; sem o `qrCode` ou sem a `urlChave` das informações suplementares; o protocolo de situação que não é 100 nem 150; o papel que não é a bobina de 80 ou de 58 mm; a via fora do enum.
+
+**A ordem do documento** (a da figura 1B do manual, QR Code centralizado): o logotipo; o cabeçalho (CNPJ ou CPF e nome do emitente, o endereço sem o país, "Documento Auxiliar da Nota Fiscal de Consumidor Eletrônica"); a legenda da contingência; os itens; os totais; as formas de pagamento e o troco; a consulta pela chave (o texto, a URL da nota e a chave em 11 blocos de 4); o consumidor; a identificação (número, série, data e hora de emissão e a via); o protocolo e a data da autorização; a legenda da contingência de novo; o QR Code; as mensagens (o `infAdFisco`, o texto de homologação, o `infCpl`, a Lei 12.741, o rodapé); a assinatura do software. As exigências, uma a uma, estão em `docs/IMPRESSAO.md` 1.
+
+**O QR Code do documento é o `Suplementares.QrCode` da nota, igual byte a byte** (provado nos testes e contra a NFC-e produzida pela lib e aceita pelo emulador). O lado é de 30 mm (o manual pede ao menos 25 mm no total, com a margem de silêncio dentro dele).
+
+**A contingência** (`tpEmis` 9 **sem** protocolo): "EMITIDA EM CONTINGÊNCIA" (em negrito, em tamanho duplo quando cabe na bobina) e "Pendente de autorização", centralizados, **nos dois lugares** do manual (abaixo do cabeçalho e abaixo da identificação), sem o protocolo, e a linha "Via do Consumidor" ou "Via do Estabelecimento". **A lib não decide quantas vias imprimir:** quem imprime chama `Danfce` uma vez por via (`OpcoesDanfce.Via`). Com o protocolo (a offline já autorizada), a legenda some e o protocolo sai.
+
+**Formatação** (`FormatadorImpressao`, interno; não `FormatoImpressao`, que é o enum do `tpImp`): `NumberFormatInfo` explícito, nada de `CultureInfo("pt-BR")` nem da cultura do sistema (provado trocando a cultura da thread). Dinheiro `1.234,56`; a quantidade sem zeros sobrando à direita (`2`, `2,5`, `1,235`, `1.000`), com até 10 casas e sem arredondar; o valor unitário com ao menos 2 casas e até 10; a data `dd/MM/yyyy HH:mm:ss` **como a nota traz, sem converter o fuso**; CNPJ (também o alfanumérico) `00.000.000/0000-00`, CPF `000.000.000-00`, CEP `00.000-000` (o do manual, figura 2).
+
+### 20.3 Implementação (ajustes ao desenho)
+
+- **O manual vence o arquivo da etapa**, nos pontos em que diferem: o texto do cabeçalho é só "Documento Auxiliar da Nota Fiscal de Consumidor Eletrônica" (o 6.0 não traz "DANFE NFC-e - ..." nem "Não permite aproveitamento de crédito de ICMS"); o nome fantasia não é pedido (não sai); o "Valor a Pagar" só sai quando há acréscimo ou desconto (o `vNF` difere do `vProd`); o troco só quando maior que zero; os acréscimos saem um por linha ("Desconto R$", "Frete R$", "Seguro R$", "Outras despesas R$"), como a figura 2; a "Via do Estabelecimento" só na contingência ou quando a via pedida é a do estabelecimento (a emissão normal não imprime via). A lista de partida do arquivo cedeu em todos eles.
+- **A data e a hora não são convertidas.** O manual diz "convertida para o horário local" porque, na época, o `dhEmi` era UTC; no leiaute 4.00 o `dhEmi` e o `dhRecbto` já trazem o horário local do emitente e da SEFAZ, com o deslocamento (`-03:00`), e o arquivo da etapa manda não converter. O DANFCE imprime os campos de relógio do próprio valor (provado com `-03:00`, `+09:00` e `Z`).
+- **`PapelImpressao.ColunasTamanho(TamanhoTexto)`** (novo; o arquivo não o previa): o texto pequeno e o duplo têm outras colunas, e o renderizador de texto precisa delas para quebrar. **`CelulaImpressao.Quebrar`** (novo): a mesma quebra do texto, para a célula.
+- As margens do papel (4 mm na bobina de 80 e 5 mm na de 58) saem da área impressa da térmica (72 e 48 mm, 8 pontos por mm a 203 dpi); o manual pede no mínimo 2 mm.
+- O logotipo sai **centralizado, acima** do cabeçalho: o modelo empilha elementos e não compõe imagem ao lado de texto (o manual o põe no canto esquerdo, "a critério do emissor"). A 7.4 pode compor os dois elementos consecutivos como quiser.
+- Os itens saem em **duas linhas** (o código e a descrição; depois `quantidade unidade x unitário` com o total à direita), com o cabeçalho "Código Descrição" e "Qtde UN x Vl Unit / Vl Total": o manual não regula a posição (3.1.2) e as cinco colunas não cabem na bobina de 58 mm (32 colunas).
+- A homologação sai depois do `infAdFisco` e antes do `infCpl` (a divisão VIII do manual), em negrito, centralizada, em tamanho pequeno (cabe em uma linha na bobina de 80 mm); o hífen é o ASCII (`-`): o PDV deve manter assim, porque a tabela de caracteres de várias térmicas não tem o travessão.
+- **Os testes do modelo** estão em `Nucleo.Testes` (`Impressao/`) e os do DANFCE em `NFe.Testes` (`Impressao/`): o renderizador de texto (`TextoPlano`) é **só de teste** e marca cada linha com `B` (negrito), `P` ou `D` (pequeno, duplo) e `I` (invertido).

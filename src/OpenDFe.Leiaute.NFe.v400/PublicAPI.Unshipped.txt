@@ -171,3 +171,19 @@ OpenDFe.NFe.CancelamentoSubstituicao.VersaoAplicativo.init -> void
 OpenDFe.NFe.CartaCorrecao
 OpenDFe.NFe.CartaCorrecao.CartaCorrecao(OpenDFe.ChaveAcesso! chave, int sequencia, string! correcao) -> void
 OpenDFe.NFe.CartaCorrecao.Correcao.get -> string!
+OpenDFe.NFe.LeiauteNFe400.Danfce(OpenDFe.NFe.NotaLida! nota, OpenDFe.NFe.OpcoesDanfce? opcoes = null) -> OpenDFe.Impressao.DocumentoImpressao!
+OpenDFe.NFe.OpcoesDanfce
+OpenDFe.NFe.OpcoesDanfce.AssinaturaSoftware.get -> OpenDFe.Impressao.Imagem1Bit?
+OpenDFe.NFe.OpcoesDanfce.AssinaturaSoftware.init -> void
+OpenDFe.NFe.OpcoesDanfce.Logotipo.get -> OpenDFe.Impressao.Imagem1Bit?
+OpenDFe.NFe.OpcoesDanfce.Logotipo.init -> void
+OpenDFe.NFe.OpcoesDanfce.OpcoesDanfce() -> void
+OpenDFe.NFe.OpcoesDanfce.Papel.get -> OpenDFe.Impressao.PapelImpressao!
+OpenDFe.NFe.OpcoesDanfce.Papel.init -> void
+OpenDFe.NFe.OpcoesDanfce.TextoRodape.get -> string?
+OpenDFe.NFe.OpcoesDanfce.TextoRodape.init -> void
+OpenDFe.NFe.OpcoesDanfce.Via.get -> OpenDFe.NFe.ViaDanfce
+OpenDFe.NFe.OpcoesDanfce.Via.init -> void
+OpenDFe.NFe.ViaDanfce
+OpenDFe.NFe.ViaDanfce.Consumidor = 0 -> OpenDFe.NFe.ViaDanfce
+OpenDFe.NFe.ViaDanfce.Estabelecimento = 1 -> OpenDFe.NFe.ViaDanfce

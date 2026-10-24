@@ -1,0 +1,37 @@
+B  |CNPJ: 11.222.333/0001-81 Razão Social da Empresa
+   | Av da Tecnologia, 030, Centro, Belo Horizonte,
+   |              MG, CEP: 30.110-000
+ P |  Documento Auxiliar da Nota Fiscal de Consumidor Eletrônica
+   |------------------------------------------------
+B  |Código Descrição
+B  |Qtde UN x Vl Unit                       Vl Total
+   |001 ARROZ TIPO 1 5KG
+   |2 PCT x 24,90                              49,80
+   |002 FEIJAO CARIOCA 1KG
+   |3 PCT x 8,49                               25,47
+   |003 OLEO DE SOJA 900ML
+   |1 UN x 7,99                                 7,99
+   |004 ACUCAR REFINADO 1KG
+   |4 PCT x 4,59                               18,36
+   |005 CAFE EM PO 500G
+   |2 PCT x 18,75                              37,50
+   |------------------------------------------------
+   |Qtde. total de itens                           5
+   |Valor total R$                            139,12
+   |Desconto R$                                10,00
+   |Frete R$                                   12,00
+   |Seguro R$                                   1,50
+   |Outras despesas R$                          2,25
+B  |Valor a Pagar R$                          144,87
+   |FORMA PAGAMENTO                    VALOR PAGO R$
+   |Cartão de Débito                          155,00
+   |------------------------------------------------
+B  |        Consulte pela Chave de Acesso em
+ P |          www.fazenda.mg.gov.br/nfce/consulta
+ P |   3115 0311 2223 3300 0181 6500 1000 0000 0111 2345 6782
+B  |          CONSUMIDOR NÃO IDENTIFICADO
+B  |NFC-e nº 000000001 Série 001 10/03/2015 15:03:53
+B  |   Protocolo de autorização: 131260000000019
+   |    Data de autorização 10/03/2015 15:03:58
+   |[QR 30mm: https://nfce.fazenda.mg.gov.br/portalnfce/sistema/qrcode.xhtml?p=CHAVE|2|1|1|ABCDEF0123456789ABCDEF0123456789ABCDEF01]
+   |------------------------------------------------

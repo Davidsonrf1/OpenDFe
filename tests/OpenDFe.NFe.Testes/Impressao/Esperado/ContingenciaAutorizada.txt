@@ -1,0 +1,30 @@
+B  |CNPJ: 11.222.333/0001-81 Razão Social da Empresa
+   | Av da Tecnologia, 030, Centro, Belo Horizonte,
+   |              MG, CEP: 30.110-000
+ P |  Documento Auxiliar da Nota Fiscal de Consumidor Eletrônica
+   |------------------------------------------------
+B  |Código Descrição
+B  |Qtde UN x Vl Unit                       Vl Total
+   |003277 Tablet
+   |2 Peça x 500,00                         1.000,00
+   |085273 Smartphone
+   |1 Peça x 1.500,00                       1.500,00
+   |------------------------------------------------
+   |Qtde. total de itens                           2
+   |Valor total R$                          2.500,00
+   |Desconto R$                               500,00
+B  |Valor a Pagar R$                        2.000,00
+   |FORMA PAGAMENTO                    VALOR PAGO R$
+   |Cartão de Crédito                       1.000,00
+   |Cartão de Crédito                       1.000,00
+   |------------------------------------------------
+B  |        Consulte pela Chave de Acesso em
+ P |          www.fazenda.mg.gov.br/nfce/consulta
+ P |   3115 0311 2223 3300 0181 6500 1000 0000 0191 2345 6788
+   |      CONSUMIDOR CNPJ: 99.999.999/0001-99
+B  |NFC-e nº 000000001 Série 001 10/03/2015 15:03:53
+B  |   Protocolo de autorização: 131260000000019
+   |    Data de autorização 10/03/2015 15:03:58
+   |[QR 30mm: https://nfce.fazenda.mg.gov.br/portalnfce/sistema/qrcode.xhtml?p=CHAVE|2|1|1|ABCDEF0123456789ABCDEF0123456789ABCDEF01]
+   |------------------------------------------------
+ P |Tributos Totais Incidentes (Lei Federal 12.741/2012): R$200,00

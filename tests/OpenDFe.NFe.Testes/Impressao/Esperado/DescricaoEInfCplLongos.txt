@@ -1,0 +1,37 @@
+B  |CNPJ: 11.222.333/0001-81 Razão Social da Empresa
+   | Av da Tecnologia, 030, Centro, Belo Horizonte,
+   |              MG, CEP: 30.110-000
+ P |  Documento Auxiliar da Nota Fiscal de Consumidor Eletrônica
+   |------------------------------------------------
+B  |Código Descrição
+B  |Qtde UN x Vl Unit                       Vl Total
+   |7891234567895 TELEVISOR LED 55 POLEGADAS 4K
+   |ULTRA HD SMART COM CONVERSOR DIGITAL INTEGRADO E
+   |WIFI
+   |1 UN x 2.899,90                         2.899,90
+   |PALAVRA-GRANDE-DEMAIS-PARA-CABER-EM-UMA-LINHA-DA
+   |-BOBINA-DE-OITENTA ITEM
+   |1 UN x 1,00                                 1,00
+   |------------------------------------------------
+   |Qtde. total de itens                           2
+   |Valor total R$                          2.900,90
+   |FORMA PAGAMENTO                    VALOR PAGO R$
+   |Cheque                                  2.900,90
+   |------------------------------------------------
+B  |        Consulte pela Chave de Acesso em
+ P |          www.fazenda.mg.gov.br/nfce/consulta
+ P |   3115 0311 2223 3300 0181 6500 1000 0000 0111 2345 6782
+B  |          CONSUMIDOR NÃO IDENTIFICADO
+B  |NFC-e nº 000000001 Série 001 10/03/2015 15:03:53
+B  |   Protocolo de autorização: 131260000000019
+   |    Data de autorização 10/03/2015 15:03:58
+   |[QR 30mm: https://nfce.fazenda.mg.gov.br/portalnfce/sistema/qrcode.xhtml?p=CHAVE|2|1|1|ABCDEF0123456789ABCDEF0123456789ABCDEF01]
+   |------------------------------------------------
+   |Documento emitido por ME ou EPP optante pelo
+   |Simples Nacional.
+   |Troca somente com a nota fiscal em até 7 dias
+   |corridos. Produto com garantia de 12 meses
+   |contra defeitos de fabricação. Atendimento ao
+   |cliente: 0800 000 0000, de segunda a sexta, das
+   |8h às 18h.
+   |Volte sempre!

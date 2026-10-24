@@ -1,0 +1,28 @@
+B  |CNPJ: 11.222.333/0001-81 Razão Social da Empresa
+   | Av da Tecnologia, 030, Centro, Belo Horizonte,
+   |              MG, CEP: 30.110-000
+ P |  Documento Auxiliar da Nota Fiscal de Consumidor Eletrônica
+   |------------------------------------------------
+B  |Código Descrição
+B  |Qtde UN x Vl Unit                       Vl Total
+   |QF1 QUEIJO MUSSARELA KG
+   |1,235 KG x 45,90                           56,69
+   |QF2 NOTEBOOK AÇAÍ EDIÇÃO LIMITADA
+   |2 UN x 12.345,67                       24.691,34
+   |QF3 PARAFUSO
+   |1.000 UN x 0,123456                       123,46
+   |------------------------------------------------
+   |Qtde. total de itens                           3
+   |Valor total R$                         24.871,49
+   |FORMA PAGAMENTO                    VALOR PAGO R$
+   |Cartão de Crédito                      24.871,49
+   |------------------------------------------------
+B  |        Consulte pela Chave de Acesso em
+ P |          www.fazenda.mg.gov.br/nfce/consulta
+ P |   3115 0311 2223 3300 0181 6500 1000 0000 0111 2345 6782
+B  |          CONSUMIDOR NÃO IDENTIFICADO
+B  |NFC-e nº 000000001 Série 001 10/03/2015 15:03:53
+B  |   Protocolo de autorização: 131260000000019
+   |    Data de autorização 10/03/2015 15:03:58
+   |[QR 30mm: https://nfce.fazenda.mg.gov.br/portalnfce/sistema/qrcode.xhtml?p=CHAVE|2|1|1|ABCDEF0123456789ABCDEF0123456789ABCDEF01]
+   |------------------------------------------------
