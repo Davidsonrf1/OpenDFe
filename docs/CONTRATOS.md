@@ -1133,7 +1133,7 @@ O `idCSC` sem zeros à esquerda; o hash em maiúsculas, como nos exemplos do man
 
 ### 16.6. Fora desta etapa
 
-- **A contingência offline** (5.2): as duas formas offline do QR Code, o `dhCont` e o `xJust`, o `Preparar` em `tpEmis` 9 e a transmissão depois.
+- **A contingência offline** (5.2, feita: seção 17): as duas formas offline do QR Code, o `dhCont` e o `xJust`, o `Preparar` em `tpEmis` 9 e a transmissão depois.
 - **A imagem do QR Code e o DANFCE** (fase 7).
 - **O CSC por web service** (Manual 4.6, "a critério da UF"): não há especificação nacional publicada; quem usa cadastra o CSC no portal da UF.
 
@@ -1151,3 +1151,29 @@ Como no desenho, com estes ajustes (a conferir pelo usuário):
 - **Catálogo (`REGRAS.md` 15):** 3 linhas "lib (5.1)" (393, 444, 672); as parâmetro/hash/versão (394, 396, 397, 398, 399, 400, 464, 813, 903) "escrita"; 395, 462, 463 e 878 "SEFAZ"; 445, 474, 583 e os 397 de dia, valor, `digVal` e destinatário "a fazer (5.2)".
 - **O `NFE-QRCODE` da contingência offline** (decisão 9) vale para a NFC-e e para a NF-e com `tpImp` 6; a nota com `tpEmis` 9 sem o `tpImp` 6 na NF-e não leva QR Code e passa.
 - **Testes antigos mudados por consequência da etapa** (a lib passa a gerar o grupo): o suporte da NFC-e nas operações e a declaração (`LeiauteNFe400Testes`, `AutorizacaoTestes`), o final do XML da NFC-e escrita (`EscritaFormaTestes.OXmlSaiSemDeclaracao...` e `AsSuplementaresSaemDepoisDoInfNFe`), a contingência da NFC-e (`AContingenciaIgualANucleoNaoEProblema` agora também vê o `NFE-QRCODE`) e a ida e volta da leitura (`LeitorNFeTestes.AssertIdaVolta` copia o grupo gerado para a nota de origem). Nenhum teste foi enfraquecido para passar.
+
+## 17. A contingência offline da NFC-e (etapa 5.2)
+
+**Aprovado em 2026-10-24, todas as decisões pela recomendação** (`docs/etapas/5.2-contingencia-offline.md`). Sem API pública nova: o `Preparar` e a `Autorizacao` já existiam; muda o que a escrita faz com `tpEmis` 9. Fecha a fase 5 no emulador.
+
+### 17.1. As decisões
+
+1. **O cálculo está no leiaute, sem mudar o núcleo.** O `infNFe` é escrito, e só então se calcula o que a forma offline precisa; o `infNFeSupl` entra no texto antes do `</NFe>`, sem mexer num byte do `infNFe`, e o núcleo assina depois (a `Signature` vem depois do grupo, como na online). O `digVal` é o resumo da assinatura: calculado por `SignedXml` com a referência *enveloped* e C14N sobre o `Id`, a mesma da `AssinaturaDigital.Assinar`, com uma chave HMAC descartável no lugar do certificado (o resumo do `infNFe` não depende da chave). A assinatura da versão 3 é `RSA.SignData(UTF-8 dos sete primeiros parâmetros, SHA-1, PKCS#1 v1.5)`, em Base64, com a chave do certificado da configuração.
+2. **A versão segue a configuração:** `ConfiguracaoNFCe()` ou nenhuma, versão 3; `ConfiguracaoNFCe(csc)`, versão 2 (a NF-e com `tpImp` 6 é sempre a 3, e a 672 acusa o CSC configurado).
+3. **As quatro formas** (Manual 4.3 e 4.4): versão 2 offline `chave|2|tpAmb|dia|vNF|digVal|idCSC|hash`; versão 3 offline `chave|3|tpAmb|dia|vNF|tipo|documento|assinatura`. O `dia` é o dia do mês de `dhEmi`, 2 dígitos, no fuso da nota; o `vNF` é o texto do `vNF` da nota; o destinatário é 1 e o CNPJ, 2 e o CPF, 3 e vazio (estrangeiro), os dois vazios sem destinatário.
+4. **`tpEmis` 9 deixa de ser erro de montagem** (era o `NFE-QRCODE` da 5.1, decisão 9): a NFC-e, e a NF-e com `tpImp` 6, geram o `infNFeSupl` offline.
+5. **As regras fora do schema** (`REGRAS.md` 16): B22-10 (711), B28-10 (556) e B28-20 (557). Não entram a 558 e a 569 (facultativas, só da SEFAZ).
+6. **Sem fila e sem relógio de prazo na lib** (`PROJETO.md` 9.2).
+7. **A transmissão depois é a `Autorizacao` normal**, síncrona ou em lote, com a consulta do recibo: o destino sai da chave (`tpEmis` 9 vai ao autorizador normal da UF). Nenhum código novo.
+8. **O guia `docs/CONTINGENCIA.md`.**
+
+### 17.2. Implementação (2026-10-24)
+
+Como no desenho, com estes ajustes (a conferir pelo usuário):
+
+- **O `digVal` é o texto do `DigestValue` em Base64, cada caractere em hexadecimal** (56 caracteres), e não o resumo bruto de 20 bytes em hexadecimal (40): é o que o Manual 4.3.5, passo 1 ("Converter o valor do DigestValue da NFC-e para HEXADECIMAL") manda, como o emulador o lê desde a E.3. O arquivo da etapa dizia só "em hexadecimal". **O manual não foi relido por inteiro nesta etapa** (o portal respondeu com redirecionamentos em laço ao download direto, e a segunda tentativa, com cookie e agente de navegador, foi barrada pelo controle de permissão, então o arquivo foi descartado); a decisão repousa na leitura da E.3 e da 5.1, e fica a conferir.
+- **O certificado entra na escrita pelo `ValoresNucleo.Certificado`** (interno, preenchido pelo `Criar` a partir de `ConfiguracaoDFe.Certificado`); nulo fora do núcleo (os testes da escrita). A versão 3 offline sem ele, ou sem chave privada RSA, é `NFE-QRCODE`; a versão 2 não precisa dele.
+- **O `NFE-QRCODE` da contingência offline deixou de existir** como tal: a offline continua dando `NFE-QRCODE` na UF sem URL e na versão 3 sem certificado.
+- **As regras 556 e 557 usam o valor que a escrita grava:** o `TipoEmissao`, o `InicioContingencia` e a `JustificativaContingencia` da nota ou, nulos, os do núcleo. Como o `Criar` exige a `Contingencia` com emissão de contingência e a recusa com emissão normal, as duas só acusam a nota do modelo que contradiz o núcleo (e o próprio `Preparar` acusa também o `NFE-NUCLEO`).
+- **Testes antigos mudados por consequência da etapa:** `EscritaQrCodeTestes.AContingenciaOfflineEErroNFEQrCodeAteA52` e `ANFeSimplificadaEmContingenciaOfflineTambemEErro` (a offline era erro até a 5.2) saíram, cobertas por `EscritaOfflineTestes`; o `CadaRegraTemOSeuCaso` soma `RegrasContingenciaTestes`.
+- **Testes novos:** `EscritaOfflineTestes` (as duas formas, os dois ambientes, o dia, o `vNF`, os destinatários, o `digVal` igual ao `DigestValue` da assinatura, a assinatura da versão 3 com `RSA.VerifyData`, o schema depois de assinado, os problemas), `PreparoOfflineTestes` (o `Preparar` offline, o `Criar` sem a `Contingencia`), `RegrasContingenciaTestes` e `NFCeContingenciaEmuladaTestes` (a lib inteira contra o emulador).

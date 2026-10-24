@@ -193,7 +193,7 @@ Serviços SOAP por trás: `NFeAutorizacao4` (síncrona, `indSinc=1`, e por lote)
 
 9.1. **QR Code** gerado pela lib (texto do `qrCode` e `urlChave` do `infNFeSupl`; a imagem é do DANFCE, fase 7): a **versão 3** por padrão (sem CSC, a única do emitente CPF e da NF-e com `tpImp` 6) e a **versão 2** só com o `CodigoSeguranca` (identificador numérico e código, na `ConfiguracaoNFCe`, 3.2); a URL de consulta por UF vem da tabela do leiaute (2.6; só as UFs conferidas, as outras na `ConfiguracaoNFCe`). As formas offline entram na etapa 5.2. Decidido na 5.1 (`CONTRATOS.md` 16).
 
-9.2. **Contingência offline** (`tpEmis=9`): num núcleo com esse tipo de emissão, `Preparar` emite e assina a nota sem a SEFAZ, com a justificativa e a data de entrada em contingência, e o QR Code do modo offline; a transmissão posterior é a autorização normal do XML preparado, dentro do prazo da legislação. A lib não guarda a fila: devolve o XML pronto, e o aplicativo transmite quando a rede volta.
+9.2. **Contingência offline** (`tpEmis=9`): num núcleo com esse tipo de emissão, `Preparar` emite e assina a nota sem a SEFAZ, com a justificativa e a data de entrada em contingência, e o QR Code do modo offline (a versão 3, assinada com o certificado da nota, ou a 2, com o `digVal` e o CSC, conforme a `ConfiguracaoNFCe`; `CONTRATOS.md` 17); a transmissão posterior é a autorização normal do XML preparado, dentro do prazo da legislação. A lib não guarda a fila nem impõe o prazo das 24 horas (depois dele a SEFAZ autoriza com o 150): devolve o XML pronto, e o aplicativo transmite quando a rede volta (`docs/CONTINGENCIA.md`).
 
 9.3. **Cancelamento por substituição** (evento 110112) e o cancelamento comum, como os outros eventos (seção 11).
 

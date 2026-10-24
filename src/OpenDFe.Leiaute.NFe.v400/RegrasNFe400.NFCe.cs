@@ -132,9 +132,33 @@ internal static partial class RegrasNFe400
             (n, c) => n.Identificacao.FormatoImpressao == FormatoImpressao.DanfeSimplificadoTipo2 && c.Nucleo.NFCe is { QrCode: VersaoQrCode.V2 }
                 ? [new OcorrenciaRegra("NFe/infNFeSupl/qrCode", "versão 2", "Suplementares.QrCode")]
                 : []),
+        // A contingência offline e a justificativa (docs/CONTRATOS.md 17, decisão 5): o tipo de emissão é o da nota ou, nulo,
+        // o do núcleo; a data e a justificativa, as da nota ou, nulas, as da contingência do núcleo (o que a escrita grava).
+        Regra("B22-10", "711", SoNFe, AplicacaoRegra.Obrigatoria, "NF-e com contingência off-line em operação não permitida",
+            (n, c) => (n.Identificacao.TipoEmissao ?? c.Nucleo.Emissao) == TipoEmissao.ContingenciaOffline
+                    && n.Identificacao.FormatoImpressao != FormatoImpressao.DanfeSimplificadoTipo2
+                ? [new OcorrenciaRegra($"{Raiz}/ide/tpEmis", "tpEmis 9")]
+                : []),
+        Regra("B28-10", "556", Ambos, AplicacaoRegra.Obrigatoria,
+            "Justificativa de entrada em contingência não deve ser informada para tipo de emissão normal",
+            (n, c) => (n.Identificacao.TipoEmissao ?? c.Nucleo.Emissao) == TipoEmissao.Normal ? Contingencia(n, c, preenchida: true) : []),
+        Regra("B28-20", "557", Ambos, AplicacaoRegra.Obrigatoria, "A Justificativa de entrada em contingência deve ser informada",
+            (n, c) => (n.Identificacao.TipoEmissao ?? c.Nucleo.Emissao) != TipoEmissao.Normal ? Contingencia(n, c, preenchida: false) : []),
         Regra("ZA01-30", "814", SoNFCe, AplicacaoRegra.Obrigatoria, "Nota Fiscal com grupo de comércio exterior",
             (n, _) => n.Exportacao is not null ? [new OcorrenciaRegra($"{Raiz}/exporta")] : []),
     ];
+
+    // Os campos da contingência (dhCont e xJust) que estão preenchidos (556) ou ausentes (557), pelo valor que a escrita grava.
+    private static IEnumerable<OcorrenciaRegra> Contingencia(NotaFiscal nota, ContextoRegra contexto, bool preenchida)
+    {
+        var ide = nota.Identificacao;
+        var inicio = ide.InicioContingencia ?? contexto.Nucleo.Contingencia?.Inicio;
+        var justificativa = ide.JustificativaContingencia ?? contexto.Nucleo.Contingencia?.Justificativa;
+        if ((inicio is not null) == preenchida)
+            yield return new OcorrenciaRegra($"{Raiz}/ide/dhCont", null, "Identificacao.InicioContingencia");
+        if (!string.IsNullOrEmpty(justificativa) == preenchida)
+            yield return new OcorrenciaRegra($"{Raiz}/ide/xJust", null, "Identificacao.JustificativaContingencia");
+    }
 
     // A NFC-e, ou a NF-e com o DANFE Simplificado Tipo 2: as regras da NT 2026.002 valem para as duas.
     private static bool Simplificada(NotaFiscal nota, ContextoRegra contexto) =>

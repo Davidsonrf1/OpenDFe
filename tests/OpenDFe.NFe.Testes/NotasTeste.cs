@@ -13,6 +13,9 @@ internal static class NotasTeste
 
     private static readonly Lazy<X509Certificate2> Certificado = new(() => new CertificadoTeste { Cnpj = CnpjEmitente }.Gerar());
 
+    // O certificado de teste do emitente (CNPJ da nota), o que assina as notas e o QR Code offline da versão 3.
+    internal static X509Certificate2 CertificadoEmitente => Certificado.Value;
+
     internal static ValoresNucleo Nucleo(Documento documento = Documento.NFCe, TipoEmissao emissao = TipoEmissao.Normal,
         Contingencia? contingencia = null) => new()
     {

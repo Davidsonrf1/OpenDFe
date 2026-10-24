@@ -6,7 +6,7 @@ namespace OpenDFe.Testes;
 
 // O infNFeSupl que a lib escreve (etapa 5.1, CONTRATOS.md 16): o QR Code versão 3 e 2 online, as URLs da tabela e as
 // trocadas, o grupo válido no schema depois de assinado, a assinatura que não muda com ele, a NF-e com tpImp 6, o
-// Suplementares preenchido, a UF sem URL e a contingência offline (que entra na 5.2).
+// Suplementares preenchido, a UF sem URL. A contingência offline (5.2) tem os seus testes em EscritaOfflineTestes.
 public partial class EscritaQrCodeTestes
 {
     private const string UrlMGQrCode = "https://portalsped.fazenda.mg.gov.br/portalnfce/sistema/qrcode.xhtml";
@@ -256,28 +256,6 @@ public partial class EscritaQrCodeTestes
     public void ANFeSimplificadaNaUFSemUrlTambemEErro()
     {
         var escrita = NotasTeste.Escrever(NFeSimplificada(), Nucleo(Documento.NFe, uf: UF.SP));
-
-        Assert.Equal("NFE-QRCODE", Assert.Single(escrita.Problemas).Codigo);
-    }
-
-    [Fact]
-    public void AContingenciaOfflineEErroNFEQrCodeAteA52()
-    {
-        var nota = NotasTeste.NFCe();
-        nota.Identificacao.TipoEmissao = TipoEmissao.ContingenciaOffline;
-
-        var escrita = NotasTeste.Escrever(nota, Nucleo(emissao: TipoEmissao.ContingenciaOffline));
-
-        var problema = Assert.Single(escrita.Problemas);
-        Assert.Equal(("NFE-QRCODE", Severidade.Erro), (problema.Codigo, problema.Severidade));
-        Assert.Contains("5.2", problema.Mensagem, StringComparison.Ordinal);
-        Assert.DoesNotContain("infNFeSupl", escrita.Xml, StringComparison.Ordinal);
-    }
-
-    [Fact]
-    public void ANFeSimplificadaEmContingenciaOfflineTambemEErro()
-    {
-        var escrita = NotasTeste.Escrever(NFeSimplificada(), Nucleo(Documento.NFe, emissao: TipoEmissao.ContingenciaOffline));
 
         Assert.Equal("NFE-QRCODE", Assert.Single(escrita.Problemas).Codigo);
     }

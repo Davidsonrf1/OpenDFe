@@ -70,8 +70,12 @@ internal static partial class EscritorNFe
             }
             xml.WriteEndElement();
         }
+        var xmlNota = texto.ToString();
+        if (nucleo.Emissao == TipoEmissao.ContingenciaOffline && TemQrCode(nota, nucleo) && e.Chave is not null
+            && Suplementares(e, nota, nucleo, xmlNota) is { } offline)
+            xmlNota = InserirSuplementares(xmlNota, offline);
         CamposNaoSuportados.Conferir(nota, naoSuportados, e.Problemas);
-        return new NotaEscrita(texto.ToString(), e.Chave, e.Problemas.ToArray());
+        return new NotaEscrita(xmlNota, e.Chave, e.Problemas.ToArray());
     }
 
     // A chave (7.1) com o que vai no XML: a UF, o modelo e o tipo de emissão do núcleo; a data da emissão, o emitente,
@@ -127,5 +131,21 @@ internal static partial class EscritorNFe
                 nucleo.Emissao, cnf)
             : ChaveAcesso.Gerar(nucleo.UF, emissao!.Value, documento!, nucleo.Documento, ide.Serie!.Value, ide.Numero!.Value,
                 nucleo.Emissao);
+    }
+
+    // O infNFeSupl da offline entra como texto antes do </NFe>, depois do infNFe pronto: nenhum byte do infNFe muda, e o
+    // resumo calculado sobre ele continua valendo. O grupo sem prefixo herda o namespace da raiz.
+    private static string InserirSuplementares(string xml, InformacoesSuplementares grupo)
+    {
+        var texto = new StringBuilder();
+        var configuracao = new XmlWriterSettings { OmitXmlDeclaration = true, ConformanceLevel = ConformanceLevel.Fragment };
+        using (var xmlGrupo = XmlWriter.Create(texto, configuracao))
+        {
+            xmlGrupo.WriteStartElement("infNFeSupl");
+            xmlGrupo.WriteElementString("qrCode", grupo.QrCode);
+            xmlGrupo.WriteElementString("urlChave", grupo.UrlChave);
+            xmlGrupo.WriteFullEndElement();
+        }
+        return xml.Insert(xml.LastIndexOf("</NFe>", StringComparison.Ordinal), texto.ToString());
     }
 }

@@ -63,7 +63,14 @@ public class AutorizacaoHomologacaoTestes
     [Fact]
     public Task UmaNFCeEAutorizadaEmHomologacaoNaVersao2ComOCsc() => AutorizarNFCe(versao2: true);
 
-    private static async Task AutorizarNFCe(bool versao2)
+    // A NFC-e emitida offline (tpEmis 9) por um núcleo, guardada como XML e transmitida depois por outro, o normal (etapa 5.2).
+    [Fact]
+    public Task UmaNFCeOfflineETransmitidaDepoisEAutorizadaEmHomologacaoNaVersao3() => AutorizarNFCe(versao2: false, offline: true);
+
+    [Fact]
+    public Task UmaNFCeOfflineETransmitidaDepoisEAutorizadaEmHomologacaoNaVersao2ComOCsc() => AutorizarNFCe(versao2: true, offline: true);
+
+    private static async Task AutorizarNFCe(bool versao2, bool offline = false)
     {
         using var certificado = AmbienteHomologacao.AbrirPfx();
         var inscricao = Environment.GetEnvironmentVariable(VariavelInscricao);
@@ -90,12 +97,31 @@ public class AutorizacaoHomologacaoTestes
             Documento = versao2 ? new ConfiguracaoNFCe(new CodigoSeguranca(int.Parse(idCsc!, System.Globalization.CultureInfo.InvariantCulture), csc!)) : null,
         });
 
-        var resultado = await dfe.ExecutarAsync(new Autorizacao(NotaNFCe(cnpj!, inscricao!)), TestContext.Current.CancellationToken);
+        var nota = NotaNFCe(cnpj!, inscricao!);
+        ParametroWS<RetornoAutorizacao> parametro = new Autorizacao(nota);
+        if (offline)
+        {
+            var nucleoOffline = DFe.Criar(new LeiauteNFe400(), Documento.NFCe, new ConfiguracaoDFe
+            {
+                Ambiente = Ambiente.Homologacao,
+                UF = UF.MG,
+                Certificado = certificado,
+                Conexoes = conexoes,
+                Emissao = TipoEmissao.ContingenciaOffline,
+                Contingencia = new Contingencia(DateTimeOffset.UtcNow.AddHours(-2), "Teste de homologacao da contingencia offline"),
+                Documento = versao2 ? new ConfiguracaoNFCe(new CodigoSeguranca(int.Parse(idCsc!, System.Globalization.CultureInfo.InvariantCulture), csc!)) : null,
+            });
+            var preparado = nucleoOffline.Preparar(nota);
+            Assert.True(preparado.Preparado, string.Join(Environment.NewLine, preparado.Problemas));
+            parametro = new Autorizacao(preparado.Xml!);
+        }
+
+        var resultado = await dfe.ExecutarAsync(parametro, TestContext.Current.CancellationToken);
 
         Assert.True(resultado.Processado, string.Join(Environment.NewLine, resultado.Problemas));
-        var nota = Assert.Single(resultado.Retorno.Notas);
-        Assert.True(nota.Autorizada, $"{nota.Protocolo?.Status} {nota.Protocolo?.Motivo}");
-        Assert.NotNull(nota.XmlProcessado);
+        var autorizada = Assert.Single(resultado.Retorno.Notas);
+        Assert.True(autorizada.Autorizada, $"{autorizada.Protocolo?.Status} {autorizada.Protocolo?.Motivo}");
+        Assert.NotNull(autorizada.XmlProcessado);
     }
 
     // A NFC-e de venda a consumidor final: a nota da NF-e sem a saída, o destinatário e o endereço, no formato do DANFE NFC-e.

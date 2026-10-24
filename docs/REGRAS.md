@@ -205,16 +205,15 @@ Baixadas em 2026-10-22: as NTs do Portal Nacional da NF-e (Documentos > Notas T�
 - **Extração:** o texto de cada PDF pelo `pdftotext -raw`, uma linha por regra (o identificador, o modelo, o texto da regra, a aplicação, o código e a descrição do erro); as palavras que a extração colou separadas pelo vocabulário da extração `-layout`. Dez regras com a aplicação e o código em linhas separadas foram conferidas e preenchidas à mão (YA03 a YA06 da NT 2025.001, BA02a-10 da NT 2022.002, ZG02-36 e ZG02-40 da NT 2026.001).
 - **Mescla:** uma linha por regra e código. Primeiro o Anexo I 7.03; depois as NTs, na ordem da publicação da versão vigente (10.1). A regra que uma NT republica substitui a do Anexo (ou a da NT anterior) com o mesmo identificador e o mesmo código; a regra que uma NT marca como excluída fica com a situação "excluída".
 - **A mensagem** é a descrição do erro na fonte, sem o "Rejeição: " e sem as observações; os marcadores como `[nItem:nnn]` ficam como estão.
-- **A situação** é uma primeira classificação, por critérios explícitos sobre o texto da regra (o script fica fora do repositório, como o do escritor da 2.4): "SEFAZ" para o banco de dados do autorizador (cadastro, duplicidade, outra nota, credenciamento), a denegação, o limite que a SEFAZ define e o PAA; "SEFAZ (tabela)" para a tabela oficial que a lib não embute (município, NCM, CEST); "escrita" para o que a montagem já garante (o `Id` montado pelos campos, o namespace sem prefixo, o UTF-8, o modelo e a UF do núcleo, a assinatura); "schema" para a 215 e a 225; "outra operação" para o lote (4.4) e os eventos (6); "a fazer (3.3)" para as do modelo 65 sozinho; "a fazer (3.2)" para as do primeiro lote do plano (chave e DV, CPF e CNPJ, totais contra a soma dos itens, CST × grupo, CFOP × `idDest`, `indIEDest` × IE, datas, `cClassTrib`); "a fazer" para o resto que cabe na lib, sem etapa. **As etapas 3.2, 3.3 e 5.1 revisam a situação das regras que tocam**, e a classificação errada se corrige na linha. A 5.1 acrescentou "a fazer (5.2)" (as da contingência offline) e "lib (5.1)", e zerou o "a fazer (5.1)" (`REGRAS.md` 15).
+- **A situação** é uma primeira classificação, por critérios explícitos sobre o texto da regra (o script fica fora do repositório, como o do escritor da 2.4): "SEFAZ" para o banco de dados do autorizador (cadastro, duplicidade, outra nota, credenciamento), a denegação, o limite que a SEFAZ define e o PAA; "SEFAZ (tabela)" para a tabela oficial que a lib não embute (município, NCM, CEST); "escrita" para o que a montagem já garante (o `Id` montado pelos campos, o namespace sem prefixo, o UTF-8, o modelo e a UF do núcleo, a assinatura); "schema" para a 215 e a 225; "outra operação" para o lote (4.4) e os eventos (6); "a fazer (3.3)" para as do modelo 65 sozinho; "a fazer (3.2)" para as do primeiro lote do plano (chave e DV, CPF e CNPJ, totais contra a soma dos itens, CST × grupo, CFOP × `idDest`, `indIEDest` × IE, datas, `cClassTrib`); "a fazer" para o resto que cabe na lib, sem etapa. **As etapas 3.2, 3.3 e 5.1 revisam a situação das regras que tocam**, e a classificação errada se corrige na linha. A 5.1 acrescentou "a fazer (5.2)" (as da contingência offline) e "lib (5.1)", e zerou o "a fazer (5.1)" (`REGRAS.md` 15); a 5.2 zerou o "a fazer (5.2)" (as sete viraram "escrita") e acrescentou "lib (5.2)" (`REGRAS.md` 16).
 - **Fora do catálogo:** as regras de consumo indevido (Anexo I, 4.3, código 656), só da SEFAZ; e as NTs só de evento, DANFE ou outro serviço (EPEC 2014.001, manifestação 2020.001, comprovante de entrega 2021.001, ator interessado 2020.007, conciliação financeira 2024.002, insucesso na entrega 2023.005, distribuição 2014.002, DANFE 2020.004, 2026.003 e 2026.010), que entram com as fases delas.
 
 | Situação | Regras |
 |---|---|
-| lib | 107 |
-| a fazer (5.2) | 7 |
-| a fazer | 620 |
+| lib | 110 |
+| a fazer | 617 |
 | schema | 2 |
-| escrita | 58 |
+| escrita | 65 |
 | SEFAZ | 197 |
 | SEFAZ (tabela) | 15 |
 | outra operação (6) | 53 |
@@ -306,7 +305,7 @@ Baixadas em 2026-10-22: as NTs do Portal Nacional da NF-e (Documentos > Notas T�
 | B12-20 | 55/65 | 271 | Obrig. | Código Município do Fato Gerador: difere da UF do emitente | MOC 7.03 | a fazer |
 | B21-10 | 65 | 709 | Obrig. | NFC-e com formato de DANFE inválido | MOC 7.03 | lib (3.3) |
 | B21-20 | 55 | 710 | Obrig. | NF-e com formato de DANFE inválido | MOC 7.03 | a fazer |
-| B22-10 | 55 | 711 | Obrig. | NF-e com contingência off-line em operação não permitida | NT 2026.002 v1.11 | a fazer |
+| B22-10 | 55 | 711 | Obrig. | NF-e com contingência off-line em operação não permitida | NT 2026.002 v1.11 | lib (5.2) |
 | B22-20 | 65 | 712 | Facul. | NFC-e com contingência off-line para a UF | MOC 7.03 | SEFAZ |
 | B22-30 | 55/65 | 570 | Obrig. | Tipo de Emissão 3, 6 ou 7 só é válido nas contingências SCAN/SVC | NT 2021.002 v1.12 | a fazer |
 | B22-34 | 65 | 714 | Facul. | NFC-e com contingência inválida (tpEmis=2, 4 (a critério da UF) ou 5) | MOC 7.03 | SEFAZ |
@@ -353,8 +352,8 @@ Baixadas em 2026-10-22: as NTs do Portal Nacional da NF-e (Documentos > Notas T�
 | B26-30 | 55/65 | 370 | Obrig. | Processo de emissão pelo Fisco com Tipo de Emissão inválido | NT 2023.002 v1.01 | a fazer |
 | B26-40 | 55/65 | 571 | Obrig. | Processo de emissão pelo Fisco com Certificado de Transmissão incompatível | MOC 7.03 | a fazer |
 | B26-50 | 65 | 957 | Obrig. | Tipo de emissão incompatível com o Processo de Emissão | NT 2023.002 v1.01 | lib (3.3) |
-| B28-10 | 55/65 | 556 | Obrig. | Justificativa de entrada em contingência não deve ser informada para tipo de emissão normal | MOC 7.03 | a fazer |
-| B28-20 | 55/65 | 557 | Obrig. | A Justificativa de entrada em contingência deve ser informada | MOC 7.03 | a fazer |
+| B28-10 | 55/65 | 556 | Obrig. | Justificativa de entrada em contingência não deve ser informada para tipo de emissão normal | MOC 7.03 | lib (5.2) |
+| B28-20 | 55/65 | 557 | Obrig. | A Justificativa de entrada em contingência deve ser informada | MOC 7.03 | lib (5.2) |
 | B28-30 | 55/65 | 558 | Facul. | Data de entrada em contingência posterior a data de recebimento | MOC 7.03 | a fazer |
 | B28-40 | 55/65 | 569 | Facul. | Data de entrada em contingência muito atrasada | MOC 7.03 | a fazer |
 
@@ -1354,12 +1353,12 @@ Baixadas em 2026-10-22: as NTs do Portal Nacional da NF-e (Documentos > Notas T�
 | ZX02-240 | 55/65 | 396 | Obrig. | Parâmetro do QR-Code inexistente: [Param: xxx] | NT 2026.002 v1.11 | escrita |
 | ZX02-244 | 55/65 | 397 | Obrig. | Parâmetro do QR-Code divergente da Nota Fiscal: [Param: xxx] | NT 2026.002 v1.11 | escrita |
 | ZX02-260 | 55/65 | 396 | Obrig. | Parâmetro do QR-Code inexistente: [Param: xxx] | NT 2026.002 v1.11 | escrita |
-| ZX02-268 | 55/65 | 397 | Obrig. | Parâmetro do QR-Code divergente da Nota Fiscal: [Param: xxx] | NT 2026.002 v1.11 | a fazer (5.2) |
+| ZX02-268 | 55/65 | 397 | Obrig. | Parâmetro do QR-Code divergente da Nota Fiscal: [Param: xxx] | NT 2026.002 v1.11 | escrita |
 | ZX02-272 | 55/65 | 396 | Obrig. | Parâmetro do QR-Code inexistente: [Param: xxx] | NT 2026.002 v1.11 | escrita |
-| ZX02-276 | 55/65 | 397 | Obrig. | Parâmetro do QR-Code divergente da Nota Fiscal: [Param: xxx] | NT 2026.002 v1.11 | a fazer (5.2) |
+| ZX02-276 | 55/65 | 397 | Obrig. | Parâmetro do QR-Code divergente da Nota Fiscal: [Param: xxx] | NT 2026.002 v1.11 | escrita |
 | ZX02-288 | 65 | 396 | Obrig. | Parâmetro do QR-Code inexistente:[Param: xxx) | MOC 7.03 | escrita |
 | ZX02-292 | 65 | 400 | Obrig. | Parâmetro Digest Value no QR-Code não está no formato hexadecimal (Caracteres: “0-9”, “a-f”,“A-F”) | MOC 7.03 | escrita |
-| ZX02-296 | 65 | 397 | Obrig. | Parâmetro do QR-Code divergente da Nota Fiscal: [Param: xxx)] | MOC 7.03 | a fazer (5.2) |
+| ZX02-296 | 65 | 397 | Obrig. | Parâmetro do QR-Code divergente da Nota Fiscal: [Param: xxx)] | MOC 7.03 | escrita |
 | ZX02-300 | 65 | 396 | Obrig. | Parâmetro do QR-Code inexistente: [Param: xxx] | NT 2025.001 v1.03 | escrita |
 | ZX02-304 | 65 | 462 | Obrig. | Parâmetro Código Identificador do CSC no QR-Code não cadastrado na SEFAZ | MOC 7.03 | SEFAZ |
 | ZX02-308 | 65 | 463 | Obrig. | Parâmetro Código Identificador do CSC no QR-Code foi revogado pela empresa anteriormente a Data de Emissão | MOC 7.03 | SEFAZ |
@@ -1368,10 +1367,10 @@ Baixadas em 2026-10-22: as NTs do Portal Nacional da NF-e (Documentos > Notas T�
 | ZX02-320 | 65 | 464 | Obrig. | Parâmetro Hash no QR-Code diverge do calculado | MOC 7.03 | escrita |
 | ZX02-324 | 55/65 | 396 | Obrig. | Parâmetro do QR-Code inexistente: [Param: xxx] | NT 2026.002 v1.11 | escrita |
 | ZX02-326 | 55/65 | 396 | Obrig. | Parâmetro do QR-Code inexistente: [Param: xxx] | NT 2026.002 v1.11 | escrita |
-| ZX02-328 | 55/65 | 397 | Obrig. | Parâmetro do QR-Code divergente da Nota Fiscal (idDest) | NT 2026.002 v1.11 | a fazer (5.2) |
-| ZX02-330 | 55/65 | 445 | Obrig. | Parâmetro assinatura não deve ser informado no qrCode | NT 2026.002 v1.11 | a fazer (5.2) |
-| ZX02-334 | 55/65 | 474 | Obrig. | Parâmetro assinatura deve ser informado no qrCode | NT 2026.002 v1.11 | a fazer (5.2) |
-| ZX02-338 | 55/65 | 583 | Obrig. | Valor da assinatura do qrCode difere do valor calculado | NT 2026.002 v1.11 | a fazer (5.2) |
+| ZX02-328 | 55/65 | 397 | Obrig. | Parâmetro do QR-Code divergente da Nota Fiscal (idDest) | NT 2026.002 v1.11 | escrita |
+| ZX02-330 | 55/65 | 445 | Obrig. | Parâmetro assinatura não deve ser informado no qrCode | NT 2026.002 v1.11 | escrita |
+| ZX02-334 | 55/65 | 474 | Obrig. | Parâmetro assinatura deve ser informado no qrCode | NT 2026.002 v1.11 | escrita |
+| ZX02-338 | 55/65 | 583 | Obrig. | Valor da assinatura do qrCode difere do valor calculado | NT 2026.002 v1.11 | escrita |
 | ZX03-20 | 65 | 878 | Facul. | Endereço do site da UFda Consulta por chave de acesso diverge do previsto | MOC 7.03 | SEFAZ |
 
 ### 10.5. Banco de dados do autorizador (Anexo I, 4.2.1, e as NTs)
@@ -1605,9 +1604,23 @@ As regras J01 a J06 da consulta (Tabela 5-16) ficam com a SEFAZ: o DV, a UF, o a
 | ZX01-10 | 393 | 55 | Erro | a NF-e sem `tpImp` 6 com o `infNFeSupl` preenchido: a lib não o gera nela, e o grupo veio de quem usa |
 | ZX02-222 | 444 | 65 | Erro | a versão 2 (o CSC configurado) com o emitente CPF |
 | ZX02-220 | 672 | 55 | Erro | a NF-e com `tpImp` 6 e a versão 2 (o CSC configurado): o QR Code dela é só a versão 3 |
-| (lib) | `NFE-QRCODE` | 55/65 | Erro | na montagem: a UF e o ambiente sem URL de consulta na tabela e sem a troca na `ConfiguracaoNFCe`; a contingência offline (`tpEmis` 9) até a 5.2 |
+| (lib) | `NFE-QRCODE` | 55/65 | Erro | na montagem: a UF e o ambiente sem URL de consulta na tabela e sem a troca na `ConfiguracaoNFCe` |
 | (lib) | `NFE-NUCLEO` | 55/65 | Erro | na montagem: o `Suplementares` preenchido e diferente do gerado (campo a campo) |
 
 **A situação das outras linhas do grupo ZX** (a revisão da 5.1): "escrita" nos parâmetros (396, 399, 400 e 398), na divergência com a nota que a lib monta igual (397 de `chNFe` e `tpAmb`), no hash (464), no formato (813), na versão 100 (903) e na ausência do grupo (394); "SEFAZ" no CSC não cadastrado e revogado (462 e 463: a lib não sabe o que a SEFAZ tem cadastrado) e nas URLs divergentes da tabela da UF (395 e 878); "a fazer (5.2)" nas da contingência offline (445, 474, 583 e os 397 de dia, valor, `digVal` e destinatário); e "excluída" no 407 (ZX02-220 do modelo 65, "NFC-e com qrCode na versão 3": a NT 2025.001 o tirou na v1.01).
 
 **Testes:** `RegrasQrCodeTestes` (um caso por regra, no campo certo, e cada condição nos dois sentidos) e `EscritaQrCodeTestes` (os problemas de montagem). O `CadaRegraTemOSeuCaso` soma os casos dos três arquivos.
+
+## 16. A contingência offline da NFC-e, etapa 5.2 (2026-10-24)
+
+**Aprovadas pelo usuário em 2026-10-24** (`PROJETO.md` 2.9; `docs/etapas/5.2-contingencia-offline.md`, decisão 5; `CONTRATOS.md` 17): três regras do leiaute, conferidas depois do schema (`RegrasNFe400.NFCe.cs`). O tipo de emissão é o da nota ou, nulo, o do núcleo; a data e a justificativa, as da nota ou, nulas, as da `Contingencia` do núcleo (o que a escrita grava).
+
+| Regra | Código | Modelo | Severidade | O que confere |
+|---|---|---|---|---|
+| B22-10 | 711 | 55 | Erro | a NF-e com `tpEmis` 9 sem `tpImp` 6 (NT 2026.002): a contingência offline da NF-e é só com o DANFE Simplificado Tipo 2 |
+| B28-10 | 556 | 55/65 | Erro | `dhCont` ou `xJust` informados com `tpEmis` 1 (normal) |
+| B28-20 | 557 | 55/65 | Erro | `dhCont` ou `xJust` ausentes com `tpEmis` diferente de 1 |
+
+Não entram a 558 e a 569 (facultativas, só da SEFAZ). **A situação das linhas do grupo ZX da offline** (445, 474, 583 e os 397 de dia, valor, `digVal` e destinatário): "escrita", porque a lib gera o QR Code offline com o dia, o valor, o resumo e o destinatário da nota que escreveu e, na versão 3, a assinatura. O `NFE-QRCODE` da contingência offline (5.1) deixa de existir: a offline sem a UF na tabela continua sendo `NFE-QRCODE`, e a versão 3 sem o certificado (só fora do núcleo) também.
+
+**Testes:** `RegrasContingenciaTestes` (um caso por regra e cada condição nos dois sentidos); `CadaRegraTemOSeuCaso` soma os casos.

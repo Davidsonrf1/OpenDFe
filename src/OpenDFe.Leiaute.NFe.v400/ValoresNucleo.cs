@@ -1,3 +1,5 @@
+using System.Security.Cryptography.X509Certificates;
+
 namespace OpenDFe.NFe;
 
 /// <summary>
@@ -24,6 +26,12 @@ internal sealed class ValoresNucleo
     /// <summary>A configuração da NFC-e (o CSC e as URLs de consulta); nula quando não foi configurada.</summary>
     public ConfiguracaoNFCe? NFCe { get; init; }
 
+    /// <summary>
+    /// O certificado da configuração do núcleo: a versão 3 do QR Code offline assina os parâmetros com ele (etapa 5.2). Nulo
+    /// fora do núcleo (nos testes da escrita).
+    /// </summary>
+    public X509Certificate2? Certificado { get; init; }
+
     /// <summary>Os valores da configuração do núcleo da operação.</summary>
     public static ValoresNucleo Criar(ContextoOperacao contexto)
     {
@@ -36,6 +44,7 @@ internal sealed class ValoresNucleo
             Emissao = configuracao.Emissao,
             Contingencia = configuracao.Contingencia,
             NFCe = configuracao.Documento as ConfiguracaoNFCe,
+            Certificado = configuracao.Certificado,
         };
     }
 }
