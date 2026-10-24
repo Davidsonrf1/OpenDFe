@@ -143,6 +143,39 @@ Por isso:
 
 Desde a etapa 5.1, a NFC-e usa as mesmas operações da NF-e: `Autorizacao` (a síncrona com uma nota, o lote de 2 a 50), `ConsultaRecibo`, `RecuperacaoAutorizacao`, `ConsultaProtocolo` e o `Preparar`. **Este guia vale para as duas**, caso a caso, sem diferença: guarde o XML assinado (que já leva o `infNFeSupl` com o QR Code, gerado pela lib), reenvie sempre esse XML e recupere pelo XML. O QR Code não muda ao reenviar: ele depende só da chave, do ambiente e do CSC. A NFC-e em contingência offline (`tpEmis` 9, etapa 5.2) acrescenta o caso de transmitir depois, que a 5.2 documenta aqui.
 
+## 9. Cancelamento e inutilização
+
+Os eventos e a inutilização (etapa 6.1, `CONTRATOS.md` 18) não têm recuperação própria: a **consulta da chave** diz o que a SEFAZ registrou, e o reenvio é seguro porque a SEFAZ recusa o repetido.
+
+**Cancelamento sem a resposta** (`FalhaTransmissaoException` com `PodeTerSidoProcessado`): consulte a chave com a `ConsultaProtocolo`.
+
+```csharp
+try
+{
+    var cancelamento = await dfe.ExecutarAsync(new EnvioEvento(evento), ct);
+}
+catch (FalhaTransmissaoException falha) when (falha.PodeTerSidoProcessado)
+{
+    var consulta = await dfe.ExecutarAsync(new ConsultaProtocolo(evento.Chave), ct);
+    if (consulta.Retorno!.Cancelada)
+    {
+        // 101: já cancelada. O procEventoNFe está em consulta.Retorno.Eventos (texto): guarde-o.
+    }
+    else if (consulta.Retorno.Autorizada)
+    {
+        // 100: o evento não chegou. Reenvie o MESMO evento (o mesmo Momento) e confira o 573 (já registrado).
+        var reenvio = await dfe.ExecutarAsync(new EnvioEvento(evento), ct);
+    }
+}
+```
+
+- Informe o `Momento` do evento e **guarde o evento** (o mesmo `Momento`, a mesma justificativa): o reenvio sai com os mesmos bytes e o mesmo `Id` (`ID` + `tpEvento` + chave + `nSeqEvento`). Sem o `Momento`, o `dhEvento` vem do relógio e muda a cada tentativa.
+- 573 no reenvio diz que o evento já foi registrado: a consulta traz o `procEventoNFe`.
+- 501 (prazo de 24 horas) não se resolve reenviando: o cancelamento fora do prazo depende da UF (155) ou do cancelamento por substituição (etapa 6.2).
+- A nota autorizada na SVC é cancelada na SVC (o destino sai da chave); com o `Destino` do parâmetro, o cancelamento vai ao autorizador normal, que também a conhece.
+
+**Inutilização sem a resposta:** reenvie a mesma faixa. Se a primeira chegou, a SEFAZ responde **563** (a faixa já foi inutilizada), com a faixa e o `nProt` da primeira no retorno (`RetornoInutilizacao.Protocolo`); se não chegou, a segunda é homologada (102). O `ProcInutNFe` só vem no 102; no 563, guarde o protocolo.
+
 ## Resumo
 
 | Situação | O que fazer |
@@ -158,3 +191,5 @@ Desde a etapa 5.1, a NFC-e usa as mesmas operações da NF-e: `Autorizacao` (a s
 | Lote: o 103 caiu | Recuperar nota a nota |
 | Lote: a consulta do recibo caiu | Consultar o recibo de novo |
 | Contingência com nota em dúvida | Não reusar a numeração dela até recuperar |
+| Cancelamento sem a resposta | `ConsultaProtocolo(chave)`: 101, já cancelada; 100, reenviar o mesmo evento (573 se já registrado) |
+| Inutilização sem a resposta | Reenviar a mesma faixa (563 diz que já foi, com o `nProt`) |

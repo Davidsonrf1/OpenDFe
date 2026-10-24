@@ -598,7 +598,38 @@ Criada a partir da `fase-4-transmissao`.
 
 **Fase 5 fechada no emulador** ("NFC-e online e em contingência autorizadas"); a homologação real fica pendente do PFX.
 
-**Próxima: 6.1. Eventos: base, cancelamento e inutilização** (a branch `fase-6-eventos` nasce da `fase-5-nfce`), só quando pedida.
+### Fase 6 (branch `fase-6-eventos`)
+
+Criada a partir da `fase-5-nfce`.
+
+**6.1. Eventos: base, cancelamento e inutilização. Feita (2026-10-24).** O detalhe está em `docs/CONTRATOS.md` 18 (o desenho e, em 18.4, os ajustes); o guia para quem usa, em `docs/QUANDO_CAI.md` 9.
+- **Aprovado em 2026-10-24:** todas as decisões pela recomendação, com as duas regras da decisão 9 (`docs/etapas/6.1-eventos-base-cancelamento-inutilizacao.md`).
+- **API pública nova** (no `PublicAPI.Unshipped.txt` do leiaute; o núcleo não mudou): `Evento` (base fechada: `Chave`, `Tipo`, `Sequencia`, `Momento`), `TipoEvento`, `Cancelamento`, `EnvioEvento` (de 1 a 20 eventos, `Lote`), `RetornoEvento`, `ResultadoEvento` (`XmlEvento`, `XmlProcessado`, `Registrado`), `Inutilizacao` e `RetornoInutilizacao`, registrados na NF-e e na NFC-e.
+- **Interno, no leiaute:** `OperacaoEvento` (o `envEvento` com um `infEvento` assinado por evento, o `detEvento` conferido pelo schema do tipo com o 493, o destino pela chave, a leitura branda do `retEnvEvento` e o `procEventoNFe`), `OperacaoInutilizacao` (o `inutNFe`, o `retInutNFe` e o `ProcInutNFe`), os schemas novos no `SchemasNFe400` (`Evento`, `EventoProcessado`, `DetalheCancelamento`, `InutilizacaoProcessada`).
+- **As regras aprovadas** (`REGRAS.md` 17): `NFE-CHAVE` (chave de outro modelo que o do núcleo) e `NFE-LOTE` (destinos ou tipos de emissão diferentes no envio, ou o mesmo evento repetido), na montagem; sem linha no catálogo. Cinco linhas da seção 10.6 (P09-10, P12-26, P12-40, P12-44 e 3B08-100) passaram de "outra operação (6)" a "SEFAZ".
+- **Ajustes ao desenho** (a conferir pelo usuário, `CONTRATOS.md` 18.4): o construtor do `Evento` recebe a chave, o tipo e a sequência; `Evento.Textos` (interno) para o `NFE-CARACTERE`; a `RegrasNFe400.Conferir` ignora o `Evento`; o mapa tag para propriedade do `inutNFe`; o `ProcInutNFe` com o P maiúsculo, como no XSD; `SituacaoNFe.ConferirModelo` ganhou o texto da operação.
+- **Divergências com o `PROJETO.md` atualizadas:** 8.3/9.3 (`CancelamentoSubstituicao`, sem a preposição) e a tabela de operações (`Inutilizacao(cnpj, serie, inicial, final, justificativa)`).
+- **Decisões tomadas sem perguntar:**
+  - **O 155** ("Cancelamento homologado fora de prazo", MOC 5.9.4), o 135 e o 136 contam como `Registrado` (conferidos no MOC 7.0, Visão Geral, baixado nesta etapa, `docs/NTS.md` 5).
+  - **O `Cancelamento` com protocolo de 15 dígitos** (o schema aceita 15 ou 17; o MOC diz 15) e a justificativa só recusada nula ou vazia no construtor.
+  - **O caractere que o XML não aceita** na justificativa é `NFE-CARACTERE` (o código da escrita da nota), em vez de deixar o `XmlWriter` lançar.
+  - **O destino do lote** é o do primeiro evento; o `NFE-LOTE` compara o destino e o tipo de emissão naturais (sem o `Destino` do parâmetro).
+  - **O `retEvento` sem chave** liga pela posição só quando a quantidade é a mesma; o evento enviado sem `retEvento` vira o aviso `NFE-EVENTO` (com a propriedade `Eventos[k]`).
+  - **O `Ano` da inutilização** vai de 0 a 99 (o 454, ano antes de 2006, é da SEFAZ).
+  - **O 580 (nota já cancelada) e o 574** não aparecem nos testes do emulador por esta lib: o segundo cancelamento da mesma nota é sempre 573 (a regra da duplicidade vem antes), e a lib sempre monta o autor como o emitente da chave (o certificado de outra raiz é 213). O 580 chega com o cancelamento por substituição (6.2).
+- **Testes** (1.965 na solução, 69 novos; 24 pulados, os de homologação: +2):
+  - `AutorizacaoTestes.Evento` (`NFe.Testes`, o handler falso): o suporte nos dois documentos; os parâmetros dos eventos e da inutilização; o `envEvento` no schema, assinado, com o `Id`, o `cOrgao`, o autor CNPJ e CPF, o `dhEvento` do relógio e o do `Momento` (os mesmos bytes), o `idLote` do relógio e o informado, 1, 2 e 20 eventos; o 493 com a propriedade (justificativa de 14 e de 256, espaço no começo, no segundo evento); o `NFE-CARACTERE`; o destino (SVC-AN no cancelamento da nota da SVC, o normal com o `Destino`, o normal para outro tipo de evento, provado com um evento falso derivado da base); `NFE-CHAVE` nos dois sentidos; `NFE-LOTE` (destinos misturados e evento repetido); a leitura (135 com o `procEventoNFe` válido e com os bytes, 136, 155, 573, 494, o lote rejeitado, o `retEvento` sem chave pela posição, o que sobra, o evento sem `retEvento`, respostas ilegíveis); a inutilização (schema, assinatura, `Id`, modelo 55 e 65, o ano do relógio e o informado, o núcleo em SVC no normal, o `ProcInutNFe` válido, 563, as rejeições, o 215 da justificativa, respostas ilegíveis);
+  - `EventoEmuladoTestes` (a lib inteira contra a SEFAZ emulada): a NF-e cancelada (135) com o `procEventoNFe` e a consulta com 101 e o evento; o segundo cancelamento (573); o protocolo errado (222); a nota inexistente (494); as 24 horas (501, com o relógio avançado e compartilhado com o emulador); o autor de outra raiz (213); a NFC-e; a nota da SVC-AN cancelada na SVC e, pelo `Destino`, no normal; o lote de 3 e o lote com um rejeitado; a queda depois de processar, a consulta (101) e o reenvio do mesmo evento (573);
+  - `InutilizacaoEmuladaTestes`: 102 com o `ProcInutNFe`; 563 com a faixa e o protocolo da anterior; 241; 256; 266, 453 e 454; 201; a NFC-e; o núcleo em SVC no normal;
+  - `AutorizacaoHomologacaoTestes`: a NF-e autorizada e cancelada e uma faixa inutilizada, pulados sem o PFX;
+  - mudado por consequência da etapa: `LeiauteNFe400Testes` (a lista das operações).
+- **Mutações provadas:** sem a assinatura dos eventos (`IdsAssinatura` vazio), 32 testes acusam; o `cOrgao` trocado, 11; o `Id` sem o `ID`, 32; a SVC aceita em qualquer tipo de evento, 1. O código foi restaurado depois de cada uma.
+- **A base aceita uma subclasse nova** sem mudar `EnvioEvento` nem `OperacaoEvento`: provado com o `EventoFalso` do `AutorizacaoTestes.Evento` (um evento que não é cancelamento, derivado da base no assembly de testes); a 6.2 prova com os eventos de verdade.
+- **Conferido:** build sem aviso (Debug e Release); `dotnet test --solution OpenDFe.slnx` com código 0 (1.965 testes, 24 pulados, os de homologação); no Linux (WSL Ubuntu 26.04, .NET 10.0.113, pelo executável de testes com `--artifacts-path`), `Nucleo.Testes` 574, `NFe.Testes` 855 e `SefazEmulada.Testes` 509 aprovados; `dotnet pack -c Release` com os mesmos três pacotes e o `eng/ConferirPacotes.ps1` aprovando; a regra de nomes não acusa nada novo (fora dos métodos de teste). O emulador não mudou (o trabalho de persistência do usuário continua fora do commit).
+- **Pendente até o PFX** (`PROJETO.md` 17): a NF-e cancelada e a faixa inutilizada na homologação real.
+- **Pendências para o usuário:** a inutilização do emitente com CPF (o `infInut` do schema só tem CNPJ); a leitura tipada do evento registrado (`RetornoProtocolo.Eventos` continua texto: versão menor futura); o 155 e o 580 só se provam na SEFAZ real (o emulador não aplica o 155, e o 580 chega com a 6.2); o Anexo I não foi baixado de novo (vale a cópia da E.1).
+
+**Próxima: 6.2. Substituição e carta de correção** (as subclasses `CancelamentoSubstituicao` e `CartaCorrecao` sobre a base da 6.1), só quando pedida.
 
 ### Trilha paralela: SEFAZ emulada (branch `sefaz-emulada`, worktree `../OpenDFe-sefaz-emulada`)
 

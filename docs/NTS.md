@@ -215,3 +215,9 @@ O que as fontes consultadas disseram e **não** entrou na tabela, para quem comp
 ### 4.4. Como completar
 
 Quando a ENCAT voltar, ou para cada UF: abrir a página, copiar as duas URLs de cada ambiente (a do QR Code sem a query), acrescentar as linhas em `UrlsConsultaNFCe.cs`, tirar a UF da lista `UFsPendentes` do `UrlsConsultaTestes` (o teste quebra se a lista e a tabela divergirem), e registrar aqui a fonte e a data.
+
+## 5. Eventos e inutilização (etapa 6.1, 2026-10-24)
+
+- **MOC 7.0, Visão Geral** ("Versão 7.00 - Novembro de 2020", 150 páginas), do Portal Nacional (`listaConteudo.aspx?tipoConteudo=ndIjl+iEFdE=`, cookie com `curl -c` e `-b` e a página de origem no `-e`; `exibirArquivo.aspx?conteudo=LrBx7WT9PuA=`), conferido em 2026-10-24: SHA-256 `f664dcf94b77cabb32311620d85a7eb02cdf86adb2d4632ce178af2572dd2ad1`. Lidas as seções 5.3 (a inutilização: Tabelas 5-9 a 5-12, o `ProcInutNFe` do schema), 5.8 (a parte geral do evento: Tabelas 5-32 a 5-36, o 128, o 135 e o 136 do 5.8.5) e 5.9 (o cancelamento: Tabelas 5-37 e 5-38; o **155**, "Cancelamento homologado fora de prazo", no 5.9.4).
+- O Anexo I (4.1 e 4.4) não foi baixado de novo: vale o arquivo da E.1 (`5eb4cf2010b10b0b62f78197c4eb64025f24535d4c6e61158bc7806dd008f55d`, seção 1.3a).
+- **Schemas** (já embutidos, seção 1.1): `envEvento`, `leiauteEvento`, `procEventoNFe`, `retEnvEvento`, `e110111`, `inutNFe`, `leiauteInutNFe`, `retInutNFe` e `procInutNFe`. O elemento raiz do `procInutNFe_v4.00.xsd` é `ProcInutNFe` (com o P maiúsculo), e a lib escreve esse nome.

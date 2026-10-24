@@ -34,6 +34,7 @@ internal static partial class RegrasNFe400
         {
             NotaFiscal n => n,
             null => LeitorNFe.Ler(xml).Nota,
+            Evento => null,   // o evento não é nota: as regras da nota não se aplicam (etapa 6.1)
             _ => throw new InvalidOperationException($"O modelo do documento é {modelo.GetType().Name}, não NotaFiscal."),
         };
         var problemas = new List<Problema>();

@@ -27,7 +27,12 @@ internal static class SchemasNFe400
     private static readonly Lazy<SchemaXml> SchemaRecibo = Preparar("consReciNFe_v4.00.xsd", CodigoMensagem);
     private static readonly Lazy<SchemaXml> SchemaSituacao = Preparar("consSitNFe_v4.00.xsd", CodigoMensagem);
     private static readonly Lazy<SchemaXml> SchemaStatus = Preparar("consStatServ_v4.00.xsd", CodigoMensagem);
-    private static readonly Lazy<SchemaXml> SchemaInutilizacao = Preparar("inutNFe_v4.00.xsd", CodigoMensagem);
+    private static readonly Lazy<SchemaXml> SchemaInutilizacao = Preparar("inutNFe_v4.00.xsd", CodigoMensagem, PropriedadeInutilizacao);
+    private static readonly Lazy<SchemaXml> SchemaInutilizacaoProcessada = Preparar("procInutNFe_v4.00.xsd", CodigoMensagem);
+    private static readonly Lazy<SchemaXml> SchemaEvento = Preparar("envEvento_v1.00.xsd", CodigoMensagem);
+    private static readonly Lazy<SchemaXml> SchemaEventoProcessado = Preparar("procEventoNFe_v1.00.xsd", CodigoMensagem);
+    private static readonly Lazy<SchemaXml> SchemaDetalheCancelamento =
+        Preparar("e110111_v1.00.xsd", CodigoDetalhe, c => Detalhe(c, "nProt", "Protocolo", "xJust", "Justificativa"));
     private static readonly Lazy<SchemaXml> SchemaNotaProcessada = Preparar("procNFe_v4.00.xsd", CodigoMensagem, CaminhoModeloNFe.Propriedade);
 
     /// <summary>A nota sozinha (<c>NFe</c>): a que o <c>Preparar</c> gera e a que se lê.</summary>
@@ -51,6 +56,21 @@ internal static class SchemasNFe400
     /// <summary>A nota com o protocolo (<c>nfeProc</c>), a distribuível.</summary>
     internal static SchemaXml NotaProcessada => SchemaNotaProcessada.Value;
 
+    /// <summary>Falha no schema do detalhe do evento (<c>detEvento</c>, D06).</summary>
+    internal const string CodigoDetalhe = "493";
+
+    /// <summary>O pedido de eventos (<c>envEvento</c>, <c>NFeRecepcaoEvento4</c>).</summary>
+    internal static SchemaXml Evento => SchemaEvento.Value;
+
+    /// <summary>O evento com o registro (<c>procEventoNFe</c>), o distribuível.</summary>
+    internal static SchemaXml EventoProcessado => SchemaEventoProcessado.Value;
+
+    /// <summary>O <c>detEvento</c> do cancelamento (110111).</summary>
+    internal static SchemaXml DetalheCancelamento => SchemaDetalheCancelamento.Value;
+
+    /// <summary>A inutilização com o registro (<c>ProcInutNFe</c>), a distribuível.</summary>
+    internal static SchemaXml InutilizacaoProcessada => SchemaInutilizacaoProcessada.Value;
+
     /// <summary>O nome do recurso de um arquivo do pacote (<c>"Schemas/PL_010f_v1.04/nfe_v4.00.xsd"</c>).</summary>
     internal static string Recurso(string arquivo) => $"Schemas/{Pacote}/{arquivo}";
 
@@ -60,4 +80,34 @@ internal static class SchemasNFe400
     // A nota e a nota processada: o problema do schema aponta a propriedade do modelo (docs/MODELO.md 14).
     private static Lazy<SchemaXml> Preparar(string arquivo, string codigo, Func<string, string?> propriedade) =>
         new(() => SchemaXml.Carregar(typeof(SchemasNFe400).Assembly, Recurso(arquivo), codigo, propriedade));
+
+    // O detEvento sozinho: "detEvento/xJust" vira a propriedade do evento.
+    private static string? Detalhe(string caminho, params string[] tagsEPropriedades)
+    {
+        var passos = caminho.Split('/');
+        if (passos.Length != 2 || passos[0] != "detEvento")
+            return null;
+        for (var i = 0; i < tagsEPropriedades.Length; i += 2)
+            if (passos[1] == tagsEPropriedades[i])
+                return tagsEPropriedades[i + 1];
+        return null;
+    }
+
+    // O inutNFe: o campo do pedido na propriedade da Inutilizacao.
+    private static string? PropriedadeInutilizacao(string caminho)
+    {
+        var passos = caminho.Split('/');
+        if (passos.Length != 3 || passos[0] != "inutNFe" || passos[1] != "infInut")
+            return null;
+        return passos[2] switch
+        {
+            "ano" => "Ano",
+            "CNPJ" => "Cnpj",
+            "serie" => "Serie",
+            "nNFIni" => "NumeroInicial",
+            "nNFFin" => "NumeroFinal",
+            "xJust" => "Justificativa",
+            _ => null,
+        };
+    }
 }

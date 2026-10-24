@@ -56,11 +56,12 @@ internal static class SituacaoNFe
     /// A chave de outro modelo que o do núcleo (a NFC-e num núcleo de NF-e e o contrário) é recusada: os web services
     /// são outros em várias UFs, e a resposta seria enganosa (decisão 3).
     /// </summary>
-    internal static void ConferirModelo(ChaveAcesso chave, Documento documento, string caminho, string propriedade, List<Problema> problemas)
+    internal static void ConferirModelo(ChaveAcesso chave, Documento documento, string caminho, string propriedade, List<Problema> problemas,
+        string operacao = "a consulta")
     {
         if (chave.Modelo != documento)
             problemas.Add(new Problema(CodigosLeitura.Chave, Severidade.Erro,
-                $"A chave é de {chave.Modelo}, e o núcleo é de {documento}: a consulta iria ao web service do outro documento.")
+                $"A chave é de {chave.Modelo}, e o núcleo é de {documento}: {operacao} iria ao web service do outro documento.")
             {
                 Tag = caminho[(caminho.LastIndexOf('/') + 1)..].TrimStart('@'),
                 Caminho = caminho,

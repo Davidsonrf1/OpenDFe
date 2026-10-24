@@ -1177,3 +1177,90 @@ Como no desenho, com estes ajustes (a conferir pelo usuário):
 - **As regras 556 e 557 usam o valor que a escrita grava:** o `TipoEmissao`, o `InicioContingencia` e a `JustificativaContingencia` da nota ou, nulos, os do núcleo. Como o `Criar` exige a `Contingencia` com emissão de contingência e a recusa com emissão normal, as duas só acusam a nota do modelo que contradiz o núcleo (e o próprio `Preparar` acusa também o `NFE-NUCLEO`).
 - **Testes antigos mudados por consequência da etapa:** `EscritaQrCodeTestes.AContingenciaOfflineEErroNFEQrCodeAteA52` e `ANFeSimplificadaEmContingenciaOfflineTambemEErro` (a offline era erro até a 5.2) saíram, cobertas por `EscritaOfflineTestes`; o `CadaRegraTemOSeuCaso` soma `RegrasContingenciaTestes`.
 - **Testes novos:** `EscritaOfflineTestes` (as duas formas, os dois ambientes, o dia, o `vNF`, os destinatários, o `digVal` igual ao `DigestValue` da assinatura, a assinatura da versão 3 com `RSA.VerifyData`, o schema depois de assinado, os problemas), `PreparoOfflineTestes` (o `Preparar` offline, o `Criar` sem a `Contingencia`), `RegrasContingenciaTestes` e `NFCeContingenciaEmuladaTestes` (a lib inteira contra o emulador).
+
+## 18. Os eventos e a inutilização (etapa 6.1)
+
+**Aprovado em 2026-10-24, todas as decisões pela recomendação, com as duas regras da decisão 9** (`docs/etapas/6.1-eventos-base-cancelamento-inutilizacao.md`). API pública nova só no leiaute (`OpenDFe.NFe`); o núcleo não mudou. A 6.2 (substituição e carta de correção) e a 8.2 (manifestação) acrescentam subclasses de `Evento` **sem mudar** o `EnvioEvento` nem a `OperacaoEvento`.
+
+### 18.1. A API
+
+```csharp
+public abstract class Evento                         // base fechada: construtor private protected e membros internos
+{
+    public ChaveAcesso Chave { get; }                // chNFe
+    public TipoEvento Tipo { get; }                  // tpEvento
+    public int Sequencia { get; }                    // nSeqEvento (1 no cancelamento)
+    public DateTimeOffset? Momento { get; init; }    // dhEvento; nulo = o relógio da configuração, em -03:00
+}
+
+public enum TipoEvento { CartaCorrecao = 110110, Cancelamento = 110111, CancelamentoSubstituicao = 110112,
+    ConfirmacaoOperacao = 210200, CienciaOperacao = 210210, DesconhecimentoOperacao = 210220, OperacaoNaoRealizada = 210240 }
+
+public sealed class Cancelamento : Evento
+{
+    public Cancelamento(ChaveAcesso chave, string protocolo, string justificativa);   // nProt de 15 dígitos
+    public string Protocolo { get; }
+    public string Justificativa { get; }
+}
+
+public sealed class EnvioEvento : ParametroWS<RetornoEvento>
+{
+    public const int MaximoEventos = 20;
+    public EnvioEvento(params IEnumerable<Evento> eventos);
+    public IReadOnlyList<Evento> Eventos { get; }
+    public long? Lote { get; init; }                 // idLote; nulo = do relógio, em UTC (AAMMDDhhmmssmmm)
+}
+
+public sealed class RetornoEvento       { Status, Motivo, Ambiente?, VersaoAplicativo?, Orgao?, Lote?, IReadOnlyList<ResultadoEvento> Eventos }
+public sealed class ResultadoEvento     { Evento?, Chave?, Status, Motivo, Descricao?, Protocolo?, Registro?, XmlEvento?, XmlProcessado?, Registrado }
+
+public sealed class Inutilizacao : ParametroWS<RetornoInutilizacao>
+{
+    public Inutilizacao(string cnpj, int serie, int numeroInicial, int numeroFinal, string justificativa);
+    public int? Ano { get; init; }                   // 2 dígitos; nulo = o ano do relógio, no fuso de Brasília
+}
+public sealed class RetornoInutilizacao { Status, Motivo, Ambiente?, VersaoAplicativo?, UF?, Ano?, Cnpj?, Modelo?, Serie?, NumeroInicial?, NumeroFinal?, Recebimento?, Protocolo?, XmlProcessado?, Homologada }
+```
+
+Registrados na NF-e e na NFC-e. O tipo da substituição é **`CancelamentoSubstituicao`** (o `PROJETO.md` escrevia `CancelamentoPorSubstituicao`, anterior à regra de nomes; o texto foi atualizado).
+
+### 18.2. Exemplo de uso
+
+```csharp
+var nota = resultadoAutorizacao.Retorno.Notas[0];
+var evento = new Cancelamento(nota.Chave!, nota.Protocolo!.Numero!, "Cancelamento por erro de digitacao") { Momento = agora };
+var resultado = await dfe.ExecutarAsync(new EnvioEvento(evento));
+var cancelado = resultado.Retorno!.Eventos[0];       // Registrado: 135 (136 e 155 também)
+var distribuivel = cancelado.XmlProcessado;          // o procEventoNFe
+
+var inutilizacao = await dfe.ExecutarAsync(new Inutilizacao("11.222.333/0001-81", 1, 10, 15, "Salto de numeracao"));
+var proc = inutilizacao.Retorno!.XmlProcessado;      // o ProcInutNFe (102)
+```
+
+### 18.3. Decisões
+
+1. **Onde ficam os tipos:** no leiaute. O núcleo já bastava (assinatura por `Id`, `IdsAssinatura`, `Documentos`, `Destino` e `Emissao` do `PedidoWS`).
+2. **A hierarquia, aberta só para a lib:** o `Evento` tem membros internos que cada tipo implementa (a descrição, o autor, o schema do `detEvento`, os textos livres, a escrita do detalhe, a propriedade de cada campo, o órgão, o destino, `AceitaContingencia`); a `OperacaoEvento` não conhece o tipo.
+3. **O envio, o retorno e o resultado por evento** como na API acima. `Registrado` é 135, 136 ou 155 (MOC 7.0, Visão Geral, 5.8.5 e 5.9.4, conferidos).
+4. **A montagem:** `envEvento` 1.00, cada `evento` com `infEvento Id = "ID" + tpEvento + chave + nSeqEvento(2)`, `cOrgao` (a UF da chave), `tpAmb`, `CNPJ` ou `CPF` do autor (o emitente da chave; o CPF sem os três zeros), `chNFe`, `dhEvento`, `tpEvento`, `nSeqEvento`, `verEvento` 1.00 e o `detEvento`. Cada `infEvento` é assinado (a `Signature` é filha do `evento`, depois do `infEvento`). O `detEvento` é conferido na montagem pelo schema do tipo (`e110111`), com o código **493** e a propriedade (`Eventos[0].Justificativa`).
+5. **O destino e o tipo de emissão** saem da chave (a UF dela e, só no cancelamento, o `tpEmis`: a SVC registra só o 110111, das notas que ela autorizou). Os outros tipos vão ao autorizador normal com o tipo de emissão normal. O `Destino` do parâmetro sobrepõe, no normal.
+6. **O `procEventoNFe`:** o `evento` com os bytes enviados e o `retEvento` relido pelo `XElement` (equivalente, não byte a byte), válido no `procEventoNFe_v1.00.xsd`.
+7. **A leitura do retorno é branda:** os `retEvento` ligados aos eventos pela chave, o tipo e a sequência; sem esses campos, pela posição quando a quantidade é a mesma; o que sobra vira `ResultadoEvento` com `Evento` nulo e o aviso `NFE-EVENTO`. Lote rejeitado (`cStat` diferente de 128) devolve `Eventos` vazio.
+8. **A inutilização:** `inutNFe` 4.00 com `infInut Id = "ID" + cUF + ano + CNPJ + mod + série(3) + início(9) + fim(9)`, `xServ` `INUTILIZAR`, o modelo do núcleo; sempre ao autorizador normal da UF do núcleo, no tipo de emissão normal. O emitente com CPF não tem inutilização neste schema (`infInut` só tem CNPJ): pendente.
+9. **Regras fora do schema (aprovadas, `REGRAS.md` 17):** `NFE-CHAVE` (chave de outro modelo que o do núcleo) e `NFE-LOTE` (destinos ou tipos de emissão diferentes no mesmo envio, ou o mesmo evento repetido). Nenhuma outra: prazo (501), sequência, titular (213, 227, 574) e situação da nota ficam para a SEFAZ.
+10. **NF-e e NFC-e:** as duas operações são registradas nos dois documentos, com o mesmo código.
+11. **Sem automatismo** (`PROJETO.md` 8.6): a queda no meio de um cancelamento se resolve pela `ConsultaProtocolo`; o guia está em `docs/QUANDO_CAI.md` 9.
+12. **`RetornoProtocolo.Eventos` continua texto:** a leitura tipada do evento registrado não está no escopo da fase 6; quem usa lê o `procEventoNFe` pelo XML (versão menor futura).
+
+### 18.4. Implementação (etapa 6.1, 2026-10-24)
+
+Como no desenho, com estes ajustes (a conferir pelo usuário):
+
+- **O construtor do `Evento` recebe a chave, o tipo e a sequência** (`private protected Evento(ChaveAcesso, TipoEvento, int)`), em vez de sem parâmetros: as propriedades são só de leitura e a base valida a chave nula.
+- **`Evento.Textos`** (interno): os textos livres do detalhe, para a lib conferir os caracteres que o XML não aceita (`NFE-CARACTERE`, o código que a escrita da nota já usa) antes de escrever, sem que o `XmlWriter` lance exceção.
+- **A `RegrasNFe400.Conferir` ignora o `Evento`** (o modelo do `DocumentoPedido` do evento): as regras da nota não se aplicam, e os callbacks de quem usa recebem o evento (`DocumentoVerificado.Modelo`).
+- **O mapa tag→propriedade do `inutNFe`** passou a valer no `SchemasNFe400.Inutilizacao` (o problema do schema da justificativa sai com `Justificativa`); o `Id` de dois eventos iguais entra uma vez só nos documentos do pedido (como a nota repetida da 4.4).
+- **`SituacaoNFe.ConferirModelo`** ganhou o parâmetro `operacao` (o texto da mensagem: "a consulta" ou "o evento").
+- **O `ProcInutNFe`** tem o P maiúsculo (o nome do elemento no `procInutNFe_v4.00.xsd`).
+- **Teste antigo mudado por consequência da etapa:** `LeiauteNFe400Testes.ADeclaracaoTemAsFormasDeLeituraEAsOperacoesDoDocumento` (a lista das operações ganha o `EnvioEvento` e a `Inutilizacao`).
+- **Testes novos:** `AutorizacaoTestes.Evento` (montagem, recusas, destino e leitura, com o handler falso; um evento de teste derivado da base prova a extensão sem mudar o envio nem a operação), `EventoEmuladoTestes` e `InutilizacaoEmuladaTestes` (a lib inteira contra o emulador, com o relógio avançado nas 24 horas).

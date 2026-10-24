@@ -31,8 +31,8 @@ public class LeiauteNFe400Testes
     public static TheoryData<Documento, Type[]> OperacoesDocumento => new()
     {
         // a NFC-e ganha a autorização e a recuperação com o QR Code, na 5.1 (CONTRATOS.md 14 e 15, decisão 12)
-        { Documento.NFe, [typeof(ConsultaStatus), typeof(ConsultaProtocolo), typeof(Autorizacao), typeof(ConsultaRecibo), typeof(RecuperacaoAutorizacao)] },
-        { Documento.NFCe, [typeof(ConsultaStatus), typeof(ConsultaProtocolo), typeof(Autorizacao), typeof(ConsultaRecibo), typeof(RecuperacaoAutorizacao)] },
+        { Documento.NFe, [typeof(ConsultaStatus), typeof(ConsultaProtocolo), typeof(Autorizacao), typeof(ConsultaRecibo), typeof(RecuperacaoAutorizacao), typeof(EnvioEvento), typeof(Inutilizacao)] },
+        { Documento.NFCe, [typeof(ConsultaStatus), typeof(ConsultaProtocolo), typeof(Autorizacao), typeof(ConsultaRecibo), typeof(RecuperacaoAutorizacao), typeof(EnvioEvento), typeof(Inutilizacao)] },
     };
 
     [Theory]
@@ -45,7 +45,9 @@ public class LeiauteNFe400Testes
         Assert.Equal(parametros, declaracao.Operacoes.Select(o => o.Parametro));
         Assert.Equal(typeof(RetornoStatus), declaracao.Operacoes[0].Retorno);
         Assert.Equal(typeof(RetornoProtocolo), declaracao.Operacoes[1].Retorno);
-        Assert.All(declaracao.Operacoes.Skip(2), o => Assert.Equal(typeof(RetornoAutorizacao), o.Retorno));
+        Assert.All(declaracao.Operacoes.Skip(2).Take(3), o => Assert.Equal(typeof(RetornoAutorizacao), o.Retorno));
+        Assert.Equal(typeof(RetornoEvento), declaracao.Operacoes[5].Retorno);   // os eventos e a inutilização entram na 6.1
+        Assert.Equal(typeof(RetornoInutilizacao), declaracao.Operacoes[6].Retorno);
         Assert.NotEmpty(declaracao.Atendimentos);
         Assert.NotEmpty(declaracao.Enderecos);
         Assert.Equal(typeof(ConfiguracaoNFCe), declaracao.TipoConfiguracaoDocumento);

@@ -93,3 +93,71 @@ OpenDFe.NFe.VersaoQrCode
 OpenDFe.NFe.VersaoQrCode.V2 = 2 -> OpenDFe.NFe.VersaoQrCode
 OpenDFe.NFe.VersaoQrCode.V3 = 3 -> OpenDFe.NFe.VersaoQrCode
 override OpenDFe.NFe.CodigoSeguranca.ToString() -> string!
+const OpenDFe.NFe.EnvioEvento.MaximoEventos = 20 -> int
+OpenDFe.NFe.Cancelamento
+OpenDFe.NFe.Cancelamento.Cancelamento(OpenDFe.ChaveAcesso! chave, string! protocolo, string! justificativa) -> void
+OpenDFe.NFe.Cancelamento.Justificativa.get -> string!
+OpenDFe.NFe.Cancelamento.Protocolo.get -> string!
+OpenDFe.NFe.EnvioEvento
+OpenDFe.NFe.EnvioEvento.EnvioEvento(params System.Collections.Generic.IEnumerable<OpenDFe.NFe.Evento!>! eventos) -> void
+OpenDFe.NFe.EnvioEvento.Eventos.get -> System.Collections.Generic.IReadOnlyList<OpenDFe.NFe.Evento!>!
+OpenDFe.NFe.EnvioEvento.Lote.get -> long?
+OpenDFe.NFe.EnvioEvento.Lote.init -> void
+OpenDFe.NFe.Evento
+OpenDFe.NFe.Evento.Chave.get -> OpenDFe.ChaveAcesso!
+OpenDFe.NFe.Evento.Momento.get -> System.DateTimeOffset?
+OpenDFe.NFe.Evento.Momento.init -> void
+OpenDFe.NFe.Evento.Sequencia.get -> int
+OpenDFe.NFe.Evento.Tipo.get -> OpenDFe.NFe.TipoEvento
+OpenDFe.NFe.Inutilizacao
+OpenDFe.NFe.Inutilizacao.Ano.get -> int?
+OpenDFe.NFe.Inutilizacao.Ano.init -> void
+OpenDFe.NFe.Inutilizacao.Cnpj.get -> string!
+OpenDFe.NFe.Inutilizacao.Inutilizacao(string! cnpj, int serie, int numeroInicial, int numeroFinal, string! justificativa) -> void
+OpenDFe.NFe.Inutilizacao.Justificativa.get -> string!
+OpenDFe.NFe.Inutilizacao.NumeroFinal.get -> int
+OpenDFe.NFe.Inutilizacao.NumeroInicial.get -> int
+OpenDFe.NFe.Inutilizacao.Serie.get -> int
+OpenDFe.NFe.ResultadoEvento
+OpenDFe.NFe.ResultadoEvento.Chave.get -> OpenDFe.ChaveAcesso?
+OpenDFe.NFe.ResultadoEvento.Descricao.get -> string?
+OpenDFe.NFe.ResultadoEvento.Evento.get -> OpenDFe.NFe.Evento?
+OpenDFe.NFe.ResultadoEvento.Motivo.get -> string!
+OpenDFe.NFe.ResultadoEvento.Protocolo.get -> string?
+OpenDFe.NFe.ResultadoEvento.Registrado.get -> bool
+OpenDFe.NFe.ResultadoEvento.Registro.get -> System.DateTimeOffset?
+OpenDFe.NFe.ResultadoEvento.Status.get -> int
+OpenDFe.NFe.ResultadoEvento.XmlEvento.get -> string?
+OpenDFe.NFe.ResultadoEvento.XmlProcessado.get -> string?
+OpenDFe.NFe.RetornoEvento
+OpenDFe.NFe.RetornoEvento.Ambiente.get -> OpenDFe.Ambiente?
+OpenDFe.NFe.RetornoEvento.Eventos.get -> System.Collections.Generic.IReadOnlyList<OpenDFe.NFe.ResultadoEvento!>!
+OpenDFe.NFe.RetornoEvento.Lote.get -> long?
+OpenDFe.NFe.RetornoEvento.Motivo.get -> string!
+OpenDFe.NFe.RetornoEvento.Orgao.get -> int?
+OpenDFe.NFe.RetornoEvento.Status.get -> int
+OpenDFe.NFe.RetornoEvento.VersaoAplicativo.get -> string?
+OpenDFe.NFe.RetornoInutilizacao
+OpenDFe.NFe.RetornoInutilizacao.Ambiente.get -> OpenDFe.Ambiente?
+OpenDFe.NFe.RetornoInutilizacao.Ano.get -> int?
+OpenDFe.NFe.RetornoInutilizacao.Cnpj.get -> string?
+OpenDFe.NFe.RetornoInutilizacao.Homologada.get -> bool
+OpenDFe.NFe.RetornoInutilizacao.Modelo.get -> OpenDFe.Documento?
+OpenDFe.NFe.RetornoInutilizacao.Motivo.get -> string!
+OpenDFe.NFe.RetornoInutilizacao.NumeroFinal.get -> int?
+OpenDFe.NFe.RetornoInutilizacao.NumeroInicial.get -> int?
+OpenDFe.NFe.RetornoInutilizacao.Protocolo.get -> string?
+OpenDFe.NFe.RetornoInutilizacao.Recebimento.get -> System.DateTimeOffset?
+OpenDFe.NFe.RetornoInutilizacao.Serie.get -> int?
+OpenDFe.NFe.RetornoInutilizacao.Status.get -> int
+OpenDFe.NFe.RetornoInutilizacao.UF.get -> OpenDFe.UF?
+OpenDFe.NFe.RetornoInutilizacao.VersaoAplicativo.get -> string?
+OpenDFe.NFe.RetornoInutilizacao.XmlProcessado.get -> string?
+OpenDFe.NFe.TipoEvento
+OpenDFe.NFe.TipoEvento.Cancelamento = 110111 -> OpenDFe.NFe.TipoEvento
+OpenDFe.NFe.TipoEvento.CancelamentoSubstituicao = 110112 -> OpenDFe.NFe.TipoEvento
+OpenDFe.NFe.TipoEvento.CartaCorrecao = 110110 -> OpenDFe.NFe.TipoEvento
+OpenDFe.NFe.TipoEvento.CienciaOperacao = 210210 -> OpenDFe.NFe.TipoEvento
+OpenDFe.NFe.TipoEvento.ConfirmacaoOperacao = 210200 -> OpenDFe.NFe.TipoEvento
+OpenDFe.NFe.TipoEvento.DesconhecimentoOperacao = 210220 -> OpenDFe.NFe.TipoEvento
+OpenDFe.NFe.TipoEvento.OperacaoNaoRealizada = 210240 -> OpenDFe.NFe.TipoEvento

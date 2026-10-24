@@ -57,6 +57,74 @@ public class AutorizacaoHomologacaoTestes
         Assert.NotNull(Assert.Single(recuperada.Retorno.Notas).XmlProcessado);
     }
 
+    // O cancelamento da nota que o teste acima autoriza e a inutilização de uma faixa (etapa 6.1): pulados sem o PFX.
+    [Fact]
+    public async Task UmaNFeAutorizadaECanceladaEmHomologacao()
+    {
+        using var certificado = AmbienteHomologacao.AbrirPfx();
+        var inscricao = Environment.GetEnvironmentVariable(VariavelInscricao);
+        Assert.SkipWhen(string.IsNullOrEmpty(inscricao), $"Sem {VariavelInscricao}: a nota precisa da inscrição estadual do emitente.");
+        var cnpj = CertificadoDigital.LerTitular(certificado)?.Cnpj;
+        Assert.SkipWhen(cnpj is null, "O PFX não é de um CNPJ.");
+        var intermediarias = AmbienteHomologacao.AbrirIntermediarias();
+        using var conexoes = new ConexoesSefaz(conexao =>
+        {
+            var handler = conexao.CriarPadrao();
+            handler.SslOptions.ClientCertificateContext = SslStreamCertificateContext.Create(conexao.Certificado, intermediarias, offline: true);
+            return handler;
+        });
+        var dfe = DFe.Criar(new LeiauteNFe400(), Documento.NFe, new ConfiguracaoDFe
+        {
+            Ambiente = Ambiente.Homologacao,
+            UF = UF.MG,
+            Certificado = certificado,
+            Conexoes = conexoes,
+        });
+        var autorizacao = await dfe.ExecutarAsync(new Autorizacao(Nota(cnpj!, inscricao!)), TestContext.Current.CancellationToken);
+        var nota = Assert.Single(autorizacao.Retorno!.Notas);
+        Assert.True(nota.Autorizada, $"{nota.Protocolo?.Status} {nota.Protocolo?.Motivo}");
+
+        var cancelamento = await dfe.ExecutarAsync(
+            new EnvioEvento(new Cancelamento(nota.Chave!, nota.Protocolo!.Numero!, "Cancelamento do teste de homologacao")),
+            TestContext.Current.CancellationToken);
+
+        Assert.True(cancelamento.Processado, string.Join(Environment.NewLine, cancelamento.Problemas));
+        var evento = Assert.Single(cancelamento.Retorno!.Eventos);
+        Assert.True(evento.Registrado, $"{evento.Status} {evento.Motivo}");
+        Assert.NotNull(evento.XmlProcessado);
+    }
+
+    [Fact]
+    public async Task UmaFaixaEInutilizadaEmHomologacao()
+    {
+        using var certificado = AmbienteHomologacao.AbrirPfx();
+        var cnpj = CertificadoDigital.LerTitular(certificado)?.Cnpj;
+        Assert.SkipWhen(cnpj is null, "O PFX não é de um CNPJ.");
+        var intermediarias = AmbienteHomologacao.AbrirIntermediarias();
+        using var conexoes = new ConexoesSefaz(conexao =>
+        {
+            var handler = conexao.CriarPadrao();
+            handler.SslOptions.ClientCertificateContext = SslStreamCertificateContext.Create(conexao.Certificado, intermediarias, offline: true);
+            return handler;
+        });
+        var dfe = DFe.Criar(new LeiauteNFe400(), Documento.NFe, new ConfiguracaoDFe
+        {
+            Ambiente = Ambiente.Homologacao,
+            UF = UF.MG,
+            Certificado = certificado,
+            Conexoes = conexoes,
+        });
+        // A faixa sorteada (a homologação guarda as inutilizações de todas as execuções) na série 99.
+        var inicio = Random.Shared.Next(1, 900_000_000);
+
+        var resultado = await dfe.ExecutarAsync(
+            new Inutilizacao(cnpj!, 99, inicio, inicio + 1, "Inutilizacao do teste de homologacao"), TestContext.Current.CancellationToken);
+
+        Assert.True(resultado.Processado, string.Join(Environment.NewLine, resultado.Problemas));
+        Assert.True(resultado.Retorno!.Homologada, $"{resultado.Retorno.Status} {resultado.Retorno.Motivo}");
+        Assert.NotNull(resultado.Retorno.XmlProcessado);
+    }
+
     [Fact]
     public Task UmaNFCeEAutorizadaEmHomologacaoNaVersao3() => AutorizarNFCe(versao2: false);
 

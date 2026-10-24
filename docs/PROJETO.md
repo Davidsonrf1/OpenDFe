@@ -164,8 +164,8 @@ O rastro é um objeto (`RastroWS`), o mesmo no resultado e na `FalhaTransmissaoE
 | Autorização | `Autorizacao(notas)` ou `Autorizacao(xmlsAssinados)`, de 1 a 50 (uma vai na síncrona; de 2 a 50, no lote com recibo: NT 2025.001, `CONTRATOS.md` 14) | `RetornoAutorizacao`: protocolo e `nfeProc` por nota (`ResultadoNota`), ou o recibo | UF do núcleo; a da chave nas assinadas |
 | Consulta do recibo | `ConsultaRecibo(recibo) { Xmls }` (com as notas do lote, o `nfeProc`) | `RetornoAutorizacao` | UF do núcleo; a da chave da primeira nota |
 | Consulta do protocolo | `ConsultaProtocolo(chave)` (NF-e e NFC-e, `CONTRATOS.md` 15) | `RetornoProtocolo`: a situação, o protocolo e os eventos | UF e tipo de emissão da chave; com o `Destino`, o autorizador normal dele |
-| Inutilização | `Inutilizacao(serie, inicio, fim, justificativa)` | `RetornoInutilizacao` | UF do núcleo |
-| Evento | `EnvioEvento(1 a 20 eventos)`, o detalhe é subclasse: `Cancelamento`, `CancelamentoPorSubstituicao`, `CartaCorrecao`, `Manifestacao`, `Epec`... | `RetornoEvento`, com o `procEventoNFe` por evento | o do documento; AN para manifestação e EPEC |
+| Inutilização | `Inutilizacao(cnpj, serie, inicial, final, justificativa)` (`CONTRATOS.md` 18) | `RetornoInutilizacao` | UF do núcleo |
+| Evento | `EnvioEvento(1 a 20 eventos)` (`CONTRATOS.md` 18), o detalhe é subclasse: `Cancelamento`, `CancelamentoSubstituicao`, `CartaCorrecao`, `Manifestacao`, `Epec`... | `RetornoEvento`, com o `procEventoNFe` por evento | o do documento; AN para manifestação e EPEC |
 | Distribuição DF-e | `DistribuicaoDFe(ultimoNsu / nsu / chave)` | `RetornoDistribuicao` | AN |
 | Consulta cadastro | `ConsultaCadastro(uf, documento)` | `RetornoCadastro` | UF consultada |
 | Recuperação | `RecuperacaoAutorizacao(xmlAssinado)` (uma nota; `Autorizacao.NotasEnviadas` tira as notas do rastro) | `RetornoAutorizacao`, com o `nfeProc` se o `digVal` confere | UF e tipo de emissão da chave (8.6) |

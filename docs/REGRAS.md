@@ -214,9 +214,9 @@ Baixadas em 2026-10-22: as NTs do Portal Nacional da NF-e (Documentos > Notas T�
 | a fazer | 617 |
 | schema | 2 |
 | escrita | 65 |
-| SEFAZ | 197 |
+| SEFAZ | 202 |
 | SEFAZ (tabela) | 15 |
-| outra operação (6) | 53 |
+| outra operação (6) | 48 |
 | excluída | 9 |
 | **total** | **1068** |
 
@@ -1507,7 +1507,7 @@ As NTs 2019.001 (EPEC), 2025.002 (os eventos da RTC), 2026.001 (o cancelamento p
 | 2P30-10 | 55/65 | 1050 | Obrig. | Crédito Presumido para a CBS informado indevidamente [nItem: 999] | NT 2025.002 v1.52 | outra operação (6) |
 | 2P30-20 | 55/65 | 1058 | Obrig. | Crédito Presumido para a CBS não informado [nItem: 999] | NT 2025.002 v1.52 | outra operação (6) |
 | 2P81-10 | 55 | 889 | Obrig. | Emissão por PAA deve ser assinada pelo CNPJ do Provedor de Assinatura | NT 2026.001 v1.02b | outra operação (6) |
-| 3B08-100 | 55/65 | 206 | Obrig. | Numeração da NF-e já está inutilizada na Base de Dados da SEFAZ | NT 2020.005 v1.21 | outra operação (6) |
+| 3B08-100 | 55/65 | 206 | Obrig. | Numeração da NF-e já está inutilizada na Base de Dados da SEFAZ | NT 2020.005 v1.21 | SEFAZ |
 | 6P31-10 | 55 | 233 | Obrig. | IE do destinatário não cadastrada | NT 2019.001 v1.70 | outra operação (6) |
 | 6P31-20 | 55 | 234 | Obrig. | IE do destinatário não vinculada ao CNPJ | NT 2019.001 v1.70 | outra operação (6) |
 | 6P31-30 | 55 | 624 | Obrig. | IE Destinatário não vinculada ao CPF | NT 2019.001 v1.70 | outra operação (6) |
@@ -1517,11 +1517,11 @@ As NTs 2019.001 (EPEC), 2025.002 (os eventos da RTC), 2026.001 (o cancelamento p
 | 6P31-50 | 55 | 232 | Obrig. | IE do destinatário não informada | NT 2019.001 v1.70 | outra operação (6) |
 | 6P31-60 | 55 | 303 | Obrig. | Destinatário não habilitado a operar na UF | NT 2019.001 v1.70 | outra operação (6) |
 | 6P31-63 | 55 | 305 | Obrig. | Destinatário bloqueado na UF | NT 2019.001 v1.70 | outra operação (6) |
-| P09-10 | 55/65 | 252 | Obrig. | Ambiente informado diverge do Ambiente de recebimento | NT 2026.001 v1.02b | outra operação (6) |
-| P12-26 | 55/65 | 617 | Obrig. | Chave de Acesso inválida (CNPJ/CPF zerado ou dígito inválido) | NT 2026.001 v1.02b | outra operação (6) |
+| P09-10 | 55/65 | 252 | Obrig. | Ambiente informado diverge do Ambiente de recebimento | NT 2026.001 v1.02b | SEFAZ |
+| P12-26 | 55/65 | 617 | Obrig. | Chave de Acesso inválida (CNPJ/CPF zerado ou dígito inválido) | NT 2026.001 v1.02b | SEFAZ |
 | P12-32 | 65 | 450 | Obrig. | Modelo da NF-e diferente de 55 | NT 2026.001 v1.02b | outra operação (6) |
-| P12-40 | 55 | 249 | Obrig. | UF da Chave de Acesso diverge da UF autorizadora | NT 2026.007 v1.10 | outra operação (6) |
-| P12-44 | 55/65 | 574 | Obrig. | Autor do evento diverge do emissor da NF-e | NT 2026.001 v1.02b | outra operação (6) |
+| P12-40 | 55 | 249 | Obrig. | UF da Chave de Acesso diverge da UF autorizadora | NT 2026.007 v1.10 | SEFAZ |
+| P12-44 | 55/65 | 574 | Obrig. | Autor do evento diverge do emissor da NF-e | NT 2026.001 v1.02b | SEFAZ |
 | P14-10 | 55 | 669 | Obrig. | Ambiente de autorização inválido para emissão pelo PAA | NT 2026.001 v1.02b | outra operação (6) |
 | P14-20 | 55 | 669 | Obrig. | Ambiente de autorização inválido para emissão pelo PAA | NT 2026.001 v1.02b | outra operação (6) |
 | P31-26 | 55/65 | 910 | Obrig. | Chave de Acesso NF-e Substituta inválida (CNPJ/CPF) | NT 2026.001 v1.02b | outra operação (6) |
@@ -1624,3 +1624,18 @@ As regras J01 a J06 da consulta (Tabela 5-16) ficam com a SEFAZ: o DV, a UF, o a
 Não entram a 558 e a 569 (facultativas, só da SEFAZ). **A situação das linhas do grupo ZX da offline** (445, 474, 583 e os 397 de dia, valor, `digVal` e destinatário): "escrita", porque a lib gera o QR Code offline com o dia, o valor, o resumo e o destinatário da nota que escreveu e, na versão 3, a assinatura. O `NFE-QRCODE` da contingência offline (5.1) deixa de existir: a offline sem a UF na tabela continua sendo `NFE-QRCODE`, e a versão 3 sem o certificado (só fora do núcleo) também.
 
 **Testes:** `RegrasContingenciaTestes` (um caso por regra e cada condição nos dois sentidos); `CadaRegraTemOSeuCaso` soma os casos.
+
+## 17. Os eventos e a inutilização, etapa 6.1 (2026-10-24)
+
+**Aprovadas pelo usuário em 2026-10-24** (`PROJETO.md` 2.9; `docs/etapas/6.1-eventos-base-cancelamento-inutilizacao.md`, decisão 9; `CONTRATOS.md` 18): duas regras da lib na montagem do `EnvioEvento` (`OperacaoEvento`), antes de assinar e transmitir. Não são regras do MOC, e o catálogo não tem linha para elas.
+
+| Regra | Código | Severidade | O que confere |
+|---|---|---|---|
+| (lib) | `NFE-CHAVE` | Erro | a chave de um evento é de outro modelo que o do núcleo (a NFC-e num núcleo de NF-e, e o contrário), como na consulta (seção 14) |
+| (lib) | `NFE-LOTE` | Erro | no mesmo `EnvioEvento`, eventos que iriam a destinos ou tipos de emissão diferentes (a SEFAZ processa o lote por um órgão só, R06), ou o mesmo evento repetido (mesmo `tpEvento`, chave e `nSeqEvento`, que seria o 573) |
+
+Também na montagem, sem regra do catálogo: o `detEvento` conferido pelo schema do tipo (`e110111`), com o código **493** (D06) e a propriedade do campo (`Eventos[0].Justificativa`), e o caractere que o XML não aceita (`NFE-CARACTERE`, o mesmo da escrita da nota). O tamanho da justificativa (15 a 255) e a pontuação são do schema.
+
+**Ficam com a SEFAZ**, sem regra na lib: o prazo do cancelamento (501), o protocolo (222), a nota inexistente (494), a sequência (594), o titular do certificado contra o autor (213, 227) e o autor contra o emitente da chave (574), a duplicidade do evento (573) e a situação da nota. As linhas do catálogo P09-10 (252), P12-26 (617), P12-40 (249), P12-44 (574) e 3B08-100 (206) passam de "outra operação (6)" a "SEFAZ"; as outras da seção 10.6 continuam com as etapas 6.2 e 8.2.
+
+**Testes:** `AutorizacaoTestes.Evento` (cada regra e cada recusa na montagem) e `EventoEmuladoTestes`.
