@@ -33,10 +33,36 @@ internal static class MontagemDanfce
         var ide = nota.Identificacao;
         if ((ide.Modelo ?? chave.Modelo) != Documento.NFCe)
             throw new ArgumentException("O DANFCE é da NFC-e (modelo 65); a nota não é.", nameof(lida));
+
+        return Construir(lida, nota, chave, papel, opcoes.Logotipo, opcoes.AssinaturaSoftware, opcoes.TextoRodape, opcoes.Via, tipo2: false);
+    }
+
+    // O DANFE Simplificado Tipo 2 (NT 2026.003): a NF-e (modelo 55, tpImp 6) no leiaute do DANFE NFC-e, com o cabeçalho
+    // próprio e a divisão III-A dos novos tributos. A validação do modelo e do formato é de MontagemDanfe.
+    internal static DocumentoImpressao MontarTipo2(NotaLida lida, NotaFiscal nota, ChaveAcesso chave, OpcoesDanfe opcoes)
+    {
+        var papel = opcoes.Papel ?? PapelImpressao.Bobina80;
+        if (!ReferenceEquals(papel, PapelImpressao.Bobina80) && !ReferenceEquals(papel, PapelImpressao.Bobina58)
+            && !ReferenceEquals(papel, PapelImpressao.A4Retrato))
+            throw new ArgumentException("O DANFE Simplificado Tipo 2 é impresso na bobina de 80 mm ou de 58 mm, ou no A4 em pé.", nameof(opcoes));
+        if (!Enum.IsDefined(opcoes.Via))
+            throw new ArgumentException("A via do DANFE Simplificado Tipo 2 não é uma das definidas.", nameof(opcoes));
+
+        return Construir(lida, nota, chave, papel, opcoes.Logotipo, null, opcoes.TextoRodape, opcoes.Via, tipo2: true);
+    }
+
+    private static DocumentoImpressao Construir(NotaLida lida, NotaFiscal nota, ChaveAcesso chave, PapelImpressao papel,
+        Imagem1Bit? logotipo, Imagem1Bit? assinatura, string? rodape, ViaDanfce via, bool tipo2)
+    {
+        var ide = nota.Identificacao;
         var qrCode = nota.Suplementares?.QrCode;
         var urlChave = nota.Suplementares?.UrlChave;
         if (string.IsNullOrEmpty(qrCode) || string.IsNullOrWhiteSpace(urlChave))
-            throw new ArgumentException("A NFC-e sem o QR Code (qrCode) e a URL de consulta (urlChave) das informações suplementares não é imprimível.", nameof(lida));
+        {
+            throw new ArgumentException(
+                (tipo2 ? "A NF-e" : "A NFC-e") + " sem o QR Code (qrCode) e a URL de consulta (urlChave) das informações suplementares não é imprimível.",
+                nameof(lida));
+        }
 
         var protocolo = lida.Protocolo;
         var autorizada = !string.IsNullOrWhiteSpace(protocolo?.Numero);
@@ -45,36 +71,37 @@ internal static class MontagemDanfce
         var contingencia = ide.TipoEmissao == TipoEmissao.ContingenciaOffline && !autorizada;
 
         var elementos = new List<ElementoImpressao>();
-        if (opcoes.Logotipo is { } logotipo)
-            elementos.Add(new ImagemImpressao(logotipo));
-        Cabecalho(elementos, nota);
+        if (logotipo is { } imagem)
+            elementos.Add(new ImagemImpressao(imagem));
+        Cabecalho(elementos, nota, tipo2);
         if (contingencia)
             Contingencia(elementos, papel);
         elementos.Add(Tracejado());
         Itens(elementos, nota, papel);
         elementos.Add(Tracejado());
-        Totais(elementos, nota, papel);
+        Totais(elementos, nota, papel, tipo2);
         Pagamentos(elementos, nota, papel);
         elementos.Add(Tracejado());
         Consulta(elementos, chave, urlChave);
         Consumidor(elementos, nota);
-        Identificacao(elementos, nota, opcoes.Via, contingencia);
+        Identificacao(elementos, nota, via, contingencia, tipo2);
         ProtocoloAutorizacao(elementos, protocolo, autorizada);
         if (contingencia)
             Contingencia(elementos, papel);
         elementos.Add(new QrCodeImpressao(qrCode) { LadoMm = LadoQrCodeMm });
         elementos.Add(Tracejado());
-        Mensagens(elementos, nota, opcoes);
-        if (opcoes.AssinaturaSoftware is { } assinatura)
-            elementos.Add(new ImagemImpressao(assinatura));
+        Mensagens(elementos, nota, rodape);
+        if (assinatura is { } marca)
+            elementos.Add(new ImagemImpressao(marca));
 
+        var nome = tipo2 ? "DANFE Simplificado Tipo 2" : "DANFE NFC-e";
         return new DocumentoImpressao(papel, elementos)
         {
-            Titulo = $"DANFE NFC-e {FormatadorImpressao.Zeros(ide.Numero ?? 0, 9)} série {FormatadorImpressao.Zeros(ide.Serie ?? 0, 3)}",
+            Titulo = $"{nome} {FormatadorImpressao.Zeros(ide.Numero ?? 0, 9)} série {FormatadorImpressao.Zeros(ide.Serie ?? 0, 3)}",
         };
     }
 
-    private static void Cabecalho(List<ElementoImpressao> elementos, NotaFiscal nota)
+    private static void Cabecalho(List<ElementoImpressao> elementos, NotaFiscal nota, bool tipo2)
     {
         var emitente = nota.Emitente;
         var documento = !string.IsNullOrEmpty(emitente.Cnpj)
@@ -88,7 +115,7 @@ internal static class MontagemDanfce
             endereco.UF?.Sigla(), endereco.Cep);
         if (texto.Length > 0)
             elementos.Add(new TextoImpressao(texto) { Alinhamento = AlinhamentoImpressao.Centro });
-        elementos.Add(new TextoImpressao("Documento Auxiliar da Nota Fiscal de Consumidor Eletrônica")
+        elementos.Add(new TextoImpressao(tipo2 ? "DANFE Simplificado Tipo 2" : "Documento Auxiliar da Nota Fiscal de Consumidor Eletrônica")
         {
             Alinhamento = AlinhamentoImpressao.Centro, Tamanho = TamanhoTexto.Pequeno,
         });
@@ -119,7 +146,7 @@ internal static class MontagemDanfce
     private static void Itens(List<ElementoImpressao> elementos, NotaFiscal nota, PapelImpressao papel)
     {
         elementos.Add(new TextoImpressao("Código Descrição") { Negrito = true });
-        elementos.Add(Duas("Qtde UN x Vl Unit", "Vl Total", papel.Colunas, ColunasValor, negrito: true));
+        elementos.Add(Duas("Qtde UN x Vl Unit", "Vl Total", Largura(papel), ColunasValor, negrito: true));
         foreach (var item in nota.Itens)
         {
             var produto = item.Produto;
@@ -129,43 +156,63 @@ internal static class MontagemDanfce
             var total = produto.Valor is { } v ? FormatadorImpressao.Dinheiro(v) : string.Empty;
             var detalhe = string.Join(' ', new[] { quantidade, produto.UnidadeComercial }.Where(t => !string.IsNullOrEmpty(t)))
                 + (unitario.Length > 0 ? " x " + unitario : string.Empty);
-            elementos.Add(Duas(detalhe, total, papel.Colunas, ColunasValor));
+            elementos.Add(Duas(detalhe, total, Largura(papel), ColunasValor));
         }
     }
 
-    private static void Totais(List<ElementoImpressao> elementos, NotaFiscal nota, PapelImpressao papel)
+    private static void Totais(List<ElementoImpressao> elementos, NotaFiscal nota, PapelImpressao papel, bool tipo2)
     {
         var total = nota.Total.Icms;
         var produtos = total.ValorProdutos ?? nota.Itens.Sum(i => i.Produto.Valor ?? 0m);
-        elementos.Add(Duas("Qtde. total de itens", nota.Itens.Count.ToString(System.Globalization.CultureInfo.InvariantCulture), papel.Colunas, ColunasValor));
-        elementos.Add(Duas("Valor total R$", FormatadorImpressao.Dinheiro(produtos), papel.Colunas, ColunasValor));
+        elementos.Add(Duas("Qtde. total de itens", nota.Itens.Count.ToString(System.Globalization.CultureInfo.InvariantCulture), Largura(papel), ColunasValor));
+        elementos.Add(Duas("Valor total R$", FormatadorImpressao.Dinheiro(produtos), Largura(papel), ColunasValor));
         Acrescimo(elementos, "Desconto R$", total.Desconto, papel);
         Acrescimo(elementos, "Frete R$", total.Frete, papel);
         Acrescimo(elementos, "Seguro R$", total.Seguro, papel);
         Acrescimo(elementos, "Outras despesas R$", total.OutrasDespesas, papel);
+        if (tipo2)
+            NovosTributos(elementos, nota, papel);
         // O valor a pagar só quando há acréscimo ou desconto (manual, 3.1.3): o vNF difere do total dos itens.
         if (total.ValorNota is { } valorNota && valorNota != produtos)
-            elementos.Add(Duas("Valor a Pagar R$", FormatadorImpressao.Dinheiro(valorNota), papel.Colunas, ColunasValor, negrito: true));
+            elementos.Add(Duas("Valor a Pagar R$", FormatadorImpressao.Dinheiro(valorNota), Largura(papel), ColunasValor, negrito: true));
+    }
+
+    // A divisão III-A do Tipo 2 (NT 2026.003, 3.1.4): o destaque da CBS e do IBS (UF e município somados) quando existem, e do
+    // IS só se houver imposto seletivo, entre dois tracejados.
+    private static void NovosTributos(List<ElementoImpressao> elementos, NotaFiscal nota, PapelImpressao papel)
+    {
+        var linhas = new List<ElementoImpressao>();
+        if (nota.Total.IbsCbs?.Cbs?.Valor is { } cbs)
+            linhas.Add(Duas("(+) CBS R$", FormatadorImpressao.Dinheiro(cbs), Largura(papel), ColunasValor));
+        if (nota.Total.IbsCbs?.Ibs?.Valor is { } ibs)
+            linhas.Add(Duas("(+) IBS R$", FormatadorImpressao.Dinheiro(ibs), Largura(papel), ColunasValor));
+        if (nota.Total.ImpostoSeletivo?.Valor is > 0m and var seletivo)
+            linhas.Add(Duas("(+) IS R$", FormatadorImpressao.Dinheiro(seletivo), Largura(papel), ColunasValor));
+        if (linhas.Count == 0)
+            return;
+        elementos.Add(Tracejado());
+        elementos.AddRange(linhas);
+        elementos.Add(Tracejado());
     }
 
     // A linha só se o valor existir (manual, 3.1.3).
     private static void Acrescimo(List<ElementoImpressao> elementos, string rotulo, decimal? valor, PapelImpressao papel)
     {
         if (valor is > 0m)
-            elementos.Add(Duas(rotulo, FormatadorImpressao.Dinheiro(valor.Value), papel.Colunas, ColunasValor));
+            elementos.Add(Duas(rotulo, FormatadorImpressao.Dinheiro(valor.Value), Largura(papel), ColunasValor));
     }
 
     private static void Pagamentos(List<ElementoImpressao> elementos, NotaFiscal nota, PapelImpressao papel)
     {
-        elementos.Add(Duas("FORMA PAGAMENTO", "VALOR PAGO R$", papel.Colunas, ColunasValorPago));
+        elementos.Add(Duas("FORMA PAGAMENTO", "VALOR PAGO R$", Largura(papel), ColunasValorPago));
         foreach (var forma in nota.Pagamento.Formas)
         {
             elementos.Add(Duas(DescricaoPagamento(forma), forma.Valor is { } v ? FormatadorImpressao.Dinheiro(v) : string.Empty,
-                papel.Colunas, ColunasValorPago));
+                Largura(papel), ColunasValorPago));
         }
 
         if (nota.Pagamento.Troco is > 0m)
-            elementos.Add(Duas("Troco R$", FormatadorImpressao.Dinheiro(nota.Pagamento.Troco.Value), papel.Colunas, ColunasValorPago));
+            elementos.Add(Duas("Troco R$", FormatadorImpressao.Dinheiro(nota.Pagamento.Troco.Value), Largura(papel), ColunasValorPago));
     }
 
     // O nome do meio de pagamento: o xPag do "Outros" (99) ou o da tabela do Portal Nacional (IT 2024.002).
@@ -240,12 +287,12 @@ internal static class MontagemDanfce
     }
 
     // Manual, 3.1.7 e 3.1.8: número, série e a data e hora de emissão (a da nota, sem converter), e a via.
-    private static void Identificacao(List<ElementoImpressao> elementos, NotaFiscal nota, ViaDanfce via, bool contingencia)
+    private static void Identificacao(List<ElementoImpressao> elementos, NotaFiscal nota, ViaDanfce via, bool contingencia, bool tipo2)
     {
         var ide = nota.Identificacao;
         var emissao = ide.Emissao is { } e ? " " + FormatadorImpressao.DataHora(e) : string.Empty;
         elementos.Add(new TextoImpressao(
-            $"NFC-e nº {FormatadorImpressao.Zeros(ide.Numero ?? 0, 9)} Série {FormatadorImpressao.Zeros(ide.Serie ?? 0, 3)}{emissao}")
+            $"{(tipo2 ? "NF-e" : "NFC-e")} nº {FormatadorImpressao.Zeros(ide.Numero ?? 0, 9)} Série {FormatadorImpressao.Zeros(ide.Serie ?? 0, 3)}{emissao}")
         {
             Alinhamento = AlinhamentoImpressao.Centro, Negrito = true,
         });
@@ -272,7 +319,7 @@ internal static class MontagemDanfce
     }
 
     // As divisões VIII e IX (manual, 3.1.8 e 3.1.9) e o que o aplicativo põe depois delas.
-    private static void Mensagens(List<ElementoImpressao> elementos, NotaFiscal nota, OpcoesDanfce opcoes)
+    private static void Mensagens(List<ElementoImpressao> elementos, NotaFiscal nota, string? rodape)
     {
         var adicionais = nota.InformacoesAdicionais;
         if (!string.IsNullOrWhiteSpace(adicionais?.Fisco))
@@ -292,11 +339,14 @@ internal static class MontagemDanfce
             });
         }
 
-        if (!string.IsNullOrWhiteSpace(opcoes.TextoRodape))
-            elementos.Add(new TextoImpressao(opcoes.TextoRodape) { Alinhamento = AlinhamentoImpressao.Centro });
+        if (!string.IsNullOrWhiteSpace(rodape))
+            elementos.Add(new TextoImpressao(rodape) { Alinhamento = AlinhamentoImpressao.Centro });
     }
 
     private static SeparadorImpressao Tracejado() => new();
+
+    // As colunas que a divisão das linhas usa: as da bobina; o A4 não tem colunas e usa as da bobina de 80 mm.
+    private static int Largura(PapelImpressao papel) => papel.Colunas > 0 ? papel.Colunas : PapelImpressao.Bobina80.Colunas;
 
     // Uma linha com o rótulo à esquerda e o valor à direita, o valor na largura em colunas dada.
     private static LinhaImpressao Duas(string esquerda, string direita, int colunas, int colunasDireita, bool negrito = false) =>

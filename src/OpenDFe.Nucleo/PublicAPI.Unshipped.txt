@@ -556,3 +556,15 @@ static OpenDFe.Impressao.PapelImpressao.A4Paisagem.get -> OpenDFe.Impressao.Pape
 static OpenDFe.Impressao.PapelImpressao.A4Retrato.get -> OpenDFe.Impressao.PapelImpressao!
 static OpenDFe.Impressao.PapelImpressao.Bobina58.get -> OpenDFe.Impressao.PapelImpressao!
 static OpenDFe.Impressao.PapelImpressao.Bobina80.get -> OpenDFe.Impressao.PapelImpressao!
+OpenDFe.Impressao.DocumentoImpressao.CabecalhoContinuacao.get -> System.Collections.Generic.IReadOnlyList<OpenDFe.Impressao.ElementoImpressao!>!
+OpenDFe.Impressao.DocumentoImpressao.CabecalhoContinuacao.init -> void
+OpenDFe.Impressao.DocumentoImpressao.MarcaAgua.get -> string?
+OpenDFe.Impressao.DocumentoImpressao.MarcaAgua.init -> void
+OpenDFe.Impressao.TabelaImpressao.DivisorLinhas.get -> bool
+OpenDFe.Impressao.TabelaImpressao.DivisorLinhas.init -> void
+OpenDFe.Impressao.TabelaImpressao.LinhasIndivisiveis.get -> bool
+OpenDFe.Impressao.TabelaImpressao.LinhasIndivisiveis.init -> void
+OpenDFe.Impressao.TextoPaginado
+const OpenDFe.Impressao.TextoPaginado.Pagina = "{pagina}" -> string!
+const OpenDFe.Impressao.TextoPaginado.Paginas = "{paginas}" -> string!
+static OpenDFe.Impressao.TextoPaginado.Resolver(string! texto, int pagina, int paginas) -> string!

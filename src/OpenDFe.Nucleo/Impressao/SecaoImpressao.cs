@@ -164,4 +164,17 @@ public sealed class TabelaImpressao : ElementoImpressao
 
     /// <summary>As linhas, cada uma com um texto por coluna.</summary>
     public IReadOnlyList<IReadOnlyList<string>> Linhas { get; }
+
+    /// <summary>
+    /// Se uma linha da tabela nunca é dividida entre duas páginas (o item do DANFE com a descrição e as informações
+    /// adicionais em várias linhas, Anexo II 3.1.7); falso por padrão. A quebra de linha (o caractere
+    /// de nova linha) no texto de uma célula é uma quebra de linha dentro da célula.
+    /// </summary>
+    public bool LinhasIndivisiveis { get; init; }
+
+    /// <summary>
+    /// Se há um divisor entre uma linha e a seguinte (o "destaque divisório" que distingue um item do outro, Anexo II 3.1.7:
+    /// linha, espaço duplo ou sombreamento, a escolha é de quem renderiza); falso por padrão.
+    /// </summary>
+    public bool DivisorLinhas { get; init; }
 }

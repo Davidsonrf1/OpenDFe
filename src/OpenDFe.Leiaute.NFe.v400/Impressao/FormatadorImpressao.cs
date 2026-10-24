@@ -53,6 +53,39 @@ internal static class FormatadorImpressao
         ? $"{valor[..2]}.{valor[2..5]}-{valor[5..]}"
         : valor;
 
+    /// <summary>A data como a nota traz, sem converter o fuso: <c>10/03/2015</c>.</summary>
+    internal static string Data(DateTimeOffset valor) => valor.ToString("dd'/'MM'/'yyyy", CultureInfo.InvariantCulture);
+
+    /// <summary>A data sem hora (vencimento, fabricação, validade): <c>10/03/2015</c>.</summary>
+    internal static string Data(DateOnly valor) => valor.ToString("dd'/'MM'/'yyyy", CultureInfo.InvariantCulture);
+
+    /// <summary>A hora como a nota traz, sem converter o fuso: <c>15:03:53</c>.</summary>
+    internal static string Hora(DateTimeOffset valor) => valor.ToString("HH':'mm':'ss", CultureInfo.InvariantCulture);
+
+    /// <summary>O CEP do DANFE, <c>00000-000</c> (Anexo II e NT 2026.010); outro tamanho sai como veio.</summary>
+    internal static string CepDanfe(string valor) => valor.Length == 8 ? $"{valor[..5]}-{valor[5..]}" : valor;
+
+    /// <summary>
+    /// O telefone com o código de área entre parênteses: <c>(31) 3333-4444</c> (10 dígitos) ou <c>(31) 99999-4444</c> (11);
+    /// outro tamanho sai como veio.
+    /// </summary>
+    internal static string Telefone(string valor) => valor.Length switch
+    {
+        10 when valor.All(char.IsAsciiDigit) => $"({valor[..2]}) {valor[2..6]}-{valor[6..]}",
+        11 when valor.All(char.IsAsciiDigit) => $"({valor[..2]}) {valor[2..7]}-{valor[7..]}",
+        _ => valor,
+    };
+
+    /// <summary>O número da NF-e com nove dígitos e pontos de milhar: <c>000.000.123</c> (Anexo II 3.9).</summary>
+    internal static string NumeroNota(int valor)
+    {
+        var nove = Zeros(valor, 9);
+        return $"{nove[..3]}.{nove[3..6]}.{nove[6..]}";
+    }
+
+    /// <summary>O valor com as casas dadas e o ponto de milhar: <c>10,500</c> (três casas, o peso).</summary>
+    internal static string Fixo(decimal valor, int casas) => valor.ToString("N" + casas.ToString(CultureInfo.InvariantCulture), Numeros);
+
     /// <summary>A chave de acesso em blocos de quatro, separados por espaço (manual, 3.1.4).</summary>
     internal static string Chave(string valor)
     {

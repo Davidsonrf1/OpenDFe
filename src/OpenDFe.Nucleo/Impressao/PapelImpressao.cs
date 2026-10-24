@@ -34,11 +34,11 @@ public sealed class PapelImpressao
     /// <summary>A bobina de 58 mm: 32 colunas de caracteres, margem lateral de 5 mm (48 mm de área impressa).</summary>
     public static PapelImpressao Bobina58 { get; } = new(TipoPapel.Bobina, 58, null, 32, 5);
 
-    /// <summary>A folha A4 em pé, 210 x 297 mm, com margem de 10 mm.</summary>
-    public static PapelImpressao A4Retrato { get; } = new(TipoPapel.Folha, 210, 297, 0, 10);
+    /// <summary>A folha A4 em pé, 210 x 297 mm, com margem de 8 mm (o máximo que o Anexo II 3.6.2 permite ao DANFE; o mínimo é 2 mm).</summary>
+    public static PapelImpressao A4Retrato { get; } = new(TipoPapel.Folha, 210, 297, 0, 8);
 
-    /// <summary>A folha A4 deitada, 297 x 210 mm, com margem de 10 mm.</summary>
-    public static PapelImpressao A4Paisagem { get; } = new(TipoPapel.Folha, 297, 210, 0, 10);
+    /// <summary>A folha A4 deitada, 297 x 210 mm, com margem de 8 mm (o máximo que o Anexo II 3.6.2 permite ao DANFE; o mínimo é 2 mm).</summary>
+    public static PapelImpressao A4Paisagem { get; } = new(TipoPapel.Folha, 297, 210, 0, 8);
 
     /// <summary>Se é bobina ou folha.</summary>
     public TipoPapel Tipo { get; }

@@ -1,0 +1,41 @@
+B  |    CNPJ: 11.222.333/0001-81
+B  | Distribuidora Fornecedor Ltda
+   |   Av. Amazonas, 100, Sala 2,
+   |Centro, Belo Horizonte, MG, CEP:
+   |           30.180-001
+ P |      DANFE Simplificado Tipo 2
+   |--------------------------------
+B  |Código Descrição
+B  |Qtde UN x Vl Unit       Vl Total
+   |003277 Cadeira Est. Comtemp.
+   |2 Peça x 500,00         1.000,00
+   |085273 Mesa
+   |1 Peça x 1.500,00       1.500,00
+   |--------------------------------
+   |Qtde. total de itens           2
+   |Valor total R$          2.500,00
+   |Desconto R$               500,00
+   |Frete R$                   50,00
+   |--------------------------------
+   |(+) CBS R$                 18,45
+   |(+) IBS R$                  2,05
+   |(+) IS R$                   2,00
+   |--------------------------------
+B  |Valor a Pagar R$        2.072,50
+   |FORMA PAGAMENTO    VALOR PAGO R$
+   |Boleto Bancário         2.050,00
+   |--------------------------------
+B  |Consulte pela Chave de Acesso em
+ P |   www.fazenda.mg.gov.br/nfe/consulta
+ P | 3126 1011 2223 3300 0181 5500 1000 0001
+ P |          2311 2345 6784
+   |        CONSUMIDOR CNPJ:
+   |       99.999.999/0001-91
+B  |  NF-e nº 000000123 Série 001
+B  |      14/10/2026 09:30:00
+B  |   Protocolo de autorização:
+B  |        131260000012345
+   | Data de autorização 14/10/2026
+   |            09:30:05
+   |[QR 30mm: https://nfe.fazenda.mg.gov.br/portalnfe/sistema/qrcode.xhtml?p=CHAVE|3|1]
+   |--------------------------------

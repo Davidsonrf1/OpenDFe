@@ -137,4 +137,32 @@ public sealed class LeiauteNFe400 : ILeiaute
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static",
         Justification = "O DANFCE é do leiaute, que quem usa recebe do DFe.Detectar ou cria (docs/CONTRATOS.md 20).")]
     public DocumentoImpressao Danfce(NotaLida nota, OpcoesDanfce? opcoes = null) => MontagemDanfce.Montar(nota, opcoes);
+
+    /// <summary>
+    /// Monta o DANFE da NF-e (modelo 55) de uma NF-e lida: o <c>nfeProc</c> autorizado, ou o <c>NFe</c> assinado em
+    /// contingência, sem protocolo (etapa 7.3, docs/IMPRESSAO.md 2). O <c>tpImp</c> da nota escolhe o documento: retrato (1)
+    /// e paisagem (2) saem no A4, com os quadros e os campos do Anexo II do MOC 7.0 e os acréscimos da NT 2026.010; o
+    /// Simplificado Tipo 2 (6) sai no leiaute do DANFE NFC-e (NT 2026.003).
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// Imprime o que a nota tem, sem converter o fuso das datas, e não confere o schema nem as regras do MOC. O QR Code e a
+    /// URL de consulta só saem quando a nota os traz (o Tipo 2 os exige). O documento leva o cabeçalho de continuação das
+    /// páginas seguintes, as fichas de página (<see cref="TextoPaginado"/>) e a marca d'água do ambiente de homologação ou da
+    /// nota cancelada (<see cref="OpcoesDanfe.Cancelada"/>). O DANFE Simplificado (3) não está implementado. Sem estado e
+    /// seguro em paralelo.
+    /// </para>
+    /// </remarks>
+    /// <param name="nota">A nota lida (<see cref="Ler"/>).</param>
+    /// <param name="opcoes">O logotipo, o canhoto, a orientação, a situação de cancelada e o rodapé; <see langword="null"/> é o padrão.</param>
+    /// <returns>O documento de impressão, para o renderizador do PDF.</returns>
+    /// <exception cref="ArgumentNullException">A nota lida é nula.</exception>
+    /// <exception cref="ArgumentException">
+    /// A leitura não achou a nota; a nota não é NF-e (modelo 55); não tem a chave; o protocolo é de outra situação que não 100
+    /// ou 150; o <c>tpImp</c> é 0 (sem DANFE), 3 (não implementado), 4 ou 5 (DANFE NFC-e), ou não informado sem a orientação
+    /// nas opções; a orientação ou o papel das opções não cabem no formato; ou o Tipo 2 sem o QR Code.
+    /// </exception>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static",
+        Justification = "O DANFE é do leiaute, que quem usa recebe do DFe.Detectar ou cria (docs/CONTRATOS.md 21).")]
+    public DocumentoImpressao Danfe(NotaLida nota, OpcoesDanfe? opcoes = null) => MontagemDanfe.Montar(nota, opcoes);
 }

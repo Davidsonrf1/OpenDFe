@@ -187,3 +187,23 @@ OpenDFe.NFe.OpcoesDanfce.Via.init -> void
 OpenDFe.NFe.ViaDanfce
 OpenDFe.NFe.ViaDanfce.Consumidor = 0 -> OpenDFe.NFe.ViaDanfce
 OpenDFe.NFe.ViaDanfce.Estabelecimento = 1 -> OpenDFe.NFe.ViaDanfce
+OpenDFe.NFe.LeiauteNFe400.Danfe(OpenDFe.NFe.NotaLida! nota, OpenDFe.NFe.OpcoesDanfe? opcoes = null) -> OpenDFe.Impressao.DocumentoImpressao!
+OpenDFe.NFe.OpcoesDanfe
+OpenDFe.NFe.OpcoesDanfe.Cancelada.get -> bool
+OpenDFe.NFe.OpcoesDanfe.Cancelada.init -> void
+OpenDFe.NFe.OpcoesDanfe.Canhoto.get -> bool
+OpenDFe.NFe.OpcoesDanfe.Canhoto.init -> void
+OpenDFe.NFe.OpcoesDanfe.Logotipo.get -> OpenDFe.Impressao.Imagem1Bit?
+OpenDFe.NFe.OpcoesDanfe.Logotipo.init -> void
+OpenDFe.NFe.OpcoesDanfe.OpcoesDanfe() -> void
+OpenDFe.NFe.OpcoesDanfe.Orientacao.get -> OpenDFe.NFe.OrientacaoDanfe?
+OpenDFe.NFe.OpcoesDanfe.Orientacao.init -> void
+OpenDFe.NFe.OpcoesDanfe.Papel.get -> OpenDFe.Impressao.PapelImpressao?
+OpenDFe.NFe.OpcoesDanfe.Papel.init -> void
+OpenDFe.NFe.OpcoesDanfe.TextoRodape.get -> string?
+OpenDFe.NFe.OpcoesDanfe.TextoRodape.init -> void
+OpenDFe.NFe.OpcoesDanfe.Via.get -> OpenDFe.NFe.ViaDanfce
+OpenDFe.NFe.OpcoesDanfe.Via.init -> void
+OpenDFe.NFe.OrientacaoDanfe
+OpenDFe.NFe.OrientacaoDanfe.Paisagem = 1 -> OpenDFe.NFe.OrientacaoDanfe
+OpenDFe.NFe.OrientacaoDanfe.Retrato = 0 -> OpenDFe.NFe.OrientacaoDanfe

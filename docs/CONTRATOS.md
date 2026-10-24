@@ -1365,7 +1365,7 @@ public sealed class PapelImpressao                       // só as fábricas; co
 {
     public static PapelImpressao Bobina80 { get; }       // 80 mm, 48 colunas, margem de 4 mm (72 mm impressos = 576 pontos a 203 dpi)
     public static PapelImpressao Bobina58 { get; }       // 58 mm, 32 colunas, margem de 5 mm (48 mm impressos)
-    public static PapelImpressao A4Retrato { get; }  public static PapelImpressao A4Paisagem { get; }   // margem de 10 mm
+    public static PapelImpressao A4Retrato { get; }  public static PapelImpressao A4Paisagem { get; }   // margem de 8 mm (era 10 mm até a 7.2; o Anexo II 3.6.2 do DANFE permite de 2 a 8 mm, CONTRATOS.md 21)
     public TipoPapel Tipo { get; }  public double LarguraMm { get; }  public double? AlturaMm { get; }
     public int Colunas { get; }  public double MargemMm { get; }
     public int ColunasTamanho(TamanhoTexto tamanho);     // normal = Colunas; pequeno = Colunas * 4 / 3 (fonte B); duplo = Colunas / 2
@@ -1441,3 +1441,82 @@ public sealed class LeiauteNFe400
 - Os itens saem em **duas linhas** (o código e a descrição; depois `quantidade unidade x unitário` com o total à direita), com o cabeçalho "Código Descrição" e "Qtde UN x Vl Unit / Vl Total": o manual não regula a posição (3.1.2) e as cinco colunas não cabem na bobina de 58 mm (32 colunas).
 - A homologação sai depois do `infAdFisco` e antes do `infCpl` (a divisão VIII do manual), em negrito, centralizada, em tamanho pequeno (cabe em uma linha na bobina de 80 mm); o hífen é o ASCII (`-`): o PDV deve manter assim, porque a tabela de caracteres de várias térmicas não tem o travessão.
 - **Os testes do modelo** estão em `Nucleo.Testes` (`Impressao/`) e os do DANFCE em `NFe.Testes` (`Impressao/`): o renderizador de texto (`TextoPlano`) é **só de teste** e marca cada linha com `B` (negrito), `P` ou `D` (pequeno, duplo) e `I` (invertido).
+
+## 21. O DANFE da NF-e e os acréscimos ao modelo de impressão (etapa 7.3)
+
+**Aprovado em 2026-10-24, todas as decisões pela recomendação** (`docs/etapas/7.3-danfe.md`; o número sugerido no arquivo era o 22 e o próximo livre era o 21). O DANFE mora no **leiaute** (`src/OpenDFe.Leiaute.NFe.v400/Impressao/`, namespace `OpenDFe.NFe`) e monta um `DocumentoImpressao` do modelo neutro da 7.2; os acréscimos ao modelo moram no **núcleo** (`src/OpenDFe.Nucleo/Impressao/`, `OpenDFe.Impressao`). A conformidade contra o Anexo II do MOC 7.0 e as NTs está em `docs/IMPRESSAO.md` 2 (o checklist, quadro a quadro). A etapa não gera PDF (7.4).
+
+### 21.1 Os acréscimos ao modelo neutro (núcleo)
+
+Todos opcionais para quem renderiza: um renderizador que os ignora ainda gera um documento válido. Documentados e testados em `Nucleo.Testes` (`PaginacaoImpressaoTestes`).
+
+```csharp
+namespace OpenDFe.Impressao;
+
+public sealed class DocumentoImpressao        // + 2 propriedades init
+{
+    public IReadOnlyList<ElementoImpressao> CabecalhoContinuacao { get; init; }   // o que se repete no topo das páginas seguintes (copiada; vazia por padrão)
+    public string? MarcaAgua { get; init; }                                       // o texto em diagonal em todas as páginas (null sem marca; vazio é recusado)
+}
+
+public static class TextoPaginado             // as fichas de paginação e a troca
+{
+    public const string Pagina = "{pagina}";  public const string Paginas = "{paginas}";
+    public static string Resolver(string texto, int pagina, int paginas);         // Pagina e Paginas trocadas, em algarismos sem cultura; ArgumentOutOfRange fora da faixa
+}
+
+public sealed class TabelaImpressao           // + 2 propriedades init
+{
+    public bool LinhasIndivisiveis { get; init; }   // a linha nunca se divide entre duas páginas (o item do DANFE, Anexo II 3.1.7)
+    public bool DivisorLinhas { get; init; }        // o "destaque divisório" entre uma linha e a seguinte (3.1.7)
+}
+```
+
+- **As fichas** `{pagina}` e `{paginas}` valem no texto de um `TextoImpressao`, no valor de um `CampoImpressao` e no texto de uma célula, incluindo o `CabecalhoContinuacao`: o DANFE escreve `FOLHA {pagina}/{paginas}` e quem renderiza chama `TextoPaginado.Resolver` com os números de cada página, depois de cortar o documento. `Resolver` não depende da cultura (provado com `ar-SA` e `fa-IR`, que trocam os algarismos).
+- **A quebra de linha** (o caractere de nova linha) no texto de uma célula da tabela ou no valor de um campo é uma quebra de linha dentro da célula ou do campo (o DANFE põe a descrição, as informações adicionais e os dados do grupo H do item em linhas da mesma célula).
+- **A tabela já repetia o cabeçalho** a cada página (7.2); `LinhasIndivisiveis` e `DivisorLinhas` são o que o Anexo II 3.1.7 pede a mais, e o DANFE liga os dois.
+- **A margem das folhas A4 passou de 10 para 8 mm** (`PapelImpressao.A4Retrato` e `A4Paisagem`): o Anexo II 3.6.2 permite de 0,2 a 0,8 cm em cada lado do DANFE, e 10 mm excedia o máximo. Mudança de valor, sem mudança de assinatura; nenhum teste dependia dos 10 mm.
+
+### 21.2 O DANFE (leiaute)
+
+```csharp
+namespace OpenDFe.NFe;
+
+public enum OrientacaoDanfe { Retrato, Paisagem }
+
+public sealed class OpcoesDanfe
+{
+    public Imagem1Bit? Logotipo { get; init; }            // no quadro do emitente
+    public bool Canhoto { get; init; } = true;            // só o retrato o suprime (Anexo II 3.3.1); na paisagem sai sempre
+    public OrientacaoDanfe? Orientacao { get; init; }     // null = pelo tpImp da nota (1 retrato, 2 paisagem)
+    public bool Cancelada { get; init; }                  // marca d'água "CANCELADA" (a situação vem de quem usa)
+    public string? TextoRodape { get; init; }             // uma linha livre ao fim, ex.: "Impresso por ERP Core"
+    public PapelImpressao? Papel { get; init; }           // só do Tipo 2: Bobina80 (padrão), Bobina58 ou A4Retrato
+    public ViaDanfce Via { get; init; }                   // só do Tipo 2 em contingência (a via do DANFCE)
+}
+
+public sealed class LeiauteNFe400
+{
+    public DocumentoImpressao Danfe(NotaLida nota, OpcoesDanfe? opcoes = null);
+}
+```
+
+`Danfe` lê a `NotaLida` (o `nfeProc` autorizado, ou o `NFe` assinado em contingência, sem protocolo) e **não** confere o schema nem as regras do MOC; é sem estado e seguro em paralelo. `ArgumentException` (a mensagem cita o campo, nunca o valor): a leitura sem a nota ou sem a chave; a nota que não é NF-e (modelo 55); o protocolo de situação que não é 100 nem 150; o `tpImp` 0, 3 (**não implementado**, `IMPRESSAO.md` 2.3), 4 ou 5, ou ausente sem a orientação nas opções; a orientação fora do enum; o papel nas opções no retrato e na paisagem; a orientação no Tipo 2; o papel do Tipo 2 que não é a bobina ou o A4 em pé; a via fora do enum; o Tipo 2 sem o `qrCode` e a `urlChave`; o CNPJ não numérico do destinatário na contingência com formulário de segurança (o código de barras dos Dados da NF-e só tem dígitos).
+
+**O `tpImp` da nota escolhe o documento:** 1 (retrato) e 2 (paisagem) são o A4 do Anexo II, com a orientação das opções por cima do `tpImp`; 6 é o DANFE Simplificado Tipo 2, no leiaute do DANFCE (`MontagemDanfce`, parametrizado: o cabeçalho "DANFE Simplificado Tipo 2", o "NF-e nº" e a divisão III-A dos novos tributos), em bobina.
+
+### 21.3 A ordem do documento (retrato e paisagem)
+
+A do Anexo II, com os quadros opcionais só quando a nota os tem: o **canhoto** (o texto "RECEBEMOS DE ...", a data de recebimento, a assinatura e o número da nota; o primeiro elemento; só o retrato o suprime); a **identificação** (o logotipo; o emitente com endereço e telefone; "DANFE" e "DOCUMENTO AUXILIAR DA NOTA FISCAL ELETRÔNICA"; o tipo de operação com o dígito do `tpNF`, o número, a série e a folha; a legenda da contingência; o código de barras da chave e a chave em 11 blocos; o código de barras dos Dados da NF-e na contingência com formulário de segurança, ou a consulta de autenticidade e o protocolo; a natureza da operação; a IE, a IE do substituto e o CNPJ ou CPF; o CRT) que é também o **`CabecalhoContinuacao`**; o destinatário ou remetente; os locais de retirada e de entrega; a fatura e as duplicatas; o cálculo do imposto; o total do IBS/CBS/IS; o transportador e os volumes; a **tabela** dos produtos e serviços (17 colunas do Anexo II e, havendo IBS, CBS ou IS em algum item, mais 3 da NT 2026.010); o cálculo do ISSQN; os dados adicionais (informações complementares e reservado ao Fisco); o QR Code, se a nota o tem; o rodapé. O documento leva o `Titulo` `DANFE NF-e 000000123 série 001` e a `MarcaAgua` (`CANCELADA`, ou `SEM VALOR FISCAL` em homologação).
+
+**A tabela dos itens:** uma linha por item, uma célula por coluna, a descrição com as informações do item em linhas da mesma célula (o nome, o EAN, a unidade tributável quando difere da comercial, o `infAdProd`, os lotes, o medicamento, o combustível, o veículo, a arma, a classificação tributária); o `O/CST` é a origem seguida do CST de 2 dígitos ou do CSOSN de 3 (`000`, `0102`); quantidade e valor unitário com ao menos 2 casas e até 10, os valores com 2, os pontos de milhar e a vírgula decimal sem a cultura do sistema.
+
+### 21.4 Implementação (ajustes ao desenho)
+
+- **Escopo do `tpImp`:** o arquivo da etapa mandava o 3 e o 6 "se o leiaute estiver nas fontes". O **6 está** (a NT 2026.003, com as figuras e os exemplos) e foi implementado; o **3 (e a Etiqueta, que também é `tpImp` 3) não está**: o Anexo II e a NT 2020.004 só dão os campos mínimos, sem ordem nem dimensões (`IMPRESSAO.md` 2.3). Recusa com `ArgumentException`.
+- **`OpcoesDanfe.Papel` e `OpcoesDanfe.Via`** (novos, o arquivo não os previa): o Tipo 2 é bobina e tem duas vias na contingência (NT 2026.003, 3.1.9), como o DANFCE.
+- **O Anexo II venceu a NT 2026.010 onde as duas divergem** (a ordem dos quadros e as colunas dos itens); os acréscimos da NT entram quando o XML tem o dado (`NTS.md` 8, `IMPRESSAO.md` 2.1).
+- **Margem do A4:** 10 mm passou a 8 mm (21.1).
+- **`Montagem` do Tipo 2:** o `MontagemDanfce` ganhou o parâmetro do Tipo 2 e `Largura(papel)` (o A4 não tem colunas e usa as da bobina de 80 mm nas divisões); o DANFCE da NFC-e não mudou (os 22 golden da 7.2 passam sem alteração).
+- **O renderizador de texto de teste** (`TextoPlano`) foi estendido para as seções, as tabelas, o código de barras, a `MarcaAgua` e o `CabecalhoContinuacao` (com as fichas trocadas por `1/1` no corpo e `2/2` no cabeçalho de continuação), sem tocar nos 22 golden do DANFCE.
+- **O número do `CONTRATOS.md` é 21** (o arquivo da etapa dizia 22; o 20 é o da 7.2 e o 21 era o próximo livre).
