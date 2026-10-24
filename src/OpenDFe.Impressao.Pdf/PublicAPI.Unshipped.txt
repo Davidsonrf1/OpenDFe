@@ -1,1 +1,3 @@
 #nullable enable
+OpenDFe.Impressao.Pdf.RenderizadorPdf
+static OpenDFe.Impressao.Pdf.RenderizadorPdf.GerarPaginaTeste() -> byte[]!

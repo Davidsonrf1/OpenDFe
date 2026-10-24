@@ -30,6 +30,7 @@ jobs:
       - run: dotnet restore OpenDFe.slnx
       - run: dotnet build OpenDFe.slnx -c Release --no-restore
       # Os de homologação não rodam aqui: sem o PFX nas variáveis de ambiente, nenhum roda (PROJETO.md 13.3).
+      # Inclui os de PDF (7.1): o Skia do QuestPDF vem no pacote e só pede libstdc++ e zlib, que o ubuntu-latest já tem.
       - run: dotnet test --solution OpenDFe.slnx -c Release --no-build
       - run: dotnet pack OpenDFe.slnx -c Release --no-build -o pacotes
       - name: Conferir pacotes

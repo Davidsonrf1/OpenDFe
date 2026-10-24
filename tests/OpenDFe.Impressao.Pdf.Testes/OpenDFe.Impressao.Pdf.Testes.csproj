@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>OpenDFe.Impressao.Pdf.Testes</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../../src/OpenDFe.Impressao.Pdf/OpenDFe.Impressao.Pdf.csproj" />
+  </ItemGroup>
+
+  <!-- Lê o PDF gerado de volta (cabeçalho, páginas, texto, imagens): só nos testes. -->
+  <ItemGroup>
+    <PackageReference Include="PdfPig" />
+    <PackageReference Include="QRCoder" />
+  </ItemGroup>
+
+  <!-- O README do pacote, copiado ao lado do executável para o teste conferir que a licença abre o texto. -->
+  <ItemGroup>
+    <Content Include="../../src/OpenDFe.Impressao.Pdf/README.md" Link="README.Pdf.md" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>

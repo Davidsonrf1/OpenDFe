@@ -1,11 +1,23 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Description>Renderizador PDF do modelo de impressão da OpenDFe (DANFE e DANFCE).</Description>
+    <Description>Renderizador PDF do modelo de impressão da OpenDFe (DANFE e DANFCE). Usa o QuestPDF, que tem licença própria: leia o README antes de usar.</Description>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="../OpenDFe.Nucleo/OpenDFe.Nucleo.csproj" />
+  </ItemGroup>
+
+  <!-- A licença do QuestPDF não é a do resto da OpenDFe (PROJETO.md 10.2); o pacote tem README próprio, com ela no começo. -->
+  <ItemGroup>
+    <PackageReference Include="QuestPDF" />
+    <PackageReference Include="QRCoder" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="../../README.md" />
+    <None Include="README.md" Pack="true" PackagePath="/" />
+    <InternalsVisibleTo Include="OpenDFe.Impressao.Pdf.Testes" />
   </ItemGroup>
 
 </Project>

@@ -1305,3 +1305,40 @@ Como no desenho, com estes ajustes (a conferir pelo usuário):
 - **`CancelamentoSubstituicao.VersaoAplicativo`:** o nulo volta ao padrão e o que passa de 20 caracteres é cortado (o schema pede de 1 a 20); a versão padrão vem do `AssemblyInformationalVersion` sem o "+commit".
 - **A base da 6.1 bastou:** a `OperacaoEvento`, o `EnvioEvento` e os resultados não mudaram (provado pelas duas subclasses, contra o handler falso e contra o emulador).
 - **Testes novos:** `AutorizacaoTestes.EventoSubstituicaoCorrecao` (20), `SubstituicaoEmuladaTestes` (13) e `CartaCorrecaoEmuladaTestes` (7); `ApoioEmulado.Autorizar` (a nota do caso, também offline); dois casos pulados em `AutorizacaoHomologacaoTestes`.
+
+## 19. O pacote de PDF: QuestPDF, a página de teste e os blocos gráficos (etapa 7.1)
+
+**Aprovado em 2026-10-24, todas as decisões pela recomendação** (`docs/etapas/7.1-questpdf.md`). O pacote `OpenDFe.Impressao.Pdf` ganha o QuestPDF e o QRCoder, três blocos gráficos internos e **um único membro público**, o diagnóstico. O modelo de impressão (7.2), o DANFE (7.3) e o renderizador do modelo (7.4) vêm depois.
+
+```csharp
+namespace OpenDFe.Impressao.Pdf;
+
+/// O renderizador PDF do modelo de impressão (7.4). Nesta versão, só o diagnóstico.
+public static class RenderizadorPdf
+{
+    /// Uma página A4 com texto acentuado, um Code 128, um QR Code e uma imagem de 1 bit.
+    /// InvalidOperationException: a licença do QuestPDF não foi definida (a mensagem aponta o README do pacote).
+    public static byte[] GerarPaginaTeste();
+}
+```
+
+**Licença.** O pacote **não define** `QuestPDF.Settings.License` (estado global, `PROJETO.md` 2.3 e 10.2). A classe interna `LicencaQuestPdf.Exigir()` confere `Settings.License` e, se for nula, lança `InvalidOperationException` com o motivo, o código (`QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;`) e o endereço do README do pacote no GitHub. Ela é o ponto único que os outros pontos de entrada da 7.4 chamam. O README (`src/OpenDFe.Impressao.Pdf/README.md`, empacotado) tem a licença no primeiro bloco, com o texto conferido em 2026-10-24 (`NTS.md` 6).
+
+**Os blocos gráficos** (internos; `InternalsVisibleTo` do projeto de teste). Todos entregam **SVG vetorial** ao QuestPDF por `.Svg(string)`, em unidades de módulo ou pixel (`viewBox` de uma unidade por módulo), com `shape-rendering="crispEdges"` e **sem borda**: a zona de silêncio (4 módulos no QR Code, 10 no Code 128) é desenhada por quem usa.
+
+- `CodigoBarras128`: Code 128 conjunto C, escrito pela lib. A tabela dos 107 padrões (larguras de barra e espaço), o início C (105), os pares de dígitos, o verificador `(105 + Σ valor × posição) mod 103` e o fim (106, 7 elementos). Recusa (`ArgumentException`) texto vazio, caractere que não é `0` a `9` e quantidade ímpar. A chave de 44 dígitos dá 25 símbolos e 24 × 11 + 13 = 277 módulos. `Simbolos`, `Larguras` (a sequência de barra, espaço, barra...) e `Gerar` (um `path` com um retângulo por barra).
+- `QrCodeSvg`: o QRCoder gera a matriz (`ECCLevel.M`, `forceUtf8: true`: nível M e UTF-8, como o manual do DANFE NFC-e manda); a lib tira a zona de silêncio de 4 módulos que o QRCoder acrescenta e desenha o SVG.
+- `ImagemBit` e `ImagemBitSvg`: a representação interna da imagem de 1 bit (largura, altura, bits empacotados por linha, o mais significativo primeiro, 1 é preto; os bits que sobram no fim da linha são ignorados), que a 7.2 expõe no modelo neutro. O SVG é um `path` com uma corrida horizontal de pixels pretos por segmento (`M x y h n v1 h-n z`); a imagem toda branca não tem `path`. O `QrCodeSvg` usa o mesmo desenho.
+
+**A página de teste.** `Document.Create` com uma página A4 (margem de 2 cm), a fonte embutida padrão do QuestPDF (Lato, que cobre o português; **nenhuma fonte é registrada**: o `FontManager` é global), o texto acentuado, o Code 128 de uma chave de formato válido (8 x 2 cm), o QR Code de uma URL de NFC-e fictícia (4 x 4 cm) e uma imagem de 20 x 20 pixels (20 não é múltiplo de 8). O `Svg` do QuestPDF 2026.9.1 renderiza esses SVGs como vetor (conferido com o PdfPig: três caminhos, um por elemento, o do código de barras com 76 subcaminhos, nenhum bitmap) e **mantém a proporção** do SVG dentro da caixa dada (o código de barras de 277 x 50 numa caixa de 8 x 2 cm sai com 8 x 1,44 cm): quem usar a 7.4 dimensiona pela proporção.
+
+**Pacotes.** `QuestPDF` 2026.9.1 e `QRCoder` 1.8.0 em `Directory.Packages.props` (a última estável de cada uma com pelo menos 14 dias, `NTS.md` 6); `PdfPig` 0.1.16 só no projeto de teste. O `eng/ConferirPacotes.ps1` passa a esperar `OpenDFe.Nucleo`, `QRCoder` e `QuestPDF` como dependências do `OpenDFe.Impressao.Pdf`, e o `OpenDFe.Nucleo` e o `OpenDFe.NFe` continuam sem nenhuma delas.
+
+**Implementação (ajustes ao desenho).**
+
+- **A licença do QuestPDF não é MIT.** O arquivo da etapa e o `PROJETO.md` 10.2 diziam "comunitária (MIT)"; a licença vigente (versão 3.0, de 6 de julho de 2026) é "source-available". O README, o `NTS.md` 6 e o `PROJETO.md` 10.2 trazem o texto conferido (limite de USD 1.000.000 de receita bruta anual, projetos open source, e os que ficam de fora: órgãos públicos e empresas de capital aberto). Ponto para o usuário conferir: a categoria de **dependência transitiva** não vale se a biblioteca intermediária for basicamente um invólucro do QuestPDF; o `OpenDFe.Impressao.Pdf` tem função própria (o DANFE e o DANFCE), mas a fronteira é do texto da licença, e o README manda cada um ler.
+- `LicencaQuestPdf.Exigir` tem uma sobrecarga com o `LicenseType?` informado (a de sem argumento lê `Settings.License`), para provar a mensagem **sem mexer no estado global**; o teste do `GerarPaginaTeste` sem licença mexe nele numa coleção sem paralelismo e restaura no `finally`.
+- Nomes: `Gerar` e `Criar` no lugar de `ParaSvg` e `De` (a regra de nomes sem preposição).
+- O `README.md` do pacote substitui o da raiz no pacote (o `src/Directory.Build.props` empacota o da raiz; o csproj dele o remove).
+- Os testes do projeto novo: `CodigoBarras128Testes`, `QrCodeSvgTestes`, `ImagemBitSvgTestes`, `LicencaQuestPdfTestes`, `RenderizadorPdfTestes` (com o PdfPig).
+

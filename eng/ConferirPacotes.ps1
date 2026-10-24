@@ -1,6 +1,7 @@
 # Abre cada .nupkg e .snupkg e confere os arquivos de lib/ contra o esperado (PLANO.md 0.2):
 # o OpenDFe.NFe leva as DLLs do modelo e do leiaute, e nenhum projeto vira pacote por engano. Confere também
-# as dependências de pacote de cada um, no .nuspec (o núcleo depende do System.Security.Cryptography.Xml, 1.4).
+# as dependências de pacote de cada um, no .nuspec (o núcleo depende do System.Security.Cryptography.Xml, 1.4; o PDF, do
+# QuestPDF e do QRCoder, e só ele: nenhum outro pacote os carrega, 7.1).
 param([Parameter(Mandatory)][string] $Pasta)
 
 $ErrorActionPreference = 'Stop'
@@ -15,7 +16,7 @@ $esperado = @{
 $dependencias = @{
     'OpenDFe.Nucleo'        = @('System.Security.Cryptography.Xml')
     'OpenDFe.NFe'           = @('OpenDFe.Nucleo')
-    'OpenDFe.Impressao.Pdf' = @('OpenDFe.Nucleo')
+    'OpenDFe.Impressao.Pdf' = @('OpenDFe.Nucleo', 'QRCoder', 'QuestPDF')
 }
 
 function Ler-Dependencias([string] $arquivo) {
