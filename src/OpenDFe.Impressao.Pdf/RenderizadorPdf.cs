@@ -4,8 +4,12 @@ using QuestPDF.Infrastructure;
 
 namespace OpenDFe.Impressao.Pdf;
 
-/// <summary>O renderizador PDF do modelo de impressão. Nesta versão, só o diagnóstico (<see cref="GerarPaginaTeste"/>).</summary>
-public static class RenderizadorPdf
+/// <summary>
+/// O renderizador PDF do modelo de impressão: <see cref="Gerar(DocumentoImpressao, OpcoesPdf?)"/> desenha qualquer
+/// <see cref="DocumentoImpressao"/> (o DANFCE e o DANFE) e <see cref="GerarPaginaTeste"/> é o diagnóstico do ambiente.
+/// Síncrono, sem estado e seguro em paralelo; não toca nenhuma configuração global do QuestPDF (docs/CONTRATOS.md 22).
+/// </summary>
+public static partial class RenderizadorPdf
 {
     // Uma chave de acesso de 44 dígitos (só o formato) e uma URL de NFC-e (fictícia) para o QR Code.
     private const string ChaveExemplo = "31261011222333000181650010000001231123456780";

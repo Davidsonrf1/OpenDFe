@@ -81,18 +81,19 @@ internal static class CodigoBarras128
     /// O SVG do código de barras: uma unidade por módulo na largura e <paramref name="altura"/> unidades na altura,
     /// um retângulo por barra num único <c>path</c>.
     /// </summary>
-    public static string Gerar(string digitos, int altura = 50)
+    public static string Gerar(string digitos, double altura = 50)
     {
-        ArgumentOutOfRangeException.ThrowIfLessThan(altura, 1);
+        if (!(altura > 0) || double.IsInfinity(altura))
+            throw new ArgumentOutOfRangeException(nameof(altura), altura, "A altura deve ser um número maior que zero.");
         var c = CultureInfo.InvariantCulture;
         var larguras = Larguras(digitos);
         var caminho = new StringBuilder();
         var x = 0;
         for (var i = 0; i < larguras.Length; i++)
         {
-            if (i % 2 == 0) caminho.Append(c, $"M{x} 0h{larguras[i]}v{altura}h-{larguras[i]}z");
+            if (i % 2 == 0) caminho.Append(c, $"M{x} 0h{larguras[i]}v{altura:R}h-{larguras[i]}z");
             x += larguras[i];
         }
-        return string.Create(c, $"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"{x}\" height=\"{altura}\" viewBox=\"0 0 {x} {altura}\" preserveAspectRatio=\"none\" shape-rendering=\"crispEdges\"><path fill=\"#000\" d=\"{caminho}\"/></svg>");
+        return string.Create(c, $"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"{x}\" height=\"{altura:R}\" viewBox=\"0 0 {x} {altura:R}\" preserveAspectRatio=\"none\" shape-rendering=\"crispEdges\"><path fill=\"#000\" d=\"{caminho}\"/></svg>");
     }
 }

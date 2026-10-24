@@ -18,6 +18,8 @@
     <None Remove="../../README.md" />
     <None Include="README.md" Pack="true" PackagePath="/" />
     <InternalsVisibleTo Include="OpenDFe.Impressao.Pdf.Testes" />
+    <!-- Os testes dos documentos completos (DANFCE e DANFE) e da ponta a ponta com o emulador moram no NFe.Testes (CONTRATOS.md 22.7). -->
+    <InternalsVisibleTo Include="OpenDFe.NFe.Testes" />
   </ItemGroup>
 
 </Project>

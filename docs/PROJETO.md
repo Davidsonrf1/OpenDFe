@@ -211,7 +211,9 @@ Serviços SOAP por trás: `NFeAutorizacao4` (síncrona, `indSinc=1`, e por lote)
 - o pacote **não define** `QuestPDF.Settings.License` (é estado global, 2.3, e a escolha da licença é do aplicativo); sem ela definida, o QuestPDF recusa gerar, e o erro aponta o README;
 - o núcleo e o leiaute não dependem do QuestPDF; quem não gera PDF (o PDV, com ESC/POS) não o carrega.
 
-10.3. **ESC/POS fica com o aplicativo** (o PDV), a partir do mesmo modelo. Pode virar pacote depois, se houver demanda.
+**Como ficou (etapa 7.4, `docs/CONTRATOS.md` 22):** `RenderizadorPdf.Gerar(DocumentoImpressao, OpcoesPdf?)` (em memória ou num fluxo) desenha o DANFCE na bobina de largura do papel e altura contínua, e o DANFE no A4 paginado (cabeçalho de continuação, tabela de itens com o cabeçalho repetido, marca d'água e `FOLHA k/n`), com o QR Code (nível M) e o código de barras (Code 128 C) como vetor. O renderizador só desenha: nada de decisão fiscal. A fonte padrão é a **Lato** embutida no QuestPDF; o Anexo II do MOC pede Times New Roman ou Courier New, que o aplicativo registra e passa em `OpcoesPdf.Fonte`. A conformidade, item de aparência a item, está em `docs/IMPRESSAO.md` 3, com as lacunas (o quadro de identificação não é composto lado a lado, o nome do emitente sai em 8 pt, o canhoto da paisagem sai na horizontal).
+
+10.3. **ESC/POS fica com o aplicativo** (o PDV), a partir do mesmo modelo. Pode virar pacote depois, se houver demanda. O guia do mapeamento do modelo para os comandos (colunas, quebra, QR Code, imagem em raster, página de código 850 e o corte), sem código de impressora, está em `docs/IMPRESSAO.md` 4.
 
 ## 11. Eventos
 

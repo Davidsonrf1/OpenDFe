@@ -1,6 +1,6 @@
 # Impressão: o documento de conformidade da fase 7
 
-O que a lib imprime e **contra qual exigência**. A fase 7 começa pelo modelo de impressão neutro (núcleo, `OpenDFe.Impressao`, `docs/CONTRATOS.md` 20) e pelo DANFCE (etapa 7.2, seção 1); o DANFE da NF-e (etapa 7.3, `docs/CONTRATOS.md` 21) está na seção 2, e o PDF (7.4) completa este arquivo com a sua seção.
+O que a lib imprime e **contra qual exigência**. A fase 7 começa pelo modelo de impressão neutro (núcleo, `OpenDFe.Impressao`, `docs/CONTRATOS.md` 20) e pelo DANFCE (etapa 7.2, seção 1); o DANFE da NF-e (etapa 7.3, `docs/CONTRATOS.md` 21) está na seção 2, e o PDF (7.4), com a coluna "PDF" das exigências de aparência, está na seção 3, e o guia do ESC/POS para o PDV, na 4.
 
 Decisões e fontes:
 
@@ -180,9 +180,143 @@ A NF-e modelo 55 com o DANFE Simplificado Tipo 2 (Ajuste SINIEF 13/2026) sai no 
 
 ### 2.6 O que o renderizador (7.4) faz com este documento
 
-O documento do DANFE traz a **estrutura**; o PDF (7.4) a **compõe** em páginas A4:
+O documento do DANFE traz a **estrutura**; o PDF (7.4, feito: seção 3) a **compõe** em páginas A4:
 
 - **Paginar** a tabela dos itens: o cabeçalho das colunas se repete a cada página, a linha de um item (`LinhasIndivisiveis`) não se divide entre duas páginas, e o `DivisorLinhas` pede o destaque divisório entre os itens. A continuação das informações complementares é na folha seguinte (nunca no verso; sem "CONTINUA NO VERSO").
 - **Repetir** o `DocumentoImpressao.CabecalhoContinuacao` no alto de cada página depois da primeira, e trocar as fichas `{pagina}` e `{paginas}` (`TextoPaginado.Resolver`) em toda página, inclusive na primeira.
 - **Desenhar** a `MarcaAgua` em diagonal, atrás do conteúdo, sem prejudicar a leitura; o canhoto (o primeiro elemento do documento: destacável em cima, no retrato; na vertical, à esquerda, na paisagem); os tamanhos mínimos de fonte do 3.7; a largura mínima do código de barras (6 cm); a margem do papel.
 - Um renderizador que ignora a `MarcaAgua` ou o `CabecalhoContinuacao` ainda gera um documento válido (o DANFE de homologação leva a frase também nas informações complementares).
+
+## 3. O PDF (etapa 7.4)
+
+O `OpenDFe.Impressao.Pdf` desenha qualquer `DocumentoImpressao` em PDF (`RenderizadorPdf.Gerar`, `docs/CONTRATOS.md` 22): a bobina com a largura do papel e altura contínua, a folha A4 paginada. Esta seção é a **coluna "PDF"** dos checklists das seções 1 e 2: de cada exigência de **aparência** (dimensão, fonte, QR Code, código de barras, margem, paginação, marca d'água), o que o PDF faz, como e que teste prova. As exigências de **conteúdo** (o que se imprime, a ordem, os textos) são do modelo e já estão conferidas nas seções 1 e 2 pelos golden de texto; o PDF as leva inteiras: o teste `OsDanfcesViramPdfComOsDadosDaNota` e o `OsDanfesViramPdfComOsDadosDaNota` conferem, para cada caso do catálogo, que **todo texto que o modelo manda está no PDF** (rótulos, valores, células, títulos), ao lado da chave, do protocolo, do total, da legenda de contingência e da marca d'água.
+
+`Atende`: sim. `Parcial`: atende em parte, com o que falta. `Fora`: não é do renderizador, com o motivo. Os testes citados estão em `Impressao.Pdf.Testes` (elementos, `RenderizadorPdfElementosTestes` e `TextoSeguroTestes`) e em `NFe.Testes/Impressao` (documentos completos, `PdfDocumentosTestes`, e ponta a ponta com o emulador, `PdfEmuladoTestes`).
+
+### 3.1 Fontes e como se conferiu
+
+- **As fontes** são as da seção 1 (Manual do DANFE NFC-e 6.0, SHA-256 `bf906cc2...db5e`) e da seção 2 (Anexo II do MOC 7.0, SHA-256 `729c04fd...6a60e`), **baixadas de novo** na 7.4 com os mesmos SHA-256 (`docs/NTS.md` 9), e lidas nos itens de aparência (3.2 a 3.8 do Anexo II; 3.1.5, 3.3 e 3.4 do manual).
+- **O PDF é lido de volta** pelo PdfPig: o texto (e a ordem), as fontes e os tamanhos em pontos, a posição de cada letra, os caminhos vetoriais do QR Code (a matriz de módulos reconstruída e comparada com a do QRCoder) e do código de barras (cada barra na posição e na largura do Code 128 da chave), o tamanho de cada página.
+- **Inspeção visual:** o PDF de cada caso foi renderizado em imagem (PyMuPDF, fora do repositório; `OPENDFE_AMOSTRAS=<pasta>` grava os PDFs) e **aberto e olhado** página a página. A situação da etapa no `PLANO.md` lista o que a inspeção achou e foi corrigido.
+
+### 3.2 DANFCE (bobina de 80 e de 58 mm)
+
+| Item do manual | Exigência de aparência | Situação (PDF) | Como | Teste |
+|---|---|---|---|---|
+| 3.1.5 e 3.4 | O QR Code de no mínimo **25 x 25 mm**, sendo 22 mm de conteúdo e 3 mm de margem segura (quiet zone); acima de 25 mm, margem de 10% da dimensão total | Atende | o lado de 30 mm é o **total com a margem dentro**: o símbolo de 23,5 mm e a margem de 3,24 mm (a maior entre os 3 mm e 10% do manual e os 4 módulos do ISO), nunca menor que o manual | `OQrCodeTem30mmComAMargemDeSilencioDentroEFicaCentrado`, `AMargemDeSilencioSegueOManual...`; a margem medida no PDF de cada caso em `OsDanfcesViramPdfComOsDadosDaNota` |
+| 4 e 4.2 | O QR Code no padrão ISO/IEC 18004, **nível M, UTF-8**, impresso com os padrões da impressora (térmica, laser ou jato) | Atende | vetor (SVG) do QRCoder, nível M, UTF-8: nítido em qualquer resolução | `OQrCodeDoPdfTemAMatrizDoQrCoderNoNivelM` (3 textos, um com acentos): a matriz do PDF é a do QRCoder, módulo a módulo |
+| 4 | O QR Code do DANFCE é o `qrCode` da nota | Atende | o `Suplementares.QrCode` da nota, sem tocar | `PdfEmuladoTestes` (NFC-e v2 e v3 autorizadas pelo emulador, e a offline antes e depois da autorização): a matriz do PDF é a do `qrCode` do XML autorizado |
+| 3.1.5 | O QR Code à esquerda das divisões VI e VII (figura 4) ou **centralizado** (figura 5) | Atende | centralizado (`Alinhamento` do modelo; esquerda e direita também funcionam) | `OAlinhamentoDoQrCodeLevaOBlocoParaAEsquerdaOuADireita`, `OQrCodeTem30mm...FicaCentrado` |
+| 3.3 | Papel com **largura mínima de 56 mm** | Atende | a bobina de 80 mm (226,77 pt) e a de 58 mm (164,41 pt) | `ABobinaTemALarguraDoPapelEAlturaQueCresceComOConteudo` |
+| 3.3 | **Margens laterais de no mínimo 2 mm** | Atende | 4 mm na bobina de 80 e 5 mm na de 58 (a área impressa da térmica: 72 e 48 mm) | `AFolhaTemAMargemDoPapelEABobinaAsLateraisDoPapel` |
+| 3.3 | A altura é a do conteúdo (o papel é bobina; a nota não tem "folha") | Atende | página de **altura contínua** (`ContinuousSize`): 6 mm de margem vertical mais as linhas | `ABobinaTemALargura...` (a altura é 6 mm + 9,2 pt por linha), `ANfceDe300ItensSaiNumBilheteSoDeAlturaContinua` (300 itens em um bilhete) |
+| 3.3 | A impressão em A4 (210 x 297 mm) é permitida | Fora | o `Danfce` só aceita a bobina de 80 e de 58 mm; o **Simplificado Tipo 2** da NF-e aceita o A4 em pé, e o PDF o desenha | `OSimplificadoTipo2NoA4SaiNaFolhaComOsMesmosDados` |
+| 3.1.2 | As posições das divisões não são reguladas (a figura 1B é a de referência); o tamanho da fonte não é fixado | Atende | a ordem do modelo (a da figura 1B); fonte de 8 pt (normal), 6 pt (pequeno) e 12 pt (duplo), a escala da térmica de 203 dpi (23.3) | `ONegritoEOTamanhoDoTextoNaBobinaSaoOsDaEscalaDaTermica` |
+| 3.1.9 (NT 2026.003) e 3.1 | A legenda "EMITIDA EM CONTINGÊNCIA / Pendente de autorização" em destaque, **nos dois locais** | Atende | em negrito, tamanho duplo (12 pt) e centralizada, na mesma linha; o tamanho duplo só quando a frase cabe (decisão do modelo) | `OsDanfcesViramPdfComOsDadosDaNota` (a legenda 2 vezes em cada contingência, nenhuma na autorizada) e `PdfEmuladoTestes` |
+| 3.1.8 e 3.1.9 | As duas vias na contingência, a "Via do Estabelecimento" | Atende | o aplicativo gera o PDF **duas vezes** (uma por via, `OpcoesDanfce.Via`); cada via é um PDF de um bilhete | `ADanfceEmDuasViasTemAViaCertaEAMesmaChave` |
+| 3.1.1 a 3.1.9 | A legibilidade e a durabilidade (contraste) | Atende | preto sobre branco; o texto invertido (fundo preto, letra branca) quando o modelo pede | `OTextoInvertidoTemFundoPretoELetraBranca` |
+| 3.1.2 | O logotipo e a assinatura do software (imagem de 1 bit) | Atende | vetor da imagem na largura pedida ou no tamanho natural a 203 dpi, nunca maior que a linha | `AImagemDe1BitSaiComOsPixelsNaLarguraPedida`, `AImagemSemLarguraTemOTamanhoNaturalA203Dpi`, `AImagemMaiorQueALinhaEncolhe...` |
+| 3.1 | Texto longo (a descrição do produto, o `infCpl`) não pode ser cortado | Atende | quebra em palavras, e a palavra maior que a linha quebra na letra | `ATextoLongoQuebraENuncaSeCorta`, `ApalavraMaiorQueALinhaQuebraNaLetra...`, `DescricaoEInfCplLongos` |
+
+### 3.3 DANFE (A4 retrato e paisagem)
+
+| Item do Anexo II | Exigência de aparência | Situação (PDF) | Como | Teste |
+|---|---|---|---|---|
+| 2 | Código de barras **CODE-128C** da chave (44 dígitos): as barras na **largura mínima de 6 cm** e módulo mínimo de 0,02 cm (0,2 mm) | Atende | as barras de **11,5 cm** (a do 3.8.1) e módulo de 0,415 mm, as 277 posições (22 pares de 11 módulos, o início C, o verificador e o fim) | `OCodigoDeBarrasDaChaveTem277Modulos...` |
+| 2 | **Altura mínima da barra de 0,8 cm** | Atende | 10 mm (o modelo: `AlturaMm`) | o mesmo; `OsDanfesViramPdfComOsDadosDaNota` (altura >= 8 mm em cada folha) |
+| 2 | **Margem clara** de no mínimo 10 módulos | Atende | 10 módulos de cada lado, fora das barras | `OCodigoDeBarrasTemAAlturaPedidaEAMargemClaraDeDezModulos` |
+| 2 | O código de barras **é o da chave** (DV módulo 103, as barras do padrão) | Atende | cada barra na posição e largura do Code 128 da chave da nota (o mesmo `CodigoBarras128` conferido na 7.1) | `PdfVetores.ConferirBarras` em cada folha de cada DANFE do catálogo e de `PdfEmuladoTestes` (a chave do XML autorizado) |
+| 2 (FS-IA, FS-DA) | O segundo código de barras, o dos **Dados da NF-e**, na contingência com formulário de segurança | Atende | as barras de 36 dígitos, conferidas pelo mesmo caminho | `OsDanfesViramPdfComOsDadosDaNota` (`ContingenciaFsda` e `ContingenciaFsia`) |
+| 3.6.1 e 3.6.3 | A4 **retrato e paisagem**, folhas soltas | Atende | 595,28 x 841,89 pt e 841,89 x 595,28 pt | `OA4TemAsDimensoesDoPapelNoRetratoENaPaisagem`, `OsDanfesViramPdfComOsDadosDaNota` (as dimensões de cada folha) |
+| 3.6.2 | **Margem de 0,2 a 0,8 cm** em cada lado (inclusive no alto e embaixo) | Atende | 8 mm (o papel, `CONTRATOS.md` 21.1) | `AFolhaTemAMargemDoPapel...` |
+| 3.7 | **Times New Roman ou Courier New** | **Parcial** | a fonte padrão é a **Lato** (SIL OFL), embutida no QuestPDF; o aplicativo registra a Times New Roman (ou a Liberation Serif) e passa `OpcoesPdf.Fonte`; a família não registrada cai na Lato | `AFonteDasOpcoesEAFamiliaPedidaComALatoDeReserva`, `ComUmaFamiliaQueNaoEstaRegistrada...` (não há como embutir a Times New Roman: licença) |
+| 3.7.1 | O descritivo dos blocos: **5 pt**, negrito, caixa alta | Atende | 5 pt em negrito (o modelo manda a caixa alta) | `ASecaoTemOTituloOsRotulosPequenosEOsValoresMaioresEmQuadros` |
+| 3.7.2 | O descritivo dos campos do quadro dos produtos: **5 pt** | Atende | 5 pt em negrito | `AsColunasDaTabelaTemLarguraProporcionalAoPesoEOAlinhamentoDaColuna` |
+| 3.7.3 | O descritivo dos demais campos: **6 pt** | Atende | 6 pt | `ASecaoTemOTitulo...` |
+| 3.7.4 | "DANFE" em negrito, **12 pt**; "DOCUMENTO AUXILIAR..." de **8 pt**; número, série, folha e tipo de operação em negrito de **10 pt** | Atende | o texto duplo da folha é 12 pt em negrito; o normal, 8 pt; os campos do quadro de identificação (negrito) em 10 pt | `OTamanhoDoTextoNaFolhaTemOsMinimosDoAnexoIIDoDanfe`, `ASecaoTemOTitulo...` |
+| 3.7.5 | A chave de acesso em negrito | Atende | o campo é negrito no modelo (10 pt) | `OsDanfesViramPdf...` (o texto da chave); `OTextoNaoNegrito...` |
+| 3.7.6 | O quadro do emitente em negrito; a razão social de **12 pt** e os demais dados de **8 pt** | **Parcial** | em negrito; os dados de 8 pt; **a razão social sai em 8 pt**: o modelo põe o nome como texto normal em negrito, igual ao endereço, e o renderizador não distingue (lacuna 3.4) | `OTamanhoDoTextoNaFolha...` |
+| 3.7.7 | O conteúdo dos campos do quadro dos produtos: **6 pt** | Atende | 6 pt | `AsColunasDaTabela...` |
+| 3.7.8 | O conteúdo das informações complementares: **6 pt** | Atende | 6 pt (o campo é reconhecido pelo rótulo do Anexo II) | `AsInformacoesComplementaresDe5000Caracteres...` |
+| 3.7.9 | O conteúdo dos demais campos: **10 pt** | Atende | 10 pt | `ASecaoTemOTitulo...` |
+| 3.8.1 e 3.8.2 | O tamanho e a **posição** de cada campo (sugestão: as larguras não são obrigatórias) | **Parcial** | as larguras de cada campo são **proporcionais aos centímetros** da tabela (os pesos do modelo) e a altura, a natural do conteúdo (a do Anexo II: 0,85 cm); a **posição** é a do empilhamento do modelo, e **não a grade** do Anexo II (o quadro do emitente, o "DANFE" e o código de barras da chave lado a lado) | `ASecaoTemOTitulo...` (3:1), `AsColunasDaTabela...` (pesos) |
+| 3.1.7 e 3.5 | O quadro dos itens com as **colunas que não se suprimem** e o descritivo das colunas repetido nas folhas adicionais | Atende | a tabela do QuestPDF com o cabeçalho **repetido a cada folha** | `ATabelaDe150LinhasPassaDeUmaPaginaERepeteOCabecalhoEmCadaUma`, `ANfeDe300ItensPaginaComOCabecalhoDaTabelaEmCadaFolhaEOsItensNaOrdem` |
+| 3.1.7 | O item de várias linhas com **destaque divisório**, e a linha do item **não se divide** entre duas folhas | Atende | a linha entre os itens (mais escura com o `DivisorLinhas`) e a célula com `ShowEntire` quando o modelo pede `LinhasIndivisiveis` | `ALinhaIndivisivelNaoSeDivideEntreDuasPaginas` |
+| 3.1.7 | O `infAdProd` abaixo do item; a descrição longa | Atende | as linhas da mesma célula; a descrição de 500 caracteres quebra na célula e a linha cresce | `ADescricaoDoItemDe500CaracteresQuebraNaCelulaENaoSeCorta`, `OTextoDeUmaCelulaDaTabelaComQuebraDeLinha...` |
+| 3.3.1 | O **canhoto**: o recibo de entrega, destacável | **Parcial** | o primeiro elemento do documento, no alto da folha 1 (retrato e paisagem), com a linha tracejada de destaque; **na paisagem o Anexo II o põe na vertical, à esquerda** e o PDF o põe na horizontal (lacuna 3.4) | `OCanhotoSoSaiNoDanfeQueOTemEFicaNoAltoDaPrimeiraPagina` |
+| 3.4 e 3.5 | O que passa de uma folha **continua na folha seguinte** (nunca no verso, sem "continua no verso"); as folhas adicionais repetem o emitente, "DANFE", número, série, folha, o código de barras, a natureza da operação, a chave, as IEs e o CNPJ | Atende | o `CabecalhoContinuacao` no alto de cada folha depois da primeira, e o quadro maior que a folha continua na seguinte | `OCabecalhoDeContinuacaoSaiSoDaSegundaPaginaEmDiante`, `AsInformacoesComplementaresDe5000CaracteresContinuamNaFolhaSeguinteComACabecalho` |
+| 3.10.2 | O **número da folha e o total** em toda folha, inclusive a primeira | Atende | `FOLHA {pagina}/{paginas}` com o número da página e o total do QuestPDF | `AsFichasDePaginaTrocamParaONumeroDaPaginaEOTotal...`, `OsDanfesViramPdf...` (`FOLHA k/n` em cada folha de cada DANFE) |
+| 3.10.1 e 3 | A **marca d'água** ("SEM VALOR FISCAL" na homologação, "CANCELADA"), desde que **não prejudique a legibilidade** | Atende | texto em negrito, cinza `#E6E6E6`, a 45 graus, centrado, **atrás do conteúdo**, em todas as folhas | `AMarcaDAguaSaiEmTodasAsPaginasEmDiagonalEEmCinzaClaro`, `AMarcaDAguaDoA4SaiInteiraEmDiagonal` (as duas frases), `OsDanfesViramPdf...` (a marca em cada folha de `Homologacao` e `Cancelada`) |
+| 3 | O contraste para a leitura dos códigos de barras (papel que não seja jornal) | Atende | preto sobre branco; o código de barras nunca fica sob a marca d'água clara | a inspeção visual |
+| 3.6.1 | Folhas maiores que o A4 (até o Ofício II) | Fora | o modelo só tem o A4 | n/a |
+| 3.10.3 | A redução da altura do quadro dos produtos por limitação da impressora | Fora | não há limitação num PDF | n/a |
+
+### 3.4 Lacunas do PDF (o que o Anexo II pede e o PDF não faz)
+
+- **A grade do Anexo II (3.8)**: o PDF **empilha** os elementos na ordem do modelo (o quadro do emitente, o "DANFE", o código de barras e a chave, um sobre o outro), em vez de pôr o emitente, o "DANFE" e o código de barras lado a lado como no leiaute do Anexo II. Os campos, as larguras proporcionais e as fontes são os do Anexo II, mas a folha fica mais alta: **uma nota de um item no retrato cabe numa folha; na paisagem (210 mm de altura) o quadro dos dados adicionais passa para a folha 2.** Compor o cabeçalho lado a lado pede um elemento novo no modelo (uma linha de blocos) e fica para quando houver pedido.
+- **A razão social do emitente em 12 pt (3.7.6)**: o modelo manda o nome como texto normal em negrito, e o renderizador dá 8 pt ao texto normal (o mínimo dos dados do emitente e de "DOCUMENTO AUXILIAR"). Para o nome sair em 12 pt, o modelo precisa de um tamanho entre o normal e o duplo (ou o renderizador de um papel para o nome), o que muda os golden de texto da 7.3.
+- **O canhoto na vertical (paisagem, 3.3.1)**: o PDF o põe na horizontal, no alto.
+- **Times New Roman ou Courier New (3.7)**: a Lato é a padrão; as fontes do Anexo II exigem o aplicativo as registrar (README do pacote).
+- **O texto em colunas de largura fixa** (a térmica): a Lato é proporcional, e uma frase que cabe em 48 colunas de térmica pode quebrar em duas linhas no PDF de 80 mm ("FORMA PAGAMENTO" na bobina de 58 mm). Nada é cortado.
+- **PDF/A, assinatura do PDF e e-mail** estão fora da etapa.
+
+## 4. O ESC/POS para o PDV (guia, sem implementar)
+
+O PDV imprime o DANFCE em impressora térmica por **ESC/POS**, a partir do **mesmo** `DocumentoImpressao` (`LeiauteNFe400.Danfce`), **sem usar o `OpenDFe.Impressao.Pdf`** nem o QuestPDF (e sem a licença dele). A lib **não implementa** o ESC/POS (`PROJETO.md` 10.3: é do aplicativo, que conhece a marca e o modelo da impressora); este guia diz como percorrer o modelo. Os comandos abaixo são os do conjunto ESC/POS comum (Epson TM, Bematech, Elgin, Daruma e compatíveis); confira no manual da sua impressora.
+
+**O papel e as colunas.** `papel.Colunas` (48 na bobina de 80 mm e 32 na de 58 mm, fonte A de 12 x 24 pontos a 203 dpi) e `papel.ColunasTamanho(tamanho)` (`Pequeno` = `Colunas * 4 / 3`, a fonte B de 9 x 17; `Duplo` = `Colunas / 2`) dão a largura de uma linha em caracteres. A área impressa é de 576 pontos (72 mm) na de 80 mm e 384 pontos (48 mm) na de 58 mm.
+
+| Elemento | ESC/POS |
+|---|---|
+| `TextoImpressao` | quebre com `texto.Quebrar(papel.ColunasTamanho(texto.Tamanho))` e imprima uma linha por vez, com o alinhamento (`ESC a 0/1/2`: esquerda, centro, direita), o negrito (`ESC E 1` e `ESC E 0`), o tamanho (`Pequeno`: `ESC M 1`, a fonte B; `Normal`: `ESC M 0` e `GS ! 0x00`; `Duplo`: `GS ! 0x11`, o dobro na largura e na altura) e o invertido (`GS B 1` e `GS B 0`); termine a linha com `LF` |
+| `LinhaImpressao` | `var larguras = linha.Larguras(papel.Colunas)` (a soma é sempre `Colunas`); quebre cada célula com `celula.Quebrar(larguras[i])`; a linha tem tantas linhas de impressão quanto a célula mais alta; em cada uma, preencha cada célula com espaços até a largura dela, alinhando à esquerda, ao centro ou à direita (`CelulaImpressao.Alinhamento`), e junte as células numa só linha de texto |
+| `SeparadorImpressao` | uma linha de `Colunas` caracteres: `-` para `Tracejado`, `=` para `Cheio` |
+| `EspacoImpressao` | `Linhas` linhas em branco (`LF`) |
+| `QrCodeImpressao` | o comando **nativo** da impressora: `GS ( k` com o modelo 2 (`fn 165`), o tamanho do módulo (`fn 167`), o nível de correção M (`fn 169`, valor 49), os dados (`fn 180`) e a impressão (`fn 181`); o tamanho do módulo vem de `LadoMm`: **o lado de 30 mm inclui a margem de silêncio**, então o símbolo ocupa cerca de 80% (3 mm de margem de cada lado) e o módulo em pontos é `símbolo em mm * 8 / número de módulos` (versão 3: 29 módulos). Se a impressora não tem o comando nativo, gere a matriz com um gerador de QR Code (nível M, UTF-8, o mesmo texto) e imprima como **raster** |
+| `CodigoBarrasImpressao` | o comando nativo `GS k 73` (Code 128) com o conjunto C (`{C` e os pares de dígitos), `GS h` para a altura (`AlturaMm * 8` pontos), `GS w` para o módulo e `GS H 0` sem o texto; ou raster |
+| `ImagemImpressao` | **raster**: `GS v 0` com a largura em bytes (`(Largura + 7) / 8`) e a altura; os `Bits` do `Imagem1Bit` (MSB primeiro, 1 = preto, linha em bytes inteiros) **já estão no formato do comando**; centralize com `ESC a 1` |
+| `QuebraPaginaImpressao` | o **corte**: `GS V 66 0` (avança o papel e corta parcialmente), e o que vem depois é outro bilhete (a outra via) |
+| `SecaoImpressao` e `TabelaImpressao` | são do DANFE (A4); o PDV não os recebe do `Danfce` |
+
+**Os caracteres.** A térmica não é Unicode: escolha a **página de código 850** (`ESC t 2`, ou a 860 do português do Brasil, conforme a impressora) e converta o texto antes de enviar (o `Encoding.GetEncoding(850)` do `System.Text.Encoding.CodePages`). O que a página não tem (o travessão `–` e as aspas tipográficas, por exemplo) o aplicativo troca antes: a homologação do `Danfce` já usa o hífen ASCII (`-`) por isso (`CONTRATOS.md` 20.3).
+
+**Um exemplo curto**, a escala do percurso (o ESC/POS de cada comando é do aplicativo):
+
+```csharp
+DocumentoImpressao nota = new LeiauteNFe400().Danfce(lida);
+var papel = nota.Papel;
+foreach (var elemento in nota.Elementos)
+{
+    switch (elemento)
+    {
+        case TextoImpressao texto:
+            foreach (var linha in texto.Quebrar(papel.ColunasTamanho(texto.Tamanho)))
+                impressora.Linha(linha, texto.Alinhamento, texto.Negrito, texto.Tamanho, texto.Invertido);
+            break;
+        case LinhaImpressao linha:
+            var larguras = linha.Larguras(papel.Colunas);
+            var blocos = linha.Celulas.Select((c, i) => c.Quebrar(larguras[i])).ToList();
+            for (var y = 0; y < blocos.Max(b => b.Count); y++)
+                impressora.Linha(Preencher(linha, blocos, larguras, y), AlinhamentoImpressao.Esquerda, linha.Celulas.Any(c => c.Negrito));
+            break;
+        case SeparadorImpressao s:
+            impressora.Linha(new string(s.Estilo == EstiloSeparador.Cheio ? '=' : '-', papel.Colunas));
+            break;
+        case EspacoImpressao e:
+            impressora.LinhasEmBranco(e.Linhas);
+            break;
+        case QrCodeImpressao qr:
+            impressora.QrCode(qr.Texto, qr.LadoMm, qr.Alinhamento);   // GS ( k, ou raster
+            break;
+        case ImagemImpressao imagem:
+            impressora.Raster(imagem.Imagem.Largura, imagem.Imagem.Altura, imagem.Imagem.Bits.Span, imagem.Alinhamento);
+            break;
+        case QuebraPaginaImpressao:
+            impressora.Cortar();                                       // GS V 66 0
+            break;
+    }
+}
+impressora.Cortar();
+```
+
+`impressora` e `Preencher` são do aplicativo: a primeira escreve os comandos no fluxo da porta serial, USB ou de rede da impressora; a segunda junta, numa linha de `papel.Colunas` caracteres, a linha `y` de cada célula, preenchida e alinhada na largura que `Larguras` deu.

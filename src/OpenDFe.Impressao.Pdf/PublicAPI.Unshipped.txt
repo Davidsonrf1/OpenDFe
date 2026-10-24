@@ -1,3 +1,15 @@
 #nullable enable
 OpenDFe.Impressao.Pdf.RenderizadorPdf
 static OpenDFe.Impressao.Pdf.RenderizadorPdf.GerarPaginaTeste() -> byte[]!
+OpenDFe.Impressao.Pdf.OpcoesPdf
+OpenDFe.Impressao.Pdf.OpcoesPdf.Autor.get -> string?
+OpenDFe.Impressao.Pdf.OpcoesPdf.Autor.init -> void
+OpenDFe.Impressao.Pdf.OpcoesPdf.Criador.get -> string!
+OpenDFe.Impressao.Pdf.OpcoesPdf.Criador.init -> void
+OpenDFe.Impressao.Pdf.OpcoesPdf.Fonte.get -> string?
+OpenDFe.Impressao.Pdf.OpcoesPdf.Fonte.init -> void
+OpenDFe.Impressao.Pdf.OpcoesPdf.OpcoesPdf() -> void
+OpenDFe.Impressao.Pdf.OpcoesPdf.Titulo.get -> string?
+OpenDFe.Impressao.Pdf.OpcoesPdf.Titulo.init -> void
+static OpenDFe.Impressao.Pdf.RenderizadorPdf.Gerar(OpenDFe.Impressao.DocumentoImpressao! documento, OpenDFe.Impressao.Pdf.OpcoesPdf? opcoes = null) -> byte[]!
+static OpenDFe.Impressao.Pdf.RenderizadorPdf.Gerar(OpenDFe.Impressao.DocumentoImpressao! documento, System.IO.Stream! destino, OpenDFe.Impressao.Pdf.OpcoesPdf? opcoes = null) -> void

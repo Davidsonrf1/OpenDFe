@@ -267,3 +267,17 @@ Todos baixados do Portal Nacional da NF-e em 2026-10-24 (`https://www.nfe.fazend
 - **O vigente:** o portal tem um só Anexo II (o MOC 7.0), e a NT 2026.010 é a única que altera o leiaute dele para o IBS, a CBS e o IS. A NT é de outubro de 2026 e **vigora em 01/12/2026**; a lib aplica os acréscimos **só quando o XML tem o dado**, então um DANFE de uma nota sem IBS/CBS/IS é o do Anexo II puro, e o de uma nota com eles já traz o que a NT manda (`IMPRESSAO.md` 2.1). **Divergência entre as duas fontes:** a ordem dos quadros (a NT põe o ISSQN antes do transportador) e as colunas dos itens (a NT junta e tira colunas que o Anexo II não deixa suprimir); a lib segue o Anexo II (o texto da NT chama o leiaute dela de "referência" e remete ao manual para os quadros suprimíveis).
 - **Não lidas** (não alteram o que o DANFE imprime): a NT 2026.007 v1.10 e a 2026.008 v1.00 (regras de validação e leiaute de campos), a 2026.001 (PAA), a 2026.006 (split payment). A NT 2012.001 (a origem do DANFE Simplificado) está no portal e não foi aberta (o Anexo II a absorveu).
 - **Ferramenta:** o `pdftotext` do poppler (`-enc UTF-8 -layout`) e o PyMuPDF para renderizar as páginas das figuras; nenhuma entra no repositório.
+
+## 9. Impressão: o PDF (etapa 7.4, 2026-10-24)
+
+A etapa não adotou fonte nova: conferiu os **itens de aparência** (dimensões, fontes, QR Code, código de barras, margens) das duas já usadas, **baixadas de novo** do Portal Nacional da NF-e (`curl -L -c cj -b cj`, como nas seções 7 e 8), convertidas com `pdftotext -layout` e lidas nos itens citados:
+
+| Documento | Identificador (`conteudo=`) | SHA-256 | O que foi conferido na 7.4 |
+|---|---|---|---|
+| **Manual de Padrões Técnicos do DANFE NFC-e e QR Code 6.0** (março de 2025) | `k/IuuaW4YiY%3D` | `bf906cc212f1edd19b1df7d1cdf4fbf5e73c3fec77567b6e69fa74453c95db5e` (1.887.904 bytes, o mesmo das seções 4.1 e 7) | 3.1.5 e 3.4 (o QR Code de no mínimo 25 x 25 mm, 22 mm de conteúdo e 3 mm de margem segura; acima de 25 mm, 10% da dimensão total), 3.3 (papel de no mínimo 56 mm, margens laterais de no mínimo 2 mm, o A4 permitido, nunca em ECF) e 4.2 (a imagem do QR Code de no mínimo 25 x 25 mm); **o manual não fixa fonte nem posição** (3.1.2) |
+| **MOC 7.0, Anexo II: Manual de Especificações Técnicas do DANFE e Código de Barras** | `f%20NhsSn3/5M%3D` | `729c04fd1374188c29eb21ca60342741b24a014003d4c2ff1bbb455bb1a6a60e` (1.345.906 bytes, o mesmo da seção 8) | 2 (o código de barras: largura mínima de 6 cm, altura mínima da barra de 0,8 cm, módulo mínimo de 0,02 cm, margem clara de 10 módulos, as 297 posições), 3.6 (o papel e a margem de 0,2 a 0,8 cm) e 3.7 (as fontes: Times New Roman ou Courier New e os tamanhos mínimos de 5, 6, 8, 10 e 12 pt por bloco) |
+
+- **A fonte do PDF** é a **Lato** (SIL OFL 1.1), embutida no QuestPDF 2026.9.1 (seção 6): o Anexo II pede Times New Roman ou Courier New (3.7), que não se embute (licença). O aplicativo que as tem as registra e passa `OpcoesPdf.Fonte` (README do pacote). A cobertura da Lato foi conferida caractere a caractere (`CONTRATOS.md` 22.4): o Latin-1 inteiro, que é o que o `TString` do schema da NF-e admite.
+- **Nenhum pacote novo** entrou (QuestPDF, QRCoder e PdfPig são os da seção 6). A licença do QuestPDF **não foi relida** (o texto da 7.1, versão 3.0 de 6 de julho de 2026, segue o vigente no pacote 2026.9.1 usado).
+- **Ferramentas de conferência** (fora do repositório): o `pdftotext` do poppler para ler os manuais e o PyMuPDF para renderizar os PDFs gerados em imagem e abri-los.
+

@@ -10,6 +10,18 @@
     <ProjectReference Include="../../src/OpenDFe.NFe.Modelo/OpenDFe.NFe.Modelo.csproj" />
   </ItemGroup>
 
+  <!-- O PDF do DANFE e do DANFCE (etapa 7.4): os documentos completos e a ponta a ponta com o emulador moram aqui, onde
+       as notas dos golden e a infraestrutura do emulador já estão (sem duplicar); o PdfPig lê o PDF de volta e o QRCoder
+       dá a matriz de referência do QR Code. -->
+  <ItemGroup>
+    <ProjectReference Include="../../src/OpenDFe.Impressao.Pdf/OpenDFe.Impressao.Pdf.csproj" />
+    <PackageReference Include="PdfPig" />
+    <PackageReference Include="QRCoder" />
+    <!-- O leitor do PDF e as matrizes do QR Code e do código de barras são os mesmos do Impressao.Pdf.Testes (um arquivo só). -->
+    <Compile Include="../OpenDFe.Impressao.Pdf.Testes/PdfLeitor.cs" Link="Impressao/PdfLeitor.cs" />
+    <Compile Include="../OpenDFe.Impressao.Pdf.Testes/PdfVetores.cs" Link="Impressao/PdfVetores.cs" />
+  </ItemGroup>
+
   <!-- As operações pela lib contra a SEFAZ emulada (PROJETO.md 13.5), da 4.3 em diante: o leiaute de verdade com as
        URLs do emulador trocadas e a AC dele pela fábrica de teste. -->
   <ItemGroup>

@@ -1520,3 +1520,102 @@ A do Anexo II, com os quadros opcionais só quando a nota os tem: o **canhoto** 
 - **`Montagem` do Tipo 2:** o `MontagemDanfce` ganhou o parâmetro do Tipo 2 e `Largura(papel)` (o A4 não tem colunas e usa as da bobina de 80 mm nas divisões); o DANFCE da NFC-e não mudou (os 22 golden da 7.2 passam sem alteração).
 - **O renderizador de texto de teste** (`TextoPlano`) foi estendido para as seções, as tabelas, o código de barras, a `MarcaAgua` e o `CabecalhoContinuacao` (com as fichas trocadas por `1/1` no corpo e `2/2` no cabeçalho de continuação), sem tocar nos 22 golden do DANFCE.
 - **O número do `CONTRATOS.md` é 21** (o arquivo da etapa dizia 22; o 20 é o da 7.2 e o 21 era o próximo livre).
+
+## 22. O renderizador PDF (etapa 7.4)
+
+**Aprovado em 2026-10-24, todas as decisões pela recomendação** (`docs/etapas/7.4-pdf.md`; o número sugerido no arquivo era o 23, mas o próximo livre era o 22 (a 7.3 usou o 21 e não houve 22)). O `OpenDFe.Impressao.Pdf` passa a **renderizar o modelo de impressão neutro** (qualquer `DocumentoImpressao`: o DANFCE da 7.2 e o DANFE da 7.3) em PDF com o QuestPDF 2026.9.1. O renderizador só **desenha**: não toma decisão fiscal e não mexe no conteúdo. A conformidade contra o Manual do DANFE NFC-e 6.0 e o Anexo II do MOC 7.0 está em `docs/IMPRESSAO.md` 3, e o guia do ESC/POS para o PDV, em `docs/IMPRESSAO.md` 4.
+
+### 22.1 A API pública
+
+```csharp
+namespace OpenDFe.Impressao.Pdf;
+
+public static partial class RenderizadorPdf
+{
+    public static byte[] Gerar(DocumentoImpressao documento, OpcoesPdf? opcoes = null);
+    public static void Gerar(DocumentoImpressao documento, Stream destino, OpcoesPdf? opcoes = null);
+    public static byte[] GerarPaginaTeste();                       // a 7.1
+}
+
+public sealed class OpcoesPdf
+{
+    public string? Titulo { get; init; }       // padrão: DocumentoImpressao.Titulo
+    public string? Autor { get; init; }
+    public string Criador { get; init; } = "OpenDFe";
+    public string? Fonte { get; init; }        // a família registrada pelo aplicativo; null = a Lato embutida (22.8)
+}
+```
+
+Síncrona, sem estado e **segura em paralelo** (provado com 16 gerações simultâneas de documentos diferentes, texto igual ao da sequencial); nenhuma configuração global do QuestPDF é tocada (a licença é do aplicativo, README). `ArgumentNullException` com o documento (ou o fluxo) nulo; `InvalidOperationException` com a licença não definida, pela mesma `LicencaQuestPdf.Exigir` da página de teste, com o endereço do README (as duas sobrecargas). O fluxo não é fechado nem reposicionado. As duas sobrecargas de `Gerar` têm o parâmetro opcional, como a decisão 1 manda; o analisador RS0026 reclama de sobrecargas opcionais, e a supressão está comentada no código (elas diferem no tipo do segundo argumento e a API ainda é `Unshipped`).
+
+### 22.2 O mapeamento do modelo para o PDF
+
+Determinístico, um arquivo por família (`RenderizadorPdf.Texto.cs`, `.Quadros.cs`, `.Tabela.cs`, `.Graficos.cs`, `.Documento.cs`).
+
+| Elemento do modelo | O PDF |
+|---|---|
+| **Papel** `Bobina` | página com a **largura do papel** (80 ou 58 mm) e **altura contínua** (`ContinuousSize`: cresce com o conteúdo), margem lateral do papel (4 e 5 mm) e vertical de 3 mm |
+| **Papel** `Folha` | a página com as dimensões do papel (A4 em pé, 210 x 297 mm, ou deitado) e a margem dele (8 mm), paginada |
+| `TextoImpressao` | um bloco de texto: alinhamento, negrito, tamanho (22.3) e **invertido** (fundo preto, letra branca); a quebra de linha do texto vira linha; o texto longo **quebra**, nunca é cortado; a linha vazia é uma linha em branco |
+| `LinhaImpressao` | uma fileira: cada célula com a largura proporcional ao **peso** (a do `Larguras` em colunas, aqui em proporção direta); **a última célula alinhada à direita toma a largura do conteúdo** e a de texto cede o resto: a fonte do PDF não é de largura fixa como a da térmica, e o peso 13/48 de "VALOR PAGO R$" não comportaria o texto (22.8) |
+| `SeparadorImpressao` | linha horizontal na largura útil: `Cheio` contínua de 1 pt, `Tracejado` de 0,6 pt em traços de 2,5 pt |
+| `EspacoImpressao` | altura de `linhas` linhas do texto normal (tamanho x 1,15) |
+| `QrCodeImpressao` | vetor (SVG) do QR Code do QRCoder, **nível M, UTF-8**, no `Alinhamento`; o `LadoMm` é o **lado total, com a zona de silêncio dentro** (22.5) |
+| `CodigoBarrasImpressao` | vetor do Code 128 conjunto C, as barras com a largura do contêiner **até 11,5 cm** e a altura `AlturaMm`, e a margem clara de 10 módulos de cada lado (22.5) |
+| `ImagemImpressao` | vetor da imagem de 1 bit, na `LarguraMm` ou no tamanho natural a 203 dpi (nunca maior que a linha), no `Alinhamento` |
+| `SecaoImpressao` | o título do bloco (5 pt, negrito) e, por `LinhaCamposImpressao`, uma **tabela de uma fileira** de quadros de borda fina com o rótulo pequeno em cima e o valor embaixo; os quadros de uma fileira têm **a mesma altura** (o que quebra em linhas estica os vizinhos); o quadro maior que a página continua na seguinte |
+| `TabelaImpressao` | o título do bloco e a tabela do QuestPDF com as colunas na proporção dos pesos, o **cabeçalho repetido** a cada página, a linha com o texto das células (quebra de linha da célula = linha), e, com `LinhasIndivisiveis`, a linha que **não se divide** entre duas páginas; `DivisorLinhas` escurece a linha entre os itens |
+| `QuebraPaginaImpressao` | na folha, uma quebra de página; na bobina, o **corte**: cada trecho é um bilhete (uma página de altura contínua) |
+| `DocumentoImpressao.CabecalhoContinuacao` | no topo de cada página **depois da primeira** (`ShowIf(PageNumber > 1)`); a primeira não reserva o espaço dele |
+| `DocumentoImpressao.MarcaAgua` | texto em negrito, cinza `#E6E6E6`, a 45 graus, centrado, atrás do conteúdo, **em todas as páginas**; o tamanho (até 64 pt) é o que põe o texto na largura útil |
+| fichas `{pagina}` e `{paginas}` | o número da página e o total do QuestPDF (`CurrentPageNumber` e `TotalPages`), em qualquer texto, valor de campo ou célula, inclusive no cabeçalho de continuação (`FOLHA 2/3`) |
+| `DocumentoImpressao.Titulo` e `OpcoesPdf` | título, autor e criador do PDF; o idioma é `pt-BR` |
+
+Documento sem elemento sai com uma página em branco (o PDF precisa de ao menos uma).
+
+### 22.3 As fontes e as medidas (constantes em `Medidas.cs`, cada uma com o item do manual)
+
+**Bobina** (o Manual do DANFE NFC-e 6.0 não fixa fonte nem posição, 3.1.2): texto normal de **8 pt**, pequeno de **6 pt** (3/4, como a fonte B da térmica) e duplo de **12 pt** (a térmica dobra a 16 pt, mas a Lato em negrito não põe a frase de 23 letras da contingência numa linha de 72 mm a 16 pt; a 12 pt põe).
+
+**Folha** (Anexo II do MOC 7.0, 3.7): o título do bloco de **5 pt** em negrito (3.7.1); o título das colunas dos itens de **5 pt** (3.7.2); o rótulo do campo de **6 pt** (3.7.3); o conteúdo dos itens e das informações complementares de **6 pt** (3.7.7 e 3.7.8); o conteúdo dos demais campos de **10 pt** (3.7.9); o texto normal de **8 pt** ("DOCUMENTO AUXILIAR DA NOTA FISCAL ELETRÔNICA" e os dados do emitente, 3.7.4 e 3.7.6); o duplo de **12 pt** ("DANFE", 3.7.4); o pequeno de **6 pt**. As **informações complementares** são o único campo de texto livre: o modelo não o distingue dos demais, e o renderizador o reconhece pelo rótulo do Anexo II (`INFORMAÇÕES COMPLEMENTARES`) para dar 6 pt (os 5.000 caracteres a 10 pt ocupariam três folhas).
+
+A entrelinha é 1,15 do tamanho; a borda dos quadros, de 0,5 pt; o respiro do quadro, 0,8 mm (0,25 mm nas células das colunas estreitas da tabela).
+
+### 22.4 Os caracteres
+
+O QuestPDF lança se faltar o glifo (`CheckIfAllTextGlyphsAreAvailable` fica no padrão, sem mexer em configuração global). A emissão **nunca** pode quebrar por causa de um caractere no nome do produto, então todo texto passa por `TextoSeguro.Limpar` antes de ir ao PDF (o texto, os campos, as células, os títulos, os metadados e a marca d'água):
+
+- a Lato embutida **desenha** (conferido caractere a caractere, desenhando cada um em normal e em negrito): o ASCII (U+0020 a U+007E), o **Latin-1 inteiro** (U+00A0 a U+00FF: o `TString` do schema da NF-e só admite até U+00FF) e o Latin Extended-A e B (até U+024F), mais U+2010 a U+2022 (hifens, travessões, aspas, adagas, marcador), a reticência, o por mil, as aspas angulares simples, o euro, a marca registrada e o sinal de menos: **553 caracteres**, que saem sem troca (provado com `ç ã õ é ê í ó ú â ô à º ª § ½ ² ³ – — “ ” € ° ' " & < >` e os demais);
+- o que a fonte **não** tem e tem equivalente ASCII é trocado: o marcador triangular e o hífen de marcador por `-`, o ponto de hifenização por `.`, a barra de fração por `/`, os espaços especiais (de U+2000 a U+200A, U+202F, U+205F e U+3000) por espaço, os separadores de linha e de parágrafo por quebra de linha;
+- os caracteres de formatação invisíveis (espaço de largura zero, marcas de direção, a marca de ordem de bytes) são **tirados**, e os controles viram espaço;
+- o resto (ideogramas, emoji, grego, setas, surrogado solto) vira `?` (os fora do plano básico, um `?` por caractere).
+
+### 22.5 O QR Code e o código de barras
+
+**O lado do QR Code é o total, com a zona de silêncio dentro** (Manual do DANFE NFC-e 3.1.5 e 3.4: "no mínimo 25 mm x 25 mm, sendo 22 mm de conteúdo para 3 mm de margem segura (quiet zone); acima de 25 mm, a margem de 10% da dimensão total"). O DANFCE pede 30 mm (7.2): o símbolo ocupa o lado menos as duas margens. A margem é **a maior** entre a do manual (3 mm até 25 mm; 10% do lado acima) e os **4 módulos** do ISO/IEC 18004 (o `MargemQrCode`): para a versão 3 (29 módulos) em 30 mm, o manual dá 3,0 mm e os 4 módulos dão 3,24 mm, que valem. Nenhum dos dois pode ser menor.
+
+**O código de barras:** as barras com a largura do contêiner, **limitada a 11,5 cm** (a largura do código de barras da chave no Anexo II 3.8.1; a decisão da etapa dizia "a do contêiner", que num A4 em paisagem daria 28 cm de barras), a altura pedida (`AlturaMm`, 10 mm: o Anexo II manda no mínimo 8 mm) e a **margem clara de 10 módulos** de cada lado, fora das barras (Anexo II 2). O módulo (a barra mais fina) sai de 115 mm / 277 = 0,415 mm, acima dos 0,2 mm do Anexo II. Na bobina, o conjunto cabe nos 72 mm: o módulo é 67,1 / 277 = 0,24 mm. As **277 posições** são 22 pares de 11 módulos, o início C (11), o verificador (11) e o fim (13). O SVG sai na proporção exata da caixa (o QuestPDF mantém a proporção do SVG; o `CodigoBarras128.Gerar` passou a aceitar a altura em unidades fracionárias).
+
+### 22.6 A paginação
+
+A **folha** pagina pelo QuestPDF: a `Column` do conteúdo divide entre os elementos, e dentro deles a tabela divide entre as linhas (com o cabeçalho repetido) e o quadro grande divide dentro da célula. O quadro de seção usa `EnsureSpace` (o título não fica sozinho no pé de uma página) em vez de `ShowEntire`, que lança erro com o quadro maior que a página (as informações complementares de 5.000 caracteres). A continuação das informações complementares é **na folha seguinte**, nunca "no verso" (Anexo II 3.4 e 3.5). A **bobina** é de altura contínua, sem paginar.
+
+### 22.7 Onde estão os testes
+
+- `OpenDFe.Impressao.Pdf.Testes` (PdfPig): `RenderizadorPdfElementosTestes` (cada elemento, o papel, a paginação, os metadados, a concorrência e a licença) e `TextoSeguroTestes` (os caracteres), mais os `PdfLeitor` e `PdfVetores` (a leitura do PDF e as matrizes do QR Code e do código de barras).
+- `OpenDFe.NFe.Testes`: `PdfDocumentosTestes` (os DANFCE e os DANFE do `CatalogoImpressao`, os mesmos casos dos golden de texto, mais 300 itens, descrição de 500 caracteres e as informações complementares de 5.000) e `PdfEmuladoTestes` (a nota autorizada pelo emulador, lida e impressa). **Os documentos completos e a ponta a ponta moram no `NFe.Testes`**, onde as notas dos golden e a infraestrutura do emulador já estão, sem duplicar: o projeto referencia o `OpenDFe.Impressao.Pdf` (o PdfPig e o QRCoder só nos testes) e **compartilha dois arquivos** de teste do `Impressao.Pdf.Testes` (`PdfLeitor.cs` e `PdfVetores.cs`, `Compile Include` por link); o `Impressao.Pdf` ganhou o `InternalsVisibleTo` do `OpenDFe.NFe.Testes` para o teste do código de barras usar as larguras do Code 128 como referência.
+- Para ver o PDF: `OPENDFE_AMOSTRAS=<pasta>` grava o PDF de cada caso na pasta (fora do repositório), para abrir e conferir a olho; sem a variável não grava nada.
+
+### 22.8 Implementação (ajustes ao desenho)
+
+- **`OpcoesPdf.Fonte`** (novo; a decisão 1 só tinha título, autor e criador): o Anexo II 3.7 pede Times New Roman ou Courier New, que a lib não embute, e o QuestPDF só desenha em família registrada. O aplicativo que quer uma delas (ou a Liberation Serif, de mesmas métricas) a registra e passa o nome. **Família não registrada cai na Lato**, para a emissão não quebrar (o QuestPDF lança com uma família que não existe).
+- **O código de barras até 11,5 cm** (22.5), e não a largura do contêiner.
+- **O QR Code com a margem máxima** entre o manual e os 4 módulos (22.5): a decisão deixava a escolha ("pelo manual").
+- **O texto duplo da bobina em 12 pt**, e não 16 (22.3).
+- **A última célula à direita de uma `LinhaImpressao` toma a largura do conteúdo** (22.2): a fonte não é de largura fixa.
+- **`QuebraPaginaImpressao` na bobina corta em dois bilhetes** (um por trecho), em vez de ignorar: é o corte da térmica, e o `Danfce` nunca o usa.
+- **As informações complementares em 6 pt**, reconhecidas pelo rótulo (22.3).
+- **Os campos da seção em tabela de uma fileira** (22.2): a `Row` do QuestPDF não iguala a altura das células; a `Table` iguala.
+- **`CodigoBarras128.Gerar`** (interno) passou a aceitar a altura `double`; os testes da 7.1 não mudaram.
+- **`InternalsVisibleTo`** do `OpenDFe.NFe.Testes` e a supressão do RS0026 (22.1).
+- **Lacunas do renderizador** (o que o Anexo II pede e o modelo ou o renderizador não faz) estão em `docs/IMPRESSAO.md` 3.4: o quadro de identificação não é composto lado a lado, o nome do emitente sai em 8 pt (não em 12 pt), o canhoto da paisagem sai na horizontal, e a fonte padrão é a Lato.
