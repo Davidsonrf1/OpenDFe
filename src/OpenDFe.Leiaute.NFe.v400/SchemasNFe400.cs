@@ -37,6 +37,7 @@ internal static class SchemasNFe400
         Preparar("e110112_v1.00.xsd", CodigoDetalhe, c => Detalhe(c, "verAplic", "VersaoAplicativo", "nProt", "Protocolo", "xJust", "Justificativa", "chNFeRef", "ChaveSubstituta"));
     private static readonly Lazy<SchemaXml> SchemaDetalheCartaCorrecao =
         Preparar("e110110_v1.00.xsd", CodigoDetalhe, c => Detalhe(c, "xCorrecao", "Correcao"));
+    private static readonly Lazy<SchemaXml> SchemaDistribuicao = Preparar("distDFeInt_v1.01.xsd", CodigoMensagem);
     private static readonly Lazy<SchemaXml> SchemaNotaProcessada = Preparar("procNFe_v4.00.xsd", CodigoMensagem, CaminhoModeloNFe.Propriedade);
 
     /// <summary>A nota sozinha (<c>NFe</c>): a que o <c>Preparar</c> gera e a que se lê.</summary>
@@ -56,6 +57,9 @@ internal static class SchemasNFe400
 
     /// <summary>A inutilização (<c>inutNFe</c>, <c>NFeInutilizacao4</c>).</summary>
     internal static SchemaXml Inutilizacao => SchemaInutilizacao.Value;
+
+    /// <summary>O pedido da distribuição DF-e (<c>distDFeInt</c>, <c>NFeDistribuicaoDFe</c>).</summary>
+    internal static SchemaXml DistribuicaoPedido => SchemaDistribuicao.Value;
 
     /// <summary>A nota com o protocolo (<c>nfeProc</c>), a distribuível.</summary>
     internal static SchemaXml NotaProcessada => SchemaNotaProcessada.Value;

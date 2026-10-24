@@ -151,6 +151,50 @@ public sealed class TransporteSoapTestes : IClassFixture<ServidorLocalFixture>
             Assert.Contains(XElement.Parse(corpo).Descendants().Single(e => e.Name.LocalName == "Text").Value, falha.Message, StringComparison.Ordinal);
     }
 
+    // O serviço com a operação no Body (a distribuição DF-e, NT 2014.002)
+
+    private DFe NucleoOperacao(ConexoesSefaz conexoes) =>
+        DFe.Criar(new LeiauteFalso { Acrescimo = OperacaoEnvelopeFalsa.Declarar }, Documento.NFe, new ConfiguracaoDFe
+        {
+            Ambiente = Ambiente.Homologacao,
+            UF = UF.MG,
+            Certificado = Certificado,
+            Conexoes = conexoes,
+            Urls = [new EnderecoServico(Destino.AN, Ambiente.Homologacao, OperacaoEnvelopeFalsa.Servico, _servidor.Url(OperacaoEnvelopeFalsa.Servico))],
+        });
+
+    [Fact]
+    public async Task ComOperacaoOPedidoVaiDentroDoElementoDaOperacaoEARespostaSeLeNoResult()
+    {
+        _servidor.Responder = contexto => ServidorLocal.EscreverAsync(contexto, 200, OperacaoEnvelopeFalsa.Envelope(ServidorLocal.RetornoStatus));
+        using var conexoes = Conexoes();
+
+        var resultado = await NucleoOperacao(conexoes).ExecutarAsync(new StatusOperacaoFalso(), Ct);
+
+        Assert.True(resultado.Processado);
+        Assert.Equal(107, resultado.CStat);
+        Assert.Equal("local", resultado.Retorno.Host);
+        var pedido = Assert.Single(_servidor.Pedidos);
+        Assert.Equal("application/soap+xml; charset=utf-8; action=\"urn:opendfe:teste:wsdl/operacao\"", pedido.Tipo);
+        var corpo = XDocument.Parse(pedido.Corpo).Root!.Element(XName.Get("Body", EnvelopeSoap.NamespaceSoap))!;
+        var operacao = Assert.Single(corpo.Elements());
+        Assert.Equal(XName.Get(OperacaoEnvelopeFalsa.Operacao, LeiauteFalso.NamespaceWsdl), operacao.Name);
+        var dados = Assert.Single(operacao.Elements());
+        Assert.Equal(XName.Get("nfeDadosMsg", LeiauteFalso.NamespaceWsdl), dados.Name);
+        Assert.Equal(resultado.Rastro.XmlPedido, Assert.Single(dados.Elements()).ToString(SaveOptions.DisableFormatting));
+    }
+
+    [Fact]
+    public async Task ComOperacaoORetornoNoNfeResultMsgDiretoERespostaIlegivel()
+    {
+        using var conexoes = Conexoes();
+
+        var falha = await Assert.ThrowsAsync<FalhaTransmissaoException>(() => NucleoOperacao(conexoes).ExecutarAsync(new StatusOperacaoFalso(), Ct));
+
+        Assert.Equal(TipoFalhaTransmissao.RespostaIlegivel, falha.Tipo);
+        Assert.True(falha.PodeTerSidoProcessado);
+    }
+
     // A rede e os tempos
 
     [Fact]

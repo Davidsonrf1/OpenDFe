@@ -6,7 +6,8 @@ namespace OpenDFe;
 /// <summary>
 /// O envelope SOAP 1.2 dos autorizadores, escrito e lido à mão, sem WSDL (PROJETO.md 8.2): a mensagem dentro do
 /// <c>nfeDadosMsg</c>, no namespace do WSDL do serviço, sem cabeçalho (o <c>nfeCabecMsg</c> saiu no leiaute 4.00); a
-/// resposta dentro do <c>nfeResultMsg</c>.
+/// resposta dentro do <c>nfeResultMsg</c>. No serviço com a operação no <c>Body</c> (<see cref="ServicoSoap.Operacao"/>),
+/// o <c>nfeDadosMsg</c> vai dentro do elemento da operação, e a resposta vem em <c>&lt;Operacao&gt;Response/&lt;Operacao&gt;Result</c>.
 /// </summary>
 internal static class EnvelopeSoap
 {
@@ -20,20 +21,28 @@ internal static class EnvelopeSoap
     };
 
     /// <summary>O envelope com a mensagem, sem a declaração XML dela.</summary>
-    public static string Montar(ServicoSoap servico, string mensagem) =>
-        "<?xml version=\"1.0\" encoding=\"utf-8\"?>"
-        + $"<soap12:Envelope xmlns:soap12=\"{NamespaceSoap}\"><soap12:Body>"
-        + $"<nfeDadosMsg xmlns=\"{servico.NamespaceWsdl}\">{TirarDeclaracao(mensagem)}</nfeDadosMsg>"
-        + "</soap12:Body></soap12:Envelope>";
+    public static string Montar(ServicoSoap servico, string mensagem)
+    {
+        var dados = $"<nfeDadosMsg xmlns=\"{servico.NamespaceWsdl}\">{TirarDeclaracao(mensagem)}</nfeDadosMsg>";
+        // Com a operação, o nfeDadosMsg herda o namespace do elemento dela, que é o mesmo do WSDL.
+        var corpo = servico.Operacao is { } operacao
+            ? $"<{operacao} xmlns=\"{servico.NamespaceWsdl}\">{dados}</{operacao}>"
+            : dados;
+        return "<?xml version=\"1.0\" encoding=\"utf-8\"?>"
+            + $"<soap12:Envelope xmlns:soap12=\"{NamespaceSoap}\"><soap12:Body>{corpo}</soap12:Body></soap12:Envelope>";
+    }
 
     /// <summary>
-    /// A mensagem da resposta: o primeiro elemento dentro do <c>nfeResultMsg</c>, em qualquer namespace (há
-    /// autorizador que o põe noutro), como texto.
+    /// A mensagem da resposta: o primeiro elemento dentro do <c>nfeResultMsg</c> (ou, no serviço com
+    /// <see cref="ServicoSoap.Operacao"/>, do <c>&lt;Operacao&gt;Result</c>), em qualquer namespace (há autorizador que o
+    /// põe noutro) e em qualquer profundidade do <c>Body</c>, como texto.
     /// </summary>
+    /// <param name="resposta">O envelope da resposta.</param>
+    /// <param name="servico">O serviço, ou nulo para o <c>nfeResultMsg</c> direto no <c>Body</c>.</param>
     /// <exception cref="FalhaSoapException">A resposta é uma falha SOAP.</exception>
     /// <exception cref="XmlException">A resposta não é XML bem formado.</exception>
     /// <exception cref="InvalidDataException">Não é um envelope SOAP 1.2, ou não tem o <c>nfeResultMsg</c> com uma mensagem.</exception>
-    public static string Ler(string resposta)
+    public static string Ler(string resposta, ServicoSoap? servico = null)
     {
         XDocument documento;
         using (var texto = new StringReader(resposta.TrimStart('﻿')))
@@ -47,10 +56,11 @@ internal static class EnvelopeSoap
             ?? throw new InvalidDataException("O envelope da resposta não tem o Body.");
         if (corpo.Element(XName.Get("Fault", NamespaceSoap)) is { } falha)
             throw LerFalha(falha);
-        var resultado = corpo.Descendants().FirstOrDefault(e => e.Name.LocalName == "nfeResultMsg")
-            ?? throw new InvalidDataException("A resposta não tem o nfeResultMsg.");
+        var nomeResultado = servico?.Operacao is { } operacao ? operacao + "Result" : "nfeResultMsg";
+        var resultado = corpo.Descendants().FirstOrDefault(e => e.Name.LocalName == nomeResultado)
+            ?? throw new InvalidDataException($"A resposta não tem o {nomeResultado}.");
         var mensagem = resultado.Elements().FirstOrDefault()
-            ?? throw new InvalidDataException("O nfeResultMsg da resposta está vazio.");
+            ?? throw new InvalidDataException($"O {nomeResultado} da resposta está vazio.");
         return mensagem.ToString(SaveOptions.DisableFormatting);
     }
 

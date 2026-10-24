@@ -192,7 +192,7 @@ public sealed class DeclaracaoLeiaute
 
     /// A URL do serviço ("NFeStatusServico4") no autorizador e no ambiente.
     public void DeclararEndereco(EnderecoServico endereco);
-    public void DeclararServico(ServicoSoap servico);                                  // 4.1: namespace do WSDL e ação
+    public void DeclararServico(ServicoSoap servico);                                  // 4.1: namespace do WSDL e ação; 8.1: e a operação do Body (ServicoSoap.Operacao, 23.1)
     public void DeclararCifras(Destino autorizador, IEnumerable<TlsCipherSuite> cifras); // 4.1: só no Linux
 
     /// O tipo da configuração do documento; obrigatoria: o Criar recusa a configuração sem ela.
@@ -1619,3 +1619,146 @@ A **folha** pagina pelo QuestPDF: a `Column` do conteúdo divide entre os elemen
 - **`CodigoBarras128.Gerar`** (interno) passou a aceitar a altura `double`; os testes da 7.1 não mudaram.
 - **`InternalsVisibleTo`** do `OpenDFe.NFe.Testes` e a supressão do RS0026 (22.1).
 - **Lacunas do renderizador** (o que o Anexo II pede e o modelo ou o renderizador não faz) estão em `docs/IMPRESSAO.md` 3.4: o quadro de identificação não é composto lado a lado, o nome do emitente sai em 8 pt (não em 12 pt), o canhoto da paisagem sai na horizontal, e a fonte padrão é a Lato.
+
+## 23. A distribuição DF-e (etapa 8.1)
+
+**Aprovado em 2026-10-24, todas as decisões pela recomendação** (`docs/etapas/8.1-distribuicao-dfe.md`; o número sugerido no arquivo era o 24, mas o próximo livre era o 23, porque a 7.4 usou o 22). O `LeiauteNFe400` passa a consultar o `NFeDistribuicaoDFe` do Ambiente Nacional (NT 2014.002 v1.40, MOC 7.0, Visão Geral, 5.7) por último NSU, por NSU e por chave, e devolve os documentos já descompactados. A NFC-e não é distribuída: a operação só é registrada para a NF-e. O guia de uso, com o laço de sincronização, é o `docs/DISTRIBUICAO.md`.
+
+### 23.1 O núcleo: `ServicoSoap.Operacao`
+
+O `nfeDadosMsg` da distribuição vai **dentro** de um elemento da operação, e a resposta vem em `<operação>Response/<operação>Result`; os outros serviços põem o `nfeDadosMsg` direto no `Body` e leem o `nfeResultMsg` (`docs/NTS.md` 3.2, decisão da 4.2). A mudança no núcleo é uma propriedade só:
+
+```csharp
+public sealed class ServicoSoap
+{
+    // ...Nome, NamespaceWsdl e Acao como estavam (2.4)
+    /// O nome da operação, nos serviços cujo Body a tem como elemento ("nfeDistDFeInteresse"). Quando não nulo, o
+    /// nfeDadosMsg vai dentro de <Operacao xmlns="namespaceWsdl">, e a resposta é lida em <Operacao>Response/<Operacao>Result,
+    /// em vez do nfeResultMsg direto no Body. Nulo (o padrão): o envelope dos outros serviços, sem mudança.
+    /// ArgumentException: vazio, só espaços ou fora de [A-Za-z0-9_] (e não começa por algarismo).
+    public string? Operacao { get; init; }
+}
+```
+
+- **`EnvelopeSoap.Montar(servico, mensagem)`** escreve `<Operacao xmlns="..."><nfeDadosMsg xmlns="...">mensagem</nfeDadosMsg></Operacao>` quando há operação; sem ela, o texto é o mesmo de antes, **byte a byte** (teste de regressão, `EnvelopeSoapTestes.SemOperacaoOEnvelopeNaoMudaUmByte`, com o texto completo do envelope do status). O `xmlns` do elemento da operação é o do WSDL, e o `nfeDadosMsg` o repete (como no exemplo da NT, item 5).
+- **`EnvelopeSoap.Ler(resposta, servico)`** procura o `<Operacao>Result` em qualquer profundidade e em qualquer namespace do `Body` (a mesma tolerância do `nfeResultMsg`); com operação, o `nfeResultMsg` direto não serve, e sem operação o `<Operacao>Result` não serve (`InvalidDataException`, resposta ilegível). A falha SOAP sai como antes. O parâmetro é opcional (`ServicoSoap? servico = null`): quem não passa lê o `nfeResultMsg`, como antes (o `EnvelopeSoap` é interno; o `TransporteSoap` passa o `envio.Soap`).
+- Entra no `PublicAPI.Unshipped.txt` do núcleo (`ServicoSoap.Operacao.get` e `.init`) e é coberto por `EnvelopeSoapTestes` (o envelope com e sem operação, a leitura em três formas de resposta, a recusa do `nfeResultMsg` direto, o resultado vazio, a falha SOAP e a validação do nome) e por `TransporteSoapTestes` (o Kestrel local com TLS mútuo, com um serviço de operação declarado pelo `Acrescimo` do leiaute falso: o corpo, a ação e a leitura do `Result`; e a resposta no `nfeResultMsg` direto, que é ilegível).
+
+### 23.2 A declaração no leiaute
+
+Só na NF-e (`declaracao.Documento == Documento.NFe`), em `AutorizadoresNFe400`:
+
+| O quê | Valor |
+|---|---|
+| serviço | `NFeDistribuicaoDFe`, namespace `http://www.portalfiscal.inf.br/nfe/wsdl/NFeDistribuicaoDFe` |
+| ação | `http://www.portalfiscal.inf.br/nfe/wsdl/NFeDistribuicaoDFe/nfeDistDFeInteresse` |
+| `Operacao` | `nfeDistDFeInteresse` |
+| URL de produção (AN) | `https://www1.nfe.fazenda.gov.br/NFeDistribuicaoDFe/NFeDistribuicaoDFe.asmx` |
+| URL de homologação (AN) | `https://hom1.nfe.fazenda.gov.br/NFeDistribuicaoDFe/NFeDistribuicaoDFe.asmx` |
+
+As duas URLs foram **conferidas na "Relação de Serviços Web" do Portal Nacional, em 2026-10-24** (produção e homologação, seção "Ambiente Nacional", serviço `NFeDistribuicaoDFe`, versão 1.00 do serviço; os SHA-256 das páginas baixadas estão em `docs/NTS.md` 3). O `distDFeInt_v1.01.xsd` entra em `SchemasNFe400.DistribuicaoPedido` (código 215), do pacote `PL_010f_v1.04` já embutido (NTS.md 1): nada novo no pacote de schemas. O `AN` só tinha o `NFeRecepcaoEvento4`; ganha a distribuição, e o `Atendimento` não muda (o pedido leva o `Destino.AN`, que não é UF).
+
+### 23.3 O parâmetro
+
+```csharp
+namespace OpenDFe.NFe;
+
+/// A consulta à distribuição de DF-e do Ambiente Nacional. Só na NF-e. Sempre ao AN.
+public sealed class DistribuicaoDFe : ParametroWS<RetornoDistribuicao>
+{
+    public static DistribuicaoDFe UltimoNsu(string interessado, long ultimoNsu = 0, UF? ufAutor = null);
+    public static DistribuicaoDFe Nsu(string interessado, long nsu, UF? ufAutor = null);
+    public static DistribuicaoDFe Chave(string interessado, ChaveAcesso chave, UF? ufAutor = null);
+
+    public string Interessado { get; }                    // o CNPJ ou o CPF, sem máscara
+    public TipoConsultaDistribuicao Consulta { get; }      // UltimoNsu, Nsu, Chave
+    public long? NsuConsultado { get; }                    // o ultNSU ou o NSU; nulo na chave
+    public ChaveAcesso? ChaveConsultada { get; }
+    public UF? UFAutor { get; }                            // cUFAutor; nulo = a UF do núcleo
+}
+public enum TipoConsultaDistribuicao { UltimoNsu = 0, Nsu = 1, Chave = 2 }
+```
+
+- **O `interessado`** aceita a máscara e é validado com `Cnpj.Valido` (numérico ou alfanumérico) e, se não for, com `Cpf.Valido`; vai ao XML sem máscara, como `<CNPJ>` ou `<CPF>`. Nem um nem outro: `ArgumentException` (a mensagem não traz o valor). O CNPJ alfanumérico entra como veio (maiúsculas): a NT 2014.002 v1.40 e o pacote 1.04 aceitam.
+- **O NSU** de 0 a 999999999999999 (15 algarismos): negativo ou acima, `ArgumentOutOfRangeException` (subclasse de `ArgumentException`); vai ao XML com 15 algarismos e zeros à esquerda (`000000000000123`), como o `TNSU` do schema exige.
+- **O pedido:** `distDFeInt versao="1.01"` com `tpAmb` do núcleo, `cUFAutor` (a `UFAutor`, ou a UF do núcleo), o `CNPJ` ou o `CPF`, e a consulta (`distNSU/ultNSU`, `consNSU/NSU` ou `consChNFe/chNFe`). **Sem assinatura**, destino `Destino.AN`, tipo de emissão normal, schema `distDFeInt_v1.01.xsd` (215). A chave de outro modelo que o do núcleo (a de NFC-e) é recusada antes de transmitir (`NFE-CHAVE`, `RecusadoLocalmente`, o `SituacaoNFe.ConferirModelo` da consulta do protocolo).
+- **Sem regra fora do schema** (decisão 6): os argumentos são validados nos factories, e o que o Ambiente Nacional rejeita sobre o interessado e a chave (489, 490, 593, 472, 236, 614 a 619, 640, 641) é da SEFAZ.
+
+### 23.4 O retorno
+
+```csharp
+public sealed class RetornoDistribuicao                  // construtor interno; imutável
+{
+    public int Status { get; }                           // 137, 138, 656 e as rejeições
+    public string Motivo { get; }
+    public Ambiente? Ambiente { get; }   public string? VersaoAplicativo { get; }
+    public DateTimeOffset? Resposta { get; }             // dhResp
+    public long? UltimoNsu { get; }      public long? MaximoNsu { get; }
+    public IReadOnlyList<DocumentoDistribuido> Documentos { get; }   // vazia sem documento
+    public bool NenhumDocumento { get; }                 // 137
+    public bool ConsumoIndevido { get; }                 // 656
+    public bool TemMais { get; }                         // distNSU, 138, UltimoNsu < MaximoNsu (nunca no consNSU nem no consChNFe)
+    public TimeSpan? EsperaSugerida { get; }             // 1 hora no distNSU sem mais o que entregar (137, ou 138 com UltimoNsu >= MaximoNsu) e no 656
+}
+
+public sealed class DocumentoDistribuido                 // construtor interno; imutável
+{
+    public long? Nsu { get; }                            // nulo na consulta por chave
+    public string Schema { get; }                        // "resNFe_v1.01.xsd", "procNFe_v4.00.xsd", ...
+    public TipoDocumentoDistribuido Tipo { get; }        // ResumoNFe, NFeProcessada, ResumoEvento, EventoProcessado, Outro
+    public string Xml { get; }                           // descompactado (gzip), UTF-8, como veio, sem o BOM
+    public ChaveAcesso? Chave { get; }
+    public ResumoNFe? ResumoNFe { get; }                 // só no ResumoNFe
+    public ResumoEvento? ResumoEvento { get; }           // só no ResumoEvento
+}
+
+public sealed class ResumoNFe      // Chave, Emitente, NomeEmitente, InscricaoEstadual, Emissao, TipoNota, ValorTotal, Digest, Recebimento, Protocolo, Situacao
+public sealed class ResumoEvento   // Orgao, Autor, Chave, Momento, Tipo, Sequencia, Descricao, Recebimento, Protocolo
+public enum SituacaoResumo { Autorizada = 1, Denegada = 2, Cancelada = 3 }   // cSitNFe, aberta
+```
+
+- **Os resumos nos tipos do modelo:** `dhEmi`, `dhRecbto` e `dhEvento` em `DateTimeOffset` com o fuso que veio; `vNF` em `decimal`; `tpNF` em `TipoNota`; `tpEvento` em `TipoEvento` (aberta: `(TipoEvento)999999` para o que a enumeração não nomeia); `cSitNFe` em `SituacaoResumo` (aberta). A `IE` vem como está (algarismos, `ISENTO` ou vazia: a NT, C07, aceita vazia, e o schema, `TIe`, não). `Emitente` e `Autor` são o CNPJ ou o CPF, sem máscara. O `digVal`, opcional no schema, é `Digest` (nulo se não veio).
+- **Para a NF-e processada e o evento processado**, quem usa lê o `Xml` com `LeiauteNFe400.Ler` (a `NotaLida`) ou direto: **a leitura da nota não é duplicada aqui.** O `Chave` do `NFeProcessada` sai do `Id` do `infNFe` (ou do `chNFe` do protocolo); o do `EventoProcessado`, do `chNFe` do `evento` (ou do `retEvento`).
+- **`TemMais` e `EsperaSugerida` só valem na distribuição por NSU** (ajuste ao desenho, 23.7): a consulta pontual responde um documento só, e o `UltimoNsu` dela é o NSU pedido, menor que o máximo; chamá-la de "há mais" levaria a um laço errado. O 656 vale sempre a hora. **A espera de 1 hora vale também no 138 cujo `UltimoNsu` alcançou o `MaximoNsu`** (NT 3.11.4.1, 2: "quando ultNSU for igual ao maxNSU, não existem mais documentos; para não haver bloqueio, deve-se aguardar 1 hora"): quem chama de novo na hora só recebe o 137, e o 137 já bloqueia a consulta seguinte.
+- **A lib não repete a consulta, não espera e não guarda o NSU** (decisão 6, PROJETO.md 8.6).
+
+### 23.5 A leitura branda
+
+`LeituraRetorno` (decisão 4 do CONTRATOS.md 13): a raiz tem de ser `retDistDFeInt` no namespace da NF-e; sem `cStat` numérico ou sem `xMotivo`, a resposta é ilegível (`FormatException`, o handler do `Executar` a trata como `RespostaIlegivel`). O que não se lê é aviso, nunca recusa (a resposta já foi processada):
+
+| Aviso | Quando | O que acontece |
+|---|---|---|
+| `NFE-VALOR` | o `ultNSU`, o `maxNSU`, o `dhResp`, o `tpAmb` ou o `NSU` do `docZip` não se leem | o campo fica nulo |
+| `NFE-DISTRIBUICAO` | o `docZip` não é base64, não é gzip, passa de **16 MB** descompactado (bomba de descompressão), não é UTF-8 ou o XML não é bem formado (também com DTD, que é proibido); ou o `resNFe`/`resEvento` não se lê nos tipos | o documento sai da lista, **com o NSU na mensagem**, e os outros seguem; no resumo que não se lê, o documento fica com o `Xml` e o resumo nulo |
+| `NFE-DESCONHECIDO`, `NFE-REPETIDO` | elemento fora do leiaute, ou repetido (`cStat`, `loteDistDFeInt`) | ignorado; vale o primeiro |
+
+O `schema` desconhecido vira `Tipo.Outro` (sem aviso, com o `Xml`); o `docZip` sem `schema` também (com `NFE-DISTRIBUICAO`). Mais de 50 `docZip` não é erro (a NT limita a 50: aceita-se o que vier). `NFE-DISTRIBUICAO` está em `docs/LEITURA.md` 3.
+
+### 23.6 Testes
+
+- **`OperacaoDistribuicaoTestes`** (NFe.Testes, 81, handler falso): a NF-e tem a distribuição e a NFC-e não; o serviço, a ação, a operação e as duas URLs do AN; o pedido no schema nos três modos, com CNPJ (numérico, mascarado, alfanumérico) e CPF, com `cUFAutor` do núcleo e informada, com o `ultNSU` de 15 algarismos; o envelope com a operação; as recusas dos factories e da chave de NFC-e; a leitura de 137, 138 com os quatro tipos (gzip montado no teste), 656, 589, 593, 215 e 632; `TemMais` e `EsperaSugerida`; os resumos com todos os campos (`ISENTO`, IE vazia, CPF, sem `digVal`, situação aberta, evento aberto); a chave de cada tipo; o NSU ausente; o BOM e a declaração; o base64 com quebras de linha como na NT; o `docZip` com base64 inválido, não gzip, gzip cortado e corrompido, XML mal formado, vazio, DTD e não UTF-8, a bomba de 17 MB, o documento de 4 MB que passa, o resumo que não se lê, o NSU ilegível e o `schema` ausente; 55 documentos; a resposta ilegível e a sem o elemento da operação. Os XML de exemplo passam nos schemas do pacote (`resNFe`, `resEvento`, `retDistDFeInt`).
+- **`DistribuicaoEmuladaTestes`** (NFe.Testes, 22, contra a SEFAZ emulada, com núcleos de CNPJ diferente, cada um com o seu certificado autoassinado): o destinatário B recebe o `resNFe` (NSU 1) lido nos tipos; o 137 na seguinte (com a espera de 1 hora) e o 656 na terceira; o `ultNSU` fora da sequência (656, com o `UltimoNsu` do servidor); o emitente não recebe a própria nota; o autorizado no `autXML` (que a lib escreve) recebe o `nfeProc`, lido com `LeiauteNFe400.Ler` e igual à nota autorizada; o cancelamento (6.1) como `resEvento` ao destinatário e como `procEventoNFe` ao autorizado; o `distNSU` acima do máximo (589, com o máximo dele); `consNSU` e `consChNFe` (138, 589, 217, 641, 640, 653, 632 com o relógio avançado 91 dias); o certificado de outro CNPJ base (593) e de CNPJ para CPF (472); a matriz que consulta a filial; o destinatário pessoa física pelo CPF; a 21ª consulta pontual (656); o serviço paralisado (108 e 109); a conexão derrubada depois de processar, a repetição que cai no 656 e a recuperação pelo `consNSU` depois da hora; a derrubada antes de processar e a repetição; 55 notas em dois lotes (50 e 5, com `TemMais`).
+- **`DistribuicaoGuiaTestes`** (NFe.Testes, 2): o laço do `docs/DISTRIBUICAO.md` 7, exatamente como está no guia, contra a SEFAZ emulada: a sincronização de 55 notas em dois lotes, a hora de espera sem consultar (o último pedido do emulador não muda) e a retomada depois dela; a resposta perdida, o 656 da repetição e a lacuna fechada pelo `consNSU`.
+- **Núcleo:** 16 testes novos (23.1). **Homologação real:** `DistribuicaoHomologacaoTestes`, a distribuição do CNPJ do PFX com o `ultNSU` 0, pulado sem o PFX.
+- **Testes que mudaram** por consequência direta da etapa: `AutorizadoresNFe400Testes` (a lista de serviços da NF-e ganha o `NFeDistribuicaoDFe`; as URLs da NF-e passam de 190 para 192; o AN da NF-e tem o evento e a distribuição, que a asserção "a distribuição fica fora" proibia) e `LeiauteNFe400Testes` (as operações da NF-e ganham o `DistribuicaoDFe`).
+
+### 23.7 Implementação
+
+**Ajustes ao desenho** (a conferir pelo usuário):
+
+- **O `UFAutor` é parâmetro opcional dos factories**, e não `init`: com construtor privado e factories estáticos, um `init` não tem como ser usado (não há `new DistribuicaoDFe { ... }` nem `with`). `UltimoNsu(interessado, ultimoNsu = 0, ufAutor = null)` e os outros dois; a propriedade `UFAutor` é só de leitura.
+- **`TemMais` e `EsperaSugerida` só na distribuição por NSU** (23.4), e **a espera também no 138 que alcança o máximo**: o desenho os dava pelo status (a espera só no 137 e no 656); o 137 do `consNSU` (o NSU que o Ambiente Nacional não gerou) e do `consChNFe` (a NF-e que ele não tem) não bloqueiam o `distNSU` seguinte (NT 3.11.4.1: o bloqueio de 1 hora é do `distNSU`), e o 138 do `consNSU` com o `UltimoNsu` menor que o máximo não é "há mais"; e o último 138 do `distNSU` (o `UltimoNsu` igual ao `MaximoNsu`) já manda esperar a hora (NT 3.11.4.1, 2), em vez de deixar a chamada seguinte descobrir o 137. O 656 vale a hora em qualquer consulta (NT 3.11.4.2, observação).
+- **`EnvelopeSoap.Ler(resposta, servico = null)`**: o desenho dava `Ler(resposta, servico)`; o parâmetro é opcional para os serviços sem operação e os testes de antes não mudarem.
+- **`ServicoSoap.Operacao` recusa o nome que não é um nome XML simples** (letras, algarismos e sublinhado): ele é escrito no envelope sem escape.
+- **O número da seção é o 23**, e não o 24 do arquivo da etapa.
+
+**Decisões tomadas sem perguntar:**
+
+- **O `docZip` sem `schema` fica na lista como `Outro`** (com `NFE-DISTRIBUICAO`) em vez de ser omitido: o conteúdo está lá, e omitir perderia um documento que o NSU já consumiu; o `schema` é obrigatório no XSD, então a ausência é do servidor.
+- **O `resNFe` ou o `resEvento` que não se lê nos tipos** fica na lista, com o resumo nulo e o `Xml`, e `NFE-DISTRIBUICAO`: quem usa ainda tem o documento e o NSU.
+- **O XML descompactado sai como texto UTF-8 sem o BOM** (o BOM, se vier, é tirado); a declaração XML dele fica como veio. Bytes que não são UTF-8 são `docZip` ilegível.
+- **A `InscricaoEstadual` vazia no `resNFe` é aceita** (C07 da NT diz que vale vazio; o schema `TIe` não): a leitura segue a norma e o servidor real.
+- **O `xNome` do `resNFe` com 2 posições** (o schema aceita de 2 a 60; a NT diz 3 a 60) é aceito.
+- **O `dhEmi`/`dhRecbto` são lidos com o formato do `TDateTimeUTC`** (`LeituraRetorno.LerDataHora`): o que não casa deixa o resumo nulo.
+- **A recomendação para a queda no meio** (o item 7 do arquivo da etapa pedia "confirme na NT e escreva a recomendação exata") está em `docs/DISTRIBUICAO.md` 6, conferida na NT 3.11.4.1 (o `ultNSU` do 656) e contra o emulador: a repetição com o mesmo `ultNSU` depois de uma resposta perdida **cai no 656** (o servidor já considera entregue o lote que se perdeu); o 656 devolve o `ultNSU` do servidor, e os NSU perdidos se recuperam um a um pelo `consNSU` depois da hora de espera. O emulador segue a NT; a confirmação com o Ambiente Nacional real fica para a homologação (pendente até o PFX).
+- **Não se registra a distribuição na NFC-e** (a NT só trata a NF-e).

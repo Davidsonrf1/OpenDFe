@@ -208,6 +208,7 @@ Com o prefixo `NFE-`, como os da escrita (`CodigosEscrita`), e sempre com o `Cam
 | `NFE-REPETIDO` | Aviso | um elemento que o XSD aceita uma vez, repetido | vale o primeiro |
 | `NFE-ENUMERACAO` | Aviso | o valor numérico fora da lista da enumeração (`MODELO.md` decisão 8) | entra como o número (`(MeioPagamento)77`) |
 | `NFE-ITEM` | Aviso | o `nItem` fora da sequência 1 a n, repetido ou ausente | o item fica na posição em que veio |
+| `NFE-DISTRIBUICAO` | Aviso | só no retorno da distribuição DF-e (`CONTRATOS.md` 23.5): o `docZip` que não é base64, não é gzip, passa de 16 MB descompactado, não é UTF-8 ou não é XML bem formado; ou o `resNFe`/`resEvento` que não se lê nos tipos | o documento sai da lista (com o NSU na mensagem), ou fica sem o resumo tipado; os outros seguem |
 
 ## 5. NTs anteriores: o que saiu do schema do leiaute 4.00
 

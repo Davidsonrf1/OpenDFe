@@ -38,4 +38,7 @@ internal static class CodigosLeitura
 
     /// <summary>O <c>nItem</c> fora da sequência 1 a n, repetido ou ausente: aviso.</summary>
     internal const string Item = "NFE-ITEM";
+
+    /// <summary>O <c>docZip</c> da distribuição DF-e que não se lê (docs/LEITURA.md 3).</summary>
+    internal const string Distribuicao = "NFE-DISTRIBUICAO";
 }

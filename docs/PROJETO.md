@@ -166,7 +166,7 @@ O rastro é um objeto (`RastroWS`), o mesmo no resultado e na `FalhaTransmissaoE
 | Consulta do protocolo | `ConsultaProtocolo(chave)` (NF-e e NFC-e, `CONTRATOS.md` 15) | `RetornoProtocolo`: a situação, o protocolo e os eventos | UF e tipo de emissão da chave; com o `Destino`, o autorizador normal dele |
 | Inutilização | `Inutilizacao(cnpj, serie, inicial, final, justificativa)` (`CONTRATOS.md` 18) | `RetornoInutilizacao` | UF do núcleo |
 | Evento | `EnvioEvento(1 a 20 eventos)` (`CONTRATOS.md` 18), o detalhe é subclasse: `Cancelamento`, `CancelamentoSubstituicao`, `CartaCorrecao`, `Manifestacao`, `Epec`... | `RetornoEvento`, com o `procEventoNFe` por evento | o do documento; AN para manifestação e EPEC |
-| Distribuição DF-e | `DistribuicaoDFe(ultimoNsu / nsu / chave)` | `RetornoDistribuicao` | AN |
+| Distribuição DF-e | `DistribuicaoDFe.UltimoNsu(interessado, ultimoNsu)`, `.Nsu(interessado, nsu)` e `.Chave(interessado, chave)` (só a NF-e; `CONTRATOS.md` 23) | `RetornoDistribuicao`: os documentos já descompactados (`DocumentoDistribuido`, com o `ResumoNFe` e o `ResumoEvento` tipados), o `UltimoNsu`, `TemMais` e a `EsperaSugerida`; o guia é `docs/DISTRIBUICAO.md` | AN |
 | Consulta cadastro | `ConsultaCadastro(uf, documento)` | `RetornoCadastro` | UF consultada |
 | Recuperação | `RecuperacaoAutorizacao(xmlAssinado)` (uma nota; `Autorizacao.NotasEnviadas` tira as notas do rastro) | `RetornoAutorizacao`, com o `nfeProc` se o `digVal` confere | UF e tipo de emissão da chave (8.6) |
 

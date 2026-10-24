@@ -114,7 +114,7 @@ internal sealed class TransporteSoap : ITransporteSefaz, IDisposable
         {
             try
             {
-                var mensagem = EnvelopeSoap.Ler(corpo);
+                var mensagem = EnvelopeSoap.Ler(corpo, envio.Soap);
                 if (status == HttpStatusCode.OK)
                     return mensagem;
             }

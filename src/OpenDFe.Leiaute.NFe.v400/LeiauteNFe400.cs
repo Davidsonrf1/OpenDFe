@@ -20,7 +20,7 @@ namespace OpenDFe.NFe;
 /// da nota (<see cref="DFe.Preparar{TDocumento}"/>), etapa 4.4, e a NFC-e com o QR Code que a lib escreve (etapa 5.1,
 /// <see cref="ConfiguracaoNFCe"/>); a consulta do protocolo (<see cref="ConsultaProtocolo"/>) e a recuperação da
 /// autorização (<see cref="RecuperacaoAutorizacao"/>), etapa 4.5; o registro de eventos (<see cref="EnvioEvento"/>, com o
-/// <see cref="Cancelamento"/>) e a inutilização (<see cref="Inutilizacao"/>), etapa 6.1. Declara também as formas de XML que lê (o
+/// <see cref="Cancelamento"/>) e a inutilização (<see cref="Inutilizacao"/>), etapa 6.1; e, só na NF-e, a distribuição DF-e (<see cref="DistribuicaoDFe"/>, ao AN), etapa 8.1. Declara também as formas de XML que lê (o
 /// <c>NFe</c> e o <c>nfeProc</c>), para o <see cref="DFe.Detectar"/>, e lê a nota (<see cref="Ler"/>) sem núcleo.
 /// </para>
 /// </remarks>
@@ -49,6 +49,8 @@ public sealed class LeiauteNFe400 : ILeiaute
     private static readonly OperacaoEvento Eventos = new();
 
     private static readonly OperacaoInutilizacao Inutilizar = new();
+
+    private static readonly OperacaoDistribuicao Distribuicao = new();
 
     /// <summary>A versão do leiaute, como no atributo <c>versao</c> do XML: <c>"4.00"</c>.</summary>
     public string Versao => "4.00";
@@ -83,6 +85,8 @@ public sealed class LeiauteNFe400 : ILeiaute
         declaracao.RegistrarOperacao(Recuperacao);
         declaracao.RegistrarOperacao(Eventos);
         declaracao.RegistrarOperacao(Inutilizar);
+        if (declaracao.Documento == Documento.NFe)
+            declaracao.RegistrarOperacao(Distribuicao);
         declaracao.RegistrarPreparo(Preparo);
         declaracao.DeclararConfiguracaoDocumento<ConfiguracaoNFCe>(obrigatoria: false);
         declaracao.DeclararLeitura(FormaNFe);

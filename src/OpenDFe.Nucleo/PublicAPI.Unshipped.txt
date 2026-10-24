@@ -568,3 +568,5 @@ OpenDFe.Impressao.TextoPaginado
 const OpenDFe.Impressao.TextoPaginado.Pagina = "{pagina}" -> string!
 const OpenDFe.Impressao.TextoPaginado.Paginas = "{paginas}" -> string!
 static OpenDFe.Impressao.TextoPaginado.Resolver(string! texto, int pagina, int paginas) -> string!
+OpenDFe.ServicoSoap.Operacao.get -> string?
+OpenDFe.ServicoSoap.Operacao.init -> void

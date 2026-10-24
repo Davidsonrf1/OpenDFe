@@ -5,7 +5,7 @@ namespace OpenDFe.NFe;
 internal static partial class AutorizadoresNFe400
 {
     // A "Relação de Serviços Web" do Portal Nacional da NF-e, na ordem da página. A SVC-AN usa os endereços da
-    // SVAN, e a SVC-RS os da SVRS, sem a inutilização. O AN fica só com o evento (a manifestação e o EPEC).
+    // SVAN, e a SVC-RS os da SVRS, sem a inutilização. O AN fica com o evento (a manifestação e o EPEC) e a distribuição DF-e (NFeDistribuicaoDFe, a URL de www1/hom1 conferida em 2026-10-24).
     private static readonly (Destino Autorizador, string Servico, string Homologacao, string Producao)[] UrlsNFe =
     [
         (Destino.AM, Inutilizacao,
@@ -293,6 +293,9 @@ internal static partial class AutorizadoresNFe400
         (Destino.AN, RecepcaoEvento,
             "https://hom1.nfe.fazenda.gov.br/NFeRecepcaoEvento4/NFeRecepcaoEvento4.asmx",
             "https://www.nfe.fazenda.gov.br/NFeRecepcaoEvento4/NFeRecepcaoEvento4.asmx"),
+        (Destino.AN, DistribuicaoDFe,
+            "https://hom1.nfe.fazenda.gov.br/NFeDistribuicaoDFe/NFeDistribuicaoDFe.asmx",
+            "https://www1.nfe.fazenda.gov.br/NFeDistribuicaoDFe/NFeDistribuicaoDFe.asmx"),
     ];
 
     // A NFC-e: a "Relação de Serviços Web" do Portal da NFC-e na SVRS e, para MG, que ele não lista, a página de

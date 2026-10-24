@@ -2,7 +2,8 @@ namespace OpenDFe;
 
 /// <summary>
 /// O que o envelope SOAP 1.2 de um serviço leva (PROJETO.md 8.2): o namespace do WSDL, que é o do
-/// <c>nfeDadosMsg</c> e do <c>nfeResultMsg</c>, e a ação, no <c>Content-Type</c>. O leiaute declara um por serviço
+/// <c>nfeDadosMsg</c> e do <c>nfeResultMsg</c>, a ação, no <c>Content-Type</c>, e, no serviço que a tem no <c>Body</c>, a
+/// operação (<see cref="Operacao"/>). O leiaute declara um por serviço
 /// (<see cref="DeclaracaoLeiaute.DeclararServico"/>); o núcleo não conhece os serviços de nenhum documento.
 /// </summary>
 public sealed class ServicoSoap
@@ -34,4 +35,22 @@ public sealed class ServicoSoap
 
     /// <summary>A ação SOAP, no parâmetro <c>action</c> do <c>Content-Type</c>.</summary>
     public string Acao { get; }
+
+    /// <summary>
+    /// O nome da operação, nos serviços cujo <c>Body</c> a tem como elemento (<c>"nfeDistDFeInteresse"</c>, da
+    /// distribuição DF-e, NT 2014.002). Quando não nulo, o <c>nfeDadosMsg</c> vai dentro de
+    /// <c>&lt;Operacao xmlns="namespaceWsdl"&gt;</c>, e a resposta é lida em <c>&lt;Operacao&gt;Response/&lt;Operacao&gt;Result</c>,
+    /// em vez do <c>nfeResultMsg</c> direto no <c>Body</c>. Nulo (o padrão) é o envelope dos outros serviços, sem mudança.
+    /// </summary>
+    /// <exception cref="ArgumentException">O valor é vazio, só espaços ou não é um nome XML simples (letras, algarismos e sublinhado).</exception>
+    public string? Operacao
+    {
+        get;
+        init
+        {
+            if (value is not null && (string.IsNullOrWhiteSpace(value) || !value.All(c => char.IsAsciiLetterOrDigit(c) || c == '_') || char.IsAsciiDigit(value[0])))
+                throw new ArgumentException("A operação tem de ser um nome XML simples (letras, algarismos e sublinhado).", nameof(value));
+            field = value;
+        }
+    }
 }

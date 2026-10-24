@@ -24,6 +24,10 @@ public class AutorizadoresNFe400Testes
     {
         var declaracao = DeclaracaoLeiaute.Criar(new LeiauteNFe400(), documento);
 
+        // A distribuição DF-e (8.1) é só da NF-e, a última declarada; a NFC-e não é distribuída.
+        List<(string, string, string)> distribuicao = documento == Documento.NFe
+            ? [("NFeDistribuicaoDFe", Wsdl + "NFeDistribuicaoDFe", Wsdl + "NFeDistribuicaoDFe/nfeDistDFeInteresse")]
+            : [];
         Assert.Equal(
             [
                 ("NFeAutorizacao4", Wsdl + "NFeAutorizacao4", Wsdl + "NFeAutorizacao4/nfeAutorizacaoLote"),
@@ -33,6 +37,7 @@ public class AutorizadoresNFe400Testes
                 ("NFeInutilizacao4", Wsdl + "NFeInutilizacao4", Wsdl + "NFeInutilizacao4/nfeInutilizacaoNF"),
                 ("NFeRecepcaoEvento4", Wsdl + "NFeRecepcaoEvento4", Wsdl + "NFeRecepcaoEvento4/nfeRecepcaoEvento"),
                 ("CadConsultaCadastro4", Wsdl + "CadConsultaCadastro4", Wsdl + "CadConsultaCadastro4/consultaCadastro"),
+                .. distribuicao,
             ],
             declaracao.Servicos.Select(s => (s.Nome, s.NamespaceWsdl, s.Acao)));
     }
@@ -97,7 +102,7 @@ public class AutorizadoresNFe400Testes
     }
 
     [Theory]
-    [InlineData(Documento.NFe, 190)]
+    [InlineData(Documento.NFe, 192)]
     [InlineData(Documento.NFCe, 114)]
     public void TodoAutorizadorAtendidoTemOsServicosNosDoisAmbientes(Documento documento, int urls)
     {
@@ -138,9 +143,10 @@ public class AutorizadoresNFe400Testes
             [Destino.AM, Destino.PE, Destino.BA, Destino.MG, Destino.SP, Destino.PR, Destino.RS, Destino.MS, Destino.MT, Destino.GO, Destino.SVRS],
             Autorizadores(nfe, "CadConsultaCadastro4"));
         Assert.Equal([Destino.PR, Destino.MS, Destino.GO], Autorizadores(nfce, "CadConsultaCadastro4"));
-        Assert.Equal(["NFeRecepcaoEvento4"], nfe.Where(e => e.Autorizador == Destino.AN).Select(e => e.Servico).Distinct());
+        // O AN tem o evento (a manifestação e o EPEC) e a distribuição DF-e (8.1), esta só na NF-e.
+        Assert.Equal(["NFeRecepcaoEvento4", "NFeDistribuicaoDFe"], nfe.Where(e => e.Autorizador == Destino.AN).Select(e => e.Servico).Distinct());
         Assert.DoesNotContain(nfce, e => e.Autorizador == Destino.AN);
-        Assert.DoesNotContain(nfe, e => e.Servico == "NFeDistribuicaoDFe");
+        Assert.DoesNotContain(nfce, e => e.Servico == "NFeDistribuicaoDFe");
     }
 
     [Fact]

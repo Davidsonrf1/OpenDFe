@@ -207,3 +207,69 @@ OpenDFe.NFe.OpcoesDanfe.Via.init -> void
 OpenDFe.NFe.OrientacaoDanfe
 OpenDFe.NFe.OrientacaoDanfe.Paisagem = 1 -> OpenDFe.NFe.OrientacaoDanfe
 OpenDFe.NFe.OrientacaoDanfe.Retrato = 0 -> OpenDFe.NFe.OrientacaoDanfe
+OpenDFe.NFe.ResumoEvento
+OpenDFe.NFe.DistribuicaoDFe
+OpenDFe.NFe.ResumoNFe
+OpenDFe.NFe.DocumentoDistribuido
+OpenDFe.NFe.RetornoDistribuicao
+OpenDFe.NFe.TipoConsultaDistribuicao.UltimoNsu = 0 -> OpenDFe.NFe.TipoConsultaDistribuicao
+OpenDFe.NFe.TipoConsultaDistribuicao
+OpenDFe.NFe.TipoConsultaDistribuicao.Nsu = 1 -> OpenDFe.NFe.TipoConsultaDistribuicao
+OpenDFe.NFe.TipoConsultaDistribuicao.Chave = 2 -> OpenDFe.NFe.TipoConsultaDistribuicao
+OpenDFe.NFe.TipoDocumentoDistribuido
+OpenDFe.NFe.TipoDocumentoDistribuido.ResumoNFe = 0 -> OpenDFe.NFe.TipoDocumentoDistribuido
+OpenDFe.NFe.TipoDocumentoDistribuido.NFeProcessada = 1 -> OpenDFe.NFe.TipoDocumentoDistribuido
+OpenDFe.NFe.TipoDocumentoDistribuido.EventoProcessado = 3 -> OpenDFe.NFe.TipoDocumentoDistribuido
+OpenDFe.NFe.TipoDocumentoDistribuido.ResumoEvento = 2 -> OpenDFe.NFe.TipoDocumentoDistribuido
+OpenDFe.NFe.TipoDocumentoDistribuido.Outro = 4 -> OpenDFe.NFe.TipoDocumentoDistribuido
+OpenDFe.NFe.SituacaoResumo.Autorizada = 1 -> OpenDFe.NFe.SituacaoResumo
+OpenDFe.NFe.SituacaoResumo.Cancelada = 3 -> OpenDFe.NFe.SituacaoResumo
+OpenDFe.NFe.SituacaoResumo.Denegada = 2 -> OpenDFe.NFe.SituacaoResumo
+OpenDFe.NFe.SituacaoResumo
+static OpenDFe.NFe.DistribuicaoDFe.UltimoNsu(string! interessado, long ultimoNsu = 0, OpenDFe.UF? ufAutor = null) -> OpenDFe.NFe.DistribuicaoDFe!
+static OpenDFe.NFe.DistribuicaoDFe.Nsu(string! interessado, long nsu, OpenDFe.UF? ufAutor = null) -> OpenDFe.NFe.DistribuicaoDFe!
+OpenDFe.NFe.DistribuicaoDFe.Interessado.get -> string!
+static OpenDFe.NFe.DistribuicaoDFe.Chave(string! interessado, OpenDFe.ChaveAcesso! chave, OpenDFe.UF? ufAutor = null) -> OpenDFe.NFe.DistribuicaoDFe!
+OpenDFe.NFe.DistribuicaoDFe.Consulta.get -> OpenDFe.NFe.TipoConsultaDistribuicao
+OpenDFe.NFe.DistribuicaoDFe.NsuConsultado.get -> long?
+OpenDFe.NFe.DistribuicaoDFe.ChaveConsultada.get -> OpenDFe.ChaveAcesso?
+OpenDFe.NFe.DocumentoDistribuido.Nsu.get -> long?
+OpenDFe.NFe.DocumentoDistribuido.Schema.get -> string!
+OpenDFe.NFe.DocumentoDistribuido.Tipo.get -> OpenDFe.NFe.TipoDocumentoDistribuido
+OpenDFe.NFe.DocumentoDistribuido.Xml.get -> string!
+OpenDFe.NFe.DocumentoDistribuido.Chave.get -> OpenDFe.ChaveAcesso?
+OpenDFe.NFe.DocumentoDistribuido.ResumoNFe.get -> OpenDFe.NFe.ResumoNFe?
+OpenDFe.NFe.DocumentoDistribuido.ResumoEvento.get -> OpenDFe.NFe.ResumoEvento?
+OpenDFe.NFe.DistribuicaoDFe.UFAutor.get -> OpenDFe.UF?
+OpenDFe.NFe.RetornoDistribuicao.Status.get -> int
+OpenDFe.NFe.RetornoDistribuicao.Motivo.get -> string!
+OpenDFe.NFe.RetornoDistribuicao.Ambiente.get -> OpenDFe.Ambiente?
+OpenDFe.NFe.RetornoDistribuicao.VersaoAplicativo.get -> string?
+OpenDFe.NFe.RetornoDistribuicao.Resposta.get -> System.DateTimeOffset?
+OpenDFe.NFe.RetornoDistribuicao.UltimoNsu.get -> long?
+OpenDFe.NFe.RetornoDistribuicao.MaximoNsu.get -> long?
+OpenDFe.NFe.RetornoDistribuicao.ConsumoIndevido.get -> bool
+OpenDFe.NFe.RetornoDistribuicao.Documentos.get -> System.Collections.Generic.IReadOnlyList<OpenDFe.NFe.DocumentoDistribuido!>!
+OpenDFe.NFe.RetornoDistribuicao.NenhumDocumento.get -> bool
+OpenDFe.NFe.RetornoDistribuicao.TemMais.get -> bool
+OpenDFe.NFe.RetornoDistribuicao.EsperaSugerida.get -> System.TimeSpan?
+OpenDFe.NFe.ResumoNFe.Chave.get -> OpenDFe.ChaveAcesso!
+OpenDFe.NFe.ResumoNFe.Emitente.get -> string!
+OpenDFe.NFe.ResumoNFe.NomeEmitente.get -> string!
+OpenDFe.NFe.ResumoNFe.Emissao.get -> System.DateTimeOffset
+OpenDFe.NFe.ResumoNFe.InscricaoEstadual.get -> string!
+OpenDFe.NFe.ResumoNFe.Digest.get -> string?
+OpenDFe.NFe.ResumoNFe.Recebimento.get -> System.DateTimeOffset
+OpenDFe.NFe.ResumoNFe.ValorTotal.get -> decimal
+OpenDFe.NFe.ResumoNFe.Protocolo.get -> string!
+OpenDFe.NFe.ResumoNFe.Situacao.get -> OpenDFe.NFe.SituacaoResumo
+OpenDFe.NFe.ResumoEvento.Orgao.get -> int
+OpenDFe.NFe.ResumoEvento.Autor.get -> string!
+OpenDFe.NFe.ResumoEvento.Chave.get -> OpenDFe.ChaveAcesso!
+OpenDFe.NFe.ResumoEvento.Tipo.get -> OpenDFe.NFe.TipoEvento
+OpenDFe.NFe.ResumoEvento.Momento.get -> System.DateTimeOffset
+OpenDFe.NFe.ResumoEvento.Sequencia.get -> int
+OpenDFe.NFe.ResumoEvento.Descricao.get -> string!
+OpenDFe.NFe.ResumoEvento.Protocolo.get -> string!
+OpenDFe.NFe.ResumoEvento.Recebimento.get -> System.DateTimeOffset
+OpenDFe.NFe.ResumoNFe.TipoNota.get -> OpenDFe.NFe.TipoNota

@@ -23,11 +23,12 @@ internal static partial class AutorizadoresNFe400
     internal const string Inutilizacao = "NFeInutilizacao4";
     internal const string RecepcaoEvento = "NFeRecepcaoEvento4";
     internal const string ConsultaCadastro = "CadConsultaCadastro4";
+    internal const string DistribuicaoDFe = "NFeDistribuicaoDFe";
 
     private const string NamespaceWsdl = "http://www.portalfiscal.inf.br/nfe/wsdl/";
 
-    // O serviço e o método do WSDL (NT 2016.002, 2.3). A distribuição DF-e (NFeDistribuicaoDFe, no AN) fica para a
-    // fase 8: o nfeDadosMsg dela vai dentro do elemento da operação, que o envelope do núcleo ainda não escreve.
+    // O serviço e o método do WSDL (NT 2016.002, 2.3). A distribuição DF-e (NFeDistribuicaoDFe, no AN) é só da NF-e, e o
+    // nfeDadosMsg dela vai dentro do elemento da operação (ServicoSoap.Operacao): ela é declarada à parte, abaixo.
     private static readonly (string Nome, string Metodo)[] Servicos =
     [
         (Autorizacao, "nfeAutorizacaoLote"),
@@ -63,6 +64,14 @@ internal static partial class AutorizadoresNFe400
             declaracao.DeclararServico(new ServicoSoap(nome, NamespaceWsdl + nome, NamespaceWsdl + nome + "/" + metodo));
 
         var nfe = declaracao.Documento == Documento.NFe;
+        if (nfe)
+        {
+            const string Metodo = "nfeDistDFeInteresse";
+            declaracao.DeclararServico(new ServicoSoap(DistribuicaoDFe, NamespaceWsdl + DistribuicaoDFe, NamespaceWsdl + DistribuicaoDFe + "/" + Metodo)
+            {
+                Operacao = Metodo,
+            });
+        }
         foreach (var uf in Enum.GetValues<UF>())
         {
             var normal = Normal(uf, nfe);
