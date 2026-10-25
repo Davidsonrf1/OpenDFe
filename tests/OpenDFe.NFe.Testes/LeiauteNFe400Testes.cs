@@ -31,7 +31,7 @@ public class LeiauteNFe400Testes
     public static TheoryData<Documento, Type[]> OperacoesDocumento => new()
     {
         // a NFC-e ganha a autorização e a recuperação com o QR Code, na 5.1 (CONTRATOS.md 14 e 15, decisão 12); só a NF-e tem a distribuição DF-e (8.1)
-        { Documento.NFe, [typeof(ConsultaStatus), typeof(ConsultaProtocolo), typeof(Autorizacao), typeof(ConsultaRecibo), typeof(RecuperacaoAutorizacao), typeof(EnvioEvento), typeof(Inutilizacao), typeof(DistribuicaoDFe)] },
+        { Documento.NFe, [typeof(ConsultaStatus), typeof(ConsultaProtocolo), typeof(Autorizacao), typeof(ConsultaRecibo), typeof(RecuperacaoAutorizacao), typeof(EnvioEvento), typeof(Inutilizacao), typeof(DistribuicaoDFe), typeof(OpenDFe.NFe.ConsultaCadastro)] },
         { Documento.NFCe, [typeof(ConsultaStatus), typeof(ConsultaProtocolo), typeof(Autorizacao), typeof(ConsultaRecibo), typeof(RecuperacaoAutorizacao), typeof(EnvioEvento), typeof(Inutilizacao)] },
     };
 

@@ -36,16 +36,22 @@ public abstract class Evento
     internal abstract string Descricao { get; }
 
     /// <summary>
-    /// O CNPJ (14 posições) ou o CPF (11) do autor: o emitente da chave (o CPF vem na chave com três zeros à esquerda).
+    /// O CNPJ (14 posições) ou o CPF (11) do autor: o <see cref="AutorInformado"/> ou, sem ele, o emitente da chave (o CPF
+    /// vem na chave com três zeros à esquerda).
     /// </summary>
     internal virtual string Autor
     {
         get
         {
+            if (AutorInformado is { } informado)
+                return informado;
             var emitente = Chave.Emitente;
             return Cnpj.Valido(emitente) || !emitente.StartsWith("000", StringComparison.Ordinal) ? emitente : emitente[3..];
         }
     }
+
+    /// <summary>O autor que o chamador informa (a manifestação: o destinatário); nulo, o autor é o emitente da chave.</summary>
+    internal virtual string? AutorInformado => null;
 
     /// <summary>A versão do detalhe (<c>verEvento</c> e o <c>versao</c> do <c>detEvento</c>).</summary>
     internal virtual string VersaoDetalhe => "1.00";

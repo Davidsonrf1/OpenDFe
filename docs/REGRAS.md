@@ -214,9 +214,9 @@ Baixadas em 2026-10-22: as NTs do Portal Nacional da NF-e (Documentos > Notas T�
 | a fazer | 617 |
 | schema | 2 |
 | escrita | 65 |
-| SEFAZ | 204 |
+| SEFAZ | 205 |
 | SEFAZ (tabela) | 15 |
-| outra operação (6) | 46 |
+| outra operação (6) | 45 |
 | excluída | 9 |
 | **total** | **1068** |
 
@@ -1495,7 +1495,7 @@ As NTs 2019.001 (EPEC), 2025.002 (os eventos da RTC), 2026.001 (o cancelamento p
 | 1P24-10 | 55/65 | 460 | Obrig. | Protocolo do Evento difere do cadastrado | NT 2025.002 v1.52 | outra operação (6) |
 | 2P12-10 | 55/65 | 1049 | Obrig. | Não é permitido o uso de Crédito Presumido na NFC-e modelo 65 | NT 2025.002 v1.52 | outra operação (6) |
 | 2P21-05 | 55/65 | 574 | Obrig. | Autor do evento diverge do emitente da NF-e | NT 2025.002 v1.52 | outra operação (6) |
-| 2P21-10 | 55/65 | 575 | Obrig. | Autor do evento diverge do destinatário da NF-e | NT 2025.002 v1.52 | outra operação (6) |
+| 2P21-10 | 55/65 | 575 | Obrig. | Autor do evento diverge do destinatário da NF-e | NT 2025.002 v1.52 | SEFAZ |
 | 2P24-10 | 55/65 | 1096 | Obrig. | Número de item não existe na NFe | NT 2025.002 v1.52 | outra operação (6) |
 | 2P25-10 | 55/65 | 1097 | Obrig. | O valor do crédito de IBS do item não pode ser maior que o valor do IBS do respectivo item na NFe | NT 2025.002 v1.52 | outra operação (6) |
 | 2P25a-10 | 55/65 | 1055 | Obrig. | Código de Crédito Presumido (cCredPres) da Operação inexistente [nItem: 999] | NT 2025.002 v1.52 | outra operação (6) |
@@ -1636,7 +1636,7 @@ Não entram a 558 e a 569 (facultativas, só da SEFAZ). **A situação das linha
 
 Também na montagem, sem regra do catálogo: o `detEvento` conferido pelo schema do tipo (`e110111`), com o código **493** (D06) e a propriedade do campo (`Eventos[0].Justificativa`), e o caractere que o XML não aceita (`NFE-CARACTERE`, o mesmo da escrita da nota). O tamanho da justificativa (15 a 255) e a pontuação são do schema.
 
-**Ficam com a SEFAZ**, sem regra na lib: o prazo do cancelamento (501), o protocolo (222), a nota inexistente (494), a sequência (594), o titular do certificado contra o autor (213, 227) e o autor contra o emitente da chave (574), a duplicidade do evento (573) e a situação da nota. As linhas do catálogo P09-10 (252), P12-26 (617), P12-40 (249), P12-44 (574) e 3B08-100 (206) passam de "outra operação (6)" a "SEFAZ"; as outras da seção 10.6 continuam com as etapas 6.2 e 8.2.
+**Ficam com a SEFAZ**, sem regra na lib: o prazo do cancelamento (501), o protocolo (222), a nota inexistente (494), a sequência (594), o titular do certificado contra o autor (213, 227) e o autor contra o emitente da chave (574), a duplicidade do evento (573) e a situação da nota. As linhas do catálogo P09-10 (252), P12-26 (617), P12-40 (249), P12-44 (574) e 3B08-100 (206) passam de "outra operação (6)" a "SEFAZ"; as outras da seção 10.6 continuam com as etapas 6.2 e 8.2 (a 575, da manifestação, passou a "SEFAZ" na 8.2, seção 19).
 
 **Testes:** `AutorizacaoTestes.Evento` (cada regra e cada recusa na montagem) e `EventoEmuladoTestes`.
 
@@ -1647,3 +1647,17 @@ Também na montagem, sem regra do catálogo: o `detEvento` conferido pelo schema
 **Ficam com a SEFAZ**, sem regra na lib (MOC 7.0, Visão Geral, 5.9.3 e 5.10.3, Tabelas 5-38 e 5-40): a cancelada da emissão normal (920), a substituta de contingência (921; o MOC 5P31-44 manda a substituta ser **offline**, não normal), a chave da substituta (910, 911), a substituta na base (912 a 919), o prazo de 168 horas (501), a sequência da carta acima do registrado, a NFC-e na carta (784), a nota cancelada (580) e o `dhEvento` antes da emissão (577). As linhas P31-26 (910) e P31-46 (911) do catálogo passam de "outra operação (6)" a "SEFAZ".
 
 **Testes:** `AutorizacaoTestes.EventoSubstituicaoCorrecao` (os parâmetros, o `detEvento` no schema do tipo, o `xCondUso` contra o XSD embutido, os limites da correção, o destino e o lote) e, contra a SEFAZ emulada, `SubstituicaoEmuladaTestes` e `CartaCorrecaoEmuladaTestes`.
+
+## 19. A manifestação do destinatário e a consulta cadastro, etapa 8.2 (2026-10-24)
+
+**Aprovada pelo usuário em 2026-10-24** (`PROJETO.md` 2.9; `docs/etapas/8.2-manifestacao-consulta-cadastro.md`, Parte B, decisão 3; `CONTRATOS.md` 24): uma regra da lib na montagem da `ConsultaCadastro` (`OperacaoConsultaCadastro`), antes de transmitir. Não é regra do MOC, e o catálogo não tem linha para ela.
+
+| Regra | Código | Severidade | O que confere |
+|---|---|---|---|
+| (lib) | `NFE-CADASTRO` | Erro | a UF consultada não tem o serviço de cadastro: só atendem as 10 UFs com autorizador próprio de NF-e (AM, BA, GO, MG, MS, MT, PE, PR, RS, SP) e, na SVRS, AC, ES, RN, PB e SC; as outras (a SVAN do MA e as demais UFs da SVRS) recusam na montagem em vez de ir ao autorizador errado. Com o `Destino` informado, a regra não vale |
+
+**A manifestação não tem regra nova da lib** (`CONTRATOS.md` 24.1): o `detEvento` de cada tipo é conferido pelo schema do tipo (`e210200`, `e210210`, `e210220`, `e210240`), com o código **493** (D06) e a propriedade do campo (`Eventos[0].Justificativa`), e o caractere que o XML não aceita é `NFE-CARACTERE`. Os construtores recusam o que a SEFAZ certamente recusaria (a chave de NFC-e, o autor que não é CNPJ nem CPF, a justificativa vazia, a sequência fora de 1 a 2). O `NFE-CHAVE` e o `NFE-LOTE` da 6.1 cobrem o modelo diferente do do núcleo e os destinos misturados (manifestação ao AN com cancelamento à UF).
+
+**Ficam com a SEFAZ**, sem regra na lib (NT 2020.001 v1.60, 6.3.7 e 6.3.8): o destinatário (575), a sequência (594), o prazo de 10 dias da ciência e de 90 das conclusivas (596), a ciência e o desconhecimento da nota cancelada (650, 651), a ciência depois de conclusiva (655) e o tipo de emissão da chave (496). A linha 2P21-10 (575) do catálogo passa de "outra operação (6)" a "SEFAZ". As regras K01 a K09 da consulta cadastro (257 a 265) também ficam com a SEFAZ; o DV do CNPJ e do CPF e o formato da inscrição são recusados pelo construtor.
+
+**Testes:** `AutorizacaoTestes.Manifestacao` e `AutorizacaoTestes.Cadastro` (um caso por recusa e por condição), contra o emulador `ManifestacaoEmuladaTestes` e `CadastroEmuladoTestes`.

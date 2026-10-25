@@ -1762,3 +1762,74 @@ O `schema` desconhecido vira `Tipo.Outro` (sem aviso, com o `Xml`); o `docZip` s
 - **O `dhEmi`/`dhRecbto` são lidos com o formato do `TDateTimeUTC`** (`LeituraRetorno.LerDataHora`): o que não casa deixa o resumo nulo.
 - **A recomendação para a queda no meio** (o item 7 do arquivo da etapa pedia "confirme na NT e escreva a recomendação exata") está em `docs/DISTRIBUICAO.md` 6, conferida na NT 3.11.4.1 (o `ultNSU` do 656) e contra o emulador: a repetição com o mesmo `ultNSU` depois de uma resposta perdida **cai no 656** (o servidor já considera entregue o lote que se perdeu); o 656 devolve o `ultNSU` do servidor, e os NSU perdidos se recuperam um a um pelo `consNSU` depois da hora de espera. O emulador segue a NT; a confirmação com o Ambiente Nacional real fica para a homologação (pendente até o PFX).
 - **Não se registra a distribuição na NFC-e** (a NT só trata a NF-e).
+
+## 24. A manifestação do destinatário e a consulta cadastro (etapa 8.2)
+
+**Aprovado em 2026-10-24, todas as decisões pela recomendação** (`docs/etapas/8.2-manifestacao-consulta-cadastro.md`; o número sugerido no arquivo era o 25, mas o próximo livre era o 24, porque a 8.1 usou o 23). O `LeiauteNFe400` passa a enviar os quatro eventos de manifestação do destinatário ao Ambiente Nacional, sobre a base de eventos da 6.1, e a consultar o `CadConsultaCadastro4` da UF. As duas coisas valem só para a NF-e.
+
+### 24.1 A manifestação (NT 2020.001 v1.60, MOC 7.0, Visão Geral, 5.11)
+
+```csharp
+public abstract class Manifestacao : Evento          // construtor private protected
+{
+    public new string Autor { get; }                 // CNPJ (numérico ou alfanumérico) ou CPF do destinatário, só os algarismos e as letras
+}
+public sealed class CienciaOperacao : Manifestacao        { public CienciaOperacao(ChaveAcesso chave, string autor); }                                  // 210210, sequência 1
+public sealed class ConfirmacaoOperacao : Manifestacao    { public ConfirmacaoOperacao(ChaveAcesso chave, string autor, int sequencia = 1); }           // 210200, 1 ou 2
+public sealed class DesconhecimentoOperacao : Manifestacao{ public DesconhecimentoOperacao(ChaveAcesso chave, string autor, int sequencia = 1); }       // 210220, 1 ou 2
+public sealed class OperacaoNaoRealizada : Manifestacao   { public OperacaoNaoRealizada(ChaveAcesso chave, string autor, string justificativa, int sequencia = 1); public string Justificativa { get; } } // 210240
+```
+
+- **Destino:** sempre o Ambiente Nacional (`Destino.AN`), `cOrgao` 91, tipo de emissão normal, qualquer que seja a chave (UF, SVC). É a mesma extensão interna que a 6.1 criou para o `AceitaContingencia` (`Orgao` e `Destino` sobrescritos em `Manifestacao`); `EnvioEvento` e `OperacaoEvento` **não mudaram**, e o `NFE-LOTE` da 6.1 já proíbe misturar manifestação (AN) com cancelamento (UF) no lote.
+- **O autor** entra no `infEvento` como `CNPJ` ou `CPF`; o `Id` é `ID` + tipo + chave + sequência de 2 dígitos. O certificado do núcleo assina; a raiz do CNPJ ou o CPF do autor contra o certificado é conferência da SEFAZ.
+- **O `detEvento`** leva o `descEvento` como o schema do tipo enumera (`Ciencia da Operacao`, `Confirmacao da Operacao`, `Desconhecimento da Operacao`, `Operacao nao Realizada`) e, na operação não realizada, o `xJust` (15 a 255, pelo schema do tipo, com o 493 e a propriedade `Eventos[k].Justificativa`). Os quatro schemas `e2102xx_v1.00.xsd` já estavam embutidos desde a E.5.
+- **Construtores:** `ArgumentNullException` na chave nula; `ArgumentException` no autor que não é CNPJ nem CPF válido (a máscara é aceita e tirada), na chave que não é de NF-e (a NFC-e não tem manifestação) e na justificativa nula ou vazia; `ArgumentOutOfRangeException` na sequência fora de 1 a 2.
+- **Resultado:** o `ResultadoEvento` da 6.1 (135 ou 136; `xEvento`; `XmlProcessado`, o `procEventoNFe`), sem campo novo.
+- **Regra fora do schema (aprovada):** nenhuma nova. O `NFE-CHAVE` da 6.1 recusa a manifestação num núcleo de NFC-e. O prazo (596), a sequência (594), a ordem das manifestações (655), a nota cancelada (650, 651) e o destinatário (575) ficam para a SEFAZ.
+
+### 24.2 A consulta cadastro (MOC 7.0, Visão Geral, 5.6, Tabela 5-22)
+
+```csharp
+public sealed class ConsultaCadastro : ParametroWS<RetornoCadastro>
+{
+    public ConsultaCadastro(UF uf, string documento);                          // CNPJ ou CPF, com ou sem máscara, DV conferido
+    public static ConsultaCadastro Inscricao(UF uf, string inscricaoEstadual); // 2 a 14 algarismos, nem toda zero, sem máscara
+    public UF UF { get; }  public string? Documento { get; }  public string? InscricaoEstadual { get; }
+}
+public sealed class RetornoCadastro { Status, Motivo, VersaoAplicativo, UF, UFAtendimento (cUF), Consulta (dhCons), Contribuintes, Encontrado /* 111 ou 112 */ }
+public sealed class ContribuinteCadastro { InscricaoEstadual, Cnpj, Cpf, UF, Situacao, CredenciamentoNFe, CredenciamentoCTe, Nome, Fantasia, RegimeApuracao, Cnae,
+                                           InicioAtividade, UltimaSituacao, Baixa (DateOnly?), InscricaoUnica, InscricaoAtual, Endereco }
+public sealed class EnderecoCadastro { Logradouro, Numero, Complemento, Bairro, CodigoMunicipio, Municipio, Cep }
+public enum SituacaoCadastral { NaoHabilitado = 0, Habilitado = 1 }
+public enum CredenciamentoDFe { NaoCredenciado = 0, Credenciado = 1, ObrigatorioTotal = 2, ObrigatorioParcial = 3, NaoInformado = 4 }
+```
+
+- **O pedido:** `ConsCad` 2.00 com `infCons` (`xServ` `CONS-CAD`, `UF`, `IE` ou `CNPJ` ou `CPF`), sem assinatura e sem `tpAmb`, no `CadConsultaCadastro/consCad_v2.00.xsd` (215). Destino: o autorizador da UF consultada (`uf.ComoDestino()`, atendimento normal, qualquer que seja a UF ou a emissão do núcleo). A SUFRAMA (`SU`) não existe aqui.
+- **A regra `NFE-CADASTRO` (aprovada, Erro):** a UF sem o serviço é recusada na montagem, sem `Destino` informado: só atendem as 10 UFs com autorizador próprio (AM, BA, GO, MG, MS, MT, PE, PR, RS, SP) e, na SVRS, AC, ES, RN, PB e SC (`AutorizadoresNFe400.TemCadastro`). O MA (SVAN) e as outras da SVRS são recusados (campo `UF`, caminho `ConsCad/infCons/UF`). Com o `Destino` informado a regra não vale. A lista é a de `docs/NTS.md` 3.2, conferida em 2026-10-21/22; **a "Relação de Serviços Web" não pôde ser reconferida em 2026-10-24** (o portal responde com redirecionamentos sem fim ao cliente da etapa), e a lista continua a anterior.
+- **A leitura é branda** (`LeituraRetorno`): sem o `infCons`, o `cStat` ou o `xMotivo`, a resposta é ilegível (`FormatException`, vira `FalhaTransmissaoException`); campo que não se lê fica nulo com `NFE-VALOR`, campo que o leiaute não conhece é `NFE-DESCONHECIDO`, ambos aviso. A situação e o credenciamento são **enumerações abertas**: um número que o MOC não define entra como o número, com aviso `NFE-VALOR`. `IE` e `xNome` ausentes do `infCad` ficam vazios, com aviso.
+- **Só NF-e:** a 4.2 listou a consulta cadastro na NFC-e em GO, MS e PR, mas a lib registra a operação só na NF-e (o PDV não consulta cadastro): na NFC-e, **não registrada nesta versão**.
+
+### 24.3 Testes
+
+- **`AutorizacaoTestes.Manifestacao`** (NFe.Testes, handler falso): as recusas dos quatro construtores; cada evento no `envEvento` do schema, assinado, `cOrgao` 91, `Id`, `descEvento`, `xJust`; autor CNPJ, CPF e mascarado; a retificação (sequência 2); o `Momento`; a justificativa de 14 e 256 (493) e de 15 e 255; o caractere inválido; o AN mesmo com a chave de SVC-AN e SVC-RS; o lote de 2 manifestações; a mistura com o cancelamento e o evento repetido (`NFE-LOTE`); a NF-e num núcleo de NFC-e (`NFE-CHAVE`); o `procEventoNFe` no schema com a assinatura; 135, 136 e as rejeições.
+- **`AutorizacaoTestes.Cadastro`**: o `ConsCad` por CNPJ, CPF, inscrição e CNPJ alfanumérico (byte a byte, no schema, sem assinatura e sem `tpAmb`); as recusas do construtor; o destino de MG, SP, AM, ES, AC, RN, PB e SC; o `NFE-CADASTRO` em MA, RJ, CE, DF, PA e TO e a regra desligada com o `Destino`; a leitura de 111 (todos os campos e o endereço), 112, as rejeições 257 a 265, 108 e 109; campos opcionais ausentes; valores abertos e ilegíveis; a resposta ilegível. Os retornos de exemplo passam no `retConsCad_v2.00.xsd`.
+- **`ManifestacaoEmuladaTestes`** (14, contra a SEFAZ emulada, núcleos de CNPJ diferente): a ciência (135) libera o `nfeProc` na distribuição do destinatário (por NSU e por chave); a confirmação chega ao emitente como `procEventoNFe`; a confirmação impede o cancelamento (221), também depois da retificação (sequência 2), e a terceira nem sai do construtor; o desconhecimento deixa cancelar; a operação não realizada libera o download; o autor CPF; 655, 575, 494, 650 e 651 (e a confirmação e a operação não realizada de nota cancelada, registradas); os prazos de 10 e 90 dias (596, com o relógio compartilhado); a consulta da nota com o `procEventoNFe`; o lote de 2; a conexão derrubada depois de processar e o reenvio (573). O 594 da ciência com sequência 2 não sai da lib: o emulador o prova no `SefazEmulada.Testes` (`ManifestacaoTestes`).
+- **`CadastroEmuladoTestes`** (12, contra o emulador, com os contribuintes pela rota `POST /_controle/cadastros`): por CNPJ (todos os campos), inscrição e CPF; o CNPJ com duas inscrições (112); não cadastrado (259, 261, 264); o cadastro de outra UF; 265 pelo `Destino`; o solicitante irregular (257); 108 e 109; o ES pela SVRS; o `NFE-CADASTRO` sem pedido ao emulador.
+- **Homologação real:** `ManifestacaoHomologacaoTestes` (a ciência de uma nota destinada ao CNPJ do PFX, achada pela distribuição) e `CadastroHomologacaoTestes` (o CNPJ do PFX em MG), pulados sem o PFX.
+- **Testes que mudaram** por consequência direta da etapa: `LeiauteNFe400Testes` (as operações da NF-e ganham a `ConsultaCadastro`).
+
+### 24.4 Implementação
+
+**Ajustes ao desenho** (a conferir pelo usuário):
+
+- **`Evento` ganhou o membro interno `AutorInformado`** (nulo por padrão): o `Manifestacao.Autor` público não pode sobrescrever o `Evento.Autor` interno (mesmo nome, outro acesso), então a propriedade pública esconde a interna (`new`) e a base passa a usar o `AutorInformado` quando ele existe. `EnvioEvento` e `OperacaoEvento` não mudaram; o teste `EventoFalso` da 6.1, que sobrescreve `Autor`, segue igual.
+- **O autor é normalizado** (a máscara é aceita e tirada) e o CNPJ alfanumérico vale, como na distribuição; o desenho dizia "só os dígitos".
+- **O número da seção é o 24**, e não o 25 do arquivo da etapa.
+- **`RetornoCadastro` ganhou `UFAtendimento`** (o `cUF`).
+
+**Decisões tomadas sem perguntar:**
+
+- A inscrição estadual da consulta **não aceita máscara** (2 a 14 algarismos, só dígitos): a máscara varia por UF e o schema só aceita algarismos; a lib recusa em vez de adivinhar.
+- A justificativa vazia da operação não realizada é `ArgumentException` (como o cancelamento); o tamanho é do schema (493).
+- O `infCad` com `IE` ou `xNome` ausentes (obrigatórios no schema) **não é descartado**: o contribuinte sai com o campo vazio e um aviso, para não perder o resultado de uma consulta já feita.
+- A lista de UFs do `NFE-CADASTRO` não foi reconferida no Portal (fora do alcance): vale a de `NTS.md` 3.2.

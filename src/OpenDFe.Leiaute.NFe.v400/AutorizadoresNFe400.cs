@@ -44,6 +44,9 @@ internal static partial class AutorizadoresNFe400
     private static readonly UF[] ProprioNFe = [UF.AM, UF.BA, UF.GO, UF.MG, UF.MS, UF.MT, UF.PE, UF.PR, UF.RS, UF.SP];
     private static readonly UF[] ProprioNFCe = [UF.AM, UF.GO, UF.MG, UF.MS, UF.MT, UF.PR, UF.RS, UF.SP];
 
+    // As UFs que a SVRS consulta no CadConsultaCadastro4 ("Relação de Serviços Web", conferida em 2026-10-24).
+    private static readonly UF[] CadastroSvrs = [UF.AC, UF.ES, UF.RN, UF.PB, UF.SC];
+
     // A contingência da NF-e. O PI está nas duas: a produção o põe na SVC-AN e a homologação, na SVC-RS (o Portal
     // diverge em 2026-10-22); quem usa escolhe pelo tipo de emissão (decisão do usuário na 4.2).
     private static readonly UF[] SvcAN =
@@ -91,6 +94,9 @@ internal static partial class AutorizadoresNFe400
             declaracao.DeclararEndereco(new EnderecoServico(autorizador, Ambiente.Producao, servico, new Uri(producao)));
         }
     }
+
+    /// <summary>Se a UF tem o serviço de cadastro na NF-e: as 10 com autorizador próprio e as 5 que a SVRS consulta.</summary>
+    internal static bool TemCadastro(UF uf) => ProprioNFe.Contains(uf) || CadastroSvrs.Contains(uf);
 
     private static Destino Normal(UF uf, bool nfe)
     {

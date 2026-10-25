@@ -273,3 +273,64 @@ OpenDFe.NFe.ResumoEvento.Descricao.get -> string!
 OpenDFe.NFe.ResumoEvento.Protocolo.get -> string!
 OpenDFe.NFe.ResumoEvento.Recebimento.get -> System.DateTimeOffset
 OpenDFe.NFe.ResumoNFe.TipoNota.get -> OpenDFe.NFe.TipoNota
+OpenDFe.NFe.CienciaOperacao
+OpenDFe.NFe.CienciaOperacao.CienciaOperacao(OpenDFe.ChaveAcesso! chave, string! autor) -> void
+OpenDFe.NFe.ConfirmacaoOperacao
+OpenDFe.NFe.ConfirmacaoOperacao.ConfirmacaoOperacao(OpenDFe.ChaveAcesso! chave, string! autor, int sequencia = 1) -> void
+OpenDFe.NFe.ConsultaCadastro
+OpenDFe.NFe.ConsultaCadastro.ConsultaCadastro(OpenDFe.UF uf, string! documento) -> void
+OpenDFe.NFe.ConsultaCadastro.Documento.get -> string?
+OpenDFe.NFe.ConsultaCadastro.InscricaoEstadual.get -> string?
+OpenDFe.NFe.ConsultaCadastro.UF.get -> OpenDFe.UF
+OpenDFe.NFe.ContribuinteCadastro
+OpenDFe.NFe.ContribuinteCadastro.Baixa.get -> System.DateOnly?
+OpenDFe.NFe.ContribuinteCadastro.Cnae.get -> string?
+OpenDFe.NFe.ContribuinteCadastro.Cnpj.get -> string?
+OpenDFe.NFe.ContribuinteCadastro.Cpf.get -> string?
+OpenDFe.NFe.ContribuinteCadastro.CredenciamentoCTe.get -> OpenDFe.NFe.CredenciamentoDFe?
+OpenDFe.NFe.ContribuinteCadastro.CredenciamentoNFe.get -> OpenDFe.NFe.CredenciamentoDFe?
+OpenDFe.NFe.ContribuinteCadastro.Endereco.get -> OpenDFe.NFe.EnderecoCadastro?
+OpenDFe.NFe.ContribuinteCadastro.Fantasia.get -> string?
+OpenDFe.NFe.ContribuinteCadastro.InicioAtividade.get -> System.DateOnly?
+OpenDFe.NFe.ContribuinteCadastro.InscricaoAtual.get -> string?
+OpenDFe.NFe.ContribuinteCadastro.InscricaoEstadual.get -> string!
+OpenDFe.NFe.ContribuinteCadastro.InscricaoUnica.get -> string?
+OpenDFe.NFe.ContribuinteCadastro.Nome.get -> string!
+OpenDFe.NFe.ContribuinteCadastro.RegimeApuracao.get -> string?
+OpenDFe.NFe.ContribuinteCadastro.Situacao.get -> OpenDFe.NFe.SituacaoCadastral?
+OpenDFe.NFe.ContribuinteCadastro.UF.get -> OpenDFe.UF?
+OpenDFe.NFe.ContribuinteCadastro.UltimaSituacao.get -> System.DateOnly?
+OpenDFe.NFe.CredenciamentoDFe
+OpenDFe.NFe.CredenciamentoDFe.Credenciado = 1 -> OpenDFe.NFe.CredenciamentoDFe
+OpenDFe.NFe.CredenciamentoDFe.NaoCredenciado = 0 -> OpenDFe.NFe.CredenciamentoDFe
+OpenDFe.NFe.CredenciamentoDFe.NaoInformado = 4 -> OpenDFe.NFe.CredenciamentoDFe
+OpenDFe.NFe.CredenciamentoDFe.ObrigatorioParcial = 3 -> OpenDFe.NFe.CredenciamentoDFe
+OpenDFe.NFe.CredenciamentoDFe.ObrigatorioTotal = 2 -> OpenDFe.NFe.CredenciamentoDFe
+OpenDFe.NFe.DesconhecimentoOperacao
+OpenDFe.NFe.DesconhecimentoOperacao.DesconhecimentoOperacao(OpenDFe.ChaveAcesso! chave, string! autor, int sequencia = 1) -> void
+OpenDFe.NFe.EnderecoCadastro
+OpenDFe.NFe.EnderecoCadastro.Bairro.get -> string?
+OpenDFe.NFe.EnderecoCadastro.Cep.get -> string?
+OpenDFe.NFe.EnderecoCadastro.CodigoMunicipio.get -> string?
+OpenDFe.NFe.EnderecoCadastro.Complemento.get -> string?
+OpenDFe.NFe.EnderecoCadastro.Logradouro.get -> string?
+OpenDFe.NFe.EnderecoCadastro.Municipio.get -> string?
+OpenDFe.NFe.EnderecoCadastro.Numero.get -> string?
+OpenDFe.NFe.Manifestacao
+OpenDFe.NFe.Manifestacao.Autor.get -> string!
+OpenDFe.NFe.OperacaoNaoRealizada
+OpenDFe.NFe.OperacaoNaoRealizada.Justificativa.get -> string!
+OpenDFe.NFe.OperacaoNaoRealizada.OperacaoNaoRealizada(OpenDFe.ChaveAcesso! chave, string! autor, string! justificativa, int sequencia = 1) -> void
+OpenDFe.NFe.RetornoCadastro
+OpenDFe.NFe.RetornoCadastro.Consulta.get -> System.DateTimeOffset?
+OpenDFe.NFe.RetornoCadastro.Contribuintes.get -> System.Collections.Generic.IReadOnlyList<OpenDFe.NFe.ContribuinteCadastro!>!
+OpenDFe.NFe.RetornoCadastro.Encontrado.get -> bool
+OpenDFe.NFe.RetornoCadastro.Motivo.get -> string!
+OpenDFe.NFe.RetornoCadastro.Status.get -> int
+OpenDFe.NFe.RetornoCadastro.UF.get -> OpenDFe.UF?
+OpenDFe.NFe.RetornoCadastro.UFAtendimento.get -> OpenDFe.UF?
+OpenDFe.NFe.RetornoCadastro.VersaoAplicativo.get -> string?
+OpenDFe.NFe.SituacaoCadastral
+OpenDFe.NFe.SituacaoCadastral.Habilitado = 1 -> OpenDFe.NFe.SituacaoCadastral
+OpenDFe.NFe.SituacaoCadastral.NaoHabilitado = 0 -> OpenDFe.NFe.SituacaoCadastral
+static OpenDFe.NFe.ConsultaCadastro.Inscricao(OpenDFe.UF uf, string! inscricaoEstadual) -> OpenDFe.NFe.ConsultaCadastro!

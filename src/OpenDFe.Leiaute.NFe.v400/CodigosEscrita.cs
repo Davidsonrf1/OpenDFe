@@ -32,4 +32,10 @@ internal static class CodigosEscrita
     /// emissão diferentes.
     /// </summary>
     internal const string Lote = "NFE-LOTE";
+
+    /// <summary>
+    /// A UF consultada não tem o serviço de cadastro (docs/CONTRATOS.md 24): só as 10 UFs com autorizador próprio de NF-e e,
+    /// na SVRS, AC, ES, RN, PB e SC.
+    /// </summary>
+    internal const string Cadastro = "NFE-CADASTRO";
 }

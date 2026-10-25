@@ -37,6 +37,12 @@ internal static class SchemasNFe400
         Preparar("e110112_v1.00.xsd", CodigoDetalhe, c => Detalhe(c, "verAplic", "VersaoAplicativo", "nProt", "Protocolo", "xJust", "Justificativa", "chNFeRef", "ChaveSubstituta"));
     private static readonly Lazy<SchemaXml> SchemaDetalheCartaCorrecao =
         Preparar("e110110_v1.00.xsd", CodigoDetalhe, c => Detalhe(c, "xCorrecao", "Correcao"));
+    private static readonly Lazy<SchemaXml> SchemaDetalheCiencia = Preparar("e210210_v1.00.xsd", CodigoDetalhe, c => Detalhe(c));
+    private static readonly Lazy<SchemaXml> SchemaDetalheConfirmacao = Preparar("e210200_v1.00.xsd", CodigoDetalhe, c => Detalhe(c));
+    private static readonly Lazy<SchemaXml> SchemaDetalheDesconhecimento = Preparar("e210220_v1.00.xsd", CodigoDetalhe, c => Detalhe(c));
+    private static readonly Lazy<SchemaXml> SchemaDetalheNaoRealizada =
+        Preparar("e210240_v1.00.xsd", CodigoDetalhe, c => Detalhe(c, "xJust", "Justificativa"));
+    private static readonly Lazy<SchemaXml> SchemaConsultaCadastro = Preparar("CadConsultaCadastro/consCad_v2.00.xsd", CodigoMensagem);
     private static readonly Lazy<SchemaXml> SchemaDistribuicao = Preparar("distDFeInt_v1.01.xsd", CodigoMensagem);
     private static readonly Lazy<SchemaXml> SchemaNotaProcessada = Preparar("procNFe_v4.00.xsd", CodigoMensagem, CaminhoModeloNFe.Propriedade);
 
@@ -81,6 +87,21 @@ internal static class SchemasNFe400
 
     /// <summary>O <c>detEvento</c> da carta de correção (110110).</summary>
     internal static SchemaXml DetalheCartaCorrecao => SchemaDetalheCartaCorrecao.Value;
+
+    /// <summary>O <c>detEvento</c> da ciência da operação (210210).</summary>
+    internal static SchemaXml DetalheCiencia => SchemaDetalheCiencia.Value;
+
+    /// <summary>O <c>detEvento</c> da confirmação da operação (210200).</summary>
+    internal static SchemaXml DetalheConfirmacao => SchemaDetalheConfirmacao.Value;
+
+    /// <summary>O <c>detEvento</c> do desconhecimento da operação (210220).</summary>
+    internal static SchemaXml DetalheDesconhecimento => SchemaDetalheDesconhecimento.Value;
+
+    /// <summary>O <c>detEvento</c> da operação não realizada (210240).</summary>
+    internal static SchemaXml DetalheNaoRealizada => SchemaDetalheNaoRealizada.Value;
+
+    /// <summary>O pedido da consulta cadastro (<c>ConsCad</c>, <c>CadConsultaCadastro4</c>).</summary>
+    internal static SchemaXml ConsultaCadastro => SchemaConsultaCadastro.Value;
 
     /// <summary>A inutilização com o registro (<c>ProcInutNFe</c>), a distribuível.</summary>
     internal static SchemaXml InutilizacaoProcessada => SchemaInutilizacaoProcessada.Value;
