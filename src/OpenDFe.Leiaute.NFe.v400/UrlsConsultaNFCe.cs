@@ -12,6 +12,10 @@ internal static class UrlsConsultaNFCe
 {
     // MG: "Web Services" da SEF-MG (portalsped.fazenda.mg.gov.br/spedmg/nfce/web-services/), conferido em 2026-10-24.
     // A página lista o mesmo endereço do QR Code nos dois ambientes e o da consulta pela chave de cada um.
+    // MS: página "NFC-e" da SEFAZ-MS (sefaz.ms.gov.br/documentos-fiscais-eletronicos/nfc-e/), conferida em 2026-10-24;
+    // as mesmas URLs valem nos dois ambientes (a página tem o "?" do QR Code no fim; a lib acrescenta o dela).
+    // SC: produção, serviço "Consultar NFC-e" da SEF-SC (sef.sc.gov.br/servicos/...), conferido em 2026-10-24;
+    // homologação, FAQ "Webservice da NFC-e, URL do QR Code e da consulta em SC" da SEF-SC (sef.sc.gov.br/api-portal/Documento/ver/1398).
     private static readonly (UF UF, Ambiente Ambiente, string QrCode, string Chave)[] Linhas =
     [
         (UF.MG, Ambiente.Producao,
@@ -20,6 +24,18 @@ internal static class UrlsConsultaNFCe
         (UF.MG, Ambiente.Homologacao,
             "https://portalsped.fazenda.mg.gov.br/portalnfce/sistema/qrcode.xhtml",
             "https://hportalsped.fazenda.mg.gov.br/portalnfce"),
+        (UF.MS, Ambiente.Producao,
+            "http://www.dfe.ms.gov.br/nfce/qrcode",
+            "http://www.dfe.ms.gov.br/nfce/consulta"),
+        (UF.MS, Ambiente.Homologacao,
+            "http://www.dfe.ms.gov.br/nfce/qrcode",
+            "http://www.dfe.ms.gov.br/nfce/consulta"),
+        (UF.SC, Ambiente.Producao,
+            "https://sat.sef.sc.gov.br/nfce/consulta",
+            "https://sat.sef.sc.gov.br/nfce/consulta"),
+        (UF.SC, Ambiente.Homologacao,
+            "https://hom.sat.sef.sc.gov.br/nfce/consulta",
+            "https://hom.sat.sef.sc.gov.br/nfce/consulta"),
     ];
 
     /// <summary>A tabela, na ordem das linhas.</summary>

@@ -136,8 +136,8 @@ public class UrlsConsultaTestes
     // As UFs sem URL na tabela (nenhuma fonte primária conferida em 2026-10-24: docs/NTS.md 4.3).
     private static readonly UF[] UFsPendentes =
     [
-        UF.AC, UF.AL, UF.AM, UF.AP, UF.BA, UF.CE, UF.DF, UF.ES, UF.GO, UF.MA, UF.MS, UF.MT, UF.PA, UF.PB, UF.PE, UF.PI,
-        UF.PR, UF.RJ, UF.RN, UF.RO, UF.RR, UF.RS, UF.SC, UF.SE, UF.SP, UF.TO,
+        UF.AC, UF.AL, UF.AM, UF.AP, UF.BA, UF.CE, UF.DF, UF.ES, UF.GO, UF.MA, UF.MT, UF.PA, UF.PB, UF.PE, UF.PI,
+        UF.PR, UF.RJ, UF.RN, UF.RO, UF.RR, UF.RS, UF.SE, UF.SP, UF.TO,
     ];
 
     private static IReadOnlyList<UrlConsultaNFCe> Tabela => new LeiauteNFe400().UrlsConsulta;

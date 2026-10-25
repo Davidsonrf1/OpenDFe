@@ -197,11 +197,15 @@ Conferidas em 2026-10-24 (etapa 5.1). A tabela fica em `src/OpenDFe.Leiaute.NFe.
 | MG | produção | `https://portalsped.fazenda.mg.gov.br/portalnfce/sistema/qrcode.xhtml` | `https://portalsped.fazenda.mg.gov.br/portalnfce` | "Web Services" da SEF-MG (`portalsped.fazenda.mg.gov.br/spedmg/nfce/web-services/`), 2026-10-24 |
 | MG | homologação | `https://portalsped.fazenda.mg.gov.br/portalnfce/sistema/qrcode.xhtml` | `https://hportalsped.fazenda.mg.gov.br/portalnfce` | a mesma página, 2026-10-24 |
 
+| MS | produção e homologação | `http://www.dfe.ms.gov.br/nfce/qrcode` | `http://www.dfe.ms.gov.br/nfce/consulta` | página "NFC-e" da SEFAZ-MS (`sefaz.ms.gov.br/documentos-fiscais-eletronicos/nfc-e/`), 2026-10-24; as mesmas URLs nos dois ambientes |
+| SC | produção | `https://sat.sef.sc.gov.br/nfce/consulta` | `https://sat.sef.sc.gov.br/nfce/consulta` | serviço "Consultar NFC-e" da SEF-SC, 2026-10-24 (o QR Code é o mesmo endereço, com `?p=`) |
+| SC | homologação | `https://hom.sat.sef.sc.gov.br/nfce/consulta` | `https://hom.sat.sef.sc.gov.br/nfce/consulta` | FAQ da SEF-SC "Webservice da NFC-e, URL do QR Code e da consulta em SC" (`sef.sc.gov.br/api-portal/Documento/ver/1398`), 2026-10-24; **documento antigo, a conferir com a ENCAT/PFX** |
+
 A página da SEF-MG lista o **mesmo endereço do QR Code nos dois ambientes**, e só o da consulta pela chave muda. Um fórum (ACBr) relata que a ENCAT e a SEF-MG já divergiram na homologação; a linha segue a página da SEF-MG (fonte primária) e fica **a conferir com o PFX** (uma divergência seria a rejeição 395 ou 878, só na homologação).
 
 ### 4.3. As UFs que ficaram fora (nenhuma fonte primária conferida)
 
-AC, AL, AM, AP, BA, CE, DF, ES, GO, MA, MS, MT, PA, PB, PE, PI, PR, RJ, RN, RO, RR, RS, SC, SE, SP e TO, nos dois ambientes: a ENCAT e o Wayback Machine estavam fora do ar, e o portal de cada UF ou não foi achado, ou não traz as duas URLs, ou bloqueia o acesso (o do RJ), ou a página é de 2016 e o endereço do QR Code não consta (GO). Nada foi tirado de blog nem de fórum: a regra é não inventar URL. Quem emite nessas UFs informa as duas na `ConfiguracaoNFCe` (`UrlQrCode` e `UrlChave`); sem elas, a montagem recusa a nota com `NFE-QRCODE` (o comportamento seguro). O SC não emite NFC-e (a lista `UFsPendentes` do teste o inclui só porque a tabela não o tem).
+AC, AL, AM, AP, BA, CE, DF, ES, GO, MA, MT, PA, PB, PE, PI, PR, RJ, RN, RO, RR, RS, SE, SP e TO (24 UFs; MS e SC entraram em 2026-10-24, depois da 5.1), nos dois ambientes: a ENCAT e o Wayback Machine estavam fora do ar, e o portal de cada UF ou não foi achado, ou não traz as duas URLs, ou bloqueia o acesso (o do RJ), ou a página é de 2016 e o endereço do QR Code não consta (GO). Nada foi tirado de blog nem de fórum: a regra é não inventar URL. Quem emite nessas UFs informa as duas na `ConfiguracaoNFCe` (`UrlQrCode` e `UrlChave`); sem elas, a montagem recusa a nota com `NFE-QRCODE` (o comportamento seguro). O SC não emite NFC-e (a lista `UFsPendentes` do teste o inclui só porque a tabela não o tem).
 
 O que as fontes consultadas disseram e **não** entrou na tabela, para quem completar:
 
