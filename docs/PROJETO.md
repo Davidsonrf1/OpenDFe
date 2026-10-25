@@ -1,6 +1,6 @@
 # OpenDFe
 
-Biblioteca .NET aberta para documentos fiscais eletrônicos brasileiros: NF-e e NFC-e primeiro, CT-e e MDF-e depois. Gera o XML, valida pelas regras da SEFAZ, assina, transmite, lê e trata os eventos. **Proposta de 2026-10-16, com a arquitetura revisada em 2026-10-19 (seção 3), aguardando aprovação.** Nada implementado.
+Biblioteca .NET aberta para documentos fiscais eletrônicos brasileiros: NF-e e NFC-e primeiro, CT-e e MDF-e depois. Gera o XML, valida pelas regras da SEFAZ, assina, transmite, lê e trata os eventos. **Proposta de 2026-10-16, aprovada em 2026-10-19 (arquitetura revisada na seção 3). Estado em 2026-10-24: as fases 0 a 8 estão implementadas e conferidas contra a SEFAZ emulada (seção 17); a homologação real aguarda o certificado A1, e nada foi publicado.**
 
 Projeto pessoal de Davidson Faria, open source. O ErpCore (módulo fiscal) e o PDV do ErpCore são consumidores como qualquer outro: nada do ErpCore entra aqui, nem dependência, nem convenção.
 
@@ -266,20 +266,20 @@ Cancelamento (110111), cancelamento por substituição (110112, NFC-e), carta de
 
 ## 16. Fases
 
-| Fase | Conteúdo | Pronto quando |
-|---|---|---|
-| 0 | Repositório, licença, README, CI Linux e Windows, estrutura dos pacotes | a CI roda vazia nos dois |
-| 1 | Núcleo: contratos (`ILeiaute`, `ParametroWS<T>`, `ResultadoWS<T>`, `Problema`), documentos (CPF, CNPJ alfanumérico), UF, chave de acesso, certificado, assinatura e verificação, validação pelo XSD com os problemas em português | um XML de exemplo assina, verifica e valida |
-| 2 | Modelo NF-e/NFC-e com IBS/CBS e o atributo `[Tag]`; leiaute 4.00: escrita, leitura, schemas, aviso de campo não suportado; detector | gerar e ler de volta notas de teste válidas no XSD |
-| 3 | Regras do MOC, primeiro lote (totais, chave, documentos, combinações principais), callbacks de quem usa e `docs/REGRAS.md` | as rejeições mais comuns barradas antes |
-| 4 | Operações: SOAP, tabela de destinos e URLs, escolha da URL, pool de handlers, TLS ICP-Brasil; status, autorização síncrona e por lote, recibo, protocolo, recuperação, `nfeProc` | NF-e autorizada em homologação, no Windows e no Linux |
-| 5 | NFC-e: QR Code, CSC, `Preparar` e contingência offline | NFC-e online e em contingência autorizadas em homologação |
-| 6 | Eventos: cancelamento, substituição, CC-e, inutilização | os quatro em homologação |
-| 7 | Modelo do DANFCE e do DANFE no leiaute, `OpenDFe.Impressao.Pdf` | PDFs conferidos contra o manual |
-| 8 | Distribuição DF-e e manifestação | notas destinadas baixadas em homologação |
-| paralela | SEFAZ emulada (13.5): status, autorização, consulta e NFC-e, eventos, distribuição, com as falhas comandadas | cada serviço das fases 4 a 8 respondido pelo emulador |
-| depois | CT-e, MDF-e, A3 no Linux, carregamento de leiaute por DLL (3.2) | — |
-| v2 | NFS-e nacional | — |
+| Fase | Conteúdo | Pronto quando | Estado (2026-10-24) |
+|---|---|---|---|
+| 0 | Repositório, licença, README, CI Linux e Windows, estrutura dos pacotes | a CI roda vazia nos dois | feita |
+| 1 | Núcleo: contratos (`ILeiaute`, `ParametroWS<T>`, `ResultadoWS<T>`, `Problema`), documentos (CPF, CNPJ alfanumérico), UF, chave de acesso, certificado, assinatura e verificação, validação pelo XSD com os problemas em português | um XML de exemplo assina, verifica e valida | feita no emulador; a prova de risco (1.7) pendente do PFX |
+| 2 | Modelo NF-e/NFC-e com IBS/CBS e o atributo `[Tag]`; leiaute 4.00: escrita, leitura, schemas, aviso de campo não suportado; detector | gerar e ler de volta notas de teste válidas no XSD | feita |
+| 3 | Regras do MOC, primeiro lote (totais, chave, documentos, combinações principais), callbacks de quem usa e `docs/REGRAS.md` | as rejeições mais comuns barradas antes | feita |
+| 4 | Operações: SOAP, tabela de destinos e URLs, escolha da URL, pool de handlers, TLS ICP-Brasil; status, autorização síncrona e por lote, recibo, protocolo, recuperação, `nfeProc` | NF-e autorizada em homologação, no Windows e no Linux | feita no emulador; homologação pendente do PFX |
+| 5 | NFC-e: QR Code, CSC, `Preparar` e contingência offline | NFC-e online e em contingência autorizadas em homologação | feita no emulador; homologação pendente do PFX |
+| 6 | Eventos: cancelamento, substituição, CC-e, inutilização | os quatro em homologação | feita no emulador; homologação pendente do PFX |
+| 7 | Modelo do DANFCE e do DANFE no leiaute, `OpenDFe.Impressao.Pdf` | PDFs conferidos contra o manual | feita (PDFs conferidos contra o manual) |
+| 8 | Distribuição DF-e e manifestação | notas destinadas baixadas em homologação | feita no emulador; homologação pendente do PFX |
+| paralela | SEFAZ emulada (13.5): status, autorização, consulta e NFC-e, eventos, distribuição, com as falhas comandadas | cada serviço das fases 4 a 8 respondido pelo emulador | feita (E.1 a E.6) |
+| depois | CT-e, MDF-e, A3 no Linux, carregamento de leiaute por DLL (3.2) | — | — |
+| v2 | NFS-e nacional | — | — |
 
 As fases 1 a 5 atendem o PDV; a 8, a caixa de entrada do ErpCore.
 
@@ -288,3 +288,5 @@ As fases 1 a 5 atendem o PDV; a 8, a caixa de entrada do ErpCore.
 Nada em aberto agora.
 
 **Decidido em 2026-10-21:** o "pronto quando" das fases 4 a 8 vale **contra a SEFAZ emulada (13.5)** enquanto não houver o PFX real: o usuário não terá o PFX A1 ICP-Brasil de homologação por enquanto. Cada etapa fecha no emulador, nos dois sistemas, e registra na situação dela (`PLANO.md`) a homologação real como pendente, com o que fica por conferir (a cadeia ICP-Brasil no TLS mútuo, o CSC de homologação na NFC-e, as regras que só a SEFAZ real confere). Quando o PFX chegar, uma etapa própria roda o que ficou pendente contra a homologação de MG, junto com o fechamento da 1.7.
+
+**Estado em 2026-10-24 (o que o usuário decide e faz):** as fases 0 a 8 fecham no emulador, e a lista consolidada das pendências, com a etapa de origem, está no começo da "Situação" do `PLANO.md`. O que depende do usuário: (1) **o PFX A1 ICP-Brasil de homologação**, para a etapa de homologação real (a 1.7 e os testes de `OpenDFe.Homologacao.Testes`, pulados sem ele); (2) **a publicação**: o push e a reserva do prefixo `OpenDFe.*` no NuGet.org, para os pré-lançamentos 0.x; (3) as notas reais para anonimizar em `tests/Exemplos/`; (4) a conferência da licença do QuestPDF (README do pacote de PDF); (5) as decisões tomadas sem perguntar nas etapas 5 a 8, listadas na mesma seção do `PLANO.md`.

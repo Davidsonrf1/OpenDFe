@@ -148,6 +148,24 @@ Pré-lançamentos (`0.x`) no NuGet.org a partir do fim da fase 5, quando o PDV p
 
 ## Situação
 
+### Estado do plano (2026-10-24)
+
+**As fases 0 a 8 estão feitas e fechadas no emulador.** As fases 1 a 4 (e a 1.7, a prova de risco) e as 5 a 8 têm a homologação real **pendente do PFX A1 ICP-Brasil** (`PROJETO.md` 17): o "pronto quando" de cada uma vale contra a SEFAZ emulada, e cada etapa deixou o seu teste de homologação (`OpenDFe.Homologacao.Testes`) escrito e pulado sem o PFX. Nada foi publicado no NuGet.org; nenhum `push` foi feito. A suíte fecha com 2.653 testes (29 pulados: os de homologação e da prova de risco, que falam com a SEFAZ), no Windows e no Linux (Nucleo 639, NFe 1.334, SefazEmulada 509 e Impressao.Pdf 138 pelo WSL).
+
+**Pendências consolidadas para o usuário** (copiadas e deduplicadas das situações das etapas 5.1 a 8.2; a etapa de origem entre parênteses):
+
+1. **O PFX e a etapa de homologação real** (1.7 e todas as "Pendente até o PFX"): a cadeia ICP-Brasil no TLS mútuo; o CSC de homologação da NFC-e (`OPENDFE_CSC_ID`, `OPENDFE_CSC`; 5.1, 5.2); a NFC-e online e offline (versões 2 e 3), o cancelamento, a inutilização, a CC-e e a substituição em MG (5.2, 6.1, 6.2); a distribuição do CNPJ do PFX e **a confirmação, no AN real, do que a repetição com o mesmo `ultNSU` faz depois de uma resposta perdida** (8.1); a ciência de uma nota destinada ao CNPJ do PFX e a consulta cadastro de MG (8.2); o 155 e o 580, que só a SEFAZ real prova (6.1, 6.2); as regras que só ela confere.
+2. **As notas reais para anonimizar** em `tests/Exemplos/` (decisão 15 da Fase 2).
+3. **A NT 2026.008** (valor líquido do produto) **e a NT 2026.006** (`gPgtoVinc`, *split payment*): sem pacote de schemas publicado (Fase 2, `NTS.md` 1.3); a lib não escreve os campos delas.
+4. **O push e a reserva do prefixo `OpenDFe.*` no NuGet.org**, para os pré-lançamentos 0.x (a publicação do `PLANO.md`; depende do usuário).
+5. **As URLs de consulta da NFC-e** das 26 UFs que faltam, nos dois ambientes (`NTS.md` 4.3 e 4.4), a conferência de MG em homologação e a data de troca de endereço de GO, MG, RJ, RN e SP (5.1, 5.2); **conferir o `digVal`** do Manual 6.0, 4.3.5 (5.2).
+6. **A inutilização do emitente com CPF**: o `infInut` do schema só tem CNPJ (6.1, 6.2); e a tipagem do evento no retorno da consulta (`RetornoProtocolo.Eventos` continua texto; versão menor futura; 6.1, 6.2).
+7. **O que a impressão deixou** (7.1 a 7.4): as lacunas do PDF em `IMPRESSAO.md` 3.4 (o quadro de identificação lado a lado, os 12 pt da razão social do emitente, o canhoto da paisagem na vertical); o DANFE Simplificado (`tpImp` 3) e a Etiqueta, sem leiaute nas fontes; o DANFE Simplificado Tipo 2 e o EPEC sem o evento no modelo; **a fonte** (o Anexo II pede Times New Roman ou Courier New, a lib usa a Lato; o aplicativo registra a que quiser); a NT 2026.010, que vigora em 01/12/2026 e diverge do Anexo II; o protocolo em branco na emissão normal sem `protNFe`; o travessão da homologação; as NTs 2025.001 e 2026.002, não relidas; **a licença do QuestPDF** (7.1), por conferir pelo usuário; o `QRCoder` 1.8.1, quando passar de 14 dias.
+8. **A lista de UFs do cadastro** (8.2): a "Relação de Serviços Web" não pôde ser reconferida em 2026-10-24; a consulta cadastro na NFC-e não está registrada (GO, MS e PR a têm na página da NFC-e).
+9. **O Linux:** conferido em todas as etapas pelo WSL; o `ci.yml` cobre depois.
+
+**As "Decisões tomadas sem perguntar" que pedem a conferência do usuário** (uma linha por etapa; o detalhe em cada bloco abaixo): **5.1**, a tabela de URLs só com MG (as outras 26 UFs por `ConfiguracaoNFCe`), o `urlChave` de MG na homologação e o `Suplementares` escrito como está na NF-e sem `tpImp` 6; **5.2**, o `digVal` em hexadecimal do texto Base64 pelo Manual 4.3.5 (o manual não foi relido: o portal entrou em laço de redirecionamentos) e a offline sem URL como `NFE-QRCODE`; **6.1**, o 155 como registrado, o protocolo de 15 dígitos, o destino do lote pelo primeiro evento, o `retEvento` sem chave ligado pela posição e o `Ano` da inutilização de 0 a 99; **6.2**, a substituta **offline** (o MOC manda; o arquivo da etapa dizia emissão normal), o `descEvento` e o `xCondUso` da carta sem acento e o `verAplic` padrão `OpenDFe <versão>`; **7.1**, o `PdfPig` pelo id do pacote e a zona de silêncio do QR Code; **7.2**, as casas da quantidade e do unitário, a descrição do pagamento, o hífen da homologação e o texto depois da divisão IX; **7.3**, o protocolo em branco, o EPEC em branco, uma coluna por campo e o CNPJ alfanumérico recusado na contingência FS; **7.4**, o conjunto de caracteres da Lato (o resto vira `?`), a escala da fonte da bobina e os golden; **8.1**, a recomendação da queda no meio (656 e `consNSU`), o `docZip` sem `schema` como `Outro` e a espera de 1 hora também no 138 que alcança o máximo; **8.2**, a inscrição sem máscara, o `infCad` sem `IE` ou `xNome` mantido com aviso, o `Evento.AutorInformado` e a lista de UFs do cadastro não reconferida.
+
 ### Fase 0 (branch `fase-0-repositorio`)
 
 **0.1. Solução. Feita (2026-10-19).**
@@ -541,6 +559,8 @@ Criada a partir da `fase-3-regras`, com a `main` mesclada no início (a trilha d
 
 ### Fase 5 (branch `fase-5-nfce`)
 
+**Fase 5 fechada no emulador** (5.1 e 5.2); a homologação real fica pendente do PFX.
+
 Criada a partir da `fase-4-transmissao`.
 
 **5.1. QR Code e CSC. Desenho para aprovação (2026-10-23)** em **`docs/CONTRATOS.md` 16**: API pública nova só no leiaute (`ConfiguracaoNFCe`, `VersaoQrCode`, `CodigoSeguranca`, `UrlConsultaNFCe` e `LeiauteNFe400.UrlsConsulta`); o núcleo não muda. Doze decisões (16.4), com as regras fora do schema para aprovação (decisão 10: 393, 444, 672, `NFE-QRCODE` e `NFE-NUCLEO`).
@@ -600,6 +620,8 @@ Criada a partir da `fase-4-transmissao`.
 
 ### Fase 6 (branch `fase-6-eventos`)
 
+**Fase 6 fechada no emulador** (6.1 e 6.2); a homologação real fica pendente do PFX.
+
 Criada a partir da `fase-5-nfce`.
 
 **6.1. Eventos: base, cancelamento e inutilização. Feita (2026-10-24).** O detalhe está em `docs/CONTRATOS.md` 18 (o desenho e, em 18.4, os ajustes); o guia para quem usa, em `docs/QUANDO_CAI.md` 9.
@@ -651,6 +673,8 @@ Criada a partir da `fase-5-nfce`.
 - **Pendências para o usuário:** a tipagem do evento nos retornos da consulta (`RetornoProtocolo.Eventos` continua texto; versão menor futura); a inutilização do emitente com CPF; o 155 e o 580 só se provam na SEFAZ real (o 580 também no emulador, com a substituição e a CC-e); a NT da CC-e não foi baixada separadamente (o texto está no MOC 7.0, 5.10); o arquivo da etapa pedia a substituta da emissão normal, o que o MOC não diz (ajuste acima).
 
 ### Fase 7 (branch `fase-7-impressao`)
+
+**Fase 7 fechada no emulador** (7.1 a 7.4); a etapa não transmite, e o PDF foi conferido sobre as notas que o emulador autorizou.
 
 Criada a partir da `fase-6-eventos`.
 
@@ -720,6 +744,8 @@ Criada a partir da `fase-6-eventos`.
 
 ### Fase 8 (branch `fase-8-distribuicao`)
 
+**Fase 8 fechada no emulador** (8.1 e 8.2); a homologação real fica pendente do PFX.
+
 Criada a partir da `fase-7-impressao` (no commit da 7.4, `5718fc7`). `git log HEAD..main` vazio: sem merge.
 
 **8.1. Distribuição DF-e. Feita (2026-10-24).** O detalhe está em `docs/CONTRATOS.md` 23 (o arquivo da etapa dizia 24; o próximo livre era o 23, porque a 7.4 usou o 22). Desenho aprovado em 2026-10-24, todas as decisões pela recomendação. O guia de uso, com o laço de sincronização, o uso indevido e a queda no meio, é `docs/DISTRIBUICAO.md`; as fontes e os SHA-256 em `docs/NTS.md` 3.2 e 10.
@@ -733,7 +759,19 @@ Criada a partir da `fase-7-impressao` (no commit da 7.4, `5718fc7`). `git log HE
 - **Pendente até o PFX** (`PROJETO.md` 17): `DistribuicaoHomologacaoTestes` (a distribuição do CNPJ do PFX com o `ultNSU` 0 contra o `hom1.nfe.fazenda.gov.br`); **a confirmação, no AN real, do que a repetição com o mesmo `ultNSU` faz depois de uma resposta perdida** (o emulador e a NT dizem 656; a recomendação do guia depende disso).
 - **Pendências para o usuário:** (1) **o cancelamento depois da manifestação** (como `procEventoNFe` ao destinatário) e a liberação do `nfeProc` ao destinatário pela ciência **não têm teste na 8.1**: dependem da manifestação, que é a 8.2 (os tipos `resEvento`, `procEventoNFe` e `nfeProc` já são cobertos pelo autorizado do `autXML`, que o emulador trata como terceiro); (2) a `EsperaSugerida` no 138 que alcança o máximo é a leitura da NT 3.11.4.1, 2; se preferir só no 137 e no 656, como no desenho, é uma linha; (3) a NT diz 3 meses no leiaute do `ultNSU` e 90 dias no texto: a lib e o guia usam os 90 dias; (4) as divergências entre a NT e o schema, e os erros de texto da NT, estão em `NTS.md` 10 e não pedem ação.
 
-**Próxima: 8.2. Manifestação e consulta cadastro** (os eventos 210200, 210210, 210220 e 210240 ao AN, e a `ConsultaCadastro`; a branch continua a `fase-8-distribuicao`), só quando pedida.
+**8.2. Manifestação do destinatário e consulta cadastro. Feita (2026-10-24).** O detalhe está em `docs/CONTRATOS.md` 24 (o arquivo da etapa dizia 25; o próximo livre era o 24, porque a 8.1 usou o 23). Desenho aprovado em 2026-10-24, todas as decisões pela recomendação.
+- **API pública nova** (`PublicAPI.Unshipped.txt` do leiaute, 61 símbolos; o núcleo não mudou): `Manifestacao` (base fechada) com `CienciaOperacao`, `ConfirmacaoOperacao`, `DesconhecimentoOperacao` e `OperacaoNaoRealizada`; `ConsultaCadastro` (`new(uf, documento)`, `Inscricao(uf, ie)`), `RetornoCadastro`, `ContribuinteCadastro`, `EnderecoCadastro`, `SituacaoCadastral` e `CredenciamentoDFe`.
+- **Interno:** `Manifestacao` sobrescreve `Orgao` (91) e `Destino` (AN) do `Evento`, sem mudar `EnvioEvento` nem `OperacaoEvento`; `OperacaoConsultaCadastro` (o `ConsCad` 2.00 no `consCad_v2.00.xsd`, ao autorizador da UF consultada; a leitura branda do `retConsCad`); `AutorizadoresNFe400.TemCadastro` (a regra `NFE-CADASTRO`); o código `NFE-CADASTRO` em `CodigosEscrita`; os cinco schemas novos em `SchemasNFe400` (os quatro `e2102xx` e o `consCad`, que já estavam embutidos); a operação só na NF-e.
+- **Ajustes ao desenho** (a conferir pelo usuário; `CONTRATOS.md` 24.4): (1) **`Evento.AutorInformado`**, membro interno novo: o `Manifestacao.Autor` público não podia sobrescrever o `Evento.Autor` interno, então o `Autor` interno passa a usar o `AutorInformado` quando existe (a base da 6.1 ganhou uma linha; o envio e a operação, nenhuma); (2) o autor aceita máscara e CNPJ alfanumérico (o desenho dizia só os dígitos); (3) `RetornoCadastro.UFAtendimento` (o `cUF`); (4) a seção é a 24.
+- **Decisões tomadas sem perguntar:** a inscrição estadual da consulta não aceita máscara; a justificativa vazia da operação não realizada é `ArgumentException`; o `infCad` sem `IE` ou `xNome` não é descartado (campo vazio e aviso); a **lista de UFs da regra `NFE-CADASTRO` não foi reconferida** no Portal (a página responde com redirecionamentos sem fim ao cliente da etapa), vale a de `NTS.md` 3.2 (2026-10-21/22), e a regra não vale com o `Destino` informado.
+- **Testes** (2.653 na solução, 103 novos; 29 pulados): `AutorizacaoTestes.Manifestacao` (NFe, handler falso: as recusas, os quatro eventos no schema, assinados, `cOrgao` 91, autor CNPJ e CPF, retificação, 493, AN com a chave de SVC, lote, `NFE-LOTE`, `NFE-CHAVE`, o `procEventoNFe`, as rejeições); `AutorizacaoTestes.Cadastro` (o `ConsCad` por CNPJ, CPF, inscrição e CNPJ alfanumérico; as recusas; o destino por UF; o `NFE-CADASTRO`; a leitura de 111, 112, 257 a 265, 108 e 109; opcionais, valores abertos, ilegível); `ManifestacaoEmuladaTestes` (14, contra o emulador, núcleos de CNPJ diferente: a ciência libera o `nfeProc` na distribuição, o emitente recebe o `procEventoNFe`, a confirmação impede o cancelamento (221), a retificação, o desconhecimento deixa cancelar, 655, 575, 494, 650, 651, os prazos 596 com o relógio, a consulta da nota, o lote e a queda depois de processar com o 573); `CadastroEmuladoTestes` (12, com os contribuintes pela rota `/_controle/cadastros`: CNPJ, inscrição, CPF, 112, 259, 261, 264, 265, 257, 108 e 109, o ES pela SVRS, o `NFE-CADASTRO` sem chegar ao emulador); `ManifestacaoHomologacaoTestes` e `CadastroHomologacaoTestes` (pulados sem o PFX); `ReadmeExemploTestes` (1, o exemplo do `README.md` compilado e executado contra o emulador, no fechamento). **Teste antigo que mudou, por consequência direta:** `LeiauteNFe400Testes` (as operações da NF-e ganham a `ConsultaCadastro`). O catálogo (`CatalogoRegrasTestes`) acompanhou a linha 2P21-10 (575), de "outra operação (6)" a "SEFAZ".
+- **Mutações provadas:** o `cOrgao` da UF no lugar do 91 (5 falhas no handler falso e 14 no emulador); a manifestação indo ao autorizador da UF (6 e 14); o `Id` sem a sequência (52 e 14); o `UF` do pedido da consulta trocado (2 e 3); a regra `NFE-CADASTRO` desligada (6 e 1); o `IE` escrito como `CNPJ` (1 e 2). Código restaurado depois de cada uma (conferido por comparação com a cópia).
+- **Emulador:** não mudou (o 594 da ciência com sequência 2 já era provado em `SefazEmulada.Testes`, `ManifestacaoTestes`, e não sai da lib). O trabalho do usuário sem commit nele ficou intocado e fora do commit.
+- **Conferido:** build sem aviso (Debug e Release); `dotnet test --solution OpenDFe.slnx` com código 0 (2.653 testes, 29 pulados: os 27 de antes e os 2 de homologação da etapa); **Linux conferido** (WSL Ubuntu 26.04, .NET 10.0.113, executáveis de teste com `--artifacts-path` fora do repositório): Nucleo 639, NFe 1.334, SefazEmulada 509 e Impressao.Pdf 138 aprovados; `dotnet pack -c Release` com os mesmos três pacotes e o `eng/ConferirPacotes.ps1` aprovando; a regra de nomes não acusa nada novo (só nomes de método de teste).
+- **Pendente até o PFX** (`PROJETO.md` 17): `ManifestacaoHomologacaoTestes` (a ciência de uma nota destinada ao CNPJ do PFX, achada pela distribuição) e `CadastroHomologacaoTestes` (o CNPJ do PFX em MG).
+- **Pendências para o usuário:** a reconferência da lista de UFs do cadastro na "Relação de Serviços Web" (acima); a consulta cadastro na NFC-e não está registrada (GO, MS e PR a têm na página da NFC-e); o `docs/NTS.md` 11.
+
+**A fase 8 está fechada, no emulador:** a distribuição DF-e, a manifestação do destinatário (com a ciência liberando o `nfeProc`, a confirmação impedindo o cancelamento e o evento chegando ao emitente) e a consulta cadastro funcionam contra a SEFAZ emulada. **Com ela fecha o plano de implementação do OpenDFe no emulador** (fases 0 a 8); o estado e a lista consolidada de pendências estão no começo desta "Situação".
 
 ### Trilha paralela: SEFAZ emulada (branch `sefaz-emulada`, worktree `../OpenDFe-sefaz-emulada`)
 
