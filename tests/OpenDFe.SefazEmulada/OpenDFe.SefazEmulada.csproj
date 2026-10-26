@@ -24,4 +24,9 @@
     <ProjectReference Include="../../src/OpenDFe.Leiaute.NFe.v400/OpenDFe.Leiaute.NFe.v400.csproj" />
   </ItemGroup>
 
+  <!-- O estado em disco com a opção persistir (Armazenamento): os dados de controle num SQLite. -->
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Data.Sqlite" />
+  </ItemGroup>
+
 </Project>

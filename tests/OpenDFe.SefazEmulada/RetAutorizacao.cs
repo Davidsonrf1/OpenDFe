@@ -42,6 +42,7 @@ internal sealed class RetAutorizacao : Servico
             if (lote.Pendentes > 0)
             {
                 lote.Pendentes--;
+                repositorio.Atualizar(lote);
                 return Retorno(Motivos.LoteProcessando, pedido, recibo);
             }
             return Retorno(Motivos.LoteProcessado, pedido, recibo, lote.Protocolos);

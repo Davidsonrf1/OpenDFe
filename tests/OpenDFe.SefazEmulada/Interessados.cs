@@ -16,7 +16,7 @@ namespace OpenDFe.SefazEmulada;
 // O documento que é também o destinatário da nota (o transportador ou o autorizado) recebe como destinatário
 // (3.4: "não é gerado o NSU, até que o destinatário tenha realizado a manifestação"). Guarda também o consumo de
 // cada CNPJ ou CPF da requisição, para o uso indevido (3.11.4, 656). Chamado com a Trava do repositório.
-internal sealed class Interessados
+internal sealed class Interessados(Armazenamento armazenamento)
 {
     private const string Cancelamento = "110111";
     private const string CartaCorrecao = "110110";
@@ -42,6 +42,25 @@ internal sealed class Interessados
             _consumos[documento] = consumo = new Consumo();
         return consumo;
     }
+
+    // Guarda o consumo depois de a consulta mudá-lo.
+    public void SalvarConsumo(string documento)
+    {
+        if (_consumos.TryGetValue(documento, out var consumo))
+            armazenamento.GravarConsumo(documento, consumo);
+    }
+
+    // A partida recarrega o que o Armazenamento guardava, sem gravar de novo.
+    public void Restaurar(string interessado, DocumentoDistribuido documento)
+    {
+        if (!_documentos.TryGetValue(interessado, out var documentos))
+            _documentos[interessado] = documentos = [];
+        documentos.Add(documento);
+    }
+
+    public void Restaurar(string documento, Consumo consumo) => _consumos[documento] = consumo;
+
+    public void RestaurarLiberada(string chave) => _liberadas.Add(chave);
 
     // A NF-e autorizada: o resNFe ao destinatário e o nfeProc ao transportador e aos autorizados.
     public void Autorizada(NotaRegistrada nota, DateTimeOffset recebimento)
@@ -83,6 +102,7 @@ internal sealed class Interessados
                     Acrescentar(autorizado, nota.Chave, "procEventoNFe_v1.00.xsd", new XElement(processado), evento.Registro);
                 if (evento.Tipo != Desconhecimento && papeis.Destinatario is { } liberado && _liberadas.Add(nota.Chave))
                 {
+                    armazenamento.GravarLiberada(nota.Chave);
                     Acrescentar(liberado, nota.Chave, "procNFe_v4.00.xsd", Processada(nota), evento.Registro);
                     foreach (var carta in eventos.Where(e => e.Tipo == CartaCorrecao))
                         Acrescentar(liberado, nota.Chave, "procEventoNFe_v1.00.xsd", new XElement(carta.Processado), evento.Registro);
@@ -174,7 +194,9 @@ internal sealed class Interessados
     {
         if (!_documentos.TryGetValue(interessado, out var documentos))
             _documentos[interessado] = documentos = [];
-        documentos.Add(new DocumentoDistribuido(documentos.Count + 1, chave, schema, xml, recebimento));
+        var documento = new DocumentoDistribuido(documentos.Count + 1, chave, schema, xml, recebimento);
+        documentos.Add(documento);
+        armazenamento.GravarDocumento(interessado, documento);
     }
 }
 

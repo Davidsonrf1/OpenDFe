@@ -17,9 +17,11 @@ internal sealed class Emulador : IAsyncDisposable
     private readonly WebApplication _app;
     private readonly X509Certificate2 _autoridade;
     private readonly X509Certificate2 _servidor;
+    private readonly Armazenamento _armazenamento;
 
-    private Emulador(WebApplication app, X509Certificate2 autoridade, X509Certificate2 servidor, Uri endereco, Uri? painel, string arquivoAutoridade)
+    private Emulador(WebApplication app, X509Certificate2 autoridade, X509Certificate2 servidor, Armazenamento armazenamento, Uri endereco, Uri? painel, string arquivoAutoridade)
     {
+        _armazenamento = armazenamento;
         _app = app;
         _autoridade = autoridade;
         _servidor = servidor;
@@ -77,6 +79,7 @@ internal sealed class Emulador : IAsyncDisposable
         var autoridade = AutoridadeTeste.Abrir(opcoes.Pasta, opcoes.Relogio);
         var servidor = AutoridadeTeste.EmitirServidor(autoridade, [opcoes.Nome], opcoes.Relogio);
 
+        var armazenamento = opcoes.Persistir ? Armazenamento.Abrir(opcoes.Pasta) : Armazenamento.Nenhum;
         var construtor = WebApplication.CreateSlimBuilder(new WebApplicationOptions
         {
             Args = [],
@@ -88,6 +91,7 @@ internal sealed class Emulador : IAsyncDisposable
             construtor.Logging.AddSimpleConsole(o => o.SingleLine = true);
         construtor.Services.Configure<HostOptions>(o => o.ShutdownTimeout = TimeSpan.FromSeconds(2));
         construtor.Services.AddSingleton(opcoes);
+        construtor.Services.AddSingleton(armazenamento);
         construtor.Services.AddSingleton<Controle>();
         construtor.Services.AddSingleton<Repositorio>();
         construtor.Services.AddSingleton<CodigosSeguranca>();
@@ -146,7 +150,7 @@ internal sealed class Emulador : IAsyncDisposable
         var porta = enderecos.First(u => u.Scheme == Uri.UriSchemeHttps).Port;
         var endereco = new Uri($"https://{(IPAddress.TryParse(opcoes.Nome, out var ip) && ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetworkV6 ? $"[{opcoes.Nome}]" : opcoes.Nome)}:{porta}/");
         var painel = enderecos.FirstOrDefault(u => u.Scheme == Uri.UriSchemeHttp) is { } http ? new Uri($"http://127.0.0.1:{http.Port}/") : null;
-        return new Emulador(app, autoridade, servidor, endereco, painel, arquivoAutoridade);
+        return new Emulador(app, autoridade, servidor, armazenamento, endereco, painel, arquivoAutoridade);
     }
 
     public Task AguardarAsync(CancellationToken cancellationToken = default) => _app.WaitForShutdownAsync(cancellationToken);
@@ -155,6 +159,7 @@ internal sealed class Emulador : IAsyncDisposable
     {
         await _app.StopAsync();
         await _app.DisposeAsync();
+        _armazenamento.Dispose();
         _servidor.Dispose();
         _autoridade.Dispose();
         Autoridade.Dispose();

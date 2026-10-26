@@ -9,7 +9,7 @@ Fontes: MOC 7.0, Visão Geral (3.2, 4.2.2, 4.3.1 a 4.3.6, 4.4.1 e 5.1 a 5.11), A
 ## Como rodar
 
 ```
-dotnet run --project tests/OpenDFe.SefazEmulada [-- --porta 5443 --pasta <pasta> --endereco 127.0.0.1 --nome 127.0.0.1 --painel 5444 --pedidos 100 --controle local]
+dotnet run --project tests/OpenDFe.SefazEmulada [-- --porta 5443 --pasta <pasta> --endereco 127.0.0.1 --nome 127.0.0.1 --painel 5444 --pedidos 100 --controle local --persistir nao]
 ```
 
 | Opção | Padrão | O que é |
@@ -21,6 +21,16 @@ dotnet run --project tests/OpenDFe.SefazEmulada [-- --porta 5443 --pasta <pasta>
 | `--painel` | 5444 | A porta do painel (abaixo, em "Painel"), em HTTP e só no loopback. `0` desliga. Nos testes, o padrão é sem painel. |
 | `--pedidos` | 100 | Quantos pedidos recentes o emulador guarda, com o XML (ao menos 1). |
 | `--controle` | `local` | De onde o `/_controle` e o painel são aceitos: `local`, só do próprio computador; `rede`, de qualquer endereço, com o painel escutando no `--endereco`. O `rede` é o do contêiner (abaixo), em que o pedido do computador chega pela rede do Docker. |
+| `--persistir` | `nao` | `sim` guarda o estado em disco (abaixo, em "Persistência") e o recarrega na partida seguinte. |
+
+### Persistência
+
+Por padrão o emulador guarda tudo em memória e começa vazio a cada partida (os testes dependem disso). Com `--persistir sim` ele grava, em `<--pasta>/persistencia/`, o que vale entre as partidas:
+
+- **`controle.db`** (SQLite): as notas autorizadas (com a situação e o cancelamento), os lotes e as consultas que ainda respondem 105, os eventos, as faixas inutilizadas, a sequência dos recibos e protocolos, a distribuição (os documentos com o NSU, as manifestações que liberam o download e o consumo de cada interessado, para o uso indevido), os CSCs, os irregulares e os contribuintes da consulta cadastro. As falhas comandadas e os pedidos recentes **não** persistem: são do teste em curso.
+- **`xml/<autorizador>/`**: os XMLs, como foram recebidos (o espaço em branco da nota é preservado), por quem autorizou: `nfe/<chave>.xml` (a nota com o `protNFe`, o `nfeProc`), `eventos/<chave>-<tipo>-<seq>.xml` (o `procEventoNFe`), `lotes/<recibo>.xml` (os `protNFe` do lote assíncrono) e, em `AN/distribuicao/<interessado>/<NSU>-<schema>.xml`, o que o AN distribui.
+
+`DELETE /_controle` e `DELETE /_controle/notas` esquecem também o que está em disco (o banco e os XMLs); a sequência dos recibos e protocolos continua, como na memória. A pasta é a da AC: no Docker, o volume `/dados`; para persistir no contêiner, acrescente `--persistir sim` ao comando (`command` no compose). Não há migração entre versões: se o leiaute do banco mudar, apague a pasta `persistencia`.
 
 ### No Docker
 

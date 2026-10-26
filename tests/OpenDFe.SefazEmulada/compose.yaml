@@ -16,4 +16,6 @@ services:
       - "127.0.0.1:${SEFAZ_EMULADA_PAINEL:-5444}:5444"
     volumes:
       - "${SEFAZ_EMULADA_PASTA:-./dados}:/dados"
+    # Acrescenta ao ENTRYPOINT do Dockerfile. SEFAZ_EMULADA_PERSISTIR=sim guarda o estado em /dados/persistencia.
+    command: ["--persistir", "${SEFAZ_EMULADA_PERSISTIR:-nao}"]
     restart: unless-stopped

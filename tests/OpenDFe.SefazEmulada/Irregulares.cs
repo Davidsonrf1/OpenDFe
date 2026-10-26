@@ -5,12 +5,22 @@ namespace OpenDFe.SefazEmulada;
 // irregular é rejeitado com 781 na autorização (1C17-38) e com 240 no evento e na inutilização (1P10-20, I06); o
 // destinatário irregular da NF-e, com 302 (5E17-40, que deixou de ser denegação). A rota /_controle/irregulares
 // cadastra e tira; a marca EMULADA:irregular:<papel> no infCpl faz o mesmo para uma nota só. Vale para qualquer
-// UF, pelo documento inteiro (o CNPJ do estabelecimento, não a raiz). Em memória, vazio a cada partida; seguro
-// para uso concorrente.
+// UF, pelo documento inteiro (o CNPJ do estabelecimento, não a raiz). Em memória, vazio a cada partida (a menos
+// que o Armazenamento guarde); seguro para uso concorrente.
 internal sealed class Irregulares
 {
     private readonly Lock _trava = new();
     private readonly SortedSet<string> _documentos = new(StringComparer.Ordinal);
+    private readonly Armazenamento _armazenamento;
+
+    public Irregulares(Armazenamento armazenamento)
+    {
+        _armazenamento = armazenamento;
+        armazenamento.Carregar(this);
+    }
+
+    // A partida recarrega o que o Armazenamento guardava, sem gravar de novo.
+    public void Restaurar(string documento) => _documentos.Add(documento);
 
     // Confere o documento (ArgumentException se não é um CNPJ, também o alfanumérico, nem um CPF válido) e o
     // cadastra; falso se já estava.
@@ -18,13 +28,23 @@ internal sealed class Irregulares
     {
         var conferido = Conferir(documento);
         lock (_trava)
-            return _documentos.Add(conferido);
+        {
+            var novo = _documentos.Add(conferido);
+            if (novo)
+                _armazenamento.GravarIrregular(conferido);
+            return novo;
+        }
     }
 
     public bool Remover(string documento)
     {
         lock (_trava)
-            return _documentos.Remove(documento);
+        {
+            var removido = _documentos.Remove(documento);
+            if (removido)
+                _armazenamento.RemoverIrregular(documento);
+            return removido;
+        }
     }
 
     public bool Contem(string? documento)
@@ -44,7 +64,10 @@ internal sealed class Irregulares
     public void Limpar()
     {
         lock (_trava)
+        {
             _documentos.Clear();
+            _armazenamento.LimparIrregulares();
+        }
     }
 
     private static string Conferir(string? documento) =>

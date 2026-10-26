@@ -1,6 +1,6 @@
 using OpenDFe.SefazEmulada;
 
-// dotnet run --project tests/OpenDFe.SefazEmulada [-- --porta 5443 --pasta <pasta> --endereco 127.0.0.1 --nome 127.0.0.1 --painel 5444 --pedidos 100 --controle local]
+// dotnet run --project tests/OpenDFe.SefazEmulada [-- --porta 5443 --pasta <pasta> --endereco 127.0.0.1 --nome 127.0.0.1 --painel 5444 --pedidos 100 --controle local --persistir nao]
 Console.OutputEncoding = System.Text.Encoding.UTF8;
 var opcoes = OpcoesEmulador.Ler(args) with { Registrar = true };
 await using var emulador = await Emulador.IniciarAsync(opcoes);

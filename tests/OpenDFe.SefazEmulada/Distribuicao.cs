@@ -69,15 +69,18 @@ internal sealed class Distribuicao : Servico
             {
                 // Quem consulta no bloqueio recomeça a hora (3.11.4.2, a observação); o distNSU leva o último NSU.
                 consumo.Bloqueio = agora + Bloqueio;
+                interessados.SalvarConsumo(interessado);
                 var ultimo = consulta.Name.LocalName == "distNSU" ? consumo.UltimoNsu ?? 0 : 0;
                 return Retorno(Motivos.ConsumoIndevido, Motivos.Texto(Motivos.ConsumoIndevido) + consumo.Motivo, pedido, ultimo, maximo);
             }
-            return consulta.Name.LocalName switch
+            var resposta = consulta.Name.LocalName switch
             {
                 "distNSU" => Distribuir(Numero(consulta), interessado, consumo, maximo, pedido, interessados),
                 "consNSU" => ConsultarNsu(Numero(consulta), interessado, consumo, maximo, pedido, interessados),
                 _ => ConsultarChave(consulta.Element(NamespaceNFe + "chNFe")!.Value, interessado, consumo, maximo, pedido, repositorio),
             };
+            interessados.SalvarConsumo(interessado);
+            return resposta;
         }
     }
 

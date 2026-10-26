@@ -3,7 +3,7 @@ using System.Net;
 
 namespace OpenDFe.SefazEmulada;
 
-// Como o emulador sobe. Pela linha de comando: --porta, --pasta, --endereco, --nome, --painel, --pedidos e --controle.
+// Como o emulador sobe. Pela linha de comando: --porta, --pasta, --endereco, --nome, --painel, --pedidos, --controle e --persistir.
 internal sealed record OpcoesEmulador
 {
     public const int PortaPadrao = 5443;
@@ -42,6 +42,11 @@ internal sealed record OpcoesEmulador
     // o compose publica as portas só no loopback.
     public bool ControleDaRede { get; init; }
 
+    // Guarda o estado (as notas, os lotes, os eventos, as faixas, a distribuição, os CSCs, os irregulares e os
+    // cadastros) em <Pasta>/persistencia, para valer entre as partidas (--persistir sim). Desligado por padrão: os
+    // testes partem sempre do vazio.
+    public bool Persistir { get; init; }
+
     public static OpcoesEmulador Ler(IReadOnlyList<string> argumentos)
     {
         ArgumentNullException.ThrowIfNull(argumentos);
@@ -69,7 +74,16 @@ internal sealed record OpcoesEmulador
                         _ => throw new ArgumentException($"O --controle é local ou rede, não {valor}."),
                     },
                 },
-                _ => throw new ArgumentException($"Opção desconhecida: {argumentos[i]}. As opções: --porta, --pasta, --endereco, --nome, --painel, --pedidos, --controle."),
+                "--persistir" => opcoes with
+                {
+                    Persistir = valor switch
+                    {
+                        "sim" => true,
+                        "nao" => false,
+                        _ => throw new ArgumentException($"O --persistir é sim ou nao, não {valor}."),
+                    },
+                },
+                _ => throw new ArgumentException($"Opção desconhecida: {argumentos[i]}. As opções: --porta, --pasta, --endereco, --nome, --painel, --pedidos, --controle, --persistir."),
             };
             i++;
         }

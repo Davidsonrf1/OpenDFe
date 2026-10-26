@@ -5,7 +5,7 @@ namespace OpenDFe.SefazEmulada;
 // Os CSCs (Código de Segurança do Contribuinte) que o hash do QR Code versão 2 da NFC-e usa (Manual do DANFE
 // NFC-e e QR Code 6.0, 4.3.3 e 4.6): um por UF, raiz do CNPJ e identificador. O CSC padrão (id 1, o valor de
 // ValorPadrao) vale para qualquer emitente, para os testes e o PDV não precisarem cadastrar nada; a rota
-// /_controle/csc cadastra outros e revoga, também o padrão. Em memória, vazio a cada partida; seguro para uso
+// /_controle/csc cadastra outros e revoga, também o padrão. Em memória, vazio a cada partida (a menos que o Armazenamento guarde); seguro para uso
 // concorrente.
 internal sealed partial class CodigosSeguranca
 {
@@ -14,6 +14,16 @@ internal sealed partial class CodigosSeguranca
 
     private readonly Lock _trava = new();
     private readonly Dictionary<(string Uf, string Cnpj, string Id), CscCadastrado> _cadastro = [];
+    private readonly Armazenamento _armazenamento;
+
+    public CodigosSeguranca(Armazenamento armazenamento)
+    {
+        _armazenamento = armazenamento;
+        armazenamento.Carregar(this);
+    }
+
+    // A partida recarrega o que o Armazenamento guardava, sem gravar de novo.
+    public void Restaurar(CscCadastrado csc) => _cadastro[(csc.Uf, csc.Cnpj, csc.Id)] = csc;
 
     // Confere o pedido (ArgumentException com o que está errado) e cadastra o CSC; o mesmo identificador
     // cadastrado de novo troca o valor e desfaz a revogação.
@@ -25,7 +35,10 @@ internal sealed partial class CodigosSeguranca
             throw new ArgumentException("O CSC tem de 16 a 36 caracteres ASCII, sem espaço nem \"|\".", nameof(pedido));
         var cadastrado = new CscCadastrado(uf, cnpj, id, csc, null);
         lock (_trava)
+        {
             _cadastro[(uf, cnpj, id)] = cadastrado;
+            _armazenamento.GravarCsc(cadastrado);
+        }
         return cadastrado;
     }
 
@@ -38,7 +51,9 @@ internal sealed partial class CodigosSeguranca
             var atual = _cadastro.GetValueOrDefault((uf, cnpj, id)) ?? Padrao(uf, cnpj, id);
             if (atual is null)
                 return false;
-            _cadastro[(uf, cnpj, id)] = atual with { Revogacao = atual.Revogacao ?? instante };
+            var revogado = atual with { Revogacao = atual.Revogacao ?? instante };
+            _cadastro[(uf, cnpj, id)] = revogado;
+            _armazenamento.GravarCsc(revogado);
             return true;
         }
     }
@@ -60,7 +75,10 @@ internal sealed partial class CodigosSeguranca
     public void Limpar()
     {
         lock (_trava)
+        {
             _cadastro.Clear();
+            _armazenamento.LimparCsc();
+        }
     }
 
     private static CscCadastrado? Padrao(string uf, string cnpj, string id) =>

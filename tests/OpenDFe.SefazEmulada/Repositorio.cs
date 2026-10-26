@@ -6,8 +6,8 @@ namespace OpenDFe.SefazEmulada;
 
 // O que o emulador guarda entre os pedidos (PROJETO.md 13.5): as notas autorizadas, para a duplicidade, os
 // lotes recebidos, para a consulta do recibo, os eventos registrados, as faixas inutilizadas e o que o Ambiente
-// Nacional distribui a cada interessado (Interessados). Em memória,
-// vazio a cada partida. Quem processa um lote segura
+// Nacional distribui a cada interessado (Interessados). Em memória; com --persistir sim, também em disco
+// (Armazenamento), e a partida recarrega o que havia. Quem processa um lote segura
 // a Trava do começo ao fim, para que as notas do mesmo lote e de lotes simultâneos se vejam na ordem.
 internal sealed class Repositorio
 {
@@ -17,12 +17,20 @@ internal sealed class Repositorio
     private readonly Dictionary<(string Autorizador, string Recibo), LoteRecebido> _lotes = [];
     private readonly Dictionary<string, List<EventoRegistrado>> _eventos = new(StringComparer.Ordinal);
     private readonly List<FaixaInutilizada> _faixas = [];
+    private readonly Armazenamento _armazenamento;
     private long _sequencia;
+
+    public Repositorio(Armazenamento armazenamento)
+    {
+        _armazenamento = armazenamento;
+        Interessados = new Interessados(armazenamento);
+        armazenamento.Carregar(this);
+    }
 
     public Lock Trava { get; } = new();
 
     // Os documentos distribuídos e o consumo de cada interessado (NFeDistribuicaoDFe).
-    public Interessados Interessados { get; } = new();
+    public Interessados Interessados { get; }
 
     // As consultas abaixo são chamadas com a Trava.
 
@@ -36,6 +44,7 @@ internal sealed class Repositorio
         _notas.Add(nota.Chave, nota);
         _numeracoes.Add(nota.Numeracao, nota.Chave);
         _ordem.Add(nota);
+        _armazenamento.GravarNota(nota);
     }
 
     // A nota passa a cancelada (o evento de cancelamento registrado).
@@ -44,6 +53,7 @@ internal sealed class Repositorio
         var cancelada = _notas[chave] with { Cancelada = true };
         _notas[chave] = cancelada;
         _ordem[_ordem.FindIndex(n => n.Chave == chave)] = cancelada;
+        _armazenamento.GravarCancelada(chave);
     }
 
     // Os eventos da nota, na ordem do registro.
@@ -55,6 +65,7 @@ internal sealed class Repositorio
         if (!_eventos.TryGetValue(evento.Chave, out var eventos))
             _eventos[evento.Chave] = eventos = [];
         eventos.Add(evento);
+        _armazenamento.GravarEvento(evento);
     }
 
     // A faixa com a mesma numeração (I07: CNPJ, modelo, série, início e fim, na UF).
@@ -71,11 +82,22 @@ internal sealed class Repositorio
             && int.Parse(n.Chave[22..25], CultureInfo.InvariantCulture) == serie
             && long.Parse(n.Chave[25..34], CultureInfo.InvariantCulture) is var numero && numero >= inicio && numero <= fim);
 
-    public void Registrar(FaixaInutilizada faixa) => _faixas.Add(faixa);
+    public void Registrar(FaixaInutilizada faixa)
+    {
+        _faixas.Add(faixa);
+        _armazenamento.GravarFaixa(faixa);
+    }
 
     public LoteRecebido? Lote(string autorizador, string recibo) => _lotes.GetValueOrDefault((autorizador, recibo));
 
-    public void Registrar(LoteRecebido lote) => _lotes.Add((lote.Autorizador, lote.Recibo), lote);
+    public void Registrar(LoteRecebido lote)
+    {
+        _lotes.Add((lote.Autorizador, lote.Recibo), lote);
+        _armazenamento.GravarLote(lote);
+    }
+
+    // O lote respondeu uma consulta com 105: as consultas pendentes mudaram.
+    public void Atualizar(LoteRecebido lote) => _armazenamento.GravarLote(lote);
 
     // O número do recibo (Visão Geral, 4.3.4): o cUF de onde o lote foi entregue, o tipo de autorizador e 12
     // posições sequenciais.
@@ -133,10 +155,36 @@ internal sealed class Repositorio
             _eventos.Clear();
             _faixas.Clear();
             Interessados.Limpar();
+            _armazenamento.LimparRepositorio();
         }
     }
 
-    private long Proximo() => ++_sequencia;
+    // A partida recarrega o que o Armazenamento guardava, sem gravar de novo.
+    public void Restaurar(long sequencia) => _sequencia = sequencia;
+
+    public void Restaurar(NotaRegistrada nota)
+    {
+        _notas.Add(nota.Chave, nota);
+        _numeracoes.Add(nota.Numeracao, nota.Chave);
+        _ordem.Add(nota);
+    }
+
+    public void Restaurar(EventoRegistrado evento)
+    {
+        if (!_eventos.TryGetValue(evento.Chave, out var eventos))
+            _eventos[evento.Chave] = eventos = [];
+        eventos.Add(evento);
+    }
+
+    public void Restaurar(FaixaInutilizada faixa) => _faixas.Add(faixa);
+
+    public void Restaurar(LoteRecebido lote) => _lotes.Add((lote.Autorizador, lote.Recibo), lote);
+
+    private long Proximo()
+    {
+        _armazenamento.GravarSequencia(++_sequencia);
+        return _sequencia;
+    }
 }
 
 // Uma nota autorizada. Numeracao: o que a duplicidade compara (Numerar). Recibo: o do lote assíncrono que a

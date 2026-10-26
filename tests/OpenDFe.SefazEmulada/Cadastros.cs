@@ -7,11 +7,21 @@ namespace OpenDFe.SefazEmulada;
 // rota /_controle/cadastros. Um contribuinte por UF e IE; cadastrar de novo a mesma IE na mesma UF troca o que
 // estava. A situação que a consulta devolve (cSit) é a do cadastro e também a dos Irregulares: o CNPJ ou o CPF
 // irregular sai como não habilitado (0), como a autorização e o evento o tratam (781, 240). Em memória, vazio a
-// cada partida; seguro para uso concorrente.
+// cada partida (a menos que o Armazenamento guarde); seguro para uso concorrente.
 internal sealed partial class Cadastros
 {
     private readonly Lock _trava = new();
     private readonly SortedDictionary<(string Uf, string Ie), Contribuinte> _contribuintes = [];
+    private readonly Armazenamento _armazenamento;
+
+    public Cadastros(Armazenamento armazenamento)
+    {
+        _armazenamento = armazenamento;
+        armazenamento.Carregar(this);
+    }
+
+    // A partida recarrega o que o Armazenamento guardava, sem gravar de novo.
+    public void Restaurar(Contribuinte contribuinte) => _contribuintes[(contribuinte.Uf!, contribuinte.Ie!)] = contribuinte;
 
     // Confere o contribuinte (ArgumentException com o que está errado) e o cadastra; verdadeiro se é novo, falso
     // se trocou o que havia na mesma UF e IE.
@@ -22,6 +32,7 @@ internal sealed partial class Cadastros
         {
             var novo = !_contribuintes.ContainsKey((conferido.Uf!, conferido.Ie!));
             _contribuintes[(conferido.Uf!, conferido.Ie!)] = conferido;
+            _armazenamento.GravarCadastro(conferido);
             return novo;
         }
     }
@@ -29,7 +40,12 @@ internal sealed partial class Cadastros
     public bool Remover(string uf, string ie)
     {
         lock (_trava)
-            return _contribuintes.Remove((uf.ToUpperInvariant(), ie));
+        {
+            var removido = _contribuintes.Remove((uf.ToUpperInvariant(), ie));
+            if (removido)
+                _armazenamento.RemoverCadastro(uf, ie);
+            return removido;
+        }
     }
 
     public IReadOnlyList<Contribuinte> Listar()
@@ -41,7 +57,10 @@ internal sealed partial class Cadastros
     public void Limpar()
     {
         lock (_trava)
+        {
             _contribuintes.Clear();
+            _armazenamento.LimparCadastros();
+        }
     }
 
     // Os contribuintes da UF pelo argumento da consulta: pelo CNPJ ou pelo CPF, todos os estabelecimentos com
