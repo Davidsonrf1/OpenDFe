@@ -41,6 +41,74 @@ if (autorizada.Autorizada)
 }
 ```
 
+## Documentação
+
+A documentação completa começa em [docs/index.md](docs/index.md). Comece pelo [início rápido](docs/guia/inicio-rapido.md): a primeira NFC-e autorizada na SEFAZ emulada, sem certificado real.
+
+- [Visão geral](docs/guia/visao-geral.md)
+- [Instalação](docs/guia/instalacao.md)
+- [Início rápido: a primeira NFC-e na SEFAZ emulada](docs/guia/inicio-rapido.md)
+
+**SEFAZ emulada**
+
+- [Visão geral da SEFAZ emulada](docs/guia/sefaz-emulada/index.md): o que ela é, o que ela confere e o que ela não substitui.
+- [Executar a SEFAZ emulada](docs/guia/sefaz-emulada/executar.md): `dotnet run`, Docker, opções e persistência.
+- [Conectar a OpenDFe à SEFAZ emulada](docs/guia/sefaz-emulada/conectar.md): o certificado de teste, a AC de teste e as URLs.
+- [Usar o painel](docs/guia/sefaz-emulada/painel.md): acompanhar os pedidos e comandar o emulador pelo navegador.
+- [Simular falhas](docs/guia/sefaz-emulada/falhas-comandadas.md): paralisação, tempo esgotado, queda no meio, lote em processamento.
+- [Preparar dados de teste](docs/guia/sefaz-emulada/dados-teste.md): CSC, contribuintes irregulares, cadastro e persistência.
+- [Usar em testes automatizados](docs/guia/sefaz-emulada/testes-automatizados.md): xUnit, isolamento entre testes e CI.
+- [Serviços e códigos de retorno](docs/guia/sefaz-emulada/servicos.md): o que cada serviço responde.
+- [Referência das rotas de controle](docs/guia/sefaz-emulada/api-controle.md): a API HTTP do `/_controle`.
+
+**Conceitos**
+
+- [Arquitetura: núcleo, leiaute e pacotes](docs/guia/conceitos/arquitetura.md)
+- [O núcleo e a configuração](docs/guia/conceitos/nucleo-configuracao.md)
+- [Certificado digital](docs/guia/conceitos/certificado.md)
+- [Conexões, TLS e tempos](docs/guia/conceitos/conexoes-tls.md)
+- [Resultados, problemas e exceções](docs/guia/conceitos/resultados-problemas.md)
+- [Validação: schema, regras e regras próprias](docs/guia/conceitos/validacao.md)
+- [Autorizadores, URLs e contingência SVC](docs/guia/conceitos/autorizadores-urls.md)
+
+**NF-e e NFC-e**
+
+- [Montar a nota](docs/guia/nfe/montar-nota.md)
+- [Consultar o status do serviço](docs/guia/nfe/status-servico.md)
+- [Autorizar notas](docs/guia/nfe/autorizacao.md)
+- [Consultar a situação de uma nota](docs/guia/nfe/consulta-protocolo.md)
+- [Quando a conexão cai: recuperação e duplicidade](docs/guia/nfe/queda-recuperacao.md)
+- [Cancelar e corrigir: eventos](docs/guia/nfe/eventos.md)
+- [Inutilizar numeração](docs/guia/nfe/inutilizacao.md)
+- [Ler um XML recebido](docs/guia/nfe/leitura-xml.md)
+- [Baixar as notas destinadas: distribuição DF-e](docs/guia/nfe/distribuicao-dfe.md)
+- [Manifestação do destinatário](docs/guia/nfe/manifestacao.md)
+- [Consulta cadastro](docs/guia/nfe/consulta-cadastro.md)
+
+**Específico da NFC-e**
+
+- [QR Code e CSC](docs/guia/nfce/qrcode-csc.md)
+- [Contingência offline](docs/guia/nfce/contingencia-offline.md)
+- [Cancelamento por substituição](docs/guia/nfce/cancelamento-substituicao.md)
+
+**Impressão**
+
+- [Modelo de impressão: DANFE e DANFCE](docs/guia/impressao/modelo-impressao.md)
+- [Gerar o PDF](docs/guia/impressao/pdf.md)
+- [Imprimir em impressora térmica (ESC/POS)](docs/guia/impressao/escpos.md)
+
+**Da homologação à produção**
+
+- [Passar para a homologação real e para a produção](docs/guia/homologacao-producao.md)
+- [Solução de problemas](docs/guia/solucao-problemas.md)
+- [Glossário](docs/guia/glossario.md)
+
+**Referência**
+
+- [Referência da API](docs/referencia/index.md): todos os tipos e membros públicos, por namespace.
+- [Catálogo de regras e rejeições](docs/REGRAS.md): as regras do MOC que a biblioteca confere antes de transmitir e as que ficam para a SEFAZ.
+- [Notas Técnicas acompanhadas](docs/NTS.md): as NTs, os schemas e as tabelas que cada versão implementa.
+
 ## Pacotes
 
 | Pacote | Conteúdo |

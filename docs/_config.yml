@@ -1,0 +1,12 @@
+# GitHub Pages (Jekyll): publique a pasta docs/ em Settings > Pages > "Deploy from a branch" > main, /docs.
+# As páginas são Markdown sem front matter: o GitHub Pages tira o título do primeiro cabeçalho e converte os
+# links relativos para .md em links para as páginas.
+title: OpenDFe
+description: Biblioteca .NET para NF-e e NFC-e, com uma SEFAZ emulada para desenvolver e testar sem certificado real.
+lang: pt-BR
+theme: jekyll-theme-primer
+
+# Os arquivos de trabalho do repositório não são publicados.
+exclude:
+  - etapas
+  - OpenDFe.code-workspace
