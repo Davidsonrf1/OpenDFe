@@ -109,6 +109,17 @@ Veja [Simular falhas](falhas-comandadas.md).
 | `GET /_controle/pedidos/fluxo` | Os avisos ao vivo, em `text/event-stream`: `event: pedido` a cada pedido novo e `event: estado` a cada mudança pelo controle |
 | `DELETE /_controle/pedidos` | Esquece os pedidos: 204 |
 
+## Prompt para agentes de IA
+
+Peça a um agente que escreva um utilitário de linha de comando para o controle. Use junto com o [prompt de contexto](../agentes-ia.md), que traz as regras gerais da biblioteca, e revise o código gerado.
+
+```text
+Escreva um utilitário de linha de comando (C# ou PowerShell) para a API de controle da SEFAZ emulada da OpenDFe, seguindo
+docs/guia/sefaz-emulada/api-controle.md: subcomandos para paralisar/liberar (POST /_controle/falhas com tipo paralisacao), listar as
+notas (GET /_controle/notas), mostrar uma nota com o XML (GET /_controle/notas/{chave}), acompanhar os pedidos ao vivo
+(GET /_controle/pedidos/fluxo, text/event-stream) e zerar (DELETE /_controle). Endereço padrão http://127.0.0.1:5444.
+```
+
 ## Próximas etapas
 
 - [Usar em testes automatizados](testes-automatizados.md)

@@ -209,6 +209,18 @@ Na distribuição, a queda no meio é perigosa: **o Ambiente Nacional já consid
 > **Dica**
 > Teste o laço inteiro na [SEFAZ emulada](../sefaz-emulada/index.md): ela gera o NSU por interessado, distribui o resumo e o `nfeProc` conforme a manifestação e aplica o uso indevido (656) com o bloqueio de uma hora. Use um núcleo com o certificado do emitente para autorizar as notas e outro com o do destinatário para baixá-las.
 
+## Prompt para agentes de IA
+
+Peça a um agente que implemente a caixa de entrada. Use junto com o [prompt de contexto](../agentes-ia.md), que traz as regras gerais da biblioteca, e revise o código gerado.
+
+```text
+Implemente a caixa de entrada de NF-e com a distribuição DF-e da OpenDFe, seguindo docs/guia/nfe/distribuicao-dfe.md, para os CNPJs <...>,
+gravando em <banco/tabelas>. Implemente a interface ICaixaEntrada (o NSU por CNPJ de 14 posições, o NaoConsultarAte, a gravação
+idempotente pelo NSU) e use o SincronizadorDistribuicao do guia, num agendador de hora em hora. Respeite a EsperaSugerida (nunca consulte
+antes: 656 recomeça o bloqueio de uma hora), trate a resposta perdida fechando a lacuna com DistribuicaoDFe.Nsu (20 por hora) e
+registre o aviso NFE-DISTRIBUICAO. Para cada ResumoNFe, <manifeste a ciência / avise o usuário>.
+```
+
 ## Próximas etapas
 
 - [Manifestação do destinatário](manifestacao.md)

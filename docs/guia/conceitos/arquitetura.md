@@ -101,6 +101,17 @@ O modelo e o leiaute de um documento saem no mesmo pacote e na mesma versão: o 
 - **Leiautes de terceiros.** `ILeiaute` é uma interface mínima (`Versao`, `Documentos`, `Declarar`); tudo o que o leiaute tem, ele declara numa `DeclaracaoLeiaute`. Um leiaute novo registra operações (`IOperacao<TParametro, TRetorno>`), preparos, atendimentos, URLs, serviços SOAP, regras e formas de leitura.
 - **Listagem sem núcleo.** `DeclaracaoLeiaute.Criar(leiaute, documento)` lista as operações, os autorizadores, as URLs e os serviços antes de haver certificado, por exemplo para uma tela de configuração.
 
+## Prompt para agentes de IA
+
+Peça a um agente que desenhe a integração. Use junto com o [prompt de contexto](../agentes-ia.md), que traz as regras gerais da biblioteca, e revise o código gerado.
+
+```text
+Desenhe a integração da OpenDFe no meu sistema <descreva: camadas, injeção de dependência, multiempresa>, seguindo
+docs/guia/conceitos/arquitetura.md. Um LeiauteNFe400 e um ConexoesSefaz compartilhados (singletons); um DFe por emitente e documento,
+criado sob demanda e reaproveitado; a contingência como outro DFe. Todas as operações por dfe.ExecutarAsync(parametro), com o
+CancellationToken. Mostre as classes e onde cada uma é registrada no contêiner.
+```
+
 ## Próximas etapas
 
 - [O núcleo e a configuração](nucleo-configuracao.md)

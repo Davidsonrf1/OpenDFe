@@ -141,6 +141,19 @@ Além delas, cada nota passa pelo schema e pelas regras do MOC (veja [Validaçã
 | 539 | Duplicidade (a mesma numeração, outra chave) | Consultar a outra chave ([Quando a conexão cai](queda-recuperacao.md)) |
 | 2xx, 3xx, 4xx, 5xx, 7xx | Rejeição | Corrigir o dado e enviar de novo; a nota rejeitada não fica registrada |
 
+## Prompt para agentes de IA
+
+Peça a um agente que escreva o fluxo de emissão. Use junto com o [prompt de contexto](../agentes-ia.md), que traz as regras gerais da biblioteca, e revise o código gerado.
+
+```text
+Escreva o fluxo de emissão de <NF-e/NFC-e> com a OpenDFe, seguindo docs/guia/nfe/autorizacao.md e docs/guia/nfe/queda-recuperacao.md:
+1) dfe.Preparar(nota) e, sem Preparado, mostrar os Problemas; 2) gravar a chave e o XML assinado no meu banco <descreva> antes de transmitir;
+3) ExecutarAsync(new Autorizacao(preparado.Xml)); 4) com Retorno.Notas[0].Autorizada, gravar o XmlProcessado (nfeProc);
+5) rejeição: mostrar Protocolo.Status e Motivo; 204 e 539 pela Duplicidade; 6) FalhaTransmissaoException com PodeTerSidoProcessado:
+RecuperacaoAutorizacao com o mesmo XML. Para <lotes de até 50 notas>, use o 103 com o Recibo e ConsultaRecibo { Xmls }, tratando o 105.
+Nunca gere a NotaFiscal de novo para reenviar.
+```
+
 ## Próximas etapas
 
 - [Consultar a situação de uma nota](consulta-protocolo.md)

@@ -111,6 +111,19 @@ Guardar(preparado.Chave, preparado.Xml);   // o XML assinado e válido, pronto p
 
 É o caminho para mostrar os erros na tela antes de emitir, e o caminho seguro para emitir: guarde o XML e só depois transmita (veja [Autorizar notas](../nfe/autorizacao.md)).
 
+## Prompt para agentes de IA
+
+Peça a um agente que escreva as regras de negócio do seu sistema. Use junto com o [prompt de contexto](../agentes-ia.md), que traz as regras gerais da biblioteca, e revise o código gerado.
+
+```text
+Escreva callbacks de validação para a OpenDFe (ConfiguracaoDFe.Validacao, ValidacaoCallback), seguindo docs/guia/conceitos/validacao.md,
+com estas regras do meu negócio: <liste as regras>.
+Use Campo para regras de um campo (CampoVerificado: Tag, Caminho, Propriedade, Texto) e Documento para regras da nota inteira
+(DocumentoVerificado.Modelo como NotaFiscal, que é nulo quando a nota veio como XML já assinado: trate esse caso pelo Xml).
+Devolva Problema com um código próprio (prefixo <PDV->), Severidade.Erro ou Aviso e a Propriedade. Os callbacks podem rodar em
+paralelo: sem estado mutável compartilhado. Não reimplemente regras que a biblioteca já confere (totais, CPF/CNPJ, schema).
+```
+
 ## Próximas etapas
 
 - [Montar a nota](../nfe/montar-nota.md)

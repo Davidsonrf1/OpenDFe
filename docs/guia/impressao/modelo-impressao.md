@@ -107,6 +107,17 @@ Tudo é imutável e seguro para uso concorrente. A lista completa de membros est
 
 A conferência, exigência por exigência, contra o Manual do DANFE NFC-e 6.0 e o Anexo II do MOC 7.0 está em [IMPRESSAO.md](../../IMPRESSAO.md), com as lacunas conhecidas.
 
+## Prompt para agentes de IA
+
+Peça a um agente que gere o DANFE ou o DANFCE. Use junto com o [prompt de contexto](../agentes-ia.md), que traz as regras gerais da biblioteca, e revise o código gerado.
+
+```text
+Gere o <DANFE / DANFCE> de uma nota autorizada com a OpenDFe, seguindo docs/guia/impressao/modelo-impressao.md:
+LeiauteNFe400.Ler(nfeProc) e LeiauteNFe400.Danfe ou Danfce, com <logotipo convertido por Imagem1Bit.Limiarizar, texto de rodapé,
+bobina de 80/58 mm, via, marca de cancelada>. A situação de cancelada é minha (OpcoesDanfe.Cancelada). Trate a ArgumentException
+(nota que não é do modelo, sem protocolo de autorização, tpImp não suportado) e não invente opções que não estão em OpcoesDanfe/OpcoesDanfce.
+```
+
 ## Próximas etapas
 
 - [Gerar o PDF](pdf.md)

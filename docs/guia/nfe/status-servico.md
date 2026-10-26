@@ -67,6 +67,17 @@ Quando o autorizador está fora: na NF-e, a contingência SVC (veja [Autorizador
 > **Dica**
 > Na SEFAZ emulada, paralise um autorizador pela aba **Autorizadores** do painel, ou com uma falha `paralisacao`, para testar esse fluxo. Veja [Simular falhas](../sefaz-emulada/falhas-comandadas.md).
 
+## Prompt para agentes de IA
+
+Peça a um agente que escreva o monitor do serviço. Use junto com o [prompt de contexto](../agentes-ia.md), que traz as regras gerais da biblioteca, e revise o código gerado.
+
+```text
+Escreva um monitor do status da SEFAZ com a OpenDFe, seguindo docs/guia/nfe/status-servico.md: a cada <N> minutos, ConsultaStatus
+no autorizador da UF e na SVC (Destino = Destino.SvcAN ou SvcRS); considere fora do ar o Retorno.Operando falso (108, 109) e a
+FalhaTransmissaoException; mostre o Motivo, a Observacao e a PrevisaoRetorno quando vierem. Use o TimeProvider da configuração
+para os testes e um teste contra a SEFAZ emulada com a falha "paralisacao".
+```
+
 ## Próximas etapas
 
 - [Autorizar notas](autorizacao.md)

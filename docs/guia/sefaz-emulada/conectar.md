@@ -177,6 +177,19 @@ ConfiguracaoDFe Configuracao(bool emulador, X509Certificate2 certificado, Conexo
     };
 ```
 
+## Prompt para agentes de IA
+
+Peça a um agente que conecte o seu aplicativo à SEFAZ emulada. Use junto com o [prompt de contexto](../agentes-ia.md), que traz as regras gerais da biblioteca, e revise o código gerado.
+
+```text
+Conecte o meu aplicativo à SEFAZ emulada da OpenDFe, seguindo docs/guia/sefaz-emulada/conectar.md:
+1) um certificado autoassinado RSA 2048 com o CNPJ do emitente <...> no serialNumber (2.5.4.5), aberto por CertificadoDigital.AbrirPfx;
+2) o ac.crt de GET http://127.0.0.1:5444/_controle/ac.crt e um ConexoesSefaz com a fábrica que parte de conexao.CriarPadrao() e aceita,
+   além do padrão, só o erro de cadeia resolvido pela AC (CustomRootTrust), nunca "return true";
+3) as URLs de GET /_controle/emulador, filtradas por DeclaracaoLeiaute.Criar(leiaute, documento).Servicos, em ConfiguracaoDFe.Urls,
+   com Ambiente.Homologacao. Deixe isso só no código de desenvolvimento e teste.
+```
+
 ## Próximas etapas
 
 - [Usar o painel](painel.md)

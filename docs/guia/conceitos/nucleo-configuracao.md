@@ -113,6 +113,18 @@ O contêiner descarta o `ConexoesSefaz` quando o aplicativo termina.
 
 O núcleo nunca lê `DateTimeOffset.Now` direto: o rastro, o `idLote`, o `dhEvento` e as regras de data usam o `Relogio` da configuração. Nos testes, passe um `TimeProvider` falso (por exemplo o `FakeTimeProvider` do pacote `Microsoft.Extensions.TimeProvider.Testing`) para controlar o tempo.
 
+## Prompt para agentes de IA
+
+Peça a um agente que crie os núcleos para várias empresas. Use junto com o [prompt de contexto](../agentes-ia.md), que traz as regras gerais da biblioteca, e revise o código gerado.
+
+```text
+Escreva um serviço C# que fornece o DFe da OpenDFe para cada empresa e documento do meu sistema, seguindo
+docs/guia/conceitos/nucleo-configuracao.md. Os dados da empresa vêm de <repositório/banco>: CNPJ, UF, ambiente, PFX e senha <ou cofre>.
+Use um ConexoesSefaz único (singleton, descartado no fim do aplicativo), um ConcurrentDictionary por (CNPJ, Documento) e
+DFe.Criar com ConfiguracaoDFe imutável. Confira a validade do certificado com CertificadoDigital.Validade ao criar o núcleo e
+avise quando faltar menos de <30> dias. Não descarte o certificado enquanto houver núcleo que o use.
+```
+
 ## Próximas etapas
 
 - [Certificado digital](certificado.md)

@@ -108,6 +108,18 @@ A NF-e é assinada com RSA e SHA-1, e a biblioteca usa a criptografia do sistema
 
 No contêiner, a política vale para a imagem: aplique o comando no `Dockerfile` da imagem baseada em RHEL.
 
+## Prompt para agentes de IA
+
+Peça a um agente que prepare o projeto. Use junto com o [prompt de contexto](agentes-ia.md), que traz as regras gerais da biblioteca, e revise o código gerado.
+
+```text
+Prepare um projeto .NET 10 para usar a OpenDFe, seguindo docs/guia/instalacao.md.
+Os pacotes ainda não estão no NuGet.org: gere-os com `dotnet pack OpenDFe.slnx -c Release -o <pasta>` a partir do repositório
+clonado e crie um nuget.config com essa pasta e o nuget.org. Adicione OpenDFe.NFe <e OpenDFe.Impressao.Pdf, se eu gerar PDF>.
+O projeto vai rodar em <Windows / Linux, distribuição>; se for da família RHEL 9, inclua a liberação do SHA-1
+(update-crypto-policies --set DEFAULT:SHA1). Termine com um Program.cs mínimo que imprime new LeiauteNFe400().Versao.
+```
+
 ## Próximas etapas
 
 - [Autorizar a primeira NFC-e na SEFAZ emulada](inicio-rapido.md)

@@ -65,6 +65,17 @@ Os autorizadores são os reais: as 10 UFs com autorizador próprio, a SVRS, a SV
 
 A especificação completa, com cada regra e a fonte no MOC, está em [SEFAZ_EMULADA.md](../../SEFAZ_EMULADA.md).
 
+## Prompt para agentes de IA
+
+Peça a um agente que monte o ambiente de desenvolvimento com a SEFAZ emulada. Use junto com o [prompt de contexto](../agentes-ia.md), que traz as regras gerais da biblioteca, e revise o código gerado.
+
+```text
+Monte o ambiente de desenvolvimento do meu sistema com a SEFAZ emulada da OpenDFe, seguindo docs/guia/sefaz-emulada/index.md:
+o emulador por <dotnet run / Docker Compose> a partir do repositório da OpenDFe, o painel em http://127.0.0.1:5444, e uma chave de
+configuração no meu aplicativo que troca o certificado (autoassinado), as conexões (confiança na AC de teste) e as URLs
+(ConfiguracaoDFe.Urls) entre o emulador e a SEFAZ real. Lembre que o emulador é só homologação e não confere a cadeia ICP-Brasil.
+```
+
 ---
 
 > **Aviso:** esta documentação foi criada com assistência de inteligência artificial e pode conter imprecisões. Em caso de dúvida, consulte sempre o [código-fonte](https://github.com/Davidsonrf1/OpenDFe), que é a referência definitiva.

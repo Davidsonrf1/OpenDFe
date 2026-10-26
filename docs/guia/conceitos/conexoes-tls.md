@@ -104,6 +104,18 @@ Uma falha de rede, TLS, HTTP ou SOAP vira `FalhaTransmissaoException`, com a esp
 
 Veja [Resultados, problemas e exceções](resultados-problemas.md).
 
+## Prompt para agentes de IA
+
+Peça a um agente que configure as conexões. Use junto com o [prompt de contexto](../agentes-ia.md), que traz as regras gerais da biblioteca, e revise o código gerado.
+
+```text
+Configure o ConexoesSefaz da OpenDFe para o meu ambiente, seguindo docs/guia/conceitos/conexoes-tls.md:
+<proxy corporativo em ...? conferência de revogação? tempos de conexão e de resposta?>.
+Use o construtor com a fábrica e parta sempre de conexao.CriarPadrao(), ajustando o SocketsHttpHandler devolvido.
+Nunca troque a validação do certificado do servidor por "return true". Explique o risco de um TempoResposta curto na autorização
+(a queda no meio, PodeTerSidoProcessado) e escolha valores com folga.
+```
+
 ## Próximas etapas
 
 - [Resultados, problemas e exceções](resultados-problemas.md)

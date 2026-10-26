@@ -152,6 +152,19 @@ Além dos códigos de rejeição do MOC, a biblioteca usa códigos próprios, co
 
 O catálogo completo das regras, com as que a biblioteca confere e as que ficam para a SEFAZ, está em [REGRAS.md](../../REGRAS.md).
 
+## Prompt para agentes de IA
+
+Peça a um agente que escreva o tratamento dos resultados. Use junto com o [prompt de contexto](../agentes-ia.md), que traz as regras gerais da biblioteca, e revise o código gerado.
+
+```text
+Escreva o tratamento completo do resultado de uma operação da OpenDFe, seguindo docs/guia/conceitos/resultados-problemas.md:
+1) resultado.Processado falso (RecusadoLocalmente): mostre ao usuário cada Problema com o Codigo, a Mensagem e a Propriedade
+   (nunca o FalhaSchema.Valor, que pode ser dado pessoal);
+2) Processado com a rejeição: na autorização, olhe o Protocolo.Status de cada nota em Retorno.Notas, não só o CStat do lote;
+3) FalhaTransmissaoException: separe PodeTerSidoProcessado falso (reenviar o mesmo XML) de verdadeiro (recuperar).
+Guarde o Rastro sem escrever os XMLs em log. A operação é <qual>.
+```
+
 ## Próximas etapas
 
 - [Validação: schema, regras e regras próprias](validacao.md)

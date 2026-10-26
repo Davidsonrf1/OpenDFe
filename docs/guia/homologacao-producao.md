@@ -55,6 +55,19 @@ Em homologação, as notas não têm valor fiscal. A SEFAZ exige que o nome do d
 
 A SEFAZ muda o leiaute e as regras por Notas Técnicas, e de 2026 a 2033 elas mudam todo ano por causa da reforma tributária. Atualize a biblioteca quando sair uma versão para a NT que entrar em vigor. As NTs que cada versão implementa estão em [NTS.md](../NTS.md). Uma URL de autorizador que muda antes de sair a versão nova se troca na configuração (veja [Autorizadores e URLs](conceitos/autorizadores-urls.md)).
 
+## Prompt para agentes de IA
+
+Peça a um agente que revise o código antes de ir para a produção. Use junto com o [prompt de contexto](agentes-ia.md), que traz as regras gerais da biblioteca, e revise o código gerado.
+
+```text
+Revise este código que usa a OpenDFe antes de irmos para <homologação real / produção>, usando a lista de docs/guia/homologacao-producao.md:
+<cole o código>.
+Confira: o certificado A1 real (CertificadoDigital.AbrirArquivoPfx) e a validade dele; ConexoesSefaz sem a fábrica da AC de teste;
+ConfiguracaoDFe.Urls vazio (as URLs do leiaute); o Ambiente certo; o CSC certo; o XML assinado guardado antes de transmitir
+(Preparar) e o nfeProc depois; a queda no meio tratada com RecuperacaoAutorizacao, sem reenviar a NotaFiscal; nada de XML ou CSC em log;
+a licença do QuestPDF definida, se gerar PDF. Aponte cada problema com a linha e a correção.
+```
+
 ## Próximas etapas
 
 - [Solução de problemas](solucao-problemas.md)

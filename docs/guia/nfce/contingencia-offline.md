@@ -97,6 +97,18 @@ Uma venda já autorizada que precisa ser refeita pode ser substituída por uma N
 > **Dica**
 > Na [SEFAZ emulada](../sefaz-emulada/index.md), a NFC-e offline transmitida até 24 horas depois da emissão é autorizada com o 100; com mais de 24 horas, com o 150. Use um `TimeProvider` falso na configuração para testar o prazo sem esperar.
 
+## Prompt para agentes de IA
+
+Peça a um agente que implemente a contingência offline do PDV. Use junto com o [prompt de contexto](../agentes-ia.md), que traz as regras gerais da biblioteca, e revise o código gerado.
+
+```text
+Implemente a contingência offline da NFC-e com a OpenDFe no meu PDV, seguindo docs/guia/nfce/contingencia-offline.md:
+detectar a queda; criar o DFe com Emissao = ContingenciaOffline e Contingencia (início e justificativa); Preparar cada venda e gravar
+o XML numa fila local <descreva> antes de imprimir; imprimir o DANFCE com a legenda de contingência (Danfce com OpcoesDanfce.Via);
+quando a rede voltar, transmitir a fila pelo DFe normal (síncrona ou lote de até 50, com ConsultaRecibo), dentro de 24 horas
+(depois disso vem o 150). Não altere o XML depois do Preparar. Trate o 204 como recuperação e a rejeição com nova numeração e inutilização.
+```
+
 ## Próximas etapas
 
 - [Cancelamento por substituição](cancelamento-substituicao.md)

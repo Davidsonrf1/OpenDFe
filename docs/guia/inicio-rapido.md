@@ -275,6 +275,18 @@ A pasta do projeto recebe o `nfeProc` (a nota assinada com o protocolo) e o PDF 
 - **Um serviço paralisado.** No painel, aba **Autorizadores**, paralise MG com o 109 e rode de novo: o status volta `109`. Veja [Simular falhas](sefaz-emulada/falhas-comandadas.md).
 - **A queda no meio.** Escreva `EMULADA:conexaoDerrubada:depois` nas informações complementares da nota (`nota.InformacoesAdicionais = new InformacoesAdicionais { Complementares = "EMULADA:conexaoDerrubada:depois" }`). O emulador autoriza e derruba a conexão: você recebe uma `FalhaTransmissaoException` com `PodeTerSidoProcessado` verdadeiro, e o guia [Quando a conexão cai](nfe/queda-recuperacao.md) mostra como recuperar a nota.
 
+## Prompt para agentes de IA
+
+Peça a um agente que adapte o tutorial ao seu caso. Use junto com o [prompt de contexto](agentes-ia.md), que traz as regras gerais da biblioteca, e revise o código gerado.
+
+```text
+Adapte o tutorial docs/guia/inicio-rapido.md da OpenDFe para o meu emitente: CNPJ <...>, UF <...>, regime <Simples Nacional / normal>,
+produto <descrição, NCM, CFOP, valor>. Mantenha a SEFAZ emulada (http://127.0.0.1:5444 para o painel), o certificado autoassinado
+com o CNPJ do emitente no serialNumber, a fábrica do ConexoesSefaz que confia na AC de teste e as URLs filtradas pelos serviços de
+DeclaracaoLeiaute.Criar(leiaute, documento).Servicos. Se a UF não for MG, MS ou SC, informe UrlQrCode e UrlChave na ConfiguracaoNFCe.
+Trate resultado.Processado, os Problemas e o Protocolo.Status da nota. Preencha os totais: a biblioteca não os calcula.
+```
+
 ## Próximas etapas
 
 - [SEFAZ emulada: visão geral](sefaz-emulada/index.md)

@@ -109,6 +109,17 @@ Guardar(lida.Chave!, lida.Xml);
 
 Para confirmar a situação atual da nota na SEFAZ (ela pode ter sido cancelada depois), use a [consulta do protocolo](consulta-protocolo.md) ou a [distribuição DF-e](distribuicao-dfe.md).
 
+## Prompt para agentes de IA
+
+Peça a um agente que escreva a importação das notas de compra. Use junto com o [prompt de contexto](../agentes-ia.md), que traz as regras gerais da biblioteca, e revise o código gerado.
+
+```text
+Escreva a importação de XMLs de NF-e recebidos de fornecedores com a OpenDFe, seguindo docs/guia/nfe/leitura-xml.md:
+DFe.Detectar para saber se o leiaute lê o XML; LeiauteNFe400.Ler; recusar com os Problemas de severidade Erro (inclusive NFE-PROTOCOLO);
+aceitar só Protocolo.Status 100 ou 150 e o destinatário <meu CNPJ>; verificar a assinatura com AssinaturaDigital.Verificar contra o emitente;
+guardar lida.Xml (o XML recebido, nunca um regerado). Mapeie para o meu modelo de entrada <descreva>: itens, quantidades, valores, lotes.
+```
+
 ## Próximas etapas
 
 - [Baixar as notas destinadas: distribuição DF-e](distribuicao-dfe.md)

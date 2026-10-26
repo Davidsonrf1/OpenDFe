@@ -141,6 +141,18 @@ await painel.PostAsJsonAsync("_controle/falhas", new { tipo = "tempoEsgotado", s
 // ExecutarAsync lança FalhaTransmissaoException { Tipo: TempoEsgotado, PodeTerSidoProcessado: true }
 ```
 
+## Prompt para agentes de IA
+
+Peça a um agente que escreva os testes de falha. Use junto com o [prompt de contexto](../agentes-ia.md), que traz as regras gerais da biblioteca, e revise o código gerado.
+
+```text
+Escreva testes xUnit que provocam falhas na SEFAZ emulada da OpenDFe e conferem o tratamento do meu código <descreva a classe de emissão>,
+seguindo docs/guia/sefaz-emulada/falhas-comandadas.md. Um teste por caso: paralisação 108/109 (e a SVC respondendo 107), tempoEsgotado
+(com TempoResposta curto), conexaoDerrubada antes (não autoriza) e depois (autoriza: recuperar e o reenvio dá 204), respostaIlegivel,
+falhaSoap e loteProcessando (105 e depois 104). Comande pela API (POST /_controle/falhas, com vezes = 1) e zere com DELETE /_controle
+no começo de cada teste. Rode numa coleção sem paralelismo.
+```
+
 ## Próximas etapas
 
 - [Preparar dados de teste](dados-teste.md)

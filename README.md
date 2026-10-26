@@ -102,6 +102,7 @@ A documentação completa começa em [docs/index.md](docs/index.md). Comece pelo
 - [Passar para a homologação real e para a produção](docs/guia/homologacao-producao.md)
 - [Solução de problemas](docs/guia/solucao-problemas.md)
 - [Glossário](docs/guia/glossario.md)
+- [Usar a OpenDFe com agentes de IA](docs/guia/agentes-ia.md): o prompt de contexto e, em cada página, um prompt pronto sobre o tema.
 
 **Referência**
 

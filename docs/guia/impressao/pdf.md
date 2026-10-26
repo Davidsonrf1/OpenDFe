@@ -75,6 +75,17 @@ O aplicativo que imprime só em impressora térmica (ESC/POS) não precisa do `O
 
 As diferenças do PDF em relação ao Anexo II do MOC estão em [IMPRESSAO.md](../../IMPRESSAO.md): o quadro de identificação empilhado em vez de lado a lado, o nome do emitente em 8 pt (o anexo pede 12 pt) e o canhoto da paisagem na horizontal.
 
+## Prompt para agentes de IA
+
+Peça a um agente que gere e entregue o PDF. Use junto com o [prompt de contexto](../agentes-ia.md), que traz as regras gerais da biblioteca, e revise o código gerado.
+
+```text
+Gere o PDF do DANFE/DANFCE com o OpenDFe.Impressao.Pdf, seguindo docs/guia/impressao/pdf.md, e <envie por e-mail / devolva num
+endpoint ASP.NET / grave em arquivo>. Defina QuestPDF.Settings.License uma vez na partida (a escolha da licença é minha: <Community /
+Professional>); use RenderizadorPdf.Gerar com Stream para não carregar tudo em memória; OpcoesPdf com Titulo e Autor; fonte
+<padrão Lato / Liberation Serif registrada com FontManager.RegisterFont>. A geração é thread-safe e síncrona.
+```
+
 ## Próximas etapas
 
 - [Imprimir em impressora térmica (ESC/POS)](escpos.md)

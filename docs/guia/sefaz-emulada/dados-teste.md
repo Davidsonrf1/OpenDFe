@@ -127,6 +127,17 @@ Com a persistência ligada (`--persistir sim`), o `DELETE` esquece também o que
 > **Dica**
 > Nos testes automatizados, zere o estado no começo de cada teste (ou de cada classe) com `DELETE /_controle`. Assim um teste não herda as notas nem as falhas de outro. Veja [Usar em testes automatizados](testes-automatizados.md).
 
+## Prompt para agentes de IA
+
+Peça a um agente que prepare os dados de um cenário de teste. Use junto com o [prompt de contexto](../agentes-ia.md), que traz as regras gerais da biblioteca, e revise o código gerado.
+
+```text
+Prepare os dados da SEFAZ emulada da OpenDFe para este cenário de teste, seguindo docs/guia/sefaz-emulada/dados-teste.md:
+<descreva: CSC de outro identificador e revogado; emitente ou destinatário irregular; contribuintes para a consulta cadastro>.
+Use as rotas POST /_controle/csc, /_controle/irregulares e /_controle/cadastros (com os campos obrigatórios), confira com os GET
+e limpe no fim com os DELETE. Diga qual cStat cada caso deve produzir (462, 463, 464, 781, 302, 111, 259...).
+```
+
 ## Próximas etapas
 
 - [Usar em testes automatizados](testes-automatizados.md)

@@ -246,6 +246,19 @@ O CST e a `cClassTrib` vêm das tabelas oficiais da reforma; a biblioteca não o
 
 Um campo preenchido no modelo que o leiaute carregado não conhece (de uma versão mais nova do modelo, por exemplo) fica fora do XML e vira um problema de severidade aviso. Ele nunca some calado.
 
+## Prompt para agentes de IA
+
+Peça a um agente que converta os seus dados numa NotaFiscal. Use junto com o [prompt de contexto](../agentes-ia.md), que traz as regras gerais da biblioteca, e revise o código gerado.
+
+```text
+Escreva um método que converte o meu pedido de venda em NotaFiscal da OpenDFe (namespace OpenDFe.NFe), seguindo docs/guia/nfe/montar-nota.md.
+O meu modelo: <cole as classes de pedido, cliente, produto e os impostos já calculados>. Documento: <NF-e/NFC-e>. Regime: <...>.
+Regras: os grupos de ICMS, PIS e COFINS são subclasses (escolha pelo CST/CSOSN que eu informar); a biblioteca não calcula tributo
+nem totais, então preencha Total.Icms com as somas dos itens; valores em decimal; datas em DateTimeOffset com o fuso local;
+CNPJ, CPF e CEP só com os dígitos; não preencha UF, Modelo, Ambiente, TipoEmissao, a chave nem o Suplementares (vêm do núcleo).
+Confira cada propriedade em docs/referencia/opendfe-nfe-modelo.md pela tag do XML e não invente propriedades.
+```
+
 ## Próximas etapas
 
 - [Autorizar notas](autorizacao.md)

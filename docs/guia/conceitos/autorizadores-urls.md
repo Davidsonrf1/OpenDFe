@@ -129,6 +129,18 @@ A chave da nota leva o `tpEmis` 6: é outra chave que a da emissão normal, mesm
 - A consulta e o cancelamento de uma nota emitida em SVC vão à SVC, pela chave. A SVC só registra o cancelamento; a carta de correção vai ao autorizador normal.
 - O autorizador normal também conhece as notas da SVC. Para consultar lá, informe o destino: `new ConsultaProtocolo(chave) { Destino = Destino.MG }`.
 
+## Prompt para agentes de IA
+
+Peça a um agente que implemente a entrada em contingência SVC. Use junto com o [prompt de contexto](../agentes-ia.md), que traz as regras gerais da biblioteca, e revise o código gerado.
+
+```text
+Implemente a contingência SVC da NF-e com a OpenDFe para a UF <...>, seguindo docs/guia/conceitos/autorizadores-urls.md:
+detectar o autorizador fora (ConsultaStatus com Retorno.Operando falso, ou FalhaTransmissaoException repetida); conferir a SVC
+(ConsultaStatus com Destino = Destino.SvcAN ou SvcRS); criar outro DFe com Emissao = ContingenciaSvcAN (ou SvcRS) e Contingencia
+(início e justificativa de 15 a 256 caracteres); emitir só notas novas com números novos; não reemitir na SVC a nota que ficou em dúvida
+no autorizador normal; voltar ao núcleo normal quando o status responder 107. A decisão de entrar em contingência é <automática / do usuário>.
+```
+
 ## Próximas etapas
 
 - [Autorizar notas](../nfe/autorizacao.md)

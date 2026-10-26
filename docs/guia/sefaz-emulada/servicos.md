@@ -154,6 +154,16 @@ No Ambiente Nacional. O emulador gera um NSU por interessado (cada estabelecimen
 
 O cadastro é o que você cadastra em `/_controle/cadastros` (veja [Preparar dados de teste](dados-teste.md)). O serviço existe nas 10 UFs com autorizador próprio e na SVRS (para AC, ES, RN, PB e SC).
 
+## Prompt para agentes de IA
+
+Peça a um agente que monte os casos de teste de uma rejeição. Use junto com o [prompt de contexto](../agentes-ia.md), que traz as regras gerais da biblioteca, e revise o código gerado.
+
+```text
+Quero testar que o meu sistema trata a rejeição <cStat> da operação <...>. Usando docs/guia/sefaz-emulada/servicos.md e
+docs/SEFAZ_EMULADA.md, diga como provocar esse cStat na SEFAZ emulada (o dado da nota, a ordem das operações, a falha comandada ou o
+cadastro na API de controle) e escreva o teste xUnit, conferindo o Protocolo.Status (na autorização) ou o Status do retorno.
+```
+
 ## Próximas etapas
 
 - [Simular falhas](falhas-comandadas.md)

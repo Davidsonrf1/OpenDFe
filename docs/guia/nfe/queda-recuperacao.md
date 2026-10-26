@@ -150,6 +150,18 @@ catch (FalhaTransmissaoException falha) when (falha.PodeTerSidoProcessado)
 > **Dica**
 > Teste cada linha desta tabela na [SEFAZ emulada](../sefaz-emulada/falhas-comandadas.md): a falha `conexaoDerrubada` com `depois` é a queda no meio, e o reenvio do mesmo XML depois dela dá o 204.
 
+## Prompt para agentes de IA
+
+Peça a um agente que implemente a recuperação depois de uma queda. Use junto com o [prompt de contexto](../agentes-ia.md), que traz as regras gerais da biblioteca, e revise o código gerado.
+
+```text
+Implemente o tratamento de queda na autorização com a OpenDFe, caso a caso, seguindo a tabela-resumo de docs/guia/nfe/queda-recuperacao.md:
+falha sem PodeTerSidoProcessado (reenviar o mesmo XML); com PodeTerSidoProcessado (Autorizacao.NotasEnviadas + RecuperacaoAutorizacao:
+100/150 guardar o XmlProcessado, 217 reenviar o mesmo XML, aviso NFE-PROTOCOLO investigar); 204 (recuperar); 539 (consultar a chave
+da Duplicidade); a recuperação que também cai (manter a nota "em dúvida" e não reusar a numeração). Escreva também testes xUnit
+contra a SEFAZ emulada com a falha {"tipo":"conexaoDerrubada","depois":true} e o reenvio que dá 204.
+```
+
 ## Próximas etapas
 
 - [Simular falhas na SEFAZ emulada](../sefaz-emulada/falhas-comandadas.md)

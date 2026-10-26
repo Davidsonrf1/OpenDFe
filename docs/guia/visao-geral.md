@@ -67,6 +67,17 @@ O artigo [Arquitetura](conceitos/arquitetura.md) detalha esse desenho.
 - Windows e Linux. No Linux, o OpenSSL 3 é requisito, com a política de criptografia permitindo a assinatura RSA-SHA1 que a NF-e exige.
 - Certificado A1 (PFX). O A3 funciona no Windows pelo repositório de certificados do sistema.
 
+## Prompt para agentes de IA
+
+Peça a um agente que avalie se a OpenDFe atende o seu sistema. Use junto com o [prompt de contexto](agentes-ia.md), que traz as regras gerais da biblioteca, e revise o código gerado.
+
+```text
+Leia a visão geral da OpenDFe (docs/guia/visao-geral.md e docs/guia/conceitos/arquitetura.md) e me diga se ela atende este cenário:
+<descreva o sistema: ERP, PDV, e-commerce; NF-e e/ou NFC-e; UFs; volume; contingência; impressão>.
+Separe o que a biblioteca faz do que fica com o meu sistema (cálculo de tributo, armazenamento do XML, fila, reenvio, impressão ESC/POS).
+Liste os pacotes que preciso (OpenDFe.NFe, OpenDFe.Impressao.Pdf) e alerte sobre a licença do QuestPDF se eu for gerar PDF.
+```
+
 ## Próximas etapas
 
 - [Instalar a OpenDFe](instalacao.md)

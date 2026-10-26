@@ -88,6 +88,18 @@ Os eventos de um envio vão ao mesmo autorizador: não se misturam, por exemplo,
 - O `XmlProcessado` de cada evento registrado: ele prova o evento.
 - O evento como você o montou, com o `Momento`, para o reenvio depois de uma queda (os mesmos bytes e o mesmo `Id`). Veja [Quando a conexão cai](queda-recuperacao.md).
 
+## Prompt para agentes de IA
+
+Peça a um agente que escreva o cancelamento e a carta de correção. Use junto com o [prompt de contexto](../agentes-ia.md), que traz as regras gerais da biblioteca, e revise o código gerado.
+
+```text
+Escreva o cancelamento e a carta de correção com a OpenDFe, seguindo docs/guia/nfe/eventos.md:
+Cancelamento(chave, protocolo de 15 dígitos, justificativa de 15 a 255) até 24 horas da autorização; CartaCorrecao(chave, sequencia,
+texto de 15 a 1000) só na NF-e, com a sequência calculada pelas cartas que a ConsultaProtocolo traz. Informe o Momento e guarde o
+evento para o reenvio. Trate Registrado (135, 136, 155), 501, 573, 580 e 221. Guarde o XmlProcessado (procEventoNFe).
+Na queda, consulte a chave antes de reenviar. Os dados vêm de <descreva>.
+```
+
 ## Próximas etapas
 
 - [Inutilizar numeração](inutilizacao.md)

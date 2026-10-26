@@ -67,6 +67,17 @@ A consulta vai ao autorizador da UF consultada. Têm o serviço as UFs com autor
 > **Dica**
 > Na [SEFAZ emulada](../sefaz-emulada/dados-teste.md), cadastre os contribuintes pela rota `/_controle/cadastros` para testar cada resposta.
 
+## Prompt para agentes de IA
+
+Peça a um agente que escreva a conferência do cadastro do cliente. Use junto com o [prompt de contexto](../agentes-ia.md), que traz as regras gerais da biblioteca, e revise o código gerado.
+
+```text
+Escreva a conferência do cadastro de um cliente antes de emitir a NF-e, com a ConsultaCadastro da OpenDFe, seguindo
+docs/guia/nfe/consulta-cadastro.md: por CNPJ (new ConsultaCadastro(uf, cnpj)) ou por IE (ConsultaCadastro.Inscricao, só algarismos);
+Encontrado (111, 112), a Situacao (Habilitado) e a InscricaoEstadual; 259/261/264 como não cadastrado. Lembre que só as UFs que oferecem
+o serviço aceitam (NFE-CADASTRO nas outras) e que a operação só existe no núcleo de NF-e. Atualize o meu cadastro <descreva>.
+```
+
 ## Próximas etapas
 
 - [Montar a nota](montar-nota.md)

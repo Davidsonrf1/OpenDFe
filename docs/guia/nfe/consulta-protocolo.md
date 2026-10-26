@@ -57,6 +57,17 @@ var proxima = new CartaCorrecao(chave, sequencia: cartas + 1, "Correcao do ender
 
 Para ler o evento inteiro, carregue o texto num `XDocument`.
 
+## Prompt para agentes de IA
+
+Peça a um agente que escreva a conferência da situação das notas. Use junto com o [prompt de contexto](../agentes-ia.md), que traz as regras gerais da biblioteca, e revise o código gerado.
+
+```text
+Escreva uma rotina que confere na SEFAZ a situação das notas que o meu sistema tem como <pendentes / autorizadas nas últimas 24 horas>,
+com a ConsultaProtocolo da OpenDFe, seguindo docs/guia/nfe/consulta-protocolo.md. Use ChaveAcesso.TentarLer para as chaves do banco;
+trate Autorizada, Cancelada (101) e 217 (não consta); guarde os eventos (Retorno.Eventos, cada um um procEventoNFe em texto).
+Lembre que a consulta vai ao autorizador do tipo de emissão da chave (a nota de SVC na SVC) e que Destino sobrepõe.
+```
+
 ## Próximas etapas
 
 - [Quando a conexão cai: recuperação e duplicidade](queda-recuperacao.md)

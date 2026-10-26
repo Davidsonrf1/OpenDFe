@@ -253,6 +253,18 @@ $env:OPENDFE_EMULADOR_AC = "$env:LOCALAPPDATA\OpenDFe.SefazEmulada\ac.crt"
 dotnet test --project tests/OpenDFe.Homologacao.Testes
 ```
 
+## Prompt para agentes de IA
+
+Peça a um agente que crie o projeto de testes de integração. Use junto com o [prompt de contexto](../agentes-ia.md), que traz as regras gerais da biblioteca, e revise o código gerado.
+
+```text
+Crie o projeto de testes de integração do meu sistema contra a SEFAZ emulada da OpenDFe, seguindo docs/guia/sefaz-emulada/testes-automatizados.md:
+xUnit v3, a SefazEmuladaFixture do guia (certificado, AC, URLs, ZerarAsync, ComandarAsync), uma coleção sem paralelismo e testes para
+<as operações do meu sistema>. Use DateTimeOffset.Now na emissão (o emulador rejeita a NFC-e com mais de 5 minutos) e uma numeração
+por teste. Acrescente o workflow do GitHub Actions que clona Davidsonrf1/OpenDFe, sobe o emulador com docker compose, espera o painel
+e roda dotnet test.
+```
+
 ## Próximas etapas
 
 - [Serviços e códigos de retorno](servicos.md)

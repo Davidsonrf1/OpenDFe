@@ -114,6 +114,18 @@ A família informada em `OpcoesPdf.Fonte` não está registrada no QuestPDF, e o
 - Leia o código-fonte no [repositório](https://github.com/Davidsonrf1/OpenDFe): os testes contra a SEFAZ emulada (`tests/OpenDFe.NFe.Testes`) mostram cada operação em uso.
 - Abra uma [issue no GitHub](https://github.com/Davidsonrf1/OpenDFe/issues).
 
+## Prompt para agentes de IA
+
+Peça a um agente que diagnostique um erro. Use junto com o [prompt de contexto](agentes-ia.md), que traz as regras gerais da biblioteca, e revise o código gerado.
+
+```text
+Estou usando a OpenDFe e recebi este erro: <cole a exceção, o Problema.ToString() ou o cStat e o xMotivo>.
+O contexto: documento <NF-e/NFC-e>, UF <...>, ambiente <SEFAZ emulada / homologação / produção>, sistema <Windows/Linux>.
+Use docs/guia/solucao-problemas.md e docs/guia/conceitos/resultados-problemas.md para diagnosticar. Diga se o erro é de configuração,
+de montagem da nota (RecusadoLocalmente), uma rejeição da SEFAZ (Processado com cStat) ou de transmissão (FalhaTransmissaoException,
+e se PodeTerSidoProcessado). Proponha a correção e, se a nota pode ter sido autorizada, o passo de recuperação.
+```
+
 ---
 
 > **Aviso:** esta documentação foi criada com assistência de inteligência artificial e pode conter imprecisões. Em caso de dúvida, consulte sempre o [código-fonte](https://github.com/Davidsonrf1/OpenDFe), que é a referência definitiva.

@@ -31,6 +31,7 @@ if (autorizada.Autorizada)
 | Autorizar a primeira NFC-e em minutos, sem certificado real | [Início rápido: a primeira NFC-e na SEFAZ emulada](guia/inicio-rapido.md) |
 | Desenvolver e testar contra um servidor local | [SEFAZ emulada](guia/sefaz-emulada/index.md) |
 | Consultar a assinatura de um tipo ou membro | [Referência da API](referencia/index.md) |
+| Usar um agente de IA (Claude, Copilot) para escrever o código | [Usar a OpenDFe com agentes de IA](guia/agentes-ia.md) |
 
 ## SEFAZ emulada
 
@@ -87,6 +88,7 @@ Um servidor HTTPS local, com TLS mútuo, que implementa os Web Services da NF-e 
 - [Passar para a homologação real e para a produção](guia/homologacao-producao.md)
 - [Solução de problemas](guia/solucao-problemas.md)
 - [Glossário](guia/glossario.md)
+- [Usar a OpenDFe com agentes de IA](guia/agentes-ia.md): o prompt de contexto e, em cada página, um prompt pronto sobre o tema.
 
 ## Referência
 

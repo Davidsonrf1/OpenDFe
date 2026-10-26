@@ -48,6 +48,17 @@ else
 
 Reenvie a mesma faixa. Se a primeira chegou, a SEFAZ responde 563, com o protocolo da primeira; se não chegou, a segunda é homologada (102).
 
+## Prompt para agentes de IA
+
+Peça a um agente que escreva a inutilização dos saltos de numeração. Use junto com o [prompt de contexto](../agentes-ia.md), que traz as regras gerais da biblioteca, e revise o código gerado.
+
+```text
+Escreva uma rotina que detecta os saltos de numeração do meu sistema <descreva onde estão as notas> e os inutiliza com a OpenDFe,
+seguindo docs/guia/nfe/inutilizacao.md: new Inutilizacao(cnpj, serie, numeroInicial, numeroFinal, justificativa de 15 a 255),
+em faixas de no máximo 10.000 números, só de números que nunca foram transmitidos (nunca os que estão "em dúvida").
+Trate 102 (guardar o XmlProcessado), 563 (já inutilizada: guardar o Protocolo), 241 e 256. Na queda, reenvie a mesma faixa.
+```
+
 ## Próximas etapas
 
 - [Cancelar e corrigir: eventos](eventos.md)

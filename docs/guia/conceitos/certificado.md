@@ -104,6 +104,18 @@ A assinatura RSA-SHA1 usa o OpenSSL do sistema. Nas distribuições que bloqueia
 
 A [SEFAZ emulada](../sefaz-emulada/index.md) aceita um certificado autoassinado com o CNPJ do emitente, gerado na hora. [Conectar a OpenDFe à SEFAZ emulada](../sefaz-emulada/conectar.md) mostra o código.
 
+## Prompt para agentes de IA
+
+Peça a um agente que escreva o carregamento do certificado. Use junto com o [prompt de contexto](../agentes-ia.md), que traz as regras gerais da biblioteca, e revise o código gerado.
+
+```text
+Escreva o carregamento do certificado do emitente para a OpenDFe, seguindo docs/guia/conceitos/certificado.md.
+Origem do certificado: <arquivo PFX em pasta protegida / cofre de segredos / repositório do Windows por impressão digital>.
+Use CertificadoDigital.AbrirArquivoPfx ou AbrirPfx (que lançam CryptographicException com a causa), confira a validade com
+CertificadoDigital.Validade e o titular com CertificadoDigital.LerTitular: a raiz do CNPJ (8 posições) tem de ser a do emitente <CNPJ>.
+Não registre a senha em log. Descarte o certificado só quando nenhum núcleo o usar mais.
+```
+
 ## Próximas etapas
 
 - [Conexões, TLS e tempos](conexoes-tls.md)

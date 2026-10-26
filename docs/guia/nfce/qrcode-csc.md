@@ -106,6 +106,18 @@ O CSC que a SEFAZ tem cadastrado (462, 463, 464) só a SEFAZ confere.
 > **Dica**
 > A [SEFAZ emulada](../sefaz-emulada/dados-teste.md) tem um CSC padrão para qualquer emitente: o identificador `1` e o código `OPENDFE-SEFAZ-EMULADA-CSC-PADRAO`.
 
+## Prompt para agentes de IA
+
+Peça a um agente que configure a NFC-e da sua UF. Use junto com o [prompt de contexto](../agentes-ia.md), que traz as regras gerais da biblioteca, e revise o código gerado.
+
+```text
+Configure a NFC-e da OpenDFe para a UF <...> e o ambiente <...>, seguindo docs/guia/nfce/qrcode-csc.md.
+QR Code versão <3 (sem CSC, o padrão) / 2 (com o CSC: new ConfiguracaoNFCe(new CodigoSeguranca(id, codigo)))>.
+Se a UF não estiver em new LeiauteNFe400().UrlsConsulta (hoje só MG, MS e SC), informe UrlQrCode (sem a query) e UrlChave na
+ConfiguracaoNFCe, com as URLs oficiais da UF que eu vou te passar: <URLs> (não invente URLs). Leia o CSC de <cofre de segredos>,
+nunca do código, e não o escreva em log (o ToString de CodigoSeguranca já o esconde).
+```
+
 ## Próximas etapas
 
 - [Contingência offline](contingencia-offline.md)

@@ -45,6 +45,17 @@ if (registrado.Registrado)              // 135
 2. Transmita a substituta e espere o 100.
 3. Envie o `CancelamentoSubstituicao` da original, apontando a substituta.
 
+## Prompt para agentes de IA
+
+Peça a um agente que escreva a substituição de uma NFC-e. Use junto com o [prompt de contexto](../agentes-ia.md), que traz as regras gerais da biblioteca, e revise o código gerado.
+
+```text
+Escreva a substituição de uma NFC-e com a OpenDFe, seguindo docs/guia/nfce/cancelamento-substituicao.md: emitir a substituta em
+contingência offline com o mesmo valor, destinatário e itens da original, até 2 horas depois da emissão dela; transmitir e esperar o 100;
+enviar CancelamentoSubstituicao(chave da original, protocolo, justificativa, chave da substituta) com VersaoAplicativo <...>, até 168 horas
+da autorização da original. Trate 135 e as rejeições 911 a 921 explicando a causa ao operador.
+```
+
 ## Próximas etapas
 
 - [Cancelar e corrigir: eventos](../nfe/eventos.md)

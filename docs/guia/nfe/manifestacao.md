@@ -68,6 +68,17 @@ if (documento.Tipo == TipoDocumentoDistribuido.ResumoNFe)
 > **Observação**
 > A consulta por chave conta no limite de 20 consultas pontuais por hora. Num volume grande de notas, prefira esperar a próxima sincronização, que traz o `nfeProc` sem custo extra.
 
+## Prompt para agentes de IA
+
+Peça a um agente que escreva a manifestação das notas recebidas. Use junto com o [prompt de contexto](../agentes-ia.md), que traz as regras gerais da biblioteca, e revise o código gerado.
+
+```text
+Escreva a manifestação do destinatário com a OpenDFe, seguindo docs/guia/nfe/manifestacao.md: ciência automática (CienciaOperacao)
+para cada resumo recebido na distribuição, dentro de 10 dias; e, pela tela do usuário, ConfirmacaoOperacao, DesconhecimentoOperacao
+ou OperacaoNaoRealizada (justificativa de 15 a 255), dentro de 90 dias. O autor é o meu CNPJ <...>; o núcleo usa o certificado dele.
+Não misture manifestação e cancelamento no mesmo EnvioEvento. Trate 135, 596, 594, 655, 650, 651 e 575.
+```
+
 ## Próximas etapas
 
 - [Baixar as notas destinadas: distribuição DF-e](distribuicao-dfe.md)

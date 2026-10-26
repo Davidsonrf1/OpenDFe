@@ -85,6 +85,18 @@ impressora.Cortar();
 
 A biblioteca não decide quantas vias imprimir. Na contingência offline, chame `Danfce` uma vez por via (`OpcoesDanfce.Via`) e imprima cada uma, com o corte entre elas.
 
+## Prompt para agentes de IA
+
+Peça a um agente que escreva o driver ESC/POS da sua impressora. Use junto com o [prompt de contexto](../agentes-ia.md), que traz as regras gerais da biblioteca, e revise o código gerado.
+
+```text
+Escreva a impressão do DANFCE em impressora térmica ESC/POS a partir do DocumentoImpressao da OpenDFe, seguindo docs/guia/impressao/escpos.md.
+Impressora: <marca e modelo>, conexão <USB / serial / rede, porta>, bobina <80/58 mm>. Percorra os elementos (TextoImpressao com Quebrar e
+ColunasTamanho; LinhaImpressao com Larguras e Quebrar das células; SeparadorImpressao; EspacoImpressao; QrCodeImpressao pelo GS ( k nível M;
+ImagemImpressao por GS v 0 com os Bits; QuebraPaginaImpressao como corte). Converta o texto para a página de código 850 com
+System.Text.Encoding.CodePages. Confira os comandos no manual da impressora; não use o pacote de PDF.
+```
+
 ## Próximas etapas
 
 - [Modelo de impressão](modelo-impressao.md)

@@ -105,6 +105,17 @@ As falhas comandadas e os pedidos recentes não persistem: são do teste em curs
 
 No contêiner, defina `SEFAZ_EMULADA_PERSISTIR=sim`; o estado fica no volume `/dados`.
 
+## Prompt para agentes de IA
+
+Peça a um agente que automatize a subida do emulador. Use junto com o [prompt de contexto](../agentes-ia.md), que traz as regras gerais da biblioteca, e revise o código gerado.
+
+```text
+Escreva um script <PowerShell / Bash / docker compose> que sobe a SEFAZ emulada da OpenDFe, seguindo docs/guia/sefaz-emulada/executar.md,
+com a porta <5443> dos Web Services, o painel na <5444>, a pasta da AC em <...> e a persistência <ligada / desligada>
+(--persistir sim ou SEFAZ_EMULADA_PERSISTIR=sim). Espere o emulador ficar pronto consultando GET http://127.0.0.1:5444/_controle/emulador
+e mostre o caminho do ac.crt. Use 127.0.0.1, não localhost.
+```
+
 ## Próximas etapas
 
 - [Conectar a OpenDFe à SEFAZ emulada](conectar.md)

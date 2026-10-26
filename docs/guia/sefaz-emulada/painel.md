@@ -61,6 +61,17 @@ await painel.DeleteAsync("_controle");
 
 A lista completa está em [Referência das rotas de controle](api-controle.md).
 
+## Prompt para agentes de IA
+
+Peça a um agente que escreva um cliente da API de controle. Use junto com o [prompt de contexto](../agentes-ia.md), que traz as regras gerais da biblioteca, e revise o código gerado.
+
+```text
+Escreva uma classe C# cliente da API de controle da SEFAZ emulada (http://127.0.0.1:5444/_controle), seguindo
+docs/guia/sefaz-emulada/painel.md e docs/guia/sefaz-emulada/api-controle.md, com métodos para: paralisar e liberar um autorizador,
+comandar e remover falhas, listar as notas e os eventos, ler um pedido recente com o XML, e zerar tudo (DELETE /_controle).
+Use HttpClient com System.Net.Http.Json e EnsureSuccessStatusCode.
+```
+
 ## Próximas etapas
 
 - [Simular falhas](falhas-comandadas.md)
