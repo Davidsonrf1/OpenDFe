@@ -15,9 +15,9 @@ internal sealed record ErroSefin(string Codigo, string Descricao, string? Comple
     public static ErroSefin Criar(string codigo, string? complemento = null) => new(codigo, MotivosNFSe.Texto(codigo), complemento);
 }
 
-// A DPS aberta: o elemento (lido com o espaço em branco preservado, para a assinatura continuar valendo dentro da NFS-e)
-// e o texto, como veio.
-internal sealed record DpsAberta(XElement Dps, string Texto);
+// O documento aberto do JSON (a DPS, o pedido de evento): a raiz (lida com o espaço em branco preservado, para a
+// assinatura continuar valendo dentro da NFS-e e do evento) e o texto, como veio.
+internal sealed record DocumentoAberto(XElement Raiz, string Texto);
 
 // O que a emissão devolve: o status HTTP, o JSON e a situação para os pedidos recentes; a NFS-e quando gerou.
 internal sealed record ResultadoSefin(int Status, object Corpo, string Situacao);
@@ -25,7 +25,7 @@ internal sealed record ResultadoSefin(int Status, object Corpo, string Situacao)
 // O POST /nfse da Sefin Nacional (E.7): a abertura do JSON (o Base64, o GZip, o UTF-8, o prefixo, o tipo e o schema, da aba
 // RN_RECEPCAO_DPS do Anexo I), as regras da DPS que o emulador confere (docs/SEFAZ_EMULADA.md, "NFS-e") e a NFS-e gerada,
 // com os valores calculados pela parametrização do município e assinada pela AC de teste.
-internal sealed partial class EmissaoNFSe(Municipios municipios, RepositorioNFSe repositorio, AssinanteNFSe assinante)
+internal sealed partial class EmissaoNFSe(Municipios municipios, RepositorioNFSe repositorio, AssinanteNFSe assinante, EventosNFSe eventos)
 {
     public static readonly XNamespace Namespace = "http://www.sped.fazenda.gov.br/nfse";
     private static readonly XNamespace NamespaceAssinatura = "http://www.w3.org/2000/09/xmldsig#";
@@ -42,14 +42,19 @@ internal sealed partial class EmissaoNFSe(Municipios municipios, RepositorioNFSe
     private static readonly UTF8Encoding Utf8Estrito = new(false, true);
 
     // Abre o corpo do pedido até a DPS válida no schema; o erro é o da recepção.
-    public static (DpsAberta? Dps, ErroSefin? Erro) Abrir(byte[] corpo)
+    public static (DocumentoAberto? Dps, ErroSefin? Erro) Abrir(byte[] corpo) => Abrir(corpo, CampoDps, "DPS", SchemasLeiaute.Dps);
+
+    // Abre o corpo de um POST da Sefin (a DPS, o pedido de evento) até o documento válido no schema, com as regras da aba
+    // RN_RECEPCAO_DPS do Anexo I, que o emulador aplica também ao pedido de evento (o Anexo II não tem aba de recepção).
+    public static (DocumentoAberto? Documento, ErroSefin? Erro) Abrir(byte[] corpo, string nomeCampo, string raizEsperada, SchemaXml schema)
     {
         ArgumentNullException.ThrowIfNull(corpo);
+        ArgumentNullException.ThrowIfNull(schema);
         string? base64;
         try
         {
             using var json = JsonDocument.Parse(corpo);
-            base64 = json.RootElement.ValueKind == JsonValueKind.Object && json.RootElement.TryGetProperty(CampoDps, out var campo)
+            base64 = json.RootElement.ValueKind == JsonValueKind.Object && json.RootElement.TryGetProperty(nomeCampo, out var campo)
                 && campo.ValueKind == JsonValueKind.String ? campo.GetString() : null;
         }
         catch (JsonException)
@@ -57,7 +62,7 @@ internal sealed partial class EmissaoNFSe(Municipios municipios, RepositorioNFSe
             base64 = null;
         }
         if (base64 is null)
-            return (null, ErroSefin.Criar(MotivosNFSe.FalhaBase64, $"O corpo não é um JSON com o campo {CampoDps}."));
+            return (null, ErroSefin.Criar(MotivosNFSe.FalhaBase64, $"O corpo não é um JSON com o campo {nomeCampo}."));
 
         var compactado = new byte[base64.Length];
         if (!Convert.TryFromBase64String(base64, compactado, out var tamanho))
@@ -104,23 +109,24 @@ internal sealed partial class EmissaoNFSe(Municipios municipios, RepositorioNFSe
         {
             return (null, ErroSefin.Criar(MotivosNFSe.EstruturaMalFormada, erro.Message));
         }
-        if (documento.Root is not { } raiz || raiz.Name != Namespace + "DPS")
-            return (null, ErroSefin.Criar(MotivosNFSe.TipoNaoTratado, $"A raiz é {documento.Root?.Name.LocalName}; a Sefin recebe a DPS."));
+        if (documento.Root is not { } raiz || raiz.Name != Namespace + raizEsperada)
+            return (null, ErroSefin.Criar(MotivosNFSe.TipoNaoTratado, $"A raiz é {documento.Root?.Name.LocalName}; a rota recebe o {raizEsperada}."));
 
-        var problemas = SchemasLeiaute.Dps.Validar(texto);
+        var problemas = schema.Validar(texto);
         if (problemas.Count > 0)
             return (null, ErroSefin.Criar(MotivosNFSe.FalhaSchema, problemas[0].Mensagem));
-        return (new DpsAberta(raiz, texto), null);
+        return (new DocumentoAberto(raiz, texto), null);
     }
 
     // As regras da DPS e a NFS-e, na ordem: a assinatura (E0717), o emitente (E9996), o documento do prestador (E0080,
     // E0096), a assinatura e o titular (E0714, E0718), o Id (E0004), o ambiente (E0006), a versão 1.00 (E0001), a emissão
-    // (E0008), a competência (E0015), o município emissor (503 paralisado, E0037, E0038, E0039), a substituição (E.8), a
-    // duplicidade (E0014) e a parametrização do município de incidência (E0595, E0177, E0541, E0667, E0670).
-    public ResultadoSefin Emitir(DpsAberta aberta, DateTimeOffset recebimento)
+    // (E0008), a competência (E0015), o município emissor (503 paralisado, E0037, E0038, E0039), a duplicidade (E0014), a
+    // parametrização do município de incidência (E0595, E0177, E0541, E0667, E0670) e a substituição (E0042, E0078,
+    // E0044, E0050, e os eventos da substituída: E0046, E0068, E0845), que gera o 105102 sobre ela (E.8).
+    public ResultadoSefin Emitir(DocumentoAberto aberta, DateTimeOffset recebimento)
     {
         ArgumentNullException.ThrowIfNull(aberta);
-        var dps = aberta.Dps;
+        var dps = aberta.Raiz;
         var inf = dps.Element(Namespace + "infDPS")!;
         var idDps = inf.Attribute("Id")!.Value;
         ResultadoSefin Rejeitar(string codigo, string? complemento = null) =>
@@ -172,8 +178,6 @@ internal sealed partial class EmissaoNFSe(Municipios municipios, RepositorioNFSe
             return Rejeitar(MotivosNFSe.ConvenioInativo);
         if (municipio.Emissor == EmissorMunicipio.Proprio)
             return Rejeitar(MotivosNFSe.EmissorProprio);
-        if (inf.Element(Namespace + "subst") is not null)
-            return Rejeitar(MotivosNFSe.SubstituicaoNaoEmulada);
         if (repositorio.Dps(idDps) is { } existente)
             return Rejeitar(MotivosNFSe.DpsDuplicada, $"A NFS-e gerada é a {existente.Chave}.");
 
@@ -182,10 +186,32 @@ internal sealed partial class EmissaoNFSe(Municipios municipios, RepositorioNFSe
         if (calculo.Erro is { } erro)
             return Rejeitar(erro);
 
-        var (gerada, outra) = repositorio.Gerar(idDps, emissor, documento, (numero, numeroDfse, codigo) =>
-            Gerar(dps, inf, municipio, inscricao, cnpj, cpf, numero, numeroDfse, codigo, calculo, recebimento));
+        SubstituicaoPedida? substituicao = null;
+        if (inf.Element(Namespace + "subst") is { } subst)
+        {
+            var substituida = Valor(subst, "chSubstda")!;
+            var motivo = Valor(subst, "cMotivo")!;
+            var descricao = Valor(subst, "xMotivo");
+            // A chave da substituída com o mesmo município, tipo e número de inscrição do Id desta DPS. O DV não é
+            // conferido: o cálculo oficial não fecha nas fontes (docs/NTS.md 12.5).
+            if (substituida[..7] != idDps[3..10] || substituida[8..23] != idDps[10..25])
+                return Rejeitar(MotivosNFSe.ChaveSubstituidaInvalida, "O município, o tipo e o número de inscrição da chave diferem dos da DPS.");
+            if (motivo == "99" && descricao is null)
+                return Rejeitar(MotivosNFSe.MotivoSubstituicaoAusente);
+            if (repositorio.Chave(substituida) is not { } original)
+                return Rejeitar(MotivosNFSe.NFSeInexistente);
+            if (motivo is not ("01" or "02") && municipio.PrazoSubstituicao is { } prazo && recebimento > original.Processamento.AddDays(prazo))
+                return Rejeitar(MotivosNFSe.SubstituicaoForaPrazo, $"O prazo do município {emissor} é de {prazo} dias.");
+            substituicao = new SubstituicaoPedida(substituida, EventosNFSe.ConferirSubstituida,
+                (substituta, numeroDfse) => eventos.GerarSubstituicao(substituida, substituta, motivo, descricao, numeroDfse, recebimento));
+        }
+
+        var (gerada, outra, recusa) = repositorio.Gerar(idDps, emissor, documento, (numero, numeroDfse, codigo) =>
+            Gerar(dps, inf, municipio, inscricao, cnpj, cpf, numero, numeroDfse, codigo, calculo, recebimento), substituicao);
         if (outra is not null)
             return Rejeitar(MotivosNFSe.DpsDuplicada, $"A NFS-e gerada é a {outra.Chave}.");
+        if (recusa is not null)
+            return new ResultadoSefin(StatusCodes.Status400BadRequest, Erro(recebimento, idDps, recusa), $"rejeitada: {recusa.Codigo}");
         var nota = gerada!;
         return new ResultadoSefin(StatusCodes.Status201Created, new RespostaEmissao(2, VersaoAplicativo, DataHora(recebimento), idDps, nota.Chave,
             Compactar(nota.Xml), null), "NFS-e gerada: " + nota.Chave);

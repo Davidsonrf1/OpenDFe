@@ -181,10 +181,13 @@ public sealed class EmissaoEmuladaTestes : IClassFixture<SefinEmuladaFixture>, I
             Descricao = "Correção do valor do serviço",
         })), Ct);
 
-        // A substituição chega à Sefin; o emulador só a gera na E.8.
+        // A substituição chega à Sefin, que gera a substituta e o 105102 sobre a original (E.8).
         Assert.True(substituta.Processado);
         Assert.Contains("<subst>", substituta.Rastro.XmlPedido, StringComparison.Ordinal);
-        Assert.Equal("EMULADA-SUBST", Assert.Single(substituta.Retorno.Erros).Codigo);
+        Assert.True(substituta.Retorno!.Emitida);
+        var evento = Assert.Single(_emulador.NFSe.Eventos(original.Retorno!.Chave!.Value.Valor));
+        Assert.Equal("105102", evento.Tipo);
+        Assert.Contains("<chSubstituta>" + substituta.Retorno.Chave!.Value.Valor + "</chSubstituta>", evento.Xml, StringComparison.Ordinal);
     }
 
     // A recusa local

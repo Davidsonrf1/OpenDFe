@@ -338,6 +338,18 @@ A fonte é o portal da NFS-e (`https://www.gov.br/nfse/pt-br/biblioteca/document
 
 O Swagger de cada uma (`/docs/index.html`; `/docs/index` na Sefin) **só abre com o certificado ICP-Brasil no TLS mútuo**: em 2026-11-19 a Sefin respondeu 403 e o ADN recusou o handshake. Os nomes dos campos do JSON vieram de uma implementação aberta que emite na produção restrita (`pynfse-nacional` 0.9.5, PyPI): `dpsXmlGZipB64` e `pedidoRegistroEventoXmlGZipB64` no pedido; `chaveAcesso`, `nfseXmlGZipB64`, `alertas` e `erros` (`codigo`, `descricao`, `complemento`) na resposta. A conferir no Swagger quando houver o PFX. **A lib (9.2)** declara a base da produção restrita sem o `/API/` e lê o JSON sem distinguir maiúsculas (`docs/NFSE.md` 9.2).
 
+**A parametrização e os eventos (etapa E.8, 2026-11-19).** As rotas da parametrização vieram de outra implementação aberta, a **nfse4j** (MIT, `github.com/omartelo/nfse4j`, o pull request 5, "consulta de parâmetros municipais do ADN", lido em 2026-11-19). Ela consulta a base `.../parametrizacao` com estas rotas:
+
+- `/{municipio}/convenio`;
+- `/{municipio}/{servico}/{competencia}/aliquota` e `/{municipio}/{servico}/historicoaliquotas`;
+- `/{municipio}/{servico}/{competencia}/regimes_especiais`;
+- `/{municipio}/{competencia}/retencoes`;
+- `/{municipio}/{beneficio}/{competencia}/beneficio`.
+
+O serviço vai como `XX.XX.XX.XXX` e a competência como `MM-DD-AAAA`. Os nomes do JSON também vêm dela: `parametrosConvenio`, `aliquotas` (`Aliq`, `DtIni`, `DtFim`), `regimesEspeciais`, `retencoes` (`art6`, `retMun`, `respTrib`), `beneficio` (`numBenef`, `tpoBenef`, `aliqDiferenc`) e `mensagem` no erro. Os testes dela mostram valores de tipos diferentes no mesmo campo (`"1"`, `true`, `"Sim"`): os tipos não são confiáveis. O `pynfse-nacional` usa a mesma base e a mesma rota do convênio, o que confirma a leitura. As rotas `/parametros_municipais/...` do manual ficam como divergência a conferir (`docs/NFSE.md` D13). O emulador segue esta leitura (`docs/SEFAZ_EMULADA.md`, "ADN"), e a 9.4 parte dela.
+
+Nenhuma das duas implementações dá o JSON da resposta dos eventos. O emulador usa `eventoXmlGZipB64` (como o `nfseXmlGZipB64`) e uma lista `eventos` na consulta, a conferir com o PFX.
+
 ### 12.5. A chave da NFS-e e o dígito verificador (etapa 9.1, 2026-11-19)
 
 - **Guia do emissor público nacional web 1.2.1** (produção restrita, `producao-restrita/guia_emissor_publico_nacional_web_snnfse-ern_versao_1-2-1.pdf`), SHA-256 `f24c78595f3e87539b4eb8e17e48b636d148aeb18f57a6ac4ac2a841a78f1588`, seção 9.1: a composição da chave (o município, o ambiente gerador, o tipo e o número da inscrição, o número da NFS-e, o ano e o mês, o código numérico de 9 posições e o "dígito verificador do código numérico") e uma chave de exemplo, `31062001251235800000112230000000173023019580208160`. O cálculo não é dado.

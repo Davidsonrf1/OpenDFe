@@ -13,8 +13,11 @@ namespace OpenDFe.SefazEmulada;
 //   GET  /SefinNacional/nfse/{chave}    a NFS-e pela chave; 404 se não há
 //   GET  /SefinNacional/dps/{id}        a chave da NFS-e gerada pela DPS; 404 se não há
 //   HEAD /SefinNacional/dps/{id}        200 ou 404, sem corpo
-// Cada rota é um serviço do destino SefinNacional para as falhas comandadas (EmissaoNFSe, ConsultaNFSe, ConsultaDps),
-// e cada pedido fica nos PedidosRecentes, com o JSON do pedido e da resposta.
+//   POST /SefinNacional/nfse/{chave}/eventos   o pedido de registro de evento (E.8): {"pedidoRegistroEventoXmlGZipB64": "..."};
+//                                       201 com o evento, 400 com os erros
+//   GET  /SefinNacional/nfse/{chave}/eventos[/{tipo}[/{seq}]]   os eventos da NFS-e (E.8); 404 sem a NFS-e
+// Cada rota é um serviço do destino SefinNacional para as falhas comandadas (EmissaoNFSe, ConsultaNFSe, ConsultaDps,
+// EventoNFSe, ConsultaEventosNFSe), e cada pedido fica nos PedidosRecentes, com o JSON do pedido e da resposta.
 internal static partial class SefinNacional
 {
     public const string Destino = "SefinNacional";
@@ -22,8 +25,11 @@ internal static partial class SefinNacional
     public const string ServicoEmissao = "EmissaoNFSe";
     public const string ServicoConsultaNFSe = "ConsultaNFSe";
     public const string ServicoConsultaDps = "ConsultaDps";
+    public const string ServicoEvento = "EventoNFSe";
+    public const string ServicoConsultaEventos = "ConsultaEventosNFSe";
 
-    public static IReadOnlyList<string> Servicos { get; } = [ServicoEmissao, ServicoConsultaNFSe, ServicoConsultaDps];
+    public static IReadOnlyList<string> Servicos { get; } =
+        [ServicoEmissao, ServicoConsultaNFSe, ServicoConsultaDps, ServicoEvento, ServicoConsultaEventos];
 
     public static void Mapear(WebApplication app)
     {
@@ -32,6 +38,14 @@ internal static partial class SefinNacional
         grupo.MapGet("/nfse/{chave}", (HttpContext contexto, string chave, AtendimentoSefin atendimento) => atendimento.ConsultarNFSeAsync(contexto, chave));
         grupo.MapMethods("/dps/{id}", [HttpMethods.Get, HttpMethods.Head], (HttpContext contexto, string id, AtendimentoSefin atendimento) =>
             atendimento.ConsultarDpsAsync(contexto, id));
+        grupo.MapPost("/nfse/{chave}/eventos", (HttpContext contexto, string chave, AtendimentoSefin atendimento) =>
+            atendimento.RegistrarEventoAsync(contexto, chave));
+        grupo.MapGet("/nfse/{chave}/eventos", (HttpContext contexto, string chave, AtendimentoSefin atendimento) =>
+            atendimento.ConsultarEventosAsync(contexto, chave, null, null));
+        grupo.MapGet("/nfse/{chave}/eventos/{tipo}", (HttpContext contexto, string chave, string tipo, AtendimentoSefin atendimento) =>
+            atendimento.ConsultarEventosAsync(contexto, chave, tipo, null));
+        grupo.MapGet("/nfse/{chave}/eventos/{tipo}/{sequencia}", (HttpContext contexto, string chave, string tipo, string sequencia, AtendimentoSefin atendimento) =>
+            atendimento.ConsultarEventosAsync(contexto, chave, tipo, sequencia));
     }
 
     // A chave (50 dígitos) e o Id da DPS (DPS + 42 dígitos), como os tipos TSChaveNFSe e TSIdDPS.
@@ -39,18 +53,49 @@ internal static partial class SefinNacional
 
     public static bool IdDpsValido(string id) => IdDps().IsMatch(id);
 
+    // O tipo do evento (6 dígitos) e o nSeqEvento (1 a 3 dígitos, TSNum3Dig), como vão no caminho da consulta.
+    public static bool TipoEventoValido(string tipo) => TipoEvento().IsMatch(tipo);
+
+    public static bool SequenciaValida(string sequencia) => Sequencia().IsMatch(sequencia);
+
     [GeneratedRegex("^[0-9]{50}$", RegexOptions.CultureInvariant)]
     private static partial Regex Chave();
 
     [GeneratedRegex("^DPS[0-9]{42}$", RegexOptions.CultureInvariant)]
     private static partial Regex IdDps();
+
+    [GeneratedRegex("^[0-9]{6}$", RegexOptions.CultureInvariant)]
+    private static partial Regex TipoEvento();
+
+    [GeneratedRegex("^[0-9]{1,3}$", RegexOptions.CultureInvariant)]
+    private static partial Regex Sequencia();
+}
+
+// Os destinos REST do emulador, com os serviços de cada um para as falhas comandadas: a Sefin Nacional (E.7, E.8) e
+// o ADN, com a parametrização municipal (E.8).
+internal static class DestinosRest
+{
+    private static readonly Dictionary<string, IReadOnlyList<string>> Todos = new(StringComparer.OrdinalIgnoreCase)
+    {
+        [SefinNacional.Destino] = SefinNacional.Servicos,
+        [ParametrizacaoMunicipal.Destino] = ParametrizacaoMunicipal.Servicos,
+    };
+
+    public static IEnumerable<string> Nomes => Todos.Keys;
+
+    // Os serviços do destino REST; nulo se o destino não é REST.
+    public static IReadOnlyList<string>? Servicos(string? destino) => destino is not null && Todos.TryGetValue(destino, out var servicos) ? servicos : null;
+
+    // O destino REST do serviço; nulo se o serviço é da NF-e.
+    public static string? DestinoServico(string servico) =>
+        Todos.FirstOrDefault(d => d.Value.Contains(servico, StringComparer.OrdinalIgnoreCase)).Key;
 }
 
 // O atendimento das rotas da Sefin: as falhas de transporte comandadas (pelo controle ou pela marca no xInfComp da DPS),
 // a paralisação (503), o serviço e o registro nos pedidos recentes. Os 5xx e a conexão derrubada são falha de transmissão
 // para a lib (docs/NFSE.md D5); o 400 e o 404 com JSON são resposta.
-internal sealed partial class AtendimentoSefin(Controle controle, EmissaoNFSe emissao, RepositorioNFSe repositorio, PedidosRecentes recentes,
-    OpcoesEmulador opcoes, IHostApplicationLifetime vida, ILogger<AtendimentoSefin> registro)
+internal sealed partial class AtendimentoSefin(Controle controle, EmissaoNFSe emissao, EventosNFSe eventos, RepositorioNFSe repositorio,
+    PedidosRecentes recentes, OpcoesEmulador opcoes, IHostApplicationLifetime vida, ILogger<AtendimentoSefin> registro)
 {
     public const string TipoJson = "application/json";
 
@@ -73,11 +118,11 @@ internal sealed partial class AtendimentoSefin(Controle controle, EmissaoNFSe em
         MarcaFalha? marca;
         try
         {
-            marca = Marca.LerNFSe(aberta!.Dps);
+            marca = Marca.LerNFSe(aberta!.Raiz);
         }
         catch (FalhaSoapException falha)
         {
-            var id = aberta!.Dps.Element(EmissaoNFSe.Namespace + "infDPS")?.Attribute("Id")?.Value;
+            var id = aberta!.Raiz.Element(EmissaoNFSe.Namespace + "infDPS")?.Attribute("Id")?.Value;
             return new Preparo(Pronto: new ResultadoSefin(StatusCodes.Status400BadRequest,
                 EmissaoNFSe.Erro(agora, id, ErroSefin.Criar(MotivosNFSe.MarcaInvalida, falha.Message)), "marca inválida: " + falha.Message));
         }
@@ -106,7 +151,49 @@ internal sealed partial class AtendimentoSefin(Controle controle, EmissaoNFSe em
                 "DPS com NFS-e: " + nota.Chave);
         }));
 
-    private async Task AtenderAsync(HttpContext contexto, string servico, Func<byte[], Preparo> preparar)
+    // O pedido de registro de evento (E.8): o JSON aberto como a DPS, com o pedRegEvento; sem a marca (o pedido não tem
+    // campo livre que a leve): as falhas, só pelo controle.
+    public Task RegistrarEventoAsync(HttpContext contexto, string chave) => AtenderAsync(contexto, SefinNacional.ServicoEvento, corpo =>
+    {
+        if (!MediaTypeHeaderValue.TryParse(contexto.Request.ContentType, out var tipo)
+            || !string.Equals(tipo.MediaType, TipoJson, StringComparison.OrdinalIgnoreCase))
+            return new Preparo(Pronto: new ResultadoSefin(StatusCodes.Status415UnsupportedMediaType, new { }, "HTTP 415: o Content-Type não é JSON"));
+        if (!SefinNacional.ChaveValida(chave))
+            return new Preparo(Processar: recebimento => new ResultadoSefin(StatusCodes.Status400BadRequest,
+                EmissaoNFSe.Erro(recebimento, null, ErroSefin.Criar(MotivosNFSe.ConsultaInvalida, "A chave tem 50 dígitos.")), "chave inválida"));
+        var (aberto, erro) = EmissaoNFSe.Abrir(corpo, EventosNFSe.CampoPedido, "pedRegEvento", SchemasLeiaute.PedidoEventoNFSe);
+        if (erro is not null)
+            return new Preparo(Processar: recebimento => new ResultadoSefin(StatusCodes.Status400BadRequest, EmissaoNFSe.Erro(recebimento, null, erro), "evento rejeitado: " + erro.Codigo));
+        return new Preparo(Processar: recebimento => eventos.Registrar(aberto!, chave, recebimento));
+    });
+
+    // A consulta dos eventos: todos, os do tipo, ou o do tipo e do nSeqEvento (404 se não há). A NFS-e que não existe é o
+    // 404 com o E0044, como a consulta pela chave; sem eventos (sem o nSeqEvento), a lista vazia.
+    public Task ConsultarEventosAsync(HttpContext contexto, string chave, string? tipo, string? sequencia) =>
+        AtenderAsync(contexto, SefinNacional.ServicoConsultaEventos, _ => new Preparo(Processar: recebimento =>
+        {
+            if (!SefinNacional.ChaveValida(chave) || (tipo is not null && !SefinNacional.TipoEventoValido(tipo))
+                || (sequencia is not null && !SefinNacional.SequenciaValida(sequencia)))
+                return new ResultadoSefin(StatusCodes.Status400BadRequest, EmissaoNFSe.Erro(recebimento, null,
+                    ErroSefin.Criar(MotivosNFSe.ConsultaInvalida, "A chave tem 50 dígitos, o tipo 6 e o número sequencial até 3.")), "consulta inválida");
+            if (repositorio.Chave(chave) is null)
+                return new ResultadoSefin(StatusCodes.Status404NotFound, EmissaoNFSe.Erro(recebimento, null, ErroSefin.Criar(MotivosNFSe.NFSeInexistente)), "NFS-e não encontrada");
+            var lista = repositorio.Eventos(chave)
+                .Where(e => tipo is null || e.Tipo == tipo)
+                .Where(e => sequencia is null || e.Sequencia == int.Parse(sequencia, System.Globalization.CultureInfo.InvariantCulture))
+                .Select(e => EventosNFSe.Resposta(e, e.Processamento))
+                .ToList();
+            if (sequencia is not null && lista.Count == 0)
+                return new ResultadoSefin(StatusCodes.Status404NotFound, EmissaoNFSe.Erro(recebimento, null, ErroSefin.Criar(MotivosNFSe.EventoInexistente)), "evento não encontrado");
+            return new ResultadoSefin(StatusCodes.Status200OK,
+                new RespostaEventos(2, EmissaoNFSe.VersaoAplicativo, EmissaoNFSe.DataHora(recebimento), chave, lista), $"{lista.Count} evento(s)");
+        }));
+
+    // Uma consulta da parametrização municipal do ADN (E.8), com as falhas do destino ADN.
+    public Task ConsultarParametroAsync(HttpContext contexto, string servico, Func<DateTimeOffset, ResultadoSefin> consultar) =>
+        AtenderAsync(contexto, servico, _ => new Preparo(Processar: consultar), ParametrizacaoMunicipal.Destino);
+
+    private async Task AtenderAsync(HttpContext contexto, string servico, Func<byte[], Preparo> preparar, string destino = SefinNacional.Destino)
     {
         var inicio = opcoes.Relogio.GetTimestamp();
         var recebimento = opcoes.Relogio.GetUtcNow();
@@ -120,16 +207,21 @@ internal sealed partial class AtendimentoSefin(Controle controle, EmissaoNFSe em
         // O pedido guardado: o corpo, ou o método e o caminho da consulta, que não tem corpo.
         var pedido = corpo.Length > 0 ? corpo : Encoding.UTF8.GetBytes($"{contexto.Request.Method} {contexto.Request.Path}");
         void Guardar(int? status, byte[]? resposta, string situacao) =>
-            recentes.Registrar(SefinNacional.Destino, servico, recebimento, transmissor, pedido, status, resposta, situacao, opcoes.Relogio.GetElapsedTime(inicio));
+            recentes.Registrar(destino, servico, recebimento, transmissor, pedido, status, resposta, situacao, opcoes.Relogio.GetElapsedTime(inicio));
+        void Escrever(string texto)
+        {
+            if (opcoes.Registrar)
+                RegistrarPedido(registro, destino, servico, texto);
+        }
 
         var preparo = preparar(corpo);
         if (preparo.Pronto is { } pronto)
         {
-            await ResponderAsync(contexto, servico, pronto, Guardar, cabeca, ct);
+            await ResponderAsync(contexto, pronto, Guardar, Escrever, cabeca, ct);
             return;
         }
 
-        var (transporte, paralisacao, _) = controle.Consumir(SefinNacional.Destino, servico,
+        var (transporte, paralisacao, _) = controle.Consumir(destino, servico,
             transporte: preparo.Marca?.Transporte is null, paralisacao: preparo.Marca?.Paralisacao is null);
         transporte = preparo.Marca?.Transporte ?? transporte;
         paralisacao = preparo.Marca?.Paralisacao ?? paralisacao;
@@ -164,7 +256,7 @@ internal sealed partial class AtendimentoSefin(Controle controle, EmissaoNFSe em
         switch (transporte?.Tipo)
         {
             case TipoFalha.ConexaoDerrubada:
-                Escrever(servico, situacao + ", e a conexão derrubada");
+                Escrever(situacao + ", e a conexão derrubada");
                 // A resposta que sairia fica guardada: é a que a recuperação acha pela consulta da DPS.
                 Guardar(null, bytes, situacao + ", e a conexão derrubada antes da resposta");
                 contexto.Abort();
@@ -179,15 +271,16 @@ internal sealed partial class AtendimentoSefin(Controle controle, EmissaoNFSe em
                 situacao = "erro interno comandado: 500";
                 break;
         }
-        Escrever(servico, situacao);
+        Escrever(situacao);
         Guardar(status, bytes, situacao);
         await EnviarAsync(contexto, status, bytes, cabeca, ct);
     }
 
-    private async Task ResponderAsync(HttpContext contexto, string servico, ResultadoSefin resultado, Action<int?, byte[]?, string> guardar, bool cabeca, CancellationToken ct)
+    private static async Task ResponderAsync(HttpContext contexto, ResultadoSefin resultado, Action<int?, byte[]?, string> guardar, Action<string> escrever,
+        bool cabeca, CancellationToken ct)
     {
         var bytes = resultado.Status == StatusCodes.Status415UnsupportedMediaType ? [] : Serializar(resultado.Corpo);
-        Escrever(servico, resultado.Situacao);
+        escrever(resultado.Situacao);
         guardar(resultado.Status, bytes.Length == 0 ? null : bytes, resultado.Situacao);
         await EnviarAsync(contexto, resultado.Status, bytes, cabeca, ct);
     }
@@ -212,12 +305,6 @@ internal sealed partial class AtendimentoSefin(Controle controle, EmissaoNFSe em
             return "";
         var titular = CertificadoDigital.LerTitular(certificado);
         return titular?.Cnpj ?? titular?.Cpf ?? certificado.Thumbprint;
-    }
-
-    private void Escrever(string servico, string situacao)
-    {
-        if (opcoes.Registrar)
-            RegistrarPedido(registro, SefinNacional.Destino, servico, situacao);
     }
 
     [LoggerMessage(Level = LogLevel.Information, Message = "{Destino}/{Servico}: {Situacao}")]

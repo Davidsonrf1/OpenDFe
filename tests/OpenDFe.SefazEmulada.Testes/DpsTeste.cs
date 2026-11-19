@@ -65,6 +65,11 @@ internal sealed record DpsTeste
 
     public string? Substituida { get; init; }
 
+    // O cMotivo e o xMotivo do subst (E.8).
+    public string MotivoSubstituicao { get; init; } = "99";
+
+    public string? DescricaoSubstituicao { get; init; } = "Outro motivo de teste";
+
     // O xInfComp, com a marca EMULADA: quando o teste quer.
     public string? Observacao { get; init; }
 
@@ -82,7 +87,9 @@ internal sealed record DpsTeste
         var id = Id ?? IdComposto;
         var data = (Competencia ?? DateOnly.FromDateTime(Emissao.DateTime)).ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
         static string Documento(string documento) => documento.Length == 11 ? $"<CPF>{documento}</CPF>" : $"<CNPJ>{documento}</CNPJ>";
-        var substituicao = Substituida is null ? "" : $"<subst><chSubstda>{Substituida}</chSubstda><cMotivo>99</cMotivo><xMotivo>Outro motivo de teste</xMotivo></subst>";
+        var substituicao = Substituida is null ? ""
+            : $"<subst><chSubstda>{Substituida}</chSubstda><cMotivo>{MotivoSubstituicao}</cMotivo>"
+              + (DescricaoSubstituicao is null ? "" : $"<xMotivo>{DescricaoSubstituicao}</xMotivo>") + "</subst>";
         var tomador = Tomador is null ? "" : $"<toma>{Documento(Tomador)}<xNome>TOMADOR DE TESTE</xNome></toma>";
         var informacoes = Observacao is null ? "" : $"<infoCompl><xInfComp>{Observacao}</xInfComp></infoCompl>";
         var desconto = DescontoIncondicionado is null ? "" : $"<vDescCondIncond><vDescIncond>{Decimal(DescontoIncondicionado.Value)}</vDescIncond></vDescCondIncond>";
@@ -144,6 +151,30 @@ internal static class Sefin
     {
         var resposta = await fixture.Http.GetAsync(new Uri(fixture.Emulador.SefinNacional, caminho), TestContext.Current.CancellationToken);
         return (resposta, await LerAsync(resposta));
+    }
+
+    // O POST /nfse/{chave}/eventos (E.8), com o corpo pronto.
+    public static async Task<(HttpResponseMessage Resposta, JsonElement Json)> RegistrarEventoAsync(EmuladorFixture fixture, string chave, string corpo,
+        string tipo = "application/json")
+    {
+        using var conteudo = new StringContent(corpo, Encoding.UTF8);
+        conteudo.Headers.ContentType = new MediaTypeHeaderValue(tipo);
+        var resposta = await fixture.Http.PostAsync(new Uri(fixture.Emulador.SefinNacional, $"nfse/{chave}/eventos"), conteudo, TestContext.Current.CancellationToken);
+        return (resposta, await LerAsync(resposta));
+    }
+
+    public static Task<(HttpResponseMessage Resposta, JsonElement Json)> RegistrarEventoAsync(EmuladorFixture fixture, PedidoEventoTeste pedido) =>
+        RegistrarEventoAsync(fixture, pedido.Chave, PedidoEventoTeste.Corpo(pedido.Gerar()));
+
+    // O evento do JSON (o da resposta do POST ou um item da consulta), descompactado.
+    public static string Evento(JsonElement json) => DpsTeste.Descompactar(json.GetProperty("eventoXmlGZipB64").GetString()!);
+
+    // A chave da NFS-e emitida com a DPS (201).
+    public static async Task<string> EmitirChaveAsync(EmuladorFixture fixture, DpsTeste dps)
+    {
+        var (resposta, json) = await EmitirAsync(fixture, dps);
+        Assert.Equal(System.Net.HttpStatusCode.Created, resposta.StatusCode);
+        return json.GetProperty("chaveAcesso").GetString()!;
     }
 
     // O código do primeiro erro.

@@ -44,9 +44,11 @@ namespace OpenDFe.SefazEmulada;
 //                                   com o motivo
 //   DELETE /_controle/municipios/{codigo}   tira um (volta ao padrão); 404 se não está
 //   DELETE /_controle/municipios    tira todos
-//   GET    /_controle/nfse          as NFS-e geradas, sem o XML, na ordem
-//   GET    /_controle/nfse/{chave}  a NFS-e, com o XML; 404 se não está
-//   DELETE /_controle/nfse          esquece as NFS-e (a numeração continua)
+//   GET    /_controle/nfse          as NFS-e geradas, sem o XML, na ordem, com a situação pelos eventos (E.8)
+//   GET    /_controle/nfse/{chave}  a NFS-e, com o XML e os eventos (E.8); 404 se não está
+//   POST   /_controle/nfse/{chave}/eventos   registra um evento do município (PedidoEventoMunicipio em JSON: 105104,
+//                                   105105, 305101; E.8); 201 com o evento, 400 com o erro, 404 sem a NFS-e
+//   DELETE /_controle/nfse          esquece as NFS-e e os eventos delas (a numeração continua)
 internal static class RotasControle
 {
     public static void Mapear(WebApplication app)
@@ -69,7 +71,7 @@ internal static class RotasControle
             painel = situacao.Painel,
             pedidos = opcoes.Pedidos,
             urls = situacao.Urls,
-            nfse = new { sefinNacional = situacao.SefinNacional },
+            nfse = new { sefinNacional = situacao.SefinNacional, parametrizacao = situacao.Parametrizacao },
         });
         grupo.MapGet("/ac.crt", (SituacaoEmulador situacao) =>
             Results.File(situacao.ArquivoAutoridade, "application/x-pem-file", AutoridadeTeste.ArquivoCertificado));
@@ -250,9 +252,36 @@ internal static class RotasControle
         grupo.MapGet("/nfse", (RepositorioNFSe nfse) => nfse.Listar().Select(n => new
         {
             n.Chave, n.IdDps, n.Numero, n.NumeroDfse, n.Municipio, n.Prestador, n.Processamento,
+            Situacao = EventosNFSe.Situacao(nfse.Eventos(n.Chave)),
         }));
         grupo.MapGet("/nfse/{chave}", (string chave, RepositorioNFSe nfse) =>
-            nfse.Chave(chave) is { } nota ? Results.Ok(nota) : Results.NotFound());
+        {
+            if (nfse.Chave(chave) is not { } nota)
+                return Results.NotFound();
+            var eventos = nfse.Eventos(chave);
+            return Results.Ok(new
+            {
+                nota.Chave, nota.IdDps, nota.Numero, nota.NumeroDfse, nota.Municipio, nota.Prestador, nota.Processamento, nota.Xml,
+                Situacao = EventosNFSe.Situacao(eventos),
+                Eventos = eventos,
+            });
+        });
+        grupo.MapPost("/nfse/{chave}/eventos", (string chave, PedidoEventoMunicipio pedido, EventosNFSe eventos, RepositorioNFSe nfse, OpcoesEmulador opcoes) =>
+        {
+            if (nfse.Chave(chave) is null)
+                return Results.NotFound();
+            try
+            {
+                var (evento, erro) = eventos.RegistrarMunicipio(chave, pedido, opcoes.Relogio.GetUtcNow());
+                return erro is not null
+                    ? Results.BadRequest(new { erro = $"{erro.Codigo}: {erro.Descricao}" })
+                    : Results.Created($"/_controle/nfse/{chave}", evento);
+            }
+            catch (ArgumentException excecao)
+            {
+                return Results.BadRequest(new { erro = excecao.Message });
+            }
+        });
         grupo.MapDelete("/nfse", (RepositorioNFSe nfse) =>
         {
             nfse.Limpar();

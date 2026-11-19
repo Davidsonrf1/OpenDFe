@@ -18,6 +18,8 @@ internal static class SchemasLeiaute
     // A NFS-e (E.7), do pacote embutido no leiaute da NFS-e (docs/NTS.md 12.1), na pasta 1.01.
     private static readonly Lazy<SchemaXml> SchemaDps = PrepararNFSe("DPS_v1.01.xsd");
     private static readonly Lazy<SchemaXml> SchemaNFSe = PrepararNFSe("NFSe_v1.01.xsd");
+    private static readonly Lazy<SchemaXml> SchemaPedidoEventoNFSe = PrepararNFSe("pedRegEvento_v1.01.xsd");
+    private static readonly Lazy<SchemaXml> SchemaEventoNFSe = PrepararNFSe("evento_v1.01.xsd");
 
     // O detEvento de cada tipo de evento (Anexo I, D06), pelo tpEvento.
     private static readonly Dictionary<string, Lazy<SchemaXml>> SchemasDetalhe = new(StringComparer.Ordinal)
@@ -57,6 +59,12 @@ internal static class SchemasLeiaute
 
     // A NFS-e 1.01, a que o emulador gera (para os testes conferirem).
     public static SchemaXml NFSe => SchemaNFSe.Value;
+
+    // O pedido de registro de evento da NFS-e 1.01 (o POST /nfse/{chave}/eventos, E.8); o código é o E1235.
+    public static SchemaXml PedidoEventoNFSe => SchemaPedidoEventoNFSe.Value;
+
+    // O evento da NFS-e 1.01, o que o emulador gera (para os testes conferirem).
+    public static SchemaXml EventoNFSe => SchemaEventoNFSe.Value;
 
     // O detEvento do tipo de evento (e110110, e110111, e110112 e os da manifestação, e210200 a e210240).
     public static SchemaXml Detalhe(string tipo) => SchemasDetalhe[tipo].Value;

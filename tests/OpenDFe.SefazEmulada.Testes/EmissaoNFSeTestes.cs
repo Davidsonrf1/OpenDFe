@@ -325,10 +325,6 @@ public sealed class EmissaoNFSeTestes : IClassFixture<EmuladorFixture>
     }
 
     [Fact]
-    public async Task RejeitaASubstituicaoAteAE8() =>
-        await RejeitaAsync(new DpsTeste { Substituida = "31062002112223330001810000000000001261112345678901" }, "EMULADA-SUBST");
-
-    [Fact]
     public async Task RejeitaAAliquotaAcimaDe5() => await RejeitaAsync(new DpsTeste { Aliquota = 6.00m }, "E0595");
 
     // O município

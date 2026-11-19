@@ -38,6 +38,8 @@ internal sealed record BeneficioMunicipio(string Numero, int Tipo, decimal? Aliq
 //   Retencoes         os CPFs que o município autoriza como responsáveis pela retenção (E0667 e E0670)
 //   Beneficios        os benefícios municipais; outro nBM na DPS é o E0541
 //   Paralisado        a Sefin responde 503 para as DPS do município
+//   PrazoCancelamento os dias depois da emissão em que o cancelamento (101101) é aceito (E0822); nulo, sem prazo (E.8)
+//   PrazoSubstituicao os dias em que a substituição é aceita (E0050), salvo os motivos 01 e 02; nulo, sem prazo (E.8)
 internal sealed record Municipio(
     int Codigo,
     string? Nome = null,
@@ -48,7 +50,9 @@ internal sealed record Municipio(
     IReadOnlyList<int>? RegimesEspeciais = null,
     IReadOnlyList<string>? Retencoes = null,
     IReadOnlyList<BeneficioMunicipio>? Beneficios = null,
-    bool Paralisado = false)
+    bool Paralisado = false,
+    int? PrazoCancelamento = null,
+    int? PrazoSubstituicao = null)
 {
     // A alíquota do município não configurado e do configurado sem a padrão: o mínimo da LC 116, art. 8º-A.
     public const decimal AliquotaPadraoEmulador = 2.00m;
@@ -136,6 +140,8 @@ internal sealed partial class Municipios
             throw new ArgumentException("O emissor é nacional ou proprio.", nameof(municipio));
         if (municipio.AliquotaPadrao is { } padrao)
             ConferirAliquota(padrao, "A alíquota padrão");
+        if (municipio.PrazoCancelamento is < 0 or > 3650 || municipio.PrazoSubstituicao is < 0 or > 3650)
+            throw new ArgumentException("Os prazos do cancelamento e da substituição vão de 0 a 3650 dias.", nameof(municipio));
         foreach (var (codigo, aliquota) in municipio.Aliquotas ?? new Dictionary<string, decimal>())
         {
             if (!TributacaoNacional().IsMatch(codigo))

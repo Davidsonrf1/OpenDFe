@@ -536,7 +536,7 @@ Para provocar a falha a partir do PDV ou do ERP, sem a rota de controle: o texto
 
 O resto do texto fica como está (`Pedido 123 EMULADA:paralisacao:109`). Uma marca por espécie no lote (transporte, paralisação, lote em processamento); a do irregular é da nota. A marca que não serve (tipo desconhecido, valor que o tipo não aceita, duas da mesma espécie) responde HTTP 400 com a falha `soap:Sender` e a explicação, sem processar o lote: o erro de digitação não passa calado.
 
-## NFS-e: a Sefin Nacional (E.7)
+## NFS-e: a Sefin Nacional (E.7, E.8)
 
 O mesmo servidor responde também como a **Sefin Nacional** da NFS-e (`PROJETO.md` 18.6; o desenho em `docs/NFSE.md` 5), com a mesma porta, o mesmo TLS mútuo, a mesma AC e o mesmo `/_controle`. As rotas têm o caminho da real sob o prefixo `/SefinNacional` (a base de produção é `https://sefin.nfse.gov.br/SefinNacional`, `NTS.md` 12.4); o `GET /` e o `GET /_controle/emulador` mostram a base em `nfse.sefinNacional`. Para a lib, a base troca pela `Urls` da configuração (9.2): `new EnderecoServico(Destino.SefinNacional, Ambiente.Homologacao, "SefinNacional", emulador.SefinNacional)`, com a AC do emulador pela fábrica do handler, como na NF-e (os testes em `tests/OpenDFe.NFSe.Testes/EmissaoEmuladaTestes.cs`).
 
@@ -548,6 +548,8 @@ Fontes: o Anexo I da NFS-e (`ANEXO_I-SEFIN_ADN-DPS_NFSe-SNNFSe-v1.01-20260209`, 
 | `GET /SefinNacional/nfse/{chave}` | `ConsultaNFSe` | A NFS-e pela chave: 200; 404 (`E0044`) se não há; 400 (`EMULADA-CONSULTA`) se a chave não tem 50 dígitos. |
 | `GET /SefinNacional/dps/{id}` | `ConsultaDps` | A chave da NFS-e gerada pela DPS: 200; 404 (`EMULADA-DPS`) se não há; 400 se o Id não é `DPS` e 42 dígitos. É a consulta da recuperação depois da queda no meio. |
 | `HEAD /SefinNacional/dps/{id}` | `ConsultaDps` | 200 ou 404, sem corpo. |
+| `POST /SefinNacional/nfse/{chave}/eventos` | `EventoNFSe` | O pedido de registro de evento (E.8): `{"pedidoRegistroEventoXmlGZipB64": "..."}`. 201 com o evento; 400 com os erros. Ver "Eventos e substituição (E.8)". |
+| `GET /SefinNacional/nfse/{chave}/eventos[/{tipo}[/{seq}]]` | `ConsultaEventosNFSe` | Os eventos da NFS-e: todos, os do tipo, ou o do tipo e do número sequencial (E.8). |
 
 As respostas, em JSON (`application/json; charset=utf-8`), com `tipoAmbiente` 2, `versaoAplicativo` (`OpenDFe Emulada 1.0`) e `dataHoraProcessamento` (horário de Brasília):
 
@@ -591,12 +593,12 @@ O certificado do TLS não é conferido (E1200 a E1209), como na NF-e.
 | `E0037` | O município emissor sem UF válida nos dois primeiros dígitos, ou com o convênio `inexistente`. |
 | `E0038` | O convênio `inativo`. |
 | `E0039` | O emissor `proprio`. |
-| `EMULADA-SUBST` | A DPS com `subst`: a substituição entra na E.8. |
 | `E0014` | Já há NFS-e para o mesmo `Id` (a série, o número, o município e a inscrição); o complemento traz a chave dela. |
 | `E0595` | `pAliq` acima de 5. |
 | `E0177` | `regEspTrib` diferente de 0 e fora dos `regimesEspeciais` do município. |
 | `E0541` | O `nBM` que o município não tem. |
 | `E0667`, `E0670` | A retenção pelo tomador (`tpRetISSQN` 2) ou pelo intermediário (3) com um CPF fora das `retencoes` do município. O CNPJ não é conferido. |
+| `E0042` a `E0845` | A DPS com `subst` (E.8): as regras da substituição, depois das de cima. Ver "Eventos e substituição (E.8)". |
 
 **O município de incidência é o emissor** (a regra geral da LC 116, art. 3º); as exceções do artigo não são emuladas. Não são conferidos: o cadastro CNPJ e CPF, o CNC, o Simples Nacional, a lista de serviços (o `cTribNac` só pelo XSD) e as regras do IBS e da CBS.
 
@@ -637,25 +639,146 @@ O município **não configurado** é atendido como conveniado (`ativo`), com o e
 | `retencoes` | Os CPFs que o município autoriza como responsáveis pela retenção. |
 | `beneficios` | `numero` (14 dígitos, sem repetir), `tipo` (1 isenção, 2 redução em percentual, 3 redução em valor, 4 alíquota diferenciada) e `aliquota`, só no tipo 4. |
 | `paralisado` | A Sefin responde 503 às DPS do município. |
+| `prazoCancelamento` | Os dias, desde o processamento da NFS-e, em que o cancelamento (101101) é aceito (`E0822`); nulo, sem prazo (E.8). |
+| `prazoSubstituicao` | Os dias em que a substituição é aceita (`E0050`), salvo os motivos `01` e `02` (o desenquadramento e o enquadramento no Simples); nulo, sem prazo (E.8). |
 
-A parametrização pelas rotas do ADN, com esta configuração, é da E.8.
+A parametrização pelas rotas do ADN, com esta configuração, está em "ADN: a parametrização municipal (E.8)".
 
 ### As NFS-e geradas
 
 | Rota | O que faz |
 |---|---|
-| `GET /_controle/nfse` | As NFS-e, na ordem, sem o XML: a chave, o Id da DPS, o `nNFSe`, o `nDFSe`, o município, o prestador e o processamento. |
-| `GET /_controle/nfse/{chave}` | A NFS-e, com o XML; 404 se não está. |
-| `DELETE /_controle/nfse` | Esquece as NFS-e (a numeração continua): 204. |
+| `GET /_controle/nfse` | As NFS-e, na ordem, sem o XML: a chave, o Id da DPS, o `nNFSe`, o `nDFSe`, o município, o prestador, o processamento e a `situacao` pelos eventos (`normal`, `cancelada`, `substituida` ou `emAnalise`; E.8). |
+| `GET /_controle/nfse/{chave}` | A NFS-e, com o XML, a `situacao` e os `eventos` (o tipo, o número sequencial, o Id, o `nDFSe`, o processamento e o XML); 404 se não está. |
+| `POST /_controle/nfse/{chave}/eventos` | Um evento do município (E.8): o deferimento ou o indeferimento da análise fiscal, ou o cancelamento por ofício. 201 com o evento; 400 com `{ "erro": "..." }`; 404 sem a NFS-e. Ver "Eventos e substituição (E.8)". |
+| `DELETE /_controle/nfse` | Esquece as NFS-e e os eventos delas (a numeração continua): 204. |
 
 O `DELETE /_controle` (zerar tudo) esquece também os municípios e as NFS-e; o `DELETE /_controle/notas` não mexe na NFS-e.
 
 ### Falhas e marca na Sefin
 
-As falhas comandadas valem com o `destino` `SefinNacional` e os `servico` `EmissaoNFSe`, `ConsultaNFSe` e `ConsultaDps` (a falha com o destino nulo vale também para eles; a de um autorizador da NF-e, não). O efeito é o da NF-e, com o HTTP no lugar do SOAP: a `respostaIlegivel` corta o JSON ao meio; a `falhaSoap` é o **HTTP 500** com `EMULADA-FALHA`; a `paralisacao` é o **HTTP 503** com `EMULADA-PARALISACAO`, sem código (o `codigo` é recusado); o `loteProcessando` é recusado. A `conexaoDerrubada` com `depois` na emissão é a queda no meio: a NFS-e fica gerada, a resposta não chega (ela fica nos pedidos recentes) e a `GET /dps/{id}` acha a chave.
+As falhas comandadas valem com o `destino` `SefinNacional` e os `servico` `EmissaoNFSe`, `ConsultaNFSe`, `ConsultaDps`, `EventoNFSe` e `ConsultaEventosNFSe`, e com o `destino` `ADN` e os serviços da parametrização (E.8). A falha com o destino nulo vale também para eles; a de um autorizador da NF-e, não. O efeito é o da NF-e, com o HTTP no lugar do SOAP: a `respostaIlegivel` corta o JSON ao meio; a `falhaSoap` é o **HTTP 500** com `EMULADA-FALHA`; a `paralisacao` é o **HTTP 503** com `EMULADA-PARALISACAO`, sem código (o `codigo` é recusado); o `loteProcessando` é recusado. A `conexaoDerrubada` com `depois` na emissão é a queda no meio: a NFS-e fica gerada, a resposta não chega (ela fica nos pedidos recentes) e a `GET /dps/{id}` acha a chave.
 
 A recusa da recepção (E12xx) passa pelas falhas, como o resto; o 415 e a marca inválida, não.
 
-**A marca** vai no `infDPS/serv/infoCompl/xInfComp` da DPS e vale só para o pedido que a traz: `EMULADA:atraso:<ms>`, `EMULADA:tempoEsgotado`, `EMULADA:conexaoDerrubada[:depois]`, `EMULADA:respostaIlegivel`, `EMULADA:falhaSoap` e `EMULADA:paralisacao` (sem código). Uma por espécie na DPS. A que não serve (o `irregular`, o `loteProcessando`, o código na paralisação, tipo desconhecido, repetida) é o **HTTP 400** com `EMULADA-MARCA`, para o erro de digitação não passar calado.
+**A marca** vai no `infDPS/serv/infoCompl/xInfComp` da DPS e vale só para o pedido que a traz (o pedido de evento não tem campo livre que a leve: nos eventos, as falhas são só pelo controle): `EMULADA:atraso:<ms>`, `EMULADA:tempoEsgotado`, `EMULADA:conexaoDerrubada[:depois]`, `EMULADA:respostaIlegivel`, `EMULADA:falhaSoap` e `EMULADA:paralisacao` (sem código). Uma por espécie na DPS. A que não serve (o `irregular`, o `loteProcessando`, o código na paralisação, tipo desconhecido, repetida) é o **HTTP 400** com `EMULADA-MARCA`, para o erro de digitação não passar calado.
 
 Cada pedido às rotas da Sefin fica nos pedidos recentes (o painel), com o destino `SefinNacional`, o serviço, o JSON do pedido (ou o método e o caminho, nas consultas) e o da resposta. A aba da NFS-e no painel e a persistência são da E.9.
+
+### Eventos e substituição (E.8)
+
+Fontes: o Anexo II da NFS-e (`ANEXO_II-SEFIN_ADN-PEDREGEVT_EVT-SNNFSe-v1.01-20260122`, `NTS.md` 12.1), abas `TIPO EVENTOS DE NFSe`, `RN_EVENTOSxEVENTOS` e `RN_EVENTO_PED.REG.EVENTO`; o Anexo I, aba `RN DPS_NFS-e` (o grupo `subst`); o manual da API do emissor público (1.3.2 e 1.5). O nome `pedidoRegistroEventoXmlGZipB64` é o de implementações abertas (`NTS.md` 12.4). O da resposta (`eventoXmlGZipB64`) e o formato da consulta são **a nossa leitura**, a conferir no Swagger quando houver o PFX.
+
+**O `POST /SefinNacional/nfse/{chave}/eventos`** recebe o pedido de quem emite: o **cancelamento (101101)** e a **solicitação de análise fiscal para cancelamento (101103)**, os dois de autor "Emite" na aba `TIPO EVENTOS`. O Anexo II não tem aba de recepção, e o JSON é aberto como o da DPS, com as mesmas regras: `E1225`, `E1226`, `E1229`, `E1228`; `E1242` se a raiz não é o `pedRegEvento`; `E1235` pelo `pedRegEvento_v1.01.xsd`. O 415 é o mesmo. A chave do caminho sem 50 dígitos é o 400 `EMULADA-CONSULTA`. Depois, na ordem:
+
+| Código | Regra |
+|---|---|
+| `E1989` | O pedido sem a `Signature`. |
+| `E0812`, `E0815` | O `CNPJAutor` (pela raiz) ou o `CPFAutor` que não é o titular do certificado da assinatura. |
+| `E1980` | A assinatura que não confere. |
+| `E1827` | O `Id` diferente de `PRE` + `chNFSe` + o tipo. |
+| `E1845` | `tpAmb` diferente de 2. |
+| `E1843` | `dhEvento` mais de 5 minutos depois do recebimento (a tolerância da DPS). |
+| `EMULADA-CHAVE` | A `chNFSe` diferente da chave do caminho. |
+| `EMULADA-TIPO` | Outro tipo de evento (a manifestação vai ao ADN; os do município e do fisco, o emulador recebe pelo controle). |
+| `E1831` | A NFS-e não existe. |
+| `E0813`, `E0816` | O autor não é o prestador da NFS-e (o documento inteiro). |
+| `E0822` | O cancelamento depois do `prazoCancelamento` do município emissor, contado do processamento da NFS-e. A análise fiscal não tem prazo: ela existe para o que passou dele. |
+| `E0840`, `E0848` | A matriz de eventos (abaixo); a mensagem traz o nome do evento que impede. |
+
+O evento gerado é o `evento` 1.01 (`TCEvento`), assinado pela AC de teste, como a NFS-e. O `infEvento` traz:
+
+- o `Id`: `EVT` + a chave + o tipo + o `nSeqEvento` (3 dígitos);
+- `verAplic` `OpenDFe Emulada 1.0` e `ambGer` 2;
+- o `nSeqEvento`, sempre 1 (os eventos emulados são únicos);
+- o `dhProc` e o `nDFSe`, na mesma sequência das NFS-e;
+- o pedido recebido, com a assinatura dele intacta.
+
+As respostas:
+
+```json
+{ "tipoAmbiente": 2, "versaoAplicativo": "OpenDFe Emulada 1.0", "dataHoraProcessamento": "...", "chaveAcesso": "3106...",
+  "tipoEvento": "101101", "numSeqEvento": 1, "eventoXmlGZipB64": "H4sI..." }
+{ "tipoAmbiente": 2, "versaoAplicativo": "OpenDFe Emulada 1.0", "dataHoraProcessamento": "...", "chaveAcesso": "3106...",
+  "eventos": [ { "chaveAcesso": "...", "tipoEvento": "105102", "numSeqEvento": 1, "dataHoraProcessamento": "...", "eventoXmlGZipB64": "..." } ] }
+```
+
+O primeiro é o 201 do registro; o segundo, o 200 da consulta (o `dataHoraProcessamento` de cada item é o do evento). Na consulta:
+
+- a NFS-e que não existe é o 404 com o `E0044`;
+- o tipo sem 6 dígitos, ou o número sequencial sem 1 a 3 dígitos, é o 400 `EMULADA-CONSULTA`;
+- sem eventos, a lista vem vazia;
+- com o número sequencial e nada achado, é o 404 `EMULADA-EVENTO`.
+
+**A matriz** (aba `RN_EVENTOSxEVENTOS`) vale só para os eventos que o emulador conhece:
+
+- Sem evento, valem o cancelamento, a substituição, a análise fiscal e o ofício.
+- O cancelamento, a substituição, o deferimento e o ofício encerram a NFS-e: nenhum outro evento entra depois deles (`E0840`, `E0845`, `E0848`, `E0852`, `E0855`, `E1960`).
+- Com a análise fiscal pendente, só entram o deferimento e o indeferimento.
+- Depois do indeferimento, só entra o ofício.
+- O deferimento e o indeferimento sem a análise pendente são o `E0853` e o `E0856`.
+
+A linha da análise fiscal na planilha proíbe o ofício, e a do indeferimento o permite. O emulador lê a da análise como valendo **enquanto ela está pendente**.
+
+**A substituição** é a DPS com o `subst` no `POST /nfse` (manual 1.3.2). As regras dela vêm depois das da DPS e da parametrização, na ordem:
+
+| Código | Regra |
+|---|---|
+| `E0042` | A `chSubstda` com o município, o tipo ou o número de inscrição diferentes dos do `Id` da DPS. O DV não é conferido (`NTS.md` 12.5). |
+| `E0078` | O `cMotivo` 99 sem o `xMotivo`. |
+| `E0044` | A substituída não existe. |
+| `E0050` | Fora do `prazoSubstituicao` do município emissor, contado do processamento da substituída, salvo os motivos `01` e `02`. |
+| `E0046` | A substituída cancelada ou já substituída (o cancelamento, a substituição, o deferimento ou o ofício). |
+| `E0068` | A substituída com a análise fiscal pendente. |
+| `E0845` | O resto da matriz (a substituída com o indeferimento). |
+
+A substituta é gerada como qualquer NFS-e. Na mesma operação, a Sefin registra o **105102** sobre a substituída, com um pedido montado pelo emulador:
+
+- sem assinatura (a aba `TIPO EVENTOS` não a exige do município emissor);
+- com o prestador como autor (o emulador não tem o CNPJ do município);
+- com o `cMotivo` e o `xMotivo` do `subst`, e a `chSubstituta`.
+
+Se chegam duas substituições da mesma nota ao mesmo tempo, uma passa e a outra é o `E0046`.
+
+**Os eventos do município** entram pelo `POST /_controle/nfse/{chave}/eventos`, para quem usa a lib ter o que ler na consulta:
+
+```json
+{ "tipo": "105104", "cpfAgente": "52998224725", "processo": "123", "motivo": "1", "descricao": "Cancelamento deferido no processo" }
+```
+
+| Campo | O que é |
+|---|---|
+| `tipo` | `105104` (o deferimento da análise fiscal), `105105` (o indeferimento) ou `305101` (o cancelamento por ofício). |
+| `cpfAgente` | O CPF do agente tributário (`CPFAgTrib`), que é também o `CPFAutor` do pedido. |
+| `processo` | O `nProcAdm` (só dígitos, até 30); obrigatório no 305101. |
+| `motivo` | O `cMotivo` (105104: 1; 105105: 1 ou 2); o padrão é 1. |
+| `descricao` | O `xMotivo` (105104, 105105) ou o `xProcAdm` (305101), de 15 a 255 caracteres. |
+
+O pedido é montado sem assinatura e conferido no `pedRegEvento_v1.01.xsd`; se falha, a resposta é o 400 com a mensagem do schema. O evento passa pela matriz; se ela recusa, a resposta é o 400 com o código e a mensagem.
+
+## ADN: a parametrização municipal (E.8)
+
+O mesmo servidor responde também como a **API de parâmetros municipais do ADN**, sob o prefixo `/parametrizacao`. A base de produção é `https://adn.nfse.gov.br/parametrizacao` (`NTS.md` 12.4). O `GET /` e o `GET /_controle/emulador` mostram a base em `nfse.parametrizacao`. As respostas saem da configuração dos municípios (a seção "Os municípios", acima).
+
+As rotas e os nomes do JSON vêm de uma implementação aberta que consulta o ADN de verdade, a nfse4j (MIT, `NTS.md` 12.4). O manual dos contribuintes dá rotas `/parametros_municipais/...`, que não batem com a base (`NFSE.md` D13). **A conferir no Swagger quando houver o PFX.**
+
+| Rota | Serviço (falhas) | O que responde |
+|---|---|---|
+| `GET /parametrizacao/{municipio}/convenio` | `ConsultaConvenio` | `parametrosConvenio`: `aderenteAmbienteNacional` (o convênio `ativo`) e `aderenteEmissorNacional` (o emissor `nacional`). |
+| `GET /parametrizacao/{municipio}/{servico}/{competencia}/aliquota` | `ConsultaAliquota` | `aliquotas`: por serviço, a lista com `Aliq` (a do código, ou a padrão), `DtIni` e `DtFim`. |
+| `GET /parametrizacao/{municipio}/{servico}/historicoaliquotas` | `ConsultaHistoricoAliquotas` | O mesmo, sem a competência. |
+| `GET /parametrizacao/{municipio}/{servico}/{competencia}/regimes_especiais` | `ConsultaRegimesEspeciais` | `regimesEspeciais`: por serviço e por `regEspTrib` admitido, a lista com `sit` 1, `dtIni` e `dtFim`. |
+| `GET /parametrizacao/{municipio}/{competencia}/retencoes` | `ConsultaRetencoes` | `retencoes`: `art6` desabilitado e `retMun` com os CPFs autorizados em `respTrib` (`tpInsc` 1, `insc`), para o `tpRet` 2 e 3. Sem CPFs, `retMun` vem vazio. |
+| `GET /parametrizacao/{municipio}/{beneficio}/{competencia}/beneficio` | `ConsultaBeneficio` | `beneficio`: `numBenef`, `desc`, `dtIni`, `tpoBenef` (o `tipo`), `aliqDiferenc` (no tipo 4), `restAoMun`, e `serv` e `contrib` vazios. 404 se o município não tem o número. |
+
+Os parâmetros do caminho:
+
+- `{municipio}`: o código IBGE, com 7 dígitos e a UF nos dois primeiros;
+- `{servico}`: `XX.XX.XX.XXX`, o `cTribNac` e o complemento municipal (a alíquota é a dos 6 primeiros dígitos);
+- `{competencia}`: `MM-DD-AAAA`.
+
+O parâmetro fora do formato é o **400**. O município com o convênio `inexistente` é o **404** em todas as rotas. O erro vem como `{ "tipoAmbiente": 2, "dataHoraProcessamento": "...", "mensagem": "..." }`.
+
+O emulador não tem vigência. A competência é conferida, mas não muda a resposta, e as datas são sempre `2022-07-01T00:00:00` (o início do Sistema Nacional).
+
+As falhas comandadas valem com o `destino` `ADN` e os serviços da tabela, como na Sefin: a `paralisacao` sem código é o 503, e o `loteProcessando` é recusado. Cada pedido fica nos pedidos recentes, com o destino `ADN`.

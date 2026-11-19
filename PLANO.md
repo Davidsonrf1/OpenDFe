@@ -831,7 +831,9 @@ Criada a partir da `fase-7-impressao` (no commit da 7.4, `5718fc7`). `git log HE
 - **O `dotnet test` continua sem achar os testes** nesta máquina (código 5, como a E.7 registrou; o SDK é o 10.0.401, e o `xunit.v3` 4.0.2 é o mesmo desde a 0.1). A suíte foi conferida pelos executáveis. A ver numa etapa à parte.
 - **Pendente até o PFX** (`PROJETO.md` 17): a emissão e as consultas na produção restrita; a base com ou sem `/API/`; os nomes do JSON e os status, pelo Swagger.
 
-**Próxima: E.8. Eventos e parametrização no emulador** (o cancelamento, a substituição gerando o 105102, a consulta dos eventos e as rotas de parametrização do ADN), na `sefaz-emulada`, depois de trazer a `fase-9-nfse` por fast-forward. Numa sessão nova, só quando pedida. Depois, a 9.3.
+**E.8 feita (2026-11-19)**, na `sefaz-emulada` (a situação está na da trilha, no fim). A `fase-9-nfse` traz a E.8 por fast-forward na abertura da 9.3.
+
+**Próxima: 9.3. Eventos** (o cancelamento 101101 e a análise fiscal 101103, a substituição conferida ponta a ponta com o 105102, a consulta dos eventos lendo também os do município), nesta branch, depois de trazer a `sefaz-emulada` por fast-forward. Numa sessão nova, só quando pedida. Contra a Sefin emulada da E.8 (`docs/SEFAZ_EMULADA.md`, "Eventos e substituição (E.8)").
 
 ### Trilha paralela: SEFAZ emulada (branch `sefaz-emulada`, worktree `../OpenDFe-sefaz-emulada`)
 
@@ -1015,4 +1017,55 @@ Criada a partir da `fase-7-impressao` (no commit da 7.4, `5718fc7`). `git log HE
   - **O `dotnet test`** não achou nenhum teste nesta máquina hoje, em nenhum projeto (código 5, "Zero testes executados", também nos que não mudaram); a suíte foi conferida pelos executáveis de teste, como na E.6. A conferir na próxima sessão.
 - Conferido: build sem aviso (Debug e Release); os seis executáveis de teste com 2.907 testes (29 pulados, os de homologação): Nucleo 648, NFe 1.335, NFSe 161, SefazEmulada 593, Impressao.Pdf 138, Homologacao 32; **Linux conferido** (WSL, .NET 10.0.115, com `--artifacts-path` fora do repositório: os 593 do emulador). Sem dependência nova; a API pública não mudou. A regra de nomes não acusa nada nos arquivos novos.
 
-**A 9.2 foi feita na `fase-9-nfse` (2026-11-19; a situação na da Fase 9).** **Próxima: E.8. Eventos e parametrização**, nesta branch, depois de trazer a `fase-9-nfse` por fast-forward (a 9.2 tocou o `OpenDFe.SefazEmulada.csproj`: o `InternalsVisibleTo` do `NFSe.Testes`), numa sessão nova, só quando pedida. Depois, a 9.3.
+**A 9.2 foi feita na `fase-9-nfse` (2026-11-19; a situação na da Fase 9).**
+
+**E.8. Eventos e parametrização. Feita (2026-11-19).**
+- **A 9.2 trazida para esta branch** por fast-forward da `fase-9-nfse`, na abertura.
+- **Fontes:** o Anexo II da NFS-e (abas `TIPO EVENTOS DE NFSe`, `RN_EVENTOSxEVENTOS` e `RN_EVENTO_PED.REG.EVENTO`), o Anexo I (o grupo `subst` da `RN DPS_NFS-e`) e o manual da API do emissor público (1.3.2 e 1.5), os mesmos arquivos da 9.0 (`docs/NTS.md` 12.1); os schemas `pedRegEvento_v1.01.xsd`, `evento_v1.01.xsd` e `tiposEventos_v1.01.xsd` embutidos no leiaute. **Fonte nova:** as rotas e os nomes do JSON da parametrização vêm da nfse4j (MIT, `docs/NTS.md` 12.4), e não das `/parametros_municipais/...` do manual, que não batem com a base (`docs/NFSE.md` D13).
+- **No emulador:**
+  - `EventosNFSe`, com o `POST /SefinNacional/nfse/{chave}/eventos` para o cancelamento (101101) e a análise fiscal (101103). O JSON é aberto com as regras da recepção da DPS. As regras do Anexo II que o emulador confere são o E1989, o E0812, o E0815, o E1980, o E1827, o E1845, o E1843, o E1831, o E0813, o E0816 e o E0822. Os eventos passam pela matriz da aba `RN_EVENTOSxEVENTOS` (E0840, E0845, E0848, E0852, E0853, E0855, E0856, E1960). O evento 1.01 gerado leva o pedido dentro e é assinado pela AC de teste.
+  - A consulta `GET /SefinNacional/nfse/{chave}/eventos[/{tipo}[/{seq}]]`.
+  - **A substituição:** a DPS com o `subst` passa pelas regras E0042, E0078, E0044, E0050, E0046, E0068 e E0845. Na mesma trava, a Sefin gera a substituta e o 105102 sobre a substituída, com a `chSubstituta`. O `EMULADA-SUBST` da E.7 saiu.
+  - **Os eventos do município** (105104, 105105, 305101) entram pela rota de controle `POST /_controle/nfse/{chave}/eventos`, conferidos no schema e na matriz. As NFS-e no controle ganham a `situacao` e os eventos.
+  - **Os municípios** ganham o `prazoCancelamento` e o `prazoSubstituicao`, em dias.
+  - `ParametrizacaoMunicipal`: a API de parâmetros municipais do ADN sob `/parametrizacao` (o convênio, a alíquota e o histórico, os regimes especiais, as retenções e o benefício), respondendo com a configuração dos municípios. O `GET /` e o `/_controle/emulador` mostram a base em `nfse.parametrizacao`.
+  - O `ADN` passa a ser um destino das falhas comandadas, com os seis serviços (`DestinosRest`). A Sefin ganha os serviços `EventoNFSe` e `ConsultaEventosNFSe`.
+  - O `RepositorioNFSe` guarda os eventos, com o `nDFSe` na mesma sequência das NFS-e.
+- **`docs/SEFAZ_EMULADA.md`:** as seções "Eventos e substituição (E.8)" e "ADN: a parametrização municipal (E.8)"; as rotas, as regras, os municípios, o controle e as falhas da seção da Sefin atualizados.
+- **Testes:** 649 no emulador (57 novos, e o teste do `EMULADA-SUBST` tirado).
+  - O pedido de evento é escrito em texto e assinado pelo `SignedXml` do .NET (`PedidoEventoTeste`), sem a lib.
+  - `EventosNFSeTestes` cobre:
+    - o evento válido no XSD, assinado pela AC e com a assinatura do pedido intacta;
+    - a consulta por chave, tipo e sequência, e os 404 e o 400;
+    - o cancelamento pelo CPF;
+    - a matriz: o já cancelado; a análise pendente contra o cancelamento, outra análise e a substituição; o deferimento, o indeferimento e o ofício pelo controle;
+    - as recusas do controle;
+    - cada regra do pedido e da recepção;
+    - a substituição: o 105102 com a substituta, o já substituído, o cancelado, duas ao mesmo tempo, o outro prestador, a inexistente, o motivo 99 sem descrição e o prazo, com a exceção do motivo 01;
+    - a queda no meio do evento;
+    - o controle com os eventos.
+  - `ParametrizacaoTestes` cobre o convênio (o padrão, o inativo com o emissor próprio e o inexistente), as recusas de formato, a alíquota própria, a padrão e o histórico, os regimes, as retenções, o benefício, a paralisação do ADN sem afetar a Sefin, as falhas recusadas no ADN e a base na raiz e no controle.
+  - No `NFSe.Testes`, o `ASubstituicaoVaiComoEmissaoComOGrupoSubst` agora confere a substituta emitida e o 105102 na original.
+- **Mutações provadas:** a matriz desligada (4 falhas no `EventosNFSeTestes`); o convênio sempre aderente (1 no `ParametrizacaoTestes`).
+- **Decisões tomadas sem perguntar** (a conferir pelo usuário):
+  - **A matriz lida enquanto a análise está pendente:** a linha da análise fiscal proíbe o ofício, e a do indeferimento o permite. Depois do indeferimento, vale a linha dele.
+  - **A recepção do pedido de evento com as regras da DPS** (E1225 a E1242, E1235 pelo `pedRegEvento`): o Anexo II não tem aba de recepção.
+  - **O JSON da resposta dos eventos** é a nossa leitura: o `eventoXmlGZipB64` e a lista `eventos`, com a chave, o tipo e o número sequencial. Nenhuma fonte o dá.
+  - **A consulta dos eventos:** sem eventos, a lista vazia; com o número sequencial e nada achado, o 404 `EMULADA-EVENTO`; a NFS-e inexistente, o E0044.
+  - **Os códigos sem fonte**, com o prefixo `EMULADA-`: `EMULADA-CHAVE` (a chave do caminho diferente da do pedido) e `EMULADA-TIPO` (o evento que a Sefin não recebe de quem emite: a manifestação vai ao ADN, e os do município entram pelo controle).
+  - **O 105102:** o pedido montado pelo emulador sem assinatura (a aba `TIPO EVENTOS` não a exige do município), com o prestador como autor (o emulador não tem o CNPJ do município) e o `ambGer` 2. Os eventos do município pelo controle usam o CPF do agente como autor.
+  - **Os prazos** contam do processamento da NFS-e, em dias, e o nulo é sem prazo; a análise fiscal não tem prazo. O E0050 deixa passar os motivos 01 e 02, como o anexo diz.
+  - **A ordem das regras da substituição:** depois da duplicidade e da parametrização, e o E0078 antes da procura da substituída.
+  - **A parametrização sem vigência:** a competência é conferida e não escolhe nada; as datas são as do início do Sistema Nacional. A alíquota sem a do serviço é a padrão do município (em vez do 404). O convênio inexistente é o 404 em todas as rotas. Os campos sem fonte segura (a incidência, o MAN, o aproveitamento de créditos) ficam fora do JSON.
+  - **Sem a marca nos eventos:** o pedido não tem campo livre que a leve, e as falhas, nos eventos, são só pelo controle.
+  - **Sem a manifestação, o bloqueio e o desbloqueio por ofício:** a manifestação vai ao ADN com a distribuição (`docs/NFSE.md` D9). O bloqueio e o desbloqueio não estão no plano da 9.3.
+- **O `dotnet test` continua sem achar os testes** nesta máquina (código 5, conferido de novo no `NFSe.Testes`). A suíte foi conferida pelos executáveis.
+- Conferido:
+  - o build sem aviso, em Debug e em Release;
+  - os seis executáveis de teste, com 3.051 testes e 29 pulados (os de homologação): Nucleo 700, NFe 1.335, NFSe 197, SefazEmulada 649, Impressao.Pdf 138 e Homologacao 32;
+  - **o Linux:** os 649 do emulador no WSL, com o .NET 10.0.115 e o `--artifacts-path` fora do repositório;
+  - a regra de nomes, que não acusa nada nos arquivos novos fora dos métodos de teste.
+
+  Sem dependência nova; a API pública da lib não mudou (só o emulador e os testes).
+
+**Próxima: 9.3. Eventos**, na `fase-9-nfse`, depois de trazer esta branch por fast-forward. Numa sessão nova, só quando pedida. Depois, a 9.4 e a E.9.
