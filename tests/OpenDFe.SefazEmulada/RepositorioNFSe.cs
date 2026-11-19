@@ -20,17 +20,39 @@ internal sealed record SubstituicaoPedida(
 
 // As NFS-e geradas, pela chave e pelo Id da DPS, os eventos de cada uma, e as numerações: o nNFSe por município e
 // inscrição, o nDFSe do ambiente (as NFS-e e os eventos são DF-e, na mesma sequência) e o código numérico da chave. Em
-// memória, vazio a cada partida (a persistência é da E.9); seguro para uso concorrente. O Gerar devolve a NFS-e que já
-// existia para a DPS, se outra chegou antes (a duplicidade, E0014).
+// memória; com --persistir sim, também em disco (Armazenamento, E.9), gravado debaixo da trava, e a partida recarrega o
+// que havia. Seguro para uso concorrente. O Gerar devolve a NFS-e que já existia para a DPS, se outra chegou antes (a
+// duplicidade, E0014).
 internal sealed class RepositorioNFSe
 {
     private readonly Lock _trava = new();
+    private readonly Armazenamento _armazenamento;
     private readonly Dictionary<string, NFSeRegistrada> _chaves = new(StringComparer.Ordinal);
     private readonly Dictionary<string, NFSeRegistrada> _dps = new(StringComparer.Ordinal);
     private readonly Dictionary<string, List<EventoNFSeRegistrado>> _eventos = new(StringComparer.Ordinal);
     private readonly List<NFSeRegistrada> _ordem = [];
     private readonly Dictionary<(int, string), long> _numeros = [];
     private long _documentos;
+
+    public RepositorioNFSe(Armazenamento armazenamento)
+    {
+        _armazenamento = armazenamento;
+        armazenamento.Carregar(this);
+    }
+
+    // A partida recarrega o que o Armazenamento guardava, sem gravar de novo.
+    public void Restaurar(long documentos) => _documentos = documentos;
+
+    public void Restaurar(int municipio, string prestador, long numero) => _numeros[(municipio, prestador)] = numero;
+
+    public void Restaurar(NFSeRegistrada nota)
+    {
+        _chaves[nota.Chave] = nota;
+        _dps[nota.IdDps] = nota;
+        _ordem.Add(nota);
+    }
+
+    public void Restaurar(EventoNFSeRegistrado evento) => Acrescentar(evento);
 
     public NFSeRegistrada? Chave(string chave)
     {
@@ -76,8 +98,13 @@ internal sealed class RepositorioNFSe
             _chaves[nota.Chave] = nota;
             _dps[idDps] = nota;
             _ordem.Add(nota);
+            _armazenamento.GravarNFSe(nota, _documentos);
             if (substituicao is not null)
-                Acrescentar(substituicao.Evento(nota, ++_documentos));
+            {
+                var evento = substituicao.Evento(nota, ++_documentos);
+                Acrescentar(evento);
+                _armazenamento.GravarEventoNFSe(evento, _documentos);
+            }
             return (nota, null, null);
         }
     }
@@ -99,6 +126,7 @@ internal sealed class RepositorioNFSe
             var evento = gerar(nota, _documentos + 1, tipo => eventos.Count(e => e.Tipo == tipo) + 1);
             _documentos++;
             Acrescentar(evento);
+            _armazenamento.GravarEventoNFSe(evento, _documentos);
             return (evento, null);
         }
     }
@@ -118,6 +146,7 @@ internal sealed class RepositorioNFSe
             _dps.Clear();
             _eventos.Clear();
             _ordem.Clear();
+            _armazenamento.LimparNFSe();
         }
     }
 

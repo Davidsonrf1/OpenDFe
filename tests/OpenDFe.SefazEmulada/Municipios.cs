@@ -79,12 +79,22 @@ internal sealed record Municipio(
         codigo is >= 1000000 and <= 9999999 ? UnidadesFederativas.Sigla((codigo / 100000).ToString(CultureInfo.InvariantCulture)) : null;
 }
 
-// Os municípios configurados pela rota /_controle/municipios. Em memória, vazio a cada partida; seguro para uso
-// concorrente. A persistência fica para a E.9.
+// Os municípios configurados pela rota /_controle/municipios (e pelo painel, E.9). Em memória; com --persistir sim,
+// também em disco (Armazenamento, E.9), e a partida recarrega o que havia. Seguro para uso concorrente.
 internal sealed partial class Municipios
 {
     private readonly Lock _trava = new();
     private readonly SortedDictionary<int, Municipio> _municipios = [];
+    private readonly Armazenamento _armazenamento;
+
+    public Municipios(Armazenamento armazenamento)
+    {
+        _armazenamento = armazenamento;
+        armazenamento.Carregar(this);
+    }
+
+    // A partida recarrega o que o Armazenamento guardava, sem gravar de novo.
+    public void Restaurar(Municipio municipio) => _municipios[municipio.Codigo] = municipio.Completar();
 
     // Confere (ArgumentException com o que está errado) e cadastra; verdadeiro se é novo, falso se trocou o que havia.
     public bool Cadastrar(Municipio municipio)
@@ -94,7 +104,9 @@ internal sealed partial class Municipios
         lock (_trava)
         {
             var novo = !_municipios.ContainsKey(municipio.Codigo);
-            _municipios[municipio.Codigo] = municipio.Completar();
+            var completo = municipio.Completar();
+            _municipios[municipio.Codigo] = completo;
+            _armazenamento.GravarMunicipio(completo);
             return novo;
         }
     }
@@ -119,13 +131,21 @@ internal sealed partial class Municipios
     public bool Remover(int codigo)
     {
         lock (_trava)
-            return _municipios.Remove(codigo);
+        {
+            if (!_municipios.Remove(codigo))
+                return false;
+            _armazenamento.RemoverMunicipio(codigo);
+            return true;
+        }
     }
 
     public void Limpar()
     {
         lock (_trava)
+        {
             _municipios.Clear();
+            _armazenamento.LimparMunicipios();
+        }
     }
 
     private static void Conferir(Municipio municipio)

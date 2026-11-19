@@ -28,6 +28,7 @@
     <button type="button" data-aba="pedidos">Pedidos <span id="contagem-pedidos" class="contagem"></span></button>
     <button type="button" data-aba="falhas">Falhas <span id="contagem-falhas" class="contagem"></span></button>
     <button type="button" data-aba="notas">Notas <span id="contagem-notas" class="contagem"></span></button>
+    <button type="button" data-aba="nfse">NFS-e <span id="contagem-nfse" class="contagem"></span></button>
     <button type="button" data-aba="distribuicao">Distribuição</button>
     <button type="button" data-aba="cadastros">Cadastros</button>
     <button type="button" data-aba="conexao">Conexão</button>
@@ -113,6 +114,72 @@
       </div>
     </section>
 
+    <section id="nfse" class="aba" hidden>
+      <div class="cabecalho-secao">
+        <h2>NFS-e nacional</h2>
+        <p>A Sefin Nacional (a emissão, a consulta e os eventos) e o ADN (a parametrização municipal). O município não configurado é conveniado, com o emissor nacional e a alíquota de 2%.</p>
+      </div>
+      <div id="lista-destinos-nfse" class="grade-cartoes"></div>
+
+      <h3>Municípios</h3>
+      <form id="form-municipio" class="formulario">
+        <div class="linha">
+          <label>Código IBGE <input name="codigo" required pattern="[1-5][0-9]{6}" inputmode="numeric" placeholder="3106200"></label>
+          <label class="largo">Nome <input name="nome" maxlength="150" placeholder="Município 3106200"></label>
+          <label>Convênio
+            <select name="convenio">
+              <option value="ativo">Ativo</option>
+              <option value="inativo">Inativo (E0038)</option>
+              <option value="inexistente">Inexistente (E0037)</option>
+            </select>
+          </label>
+          <label>Emissor
+            <select name="emissor">
+              <option value="nacional">Nacional</option>
+              <option value="proprio">Próprio (E0039)</option>
+            </select>
+          </label>
+          <label>Alíquota padrão (%) <input name="aliquotaPadrao" type="number" min="0" max="5" step="0.01" placeholder="2"></label>
+          <label>Prazo do cancelamento (dias) <input name="prazoCancelamento" type="number" min="0" max="3650" placeholder="sem prazo"></label>
+          <label>Prazo da substituição (dias) <input name="prazoSubstituicao" type="number" min="0" max="3650" placeholder="sem prazo"></label>
+          <label class="opcao"><input type="checkbox" name="paralisado"> Paralisado (503)</label>
+        </div>
+        <div class="linha">
+          <label class="largo">Alíquotas por código <input name="aliquotas" placeholder="010101=3; 070201=5" title="O código de tributação nacional (6 dígitos) e a alíquota, separados por ponto e vírgula"></label>
+          <label>Regimes especiais <input name="regimesEspeciais" placeholder="1; 3" title="Os regEspTrib admitidos (1 a 6 e 9), separados por ponto e vírgula"></label>
+          <label class="largo">Retenções (CPF) <input name="retencoes" placeholder="12345678909" title="Os CPFs autorizados como responsáveis pela retenção, separados por ponto e vírgula"></label>
+          <label class="largo">Benefícios <input name="beneficios" placeholder="31062000000001=1; 31062000000002=4:2,5" title="O número (14 dígitos), o tipo (1 isenção, 2 redução em %, 3 redução em valor, 4 alíquota diferenciada) e, no 4, a alíquota depois de dois pontos"></label>
+        </div>
+        <div class="acoes-formulario">
+          <button type="submit" class="primario">Cadastrar</button>
+          <button type="reset">Limpar</button>
+        </div>
+      </form>
+      <div class="tabela-rolavel">
+        <table class="tabela">
+          <thead><tr><th>Código</th><th>Nome</th><th>Situação</th><th>Emissor</th><th class="num">Alíquota</th><th>Configuração</th><th></th></tr></thead>
+          <tbody id="lista-municipios"></tbody>
+        </table>
+        <p id="vazio-municipios" class="vazio">Nenhum município configurado: todos usam o padrão.</p>
+      </div>
+
+      <h3>NFS-e emitidas</h3>
+      <div class="barra">
+        <input type="search" id="filtro-nfse" placeholder="Filtrar pela chave, pelo município, pelo prestador ou pela situação" aria-label="Filtrar as NFS-e">
+        <button type="button" id="esquecer-nfse" class="perigo-leve">Esquecer as NFS-e</button>
+      </div>
+      <div class="dividido">
+        <div class="tabela-rolavel">
+          <table class="tabela clicavel">
+            <thead><tr><th>Chave</th><th class="num">Número</th><th>Município</th><th>Prestador</th><th>Situação</th><th>Processada</th></tr></thead>
+            <tbody id="lista-nfse"></tbody>
+          </table>
+          <p id="vazio-nfse" class="vazio">Nenhuma NFS-e emitida.</p>
+        </div>
+        <div id="detalhe-nfse" class="detalhe" hidden></div>
+      </div>
+    </section>
+
     <section id="distribuicao" class="aba" hidden>
       <div class="cabecalho-secao">
         <h2>Distribuição DF-e</h2>
@@ -182,6 +249,8 @@
         <dt>AC de teste</dt><dd><span id="arquivo-ac" class="mono"></span> <a href="/_controle/ac.crt" download="ac.crt">Baixar o ac.crt</a></dd>
         <dt>Web Services</dt><dd id="endereco-ws" class="mono"></dd>
         <dt>Painel</dt><dd id="endereco-painel" class="mono"></dd>
+        <dt>Sefin Nacional</dt><dd id="endereco-sefin" class="mono"></dd>
+        <dt>ADN (parametrização)</dt><dd id="endereco-adn" class="mono"></dd>
       </dl>
       <div class="barra">
         <input type="search" id="filtro-urls" placeholder="Filtrar por destino ou serviço" aria-label="Filtrar as URLs">

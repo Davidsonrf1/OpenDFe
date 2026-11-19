@@ -92,8 +92,10 @@ internal sealed class Controle
         var codigo = pedido.Codigo;
         if (pedido.Tipo == TipoFalha.Paralisacao)
         {
-            codigo ??= Motivos.ParalisadoMomentaneamente;
-            if (codigo is not (Motivos.ParalisadoMomentaneamente or Motivos.ParalisadoIndefinidamente))
+            // Na Sefin Nacional e no ADN a paralisação fica sem código (é o 503, E.9); na SEFAZ, o 108 é o padrão.
+            if (!rest)
+                codigo ??= Motivos.ParalisadoMomentaneamente;
+            if (codigo is not (null or Motivos.ParalisadoMomentaneamente or Motivos.ParalisadoIndefinidamente))
                 throw new ArgumentException("A paralisação é 108 ou 109.", nameof(pedido));
         }
         else if (codigo is not null || pedido.Observacao is not null)

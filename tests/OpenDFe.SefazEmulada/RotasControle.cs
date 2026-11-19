@@ -6,7 +6,8 @@ namespace OpenDFe.SefazEmulada;
 
 // A rota /_controle (PROJETO.md 13.5), aceita só do próprio computador (ou de qualquer um, com --controle rede), na
 // porta dos Web Services e na do painel (E.6). Toda mudança (o que não é GET) avisa o painel pelo fluxo. As rotas:
-//   GET    /_controle/emulador      o ac.crt, o endereço, o painel, as URLs e quantos pedidos ficam guardados
+//   GET    /_controle/emulador      o ac.crt, o endereço, o painel, as URLs, quantos pedidos ficam guardados e, em nfse,
+//                                   as bases da Sefin e do ADN e os destinos REST com os serviços (E.9)
 //   GET    /_controle/ac.crt        o certificado da AC de teste, em PEM
 //   GET    /_controle/autorizadores os autorizadores: as UFs, os serviços, a consulta cadastro e a SVC de cada UF
 //   DELETE /_controle               zera tudo: as falhas, as notas e a distribuição, os CSCs, os irregulares, os
@@ -71,7 +72,13 @@ internal static class RotasControle
             painel = situacao.Painel,
             pedidos = opcoes.Pedidos,
             urls = situacao.Urls,
-            nfse = new { sefinNacional = situacao.SefinNacional, parametrizacao = situacao.Parametrizacao },
+            nfse = new
+            {
+                sefinNacional = situacao.SefinNacional,
+                parametrizacao = situacao.Parametrizacao,
+                // Os destinos REST e os serviços de cada um, para as falhas comandadas no painel (E.9).
+                destinos = DestinosRest.Nomes.Select(d => new { destino = d, servicos = DestinosRest.Servicos(d) }),
+            },
         });
         grupo.MapGet("/ac.crt", (SituacaoEmulador situacao) =>
             Results.File(situacao.ArquivoAutoridade, "application/x-pem-file", AutoridadeTeste.ArquivoCertificado));

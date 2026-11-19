@@ -170,7 +170,7 @@ Pré-lançamentos (`0.x`) no NuGet.org a partir do fim da fase 5, quando o PDV p
 
 ### Estado do plano (2026-10-24)
 
-**Fase 9 (NFS-e nacional) e etapas E.7 a E.9 do emulador: plano aprovado em 2026-11-19** (`PROJETO.md` 18). **A 9.0 está feita e aprovada** (2026-11-19; `docs/NFSE.md`: as 13 decisões e as 6 regras fora do schema; as fontes em `docs/NTS.md` 12). **A 9.1 está feita** (2026-11-19; o modelo e o leiaute, sem as operações: `docs/NFSE.md` 7 e 8). **A E.7 do emulador está feita** (2026-11-19; a Sefin Nacional emulada, os municípios e a emissão; a situação no fim, na da trilha). **A 9.2 está feita** (2026-11-19; o REST no núcleo, a emissão, as consultas e a recuperação, contra a Sefin emulada: `docs/NFSE.md` 9). **A E.8 do emulador está feita** (2026-11-19; os eventos, a substituição com o 105102 e a parametrização do ADN). **A 9.3 está feita** (2026-11-19; o registro do cancelamento e da análise fiscal e a consulta dos eventos, contra a Sefin emulada: `docs/NFSE.md` 10). **A 9.4 está feita** (2026-11-19; a parametrização municipal no ADN, contra o emulado: `docs/NFSE.md` 11). A próxima é a E.9 do emulador (o painel e a persistência da NFS-e), numa sessão nova. Ver a situação da Fase 9 abaixo.
+**Fase 9 (NFS-e nacional) e etapas E.7 a E.9 do emulador: plano aprovado em 2026-11-19** (`PROJETO.md` 18). **A 9.0 está feita e aprovada** (2026-11-19; `docs/NFSE.md`: as 13 decisões e as 6 regras fora do schema; as fontes em `docs/NTS.md` 12). **A 9.1 está feita** (2026-11-19; o modelo e o leiaute, sem as operações: `docs/NFSE.md` 7 e 8). **A E.7 do emulador está feita** (2026-11-19; a Sefin Nacional emulada, os municípios e a emissão; a situação no fim, na da trilha). **A 9.2 está feita** (2026-11-19; o REST no núcleo, a emissão, as consultas e a recuperação, contra a Sefin emulada: `docs/NFSE.md` 9). **A E.8 do emulador está feita** (2026-11-19; os eventos, a substituição com o 105102 e a parametrização do ADN). **A 9.3 está feita** (2026-11-19; o registro do cancelamento e da análise fiscal e a consulta dos eventos, contra a Sefin emulada: `docs/NFSE.md` 10). **A 9.4 está feita** (2026-11-19; a parametrização municipal no ADN, contra o emulado: `docs/NFSE.md` 11). **A E.9 do emulador está feita** (2026-11-19; a aba NFS-e no painel e a persistência dos municípios, das NFS-e, dos eventos e da numeração): a trilha do emulador da NFS-e está completa. A próxima é a **9.5. DANFSe**, que fecha a fase, numa sessão nova. Ver a situação da Fase 9 abaixo.
 
 **As fases 0 a 8 estão feitas e fechadas no emulador.** As fases 1 a 4 (e a 1.7, a prova de risco) e as 5 a 8 têm a homologação real **pendente do PFX A1 ICP-Brasil** (`PROJETO.md` 17): o "pronto quando" de cada uma vale contra a SEFAZ emulada, e cada etapa deixou o seu teste de homologação (`OpenDFe.Homologacao.Testes`) escrito e pulado sem o PFX. Nada foi publicado no NuGet.org; nenhum `push` foi feito. A suíte fecha com 2.653 testes (29 pulados: os de homologação e da prova de risco, que falam com a SEFAZ), no Windows e no Linux (Nucleo 639, NFe 1.334, SefazEmulada 509 e Impressao.Pdf 138 pelo WSL).
 
@@ -853,7 +853,9 @@ Criada a partir da `fase-7-impressao` (no commit da 7.4, `5718fc7`). `git log HE
 - **Conferido:** build sem aviso (Debug e Release); os seis executáveis com 3.120 testes (29 pulados, os de homologação): Nucleo 700, NFe 1.335, NFSe 266, SefazEmulada 649, Impressao.Pdf 138, Homologacao 32; **Linux conferido** (WSL, .NET 10.0.115, com `--artifacts-path` fora do repositório: os 266 do `NFSe.Testes`); `dotnet pack -c Release` com os quatro pacotes e o `eng/ConferirPacotes.ps1` aprovando; a regra de nomes não acusa nada fora dos métodos de teste e do `restAoMun` da fonte, num JSON de teste. Sem dependência nova.
 - **Pendente até o PFX** (`PROJETO.md` 17): as rotas, os nomes e os tipos do JSON pelo Swagger do ADN; as `/parametros_municipais/...` do manual (D13).
 
-**Próxima: E.9. Painel, persistência e DANFSe** do emulador, na `sefaz-emulada`, depois de trazer a `fase-9-nfse` por fast-forward. Numa sessão nova, só quando pedida. Depois, a 9.5, que fecha a fase.
+**E.9 feita (2026-11-19)**, na `sefaz-emulada` (a situação está na da trilha, no fim). A `fase-9-nfse` traz a E.9 por fast-forward na abertura da 9.5.
+
+**Próxima: 9.5. DANFSe**, na `fase-9-nfse`, depois de trazer a `sefaz-emulada` por fast-forward. Numa sessão nova, só quando pedida. Fecha a fase.
 
 ### Trilha paralela: SEFAZ emulada (branch `sefaz-emulada`, worktree `../OpenDFe-sefaz-emulada`)
 
@@ -1088,4 +1090,54 @@ Criada a partir da `fase-7-impressao` (no commit da 7.4, `5718fc7`). `git log HE
 
   Sem dependência nova; a API pública da lib não mudou (só o emulador e os testes).
 
-**A 9.3 foi feita na `fase-9-nfse` (2026-11-19; a situação na da Fase 9).** A 9.4 também (2026-11-19). A próxima da trilha é a **E.9. Painel, persistência e DANFSe**, nesta branch, trazendo a `fase-9-nfse` por fast-forward. Numa sessão nova, só quando pedida.
+**A 9.3 foi feita na `fase-9-nfse` (2026-11-19; a situação na da Fase 9).** A 9.4 também (2026-11-19).
+
+**E.9. Painel e persistência. Feita (2026-11-19).** Sem DANFSe, como o plano já previa (a API do ADN foi suspensa: quem emite o gera, na 9.5).
+- **A 9.3 e a 9.4 trazidas para esta branch** por fast-forward da `fase-9-nfse`, na abertura.
+- **A persistência** (`--persistir sim`):
+  - O `Armazenamento` ganha as tabelas `municipios` (o JSON de cada um), `nfse`, `eventos_nfse` e `nfse_numeros`, e a chave `nfse_documentos` no `meta`.
+  - Os XMLs ficam em `xml/SefinNacional/nfse/<chave>.xml` e `xml/SefinNacional/eventos/<chave>-<tipo>-<seq>.xml`, gravados byte a byte como foram gerados, porque a assinatura da AC cobre o texto.
+  - O `RepositorioNFSe` e os `Municipios` recebem o `Armazenamento`, gravam debaixo da trava e recarregam na partida (`Restaurar`).
+  - O `DELETE /_controle/notas` não apaga mais a pasta da Sefin; o `DELETE /_controle/nfse` apaga as NFS-e e os XMLs e mantém a numeração.
+- **O painel:**
+  - A aba **NFS-e** tem os cartões da Sefin Nacional e do ADN (paralisar, com o 503, e liberar). Os municípios têm o formulário com as listas em texto, paralisar e liberar num clique, editar e tirar.
+  - As NFS-e emitidas têm o filtro e a situação. O detalhe mostra os eventos, o XML da NFS-e e o de cada evento, e o formulário do evento do município: o deferimento e o indeferimento com a análise pendente, ou o ofício.
+  - Na aba **Pedidos**, os pedidos REST têm o selo pelo HTTP, o JSON indentado e os `...XmlGZipB64` descompactados.
+  - Na aba **Falhas**, a Sefin e o ADN aparecem como destinos, com os serviços de cada um. Na **Conexão** aparecem as duas bases.
+  - O `/_controle/emulador` ganha os `nfse.destinos`, com os serviços.
+- **Corrigido:**
+  - A paralisação comandada na Sefin e no ADN ficava com o código 108 (o padrão da SEFAZ) na lista das falhas. Agora fica sem código, porque é o 503.
+  - O painel passava o JSON dos pedidos REST pelo `DOMParser`, cujo documento de erro tem estilo inline, que a CSP barrava (dois avisos no console). Agora só o XML vai para ele.
+- **`docs/SEFAZ_EMULADA.md`:** a persistência da NFS-e, a aba NFS-e, os pedidos e as falhas REST no painel, e o `/_controle/emulador`.
+- **Testes:** 659 no emulador (10 novos).
+  - `PersistenciaNFSeTestes` cobre:
+    - os municípios, as NFS-e, os eventos e a numeração na partida seguinte (a consulta pela chave com o XML idêntico, o `HEAD` da DPS, a duplicidade E0014, a matriz com a análise pendente, o `nNFSe` e o `nDFSe` seguindo);
+    - esquecer as notas da NF-e sem apagar a NFS-e;
+    - esquecer as NFS-e apagando os arquivos e mantendo a numeração;
+    - zerar tudo;
+    - sem a persistência, nada no disco.
+  - `PainelTestes` cobre a aba na página, os destinos REST no `/_controle/emulador`, paralisar e liberar o município mandando de volta o JSON lido, o pedido da Sefin com o JSON e a NFS-e no controle, e a Sefin paralisada pela falha sem código.
+- **Mutações provadas:** a NFS-e não gravada (3 falhas no `PersistenciaNFSeTestes`); o `DELETE /_controle/notas` apagando a pasta da Sefin (1 falha).
+- **Conferido no navegador** (o Edge sem janela, pelo CDP, com o emulador no `dotnet run` nas portas 6443 e 6444, `--persistir sim` e dados de verdade: NFS-e normal, cancelada, em análise e substituída, os dois municípios, a parametrização):
+  - a aba a 1400 px, a 390 px sem rolagem lateral (a chave de 50 dígitos no detalhe quebrava a largura; corrigido) e no tema escuro;
+  - o detalhe aberto em 0,4 s;
+  - editar, paralisar e liberar o município, e paralisar e liberar a Sefin pelos cartões;
+  - o deferimento pelo formulário, com a nota passando a cancelada;
+  - o pedido da emissão com a DPS e a NFS-e descompactadas, e os selos REST;
+  - o serviço acompanhando o destino nas falhas;
+  - o console sem erro;
+  - os dados de volta depois de reiniciar o emulador.
+- **Decisões tomadas sem perguntar** (a conferir pelo usuário):
+  - **Paralisar o município** manda de volta o município inteiro pelo `POST /_controle/municipios`, sem rota nova.
+  - **As listas do formulário em texto** separado por ponto e vírgula (`010101=3`, `<número>=<tipo>[:<alíquota>]`), sem uma tabela editável por campo.
+  - **O formulário do evento do município** só aparece quando o evento é possível: o deferimento e o indeferimento com a análise pendente, o ofício sem evento que encerre a NFS-e. O detalhe aberto é relido só quando a situação muda, para o formulário não se apagar a cada pedido.
+  - **A sequência do evento no nome do arquivo** com 3 dígitos, como o `nSeqEvento` do Id; na NF-e são 2.
+  - **Sem migração:** o banco antigo ganha as tabelas novas pelo `CREATE TABLE IF NOT EXISTS`, como antes.
+- Conferido:
+  - o build sem aviso, em Debug e em Release;
+  - os seis executáveis de teste, com 3.130 testes e 29 pulados (os de homologação): Nucleo 700, NFe 1.335, NFSe 266, SefazEmulada 659, Impressao.Pdf 138 e Homologacao 32;
+  - **o Linux:** os 659 do emulador no WSL, com o .NET 10.0.115 e o `--artifacts-path` fora do repositório.
+
+  Sem dependência nova; a API pública da lib não mudou (só o emulador e os testes).
+
+**A trilha do emulador da NFS-e está completa** (E.7 a E.9). A próxima da Fase 9 é a **9.5. DANFSe**, na `fase-9-nfse`, trazendo esta branch por fast-forward. Numa sessão nova, só quando pedida.

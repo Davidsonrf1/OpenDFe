@@ -221,6 +221,12 @@ main { padding: 20px 24px 48px; max-width: 1400px; }
 .formulario.linha { display: flex; flex-wrap: wrap; align-items: end; gap: 10px; margin-bottom: 12px; }
 .formulario.linha label.largo { flex: 1 1 220px; }
 .formulario .duas { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.formulario .linha { display: flex; flex-wrap: wrap; align-items: end; gap: 10px; }
+.formulario .linha label.largo { flex: 1 1 220px; }
+.formulario .acoes-formulario { display: flex; gap: 8px; }
+#form-municipio { margin-bottom: 12px; }
+.config { color: var(--texto-2); font-size: 12.5px; }
+.acoes-linha { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
 
 /* As tabelas */
 .tabela-rolavel { overflow-x: auto; background: var(--superficie); border: 1px solid var(--borda); border-radius: var(--raio); }
@@ -255,6 +261,9 @@ main { padding: 20px 24px 48px; max-width: 1400px; }
 }
 .detalhe-topo { display: flex; justify-content: space-between; align-items: start; gap: 8px; }
 .detalhe-topo h4 { margin: 0; font-size: 15px; }
+/* A chave da NFS-e (50 dígitos) e o Id da DPS quebram no celular. */
+.detalhe-topo > div { min-width: 0; }
+.detalhe-topo .mono { overflow-wrap: anywhere; }
 .detalhe .meta { color: var(--texto-2); font-size: 12.5px; overflow-wrap: anywhere; }
 .detalhe details { border: 1px solid var(--borda); border-radius: 6px; }
 .detalhe summary { cursor: pointer; padding: 6px 10px; font-weight: 600; display: flex; justify-content: space-between; gap: 8px; align-items: center; }

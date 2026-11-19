@@ -12,6 +12,8 @@ namespace OpenDFe.SefazEmulada;
 //   eventos/<chave>-<tipo>-<seq>.xml      o procEventoNFe de cada evento registrado
 //   lotes/<recibo>.xml                    os protNFe do lote assíncrono
 //   distribuicao/<interessado>/<NSU>-<schema>.xml   o que o AN distribui (autorizador AN)
+// e, na pasta SefinNacional (E.9), nfse/<chave>.xml (a NFS-e, com a DPS dentro) e eventos/<chave>-<tipo>-<seq>.xml (o
+// evento, com o pedido dentro). Os municípios da NFS-e ficam no banco, em JSON, com a numeração das NFS-e.
 // Sem a persistência (o padrão e os testes), Nenhum não faz nada. Cada gravação é feita na hora, com a Trava do
 // repositório (ou a do próprio cadastro) já tomada; a conexão é uma só, protegida por uma trava própria.
 internal sealed class Armazenamento : IDisposable
@@ -130,15 +132,69 @@ internal sealed class Armazenamento : IDisposable
             ("$pontuais", string.Join(';', consumo.Pontuais.Select(Texto))));
 
     // Esquece o que o repositório guarda (as notas, os lotes, os eventos, as faixas e a distribuição), com os XMLs.
-    // A sequência dos recibos e dos protocolos continua.
+    // A sequência dos recibos e dos protocolos continua. A pasta da Sefin Nacional (a NFS-e) fica.
     public void LimparRepositorio()
     {
         if (!Ativo)
             return;
         Executar("DELETE FROM notas; DELETE FROM eventos; DELETE FROM faixas; DELETE FROM lotes; DELETE FROM documentos; DELETE FROM liberadas; DELETE FROM consumos");
         foreach (var autorizador in Directory.EnumerateDirectories(_xml))
-            Directory.Delete(autorizador, recursive: true);
+        {
+            if (!string.Equals(Path.GetFileName(autorizador), SefinNacional.Destino, StringComparison.Ordinal))
+                Directory.Delete(autorizador, recursive: true);
+        }
     }
+
+    // ----- NFS-e (E.9) -----
+
+    // A NFS-e gerada (com a DPS dentro), em SefinNacional/nfse/<chave>.xml, e a numeração que ela consumiu, no mesmo
+    // comando: o nNFSe do município e da inscrição e o nDFSe do ambiente.
+    public void GravarNFSe(NFSeRegistrada nota, long documentos)
+    {
+        if (!Ativo)
+            return;
+        var arquivo = Gravar($"{SefinNacional.Destino}/nfse/{nota.Chave}.xml", nota.Xml);
+        Executar("INSERT INTO nfse (chave, id_dps, numero, numero_dfse, municipio, prestador, processamento, arquivo) "
+            + "VALUES ($chave, $dps, $numero, $dfse, $municipio, $prestador, $processamento, $arquivo); "
+            + "INSERT INTO nfse_numeros (municipio, prestador, numero) VALUES ($municipio, $prestador, $numero) "
+            + "ON CONFLICT(municipio, prestador) DO UPDATE SET numero = $numero; "
+            + "INSERT INTO meta (chave, valor) VALUES ('nfse_documentos', $documentos) ON CONFLICT(chave) DO UPDATE SET valor = $documentos",
+            ("$chave", nota.Chave), ("$dps", nota.IdDps), ("$numero", nota.Numero), ("$dfse", nota.NumeroDfse), ("$municipio", nota.Municipio),
+            ("$prestador", nota.Prestador), ("$processamento", Texto(nota.Processamento)), ("$arquivo", arquivo), ("$documentos", documentos));
+    }
+
+    // O evento da NFS-e (com o pedido dentro), em SefinNacional/eventos/<chave>-<tipo>-<seq>.xml, e o nDFSe.
+    public void GravarEventoNFSe(EventoNFSeRegistrado evento, long documentos)
+    {
+        if (!Ativo)
+            return;
+        var arquivo = Gravar($"{SefinNacional.Destino}/eventos/{evento.Chave}-{evento.Tipo}-{evento.Sequencia.ToString("D3", CultureInfo.InvariantCulture)}.xml",
+            evento.Xml);
+        Executar("INSERT INTO eventos_nfse (chave, tipo, sequencia, id, numero_dfse, processamento, arquivo) "
+            + "VALUES ($chave, $tipo, $sequencia, $id, $dfse, $processamento, $arquivo); "
+            + "INSERT INTO meta (chave, valor) VALUES ('nfse_documentos', $documentos) ON CONFLICT(chave) DO UPDATE SET valor = $documentos",
+            ("$chave", evento.Chave), ("$tipo", evento.Tipo), ("$sequencia", evento.Sequencia), ("$id", evento.Id), ("$dfse", evento.NumeroDfse),
+            ("$processamento", Texto(evento.Processamento)), ("$arquivo", arquivo), ("$documentos", documentos));
+    }
+
+    // Esquece as NFS-e e os eventos, com os XMLs; a numeração continua.
+    public void LimparNFSe()
+    {
+        if (!Ativo)
+            return;
+        Executar("DELETE FROM nfse; DELETE FROM eventos_nfse");
+        var pasta = Path.Combine(_xml, SefinNacional.Destino);
+        if (Directory.Exists(pasta))
+            Directory.Delete(pasta, recursive: true);
+    }
+
+    public void GravarMunicipio(Municipio municipio) =>
+        Executar("INSERT INTO municipios (codigo, json) VALUES ($codigo, $json) ON CONFLICT(codigo) DO UPDATE SET json = $json",
+            ("$codigo", municipio.Codigo), ("$json", JsonSerializer.Serialize(municipio)));
+
+    public void RemoverMunicipio(int codigo) => Executar("DELETE FROM municipios WHERE codigo = $codigo", ("$codigo", codigo));
+
+    public void LimparMunicipios() => Executar("DELETE FROM municipios");
 
     // ----- CSCs, irregulares e cadastros -----
 
@@ -218,6 +274,23 @@ internal sealed class Armazenamento : IDisposable
     public void Carregar(Cadastros cadastros) =>
         Consultar("SELECT json FROM cadastros", l => cadastros.Restaurar(JsonSerializer.Deserialize<Contribuinte>(l.GetString(0))!));
 
+    public void Carregar(Municipios municipios) =>
+        Consultar("SELECT json FROM municipios ORDER BY codigo", l => municipios.Restaurar(JsonSerializer.Deserialize<Municipio>(l.GetString(0))!));
+
+    public void Carregar(RepositorioNFSe repositorio)
+    {
+        if (!Ativo)
+            return;
+        Consultar("SELECT valor FROM meta WHERE chave = 'nfse_documentos'", l => repositorio.Restaurar(documentos: l.GetInt64(0)));
+        Consultar("SELECT municipio, prestador, numero FROM nfse_numeros", l => repositorio.Restaurar(l.GetInt32(0), l.GetString(1), l.GetInt64(2)));
+        Consultar("SELECT chave, id_dps, numero, numero_dfse, municipio, prestador, processamento, arquivo FROM nfse ORDER BY rowid", l =>
+            repositorio.Restaurar(new NFSeRegistrada(l.GetString(0), l.GetString(1), l.GetInt64(2), l.GetInt64(3), l.GetInt32(4), l.GetString(5),
+                Data(l.GetString(6)), LerTexto(l.GetString(7)))));
+        Consultar("SELECT chave, tipo, sequencia, id, numero_dfse, processamento, arquivo FROM eventos_nfse ORDER BY rowid", l =>
+            repositorio.Restaurar(new EventoNFSeRegistrado(l.GetString(0), l.GetString(1), l.GetInt32(2), l.GetString(3), l.GetInt64(4),
+                Data(l.GetString(5)), LerTexto(l.GetString(6)))));
+    }
+
     // ----- Apoio -----
 
     private void Criar() =>
@@ -240,6 +313,13 @@ internal sealed class Armazenamento : IDisposable
                 PRIMARY KEY (uf, cnpj, id));
             CREATE TABLE IF NOT EXISTS irregulares (documento TEXT PRIMARY KEY);
             CREATE TABLE IF NOT EXISTS cadastros (uf TEXT NOT NULL, ie TEXT NOT NULL, json TEXT NOT NULL, PRIMARY KEY (uf, ie));
+            CREATE TABLE IF NOT EXISTS municipios (codigo INTEGER PRIMARY KEY, json TEXT NOT NULL);
+            CREATE TABLE IF NOT EXISTS nfse (chave TEXT PRIMARY KEY, id_dps TEXT NOT NULL UNIQUE, numero INTEGER NOT NULL, numero_dfse INTEGER NOT NULL,
+                municipio INTEGER NOT NULL, prestador TEXT NOT NULL, processamento TEXT NOT NULL, arquivo TEXT NOT NULL);
+            CREATE TABLE IF NOT EXISTS eventos_nfse (chave TEXT NOT NULL, tipo TEXT NOT NULL, sequencia INTEGER NOT NULL, id TEXT NOT NULL,
+                numero_dfse INTEGER NOT NULL, processamento TEXT NOT NULL, arquivo TEXT NOT NULL, PRIMARY KEY (chave, tipo, sequencia));
+            CREATE TABLE IF NOT EXISTS nfse_numeros (municipio INTEGER NOT NULL, prestador TEXT NOT NULL, numero INTEGER NOT NULL,
+                PRIMARY KEY (municipio, prestador));
             """);
 
     // O comando é sempre um texto fixo deste arquivo, com os valores em parâmetros.
@@ -282,8 +362,19 @@ internal sealed class Armazenamento : IDisposable
         return relativo;
     }
 
+    // O XML já em texto (a NFS-e e os eventos dela, assinados), gravado byte a byte como está.
+    private string Gravar(string relativo, string xml)
+    {
+        var caminho = Path.Combine(_xml, relativo);
+        Directory.CreateDirectory(Path.GetDirectoryName(caminho)!);
+        File.WriteAllText(caminho, xml, Utf8);
+        return relativo;
+    }
+
     private XElement Ler(string relativo) =>
         XElement.Parse(File.ReadAllText(Path.Combine(_xml, relativo), Utf8), LoadOptions.PreserveWhitespace);
+
+    private string LerTexto(string relativo) => File.ReadAllText(Path.Combine(_xml, relativo), Utf8);
 
     private static string Texto(DateTimeOffset data) => data.ToString("o", CultureInfo.InvariantCulture);
 

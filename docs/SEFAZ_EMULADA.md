@@ -29,8 +29,9 @@ Por padrão o emulador guarda tudo em memória e começa vazio a cada partida (o
 
 - **`controle.db`** (SQLite): as notas autorizadas (com a situação e o cancelamento), os lotes e as consultas que ainda respondem 105, os eventos, as faixas inutilizadas, a sequência dos recibos e protocolos, a distribuição (os documentos com o NSU, as manifestações que liberam o download e o consumo de cada interessado, para o uso indevido), os CSCs, os irregulares e os contribuintes da consulta cadastro. As falhas comandadas e os pedidos recentes **não** persistem: são do teste em curso.
 - **`xml/<autorizador>/`**: os XMLs, como foram recebidos (o espaço em branco da nota é preservado), por quem autorizou: `nfe/<chave>.xml` (a nota com o `protNFe`, o `nfeProc`), `eventos/<chave>-<tipo>-<seq>.xml` (o `procEventoNFe`), `lotes/<recibo>.xml` (os `protNFe` do lote assíncrono) e, em `AN/distribuicao/<interessado>/<NSU>-<schema>.xml`, o que o AN distribui.
+- **A NFS-e (E.9):** no `controle.db`, os municípios configurados (o JSON de cada um), as NFS-e (a chave, o Id da DPS, o `nNFSe`, o `nDFSe`, o município, o prestador e o processamento), os eventos delas e a numeração (o `nNFSe` por município e inscrição e o `nDFSe` do ambiente); em `xml/SefinNacional/`, `nfse/<chave>.xml` (a NFS-e assinada, com a DPS dentro, byte a byte como foi gerada) e `eventos/<chave>-<tipo>-<seq>.xml` (o evento assinado, com o pedido dentro; a sequência com 3 dígitos). Na partida seguinte, a consulta pela chave e pela DPS, a duplicidade (E0014), a matriz de eventos e os prazos veem o que havia, e a numeração segue.
 
-`DELETE /_controle` e `DELETE /_controle/notas` esquecem também o que está em disco (o banco e os XMLs); a sequência dos recibos e protocolos continua, como na memória. A pasta é a da AC: no Docker, o volume `/dados`; para persistir no contêiner, acrescente `--persistir sim` ao comando (`command` no compose). Não há migração entre versões: se o leiaute do banco mudar, apague a pasta `persistencia`.
+`DELETE /_controle` e `DELETE /_controle/notas` esquecem também o que está em disco (o banco e os XMLs); a sequência dos recibos e protocolos continua, como na memória. O `DELETE /_controle/notas` não mexe na NFS-e (a pasta `SefinNacional` fica); o `DELETE /_controle/nfse` esquece as NFS-e e os eventos, com os XMLs, e mantém a numeração; o `DELETE /_controle/municipios` e o `DELETE /_controle` esquecem os municípios. A pasta é a da AC: no Docker, o volume `/dados`; para persistir no contêiner, acrescente `--persistir sim` ao comando (`command` no compose). Não há migração entre versões: se o leiaute do banco mudar, apague a pasta `persistencia`.
 
 ### No Docker
 
@@ -460,7 +461,15 @@ Uma página para comandar e acompanhar o emulador pelo navegador, em `http://127
 
 - **Na porta do painel** só valem a página (`/`, `/painel.js`, `/painel.css`) e o `/_controle`: o resto é 404, também os Web Services. O `Host` do pedido tem de ser `127.0.0.1`, `localhost` ou `[::1]` (403 nos outros), contra o DNS rebinding: um site de fora que aponta o próprio nome para o 127.0.0.1 não lê nem comanda o emulador. As respostas levam a CSP que só aceita o próprio painel (`default-src 'none'; script-src 'self'; ...`), o `nosniff` e o `no-store`. As mudanças do controle são `POST` em JSON e `DELETE`, que um formulário de outro site não consegue mandar.
 - **Na porta do TLS**, a página não existe (404) e o `GET /` continua a lista das URLs.
-- **A página** é HTML, CSS e JS embutidos no assembly (`tests/OpenDFe.SefazEmulada/Painel/`), sem npm nem build e sem o design system do ERP, com o tema claro e o escuro do sistema. As abas: **Autorizadores** (cada um com as UFs e os serviços, paralisar com 108 ou 109 num clique, liberar e, com o autorizador da UF paralisado, a SVC que atende a contingência), **Pedidos** (ao vivo, com o filtro, o XML do pedido e da resposta formatado, e os `docZip` da distribuição descompactados no próprio navegador), **Falhas** (as ativas, com o que falta consumir, e um formulário por tipo), **Notas** (a situação, os eventos e o XML de cada uma; as faixas inutilizadas), **Distribuição** (os documentos de cada interessado, com o NSU), **Cadastros** (os contribuintes, os irregulares e os CSCs) e **Conexão** (o `ac.crt` para baixar e as URLs para copiar). O botão **Zerar tudo** pede confirmação. A aba aberta fica na URL (`#pedidos`).
+- **A página** é HTML, CSS e JS embutidos no assembly (`tests/OpenDFe.SefazEmulada/Painel/`), sem npm nem build e sem o design system do ERP, com o tema claro e o escuro do sistema. As abas: **Autorizadores** (cada um com as UFs e os serviços, paralisar com 108 ou 109 num clique, liberar e, com o autorizador da UF paralisado, a SVC que atende a contingência), **Pedidos** (ao vivo, com o filtro, o XML do pedido e da resposta formatado, e os `docZip` da distribuição descompactados no próprio navegador), **Falhas** (as ativas, com o que falta consumir, e um formulário por tipo), **Notas** (a situação, os eventos e o XML de cada uma; as faixas inutilizadas), **NFS-e** (abaixo), **Distribuição** (os documentos de cada interessado, com o NSU), **Cadastros** (os contribuintes, os irregulares e os CSCs) e **Conexão** (o `ac.crt` para baixar e as URLs para copiar). O botão **Zerar tudo** pede confirmação. A aba aberta fica na URL (`#pedidos`).
+
+**A aba NFS-e** (E.9):
+
+- **A Sefin Nacional e o ADN**, um cartão cada, com os serviços e o botão de paralisar (a falha `paralisacao` sem código, que responde 503) e liberar.
+- **Os municípios**: o formulário (o código, o nome, o convênio, o emissor, a alíquota padrão, os prazos, o paralisado e, em texto separado por ponto e vírgula, as alíquotas por código `010101=3`, os regimes, os CPFs da retenção e os benefícios `<número>=<tipo>[:<alíquota>]`), que cadastra ou troca pelo `POST /_controle/municipios`; a lista, com paralisar e liberar num clique (o painel manda de volta o município que leu, com o `paralisado` trocado), editar (preenche o formulário) e tirar (volta ao padrão).
+- **As NFS-e emitidas**, com o filtro, a situação pelos eventos e, no detalhe, os eventos, o XML da NFS-e e o de cada evento. Com a NFS-e em análise fiscal, o formulário do deferimento ou do indeferimento; sem evento que a encerre, o do cancelamento por ofício (o `POST /_controle/nfse/{chave}/eventos`). "Esquecer as NFS-e" pede confirmação.
+
+Na aba **Pedidos**, os pedidos da Sefin e do ADN têm o selo pelo HTTP (2xx certo, 404 aviso, o resto erro), o JSON indentado e os XMLs em GZip e Base64 (`dpsXmlGZipB64`, `nfseXmlGZipB64`, `pedidoRegistroEventoXmlGZipB64`, `eventoXmlGZipB64`, também dentro das listas) descompactados no navegador. Na aba **Falhas**, o destino oferece a Sefin e o ADN, e o serviço acompanha o destino. Na **Conexão**, as bases da Sefin e do ADN.
 
 **Os pedidos recentes** (`--pedidos`): cada `POST /<destino>/<serviço>` fica guardado com o XML do pedido (o corpo inteiro, com o envelope) e o da resposta, o transmissor, o status HTTP, a situação (o `cStat`, ou o que aconteceu) e a duração, numa fila dos últimos N, em memória; também o que o emulador não atende (404, 415) e o que as falhas comandadas fazem (o tempo esgotado e a conexão derrubada antes, sem resposta; a conexão derrubada depois, com a resposta que sairia, que é a que a recuperação precisa achar).
 
@@ -470,13 +479,13 @@ Uma página para comandar e acompanhar o emulador pelo navegador, em `http://127
 | `GET /_controle/pedidos/{id}` | Um pedido, com o `pedido` e a `resposta` em texto; 404 se já saiu da fila. |
 | `GET /_controle/pedidos/fluxo` | Os avisos ao vivo, em `text/event-stream`: `event: pedido` com o resumo de cada pedido novo, `event: estado` a cada mudança pelo controle (tudo que não é `GET`) e um comentário a cada 15 segundos. |
 | `DELETE /_controle/pedidos` | Esquece os pedidos: 204. |
-| `GET /_controle/emulador` | O `ac.crt` (`autoridade`), o `endereco` dos Web Services, o `painel`, quantos `pedidos` ficam e as `urls`. |
+| `GET /_controle/emulador` | O `ac.crt` (`autoridade`), o `endereco` dos Web Services, o `painel`, quantos `pedidos` ficam, as `urls` e, em `nfse`, a base da `sefinNacional`, a da `parametrizacao` e os `destinos` REST com os `servicos` de cada um (E.9). |
 | `GET /_controle/ac.crt` | O certificado da AC de teste, em PEM. |
 | `GET /_controle/autorizadores` | Cada autorizador: a `sigla`, a `casa`, o `tipoEmissao` (na SVC), as UFs `atendidas`, as do `cadastro`, os `servicos` que o emulador responde nele e, no autorizador normal, a `contingencia` (`{ uf, svc }`). |
 | `GET /_controle/eventos` | Os eventos registrados, na ordem: `chave`, `tipo`, `sequencia`, `protocolo`, `registro`, `autorizador`. |
 | `GET /_controle/inutilizacoes` | As faixas inutilizadas, na ordem. |
 | `GET /_controle/notas/{chave}` | A nota (como no `GET /_controle/notas`), o `xml` do `nfeProc` e os `eventos`, cada um com o `xml` do `procEventoNFe`; 404 se não está. |
-| `DELETE /_controle` | Zera tudo: as falhas, as notas (com os lotes, os eventos, as faixas e a distribuição), os CSCs, os irregulares, os contribuintes e os pedidos recentes. 204. |
+| `DELETE /_controle` | Zera tudo: as falhas, as notas (com os lotes, os eventos, as faixas e a distribuição), os CSCs, os irregulares, os contribuintes, os municípios, as NFS-e e os pedidos recentes. 204. |
 
 ## Falhas comandadas
 
@@ -612,7 +621,7 @@ O certificado do TLS não é conferido (E1200 a E1209), como na NF-e.
 
 ### Os municípios
 
-O município **não configurado** é atendido como conveniado (`ativo`), com o emissor `nacional` e a alíquota padrão de **2%** (o mínimo da LC 116, art. 8º-A; decidido em 2026-11-19). A configuração fica em memória (a persistência é da E.9):
+O município **não configurado** é atendido como conveniado (`ativo`), com o emissor `nacional` e a alíquota padrão de **2%** (o mínimo da LC 116, art. 8º-A; decidido em 2026-11-19). A configuração fica em memória e, com `--persistir sim`, no `controle.db` (E.9); o painel a edita na aba NFS-e:
 
 | Rota | O que faz |
 |---|---|
@@ -663,7 +672,7 @@ A recusa da recepção (E12xx) passa pelas falhas, como o resto; o 415 e a marca
 
 **A marca** vai no `infDPS/serv/infoCompl/xInfComp` da DPS e vale só para o pedido que a traz (o pedido de evento não tem campo livre que a leve: nos eventos, as falhas são só pelo controle): `EMULADA:atraso:<ms>`, `EMULADA:tempoEsgotado`, `EMULADA:conexaoDerrubada[:depois]`, `EMULADA:respostaIlegivel`, `EMULADA:falhaSoap` e `EMULADA:paralisacao` (sem código). Uma por espécie na DPS. A que não serve (o `irregular`, o `loteProcessando`, o código na paralisação, tipo desconhecido, repetida) é o **HTTP 400** com `EMULADA-MARCA`, para o erro de digitação não passar calado.
 
-Cada pedido às rotas da Sefin fica nos pedidos recentes (o painel), com o destino `SefinNacional`, o serviço, o JSON do pedido (ou o método e o caminho, nas consultas) e o da resposta. A aba da NFS-e no painel e a persistência são da E.9.
+Cada pedido às rotas da Sefin fica nos pedidos recentes (o painel), com o destino `SefinNacional`, o serviço, o JSON do pedido (ou o método e o caminho, nas consultas) e o da resposta; o painel mostra o JSON indentado e os XMLs dos campos `...XmlGZipB64` descompactados (E.9). A paralisação na Sefin e no ADN fica sem `codigo` na lista das falhas.
 
 ### Eventos e substituição (E.8)
 

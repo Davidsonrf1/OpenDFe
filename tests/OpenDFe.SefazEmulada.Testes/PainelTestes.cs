@@ -38,6 +38,8 @@ public sealed class PainelTestes : IClassFixture<PainelFixture>, IDisposable
         _fixture.Emulador.Controle.Limpar();
         _fixture.Emulador.Repositorio.Limpar();
         _fixture.Emulador.Pedidos.Limpar();
+        _fixture.Emulador.Municipios.Limpar();
+        _fixture.Emulador.NFSe.Limpar();
     }
 
     private Task<XElement> StatusAsync() => _fixture.Http.ConsultarStatusAsync(_fixture.Url("MG"), Ct);
@@ -303,5 +305,97 @@ public sealed class PainelTestes : IClassFixture<PainelFixture>, IDisposable
         Assert.Empty(_fixture.Emulador.Cadastros.Listar());
         Assert.Empty(_fixture.Emulador.Codigos.Listar());
         Assert.Empty(_fixture.Emulador.Pedidos.Listar());
+    }
+
+    // A NFS-e no painel (E.9)
+
+    [Fact]
+    public async Task APaginaTemAAbaDaNFSe()
+    {
+        var pagina = await _painel.GetStringAsync("/", Ct);
+        var script = await _painel.GetStringAsync("/painel.js", Ct);
+
+        Assert.Contains("data-aba=\"nfse\"", pagina, StringComparison.Ordinal);
+        Assert.Contains("id=\"form-municipio\"", pagina, StringComparison.Ordinal);
+        Assert.Contains("id=\"lista-nfse\"", pagina, StringComparison.Ordinal);
+        Assert.Contains("function desenharNFSe", script, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task MostraOsDestinosDaNFSeComOsServicos()
+    {
+        var nfse = (await JsonAsync("/_controle/emulador")).GetProperty("nfse");
+        var destinos = nfse.GetProperty("destinos").EnumerateArray()
+            .ToDictionary(d => d.GetProperty("destino").GetString()!, d => d.GetProperty("servicos").EnumerateArray().Select(s => s.GetString()).ToList());
+
+        Assert.Equal(_fixture.Emulador.SefinNacional.ToString(), nfse.GetProperty("sefinNacional").GetString());
+        Assert.Equal(["SefinNacional", "ADN"], destinos.Keys);
+        Assert.Contains("EmissaoNFSe", destinos["SefinNacional"]);
+        Assert.Contains("EventoNFSe", destinos["SefinNacional"]);
+        Assert.Equal(6, destinos["ADN"].Count);
+    }
+
+    // O painel paralisa e libera mandando de volta o município que leu, com o paralisado trocado.
+    [Fact]
+    public async Task ParalisaELiberaOMunicipioComOJsonQueLeu()
+    {
+        using (var cadastro = await _painel.PostAsJsonAsync("/_controle/municipios",
+            new { codigo = 3106200, nome = "Belo Horizonte", aliquotaPadrao = 3.5m, aliquotas = new Dictionary<string, decimal> { ["010101"] = 4m }, beneficios = new[] { new { numero = "31062000000001", tipo = 4, aliquota = 2.5m } } }, Ct))
+            Assert.Equal(HttpStatusCode.Created, cadastro.StatusCode);
+        var lido = Assert.Single((await JsonAsync("/_controle/municipios")).EnumerateArray());
+
+        var paralisado = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(lido.GetRawText())!;
+        paralisado["paralisado"] = JsonSerializer.SerializeToElement(true);
+        using (var paralisar = await _painel.PostAsJsonAsync("/_controle/municipios", paralisado, Ct))
+            Assert.Equal(HttpStatusCode.OK, paralisar.StatusCode);
+        var (recusada, _) = await Sefin.EmitirAsync(_fixture, new DpsTeste());
+        Assert.Equal(HttpStatusCode.ServiceUnavailable, recusada.StatusCode);
+
+        paralisado["paralisado"] = JsonSerializer.SerializeToElement(false);
+        using (var liberar = await _painel.PostAsJsonAsync("/_controle/municipios", paralisado, Ct))
+            Assert.Equal(HttpStatusCode.OK, liberar.StatusCode);
+        var (emitida, _) = await Sefin.EmitirAsync(_fixture, new DpsTeste());
+        Assert.Equal(HttpStatusCode.Created, emitida.StatusCode);
+
+        var municipio = _fixture.Emulador.Municipios.Procurar(3106200).Municipio;
+        Assert.Equal(("Belo Horizonte", 3.5m, 4m, 2.5m), (municipio.Nome, municipio.AliquotaPadrao, municipio.Aliquotas!["010101"], municipio.Beneficios![0].Aliquota));
+    }
+
+    [Fact]
+    public async Task GuardaOPedidoDaSefinComOJson()
+    {
+        var (emitida, json) = await Sefin.EmitirAsync(_fixture, new DpsTeste());
+        Assert.Equal(HttpStatusCode.Created, emitida.StatusCode);
+        var chave = json.GetProperty("chaveAcesso").GetString()!;
+
+        var resumo = (await JsonAsync("/_controle/pedidos")).EnumerateArray().Last();
+        Assert.Equal(("SefinNacional", "EmissaoNFSe", 201), (resumo.GetProperty("destino").GetString(), resumo.GetProperty("servico").GetString(), resumo.GetProperty("status").GetInt32()));
+        var pedido = await JsonAsync($"/_controle/pedidos/{resumo.GetProperty("id").GetInt64()}");
+        Assert.Contains("\"dpsXmlGZipB64\"", pedido.GetProperty("pedido").GetString(), StringComparison.Ordinal);
+        Assert.Contains("\"nfseXmlGZipB64\"", pedido.GetProperty("resposta").GetString(), StringComparison.Ordinal);
+
+        // A NFS-e no controle, com o XML, que o painel mostra.
+        var lista = Assert.Single((await JsonAsync("/_controle/nfse")).EnumerateArray());
+        Assert.Equal(("normal", chave), (lista.GetProperty("situacao").GetString(), lista.GetProperty("chave").GetString()));
+        var detalhe = await JsonAsync($"/_controle/nfse/{chave}");
+        Assert.Equal(XName.Get("NFSe", DpsTeste.Namespace), XElement.Parse(detalhe.GetProperty("xml").GetString()!).Name);
+        Assert.Equal(0, detalhe.GetProperty("eventos").GetArrayLength());
+    }
+
+    // O cartão da Sefin no painel comanda a paralisação sem código.
+    [Fact]
+    public async Task ParalisaELiberaASefinPelaFalha()
+    {
+        using var paralisar = await _painel.PostAsJsonAsync("/_controle/falhas", new { tipo = "paralisacao", destino = "SefinNacional" }, Ct);
+        Assert.Equal(HttpStatusCode.Created, paralisar.StatusCode);
+        var (recusada, _) = await Sefin.EmitirAsync(_fixture, new DpsTeste());
+        Assert.Equal(HttpStatusCode.ServiceUnavailable, recusada.StatusCode);
+
+        var falha = Assert.Single((await JsonAsync("/_controle/falhas")).EnumerateArray());
+        Assert.False(falha.TryGetProperty("codigo", out _));
+        using (var liberar = await _painel.DeleteAsync($"/_controle/falhas/{falha.GetProperty("id").GetInt32()}", Ct))
+            Assert.Equal(HttpStatusCode.NoContent, liberar.StatusCode);
+        var (emitida, _) = await Sefin.EmitirAsync(_fixture, new DpsTeste());
+        Assert.Equal(HttpStatusCode.Created, emitida.StatusCode);
     }
 }
