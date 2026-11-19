@@ -106,7 +106,7 @@ Os documentos abaixo registram o desenho e as decisões da biblioteca. São úte
 | [CONTRATOS.md](CONTRATOS.md) | O desenho de cada tipo público, com as decisões |
 | [MODELO.md](MODELO.md) | O desenho do modelo da NF-e |
 | [LEITURA.md](LEITURA.md) | A leitura do XML e o detector |
-| [NFSE.md](NFSE.md) | A NFS-e nacional: as fontes e o desenho da Fase 9 (a aprovar) |
+| [NFSE.md](NFSE.md) | A NFS-e nacional: as fontes e o desenho da Fase 9 |
 | [IMPRESSAO.md](IMPRESSAO.md) | A conformidade do DANFE e do DANFCE com os manuais |
 | [SEFAZ_EMULADA.md](SEFAZ_EMULADA.md) | A especificação completa da SEFAZ emulada |
 

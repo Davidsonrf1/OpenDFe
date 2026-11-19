@@ -1,6 +1,6 @@
 # NFS-e nacional: fontes e desenho (etapa 9.0)
 
-Desenho da Fase 9 (`PROJETO.md` 18, `PLANO.md` Fase 9): o que as fontes oficiais dizem, o que isso muda no `PROJETO.md` 18, as decisões das questões do 18.5, os tipos e as assinaturas públicas, e a lista das regras fora do schema. **Proposto em 2026-11-19, a aprovar pelo usuário**: nada de código antes disso, porque cria API pública (`PLANO.md`, "Como trabalhar"). As fontes, com versão, data, endereço e SHA-256, estão em `docs/NTS.md` 12.
+Desenho da Fase 9 (`PROJETO.md` 18, `PLANO.md` Fase 9): o que as fontes oficiais dizem, o que isso muda no `PROJETO.md` 18, as decisões das questões do 18.5, os tipos e as assinaturas públicas, e a lista das regras fora do schema. **Aprovado pelo usuário em 2026-11-19**, inteiro, com a D2 pela recomendação; incorporado ao `PROJETO.md` 18. As fontes, com versão, data, endereço e SHA-256, estão em `docs/NTS.md` 12.
 
 ## 1. O que as fontes mudaram no `PROJETO.md` 18
 
@@ -15,9 +15,9 @@ Conferido em 2026-11-19 no gov.br/nfse (biblioteca, documentação atual, produ�
 
 E um achado que pede decisão do usuário (D2): **a produção e a produção restrita usam a mesma versão `1.01` com schemas diferentes.** A produção roda o leiaute da NT 004 v2.00 com o domínio `tpRetPisConfins` da NT 007 (pacote `NFSe-ESQUEMAS_XSD-v1.01-20260209`). A produção restrita roda a NT 009 v1.01, "release 1" (pacote `NFSe-ESQUEMAS_XSD-PRODREST-v1.01-20261020`), que renomeia e reestrutura grupos (o `vDedRed` e o `gReeRepRes` viram o `vAjusteBC`; o `gLocBensMoveis` vira `bensMoveis`; o `dest` e o `indDest` sobem para o `infDPS`; entram as notas de ajuste, o `gPgtoVinc` e o CNPJ alfanumérico como texto), e o atributo `versao` continua `1.01` nos dois. Segundo a orientação do ADN (Fenacon, outubro de 2026), as releases 1 a 3 da NT 009 entram em produção **até 01/12/2026**, com cronograma formal ainda por publicar.
 
-## 2. Decisões a aprovar
+## 2. Decisões (aprovadas em 2026-11-19)
 
-Cada uma com a recomendação. As que mudam o `PROJETO.md` 18 entram nele na aprovação.
+Todas aprovadas pela recomendação. As que mudam o `PROJETO.md` 18 já estão nele.
 
 | # | Questão | Recomendação |
 |---|---|---|
@@ -302,7 +302,7 @@ if (resultado.Processado && resultado.Retorno.Emitida)
 // FalhaTransmissaoException com PodeTerSidoProcessado: RecuperacaoEmissao.ExecutarAsync(dfe, IdentificadorDps.Montar(...))
 ```
 
-## 4. Regras fora do schema (2.9), para aprovar
+## 4. Regras fora do schema (2.9), aprovadas em 2026-11-19
 
 O schema da DPS é a base, com o `xs:documentation` de cada campo como já faz a NF-e. Quase todas as 655 linhas do "RN DPS_NFS-e" do Anexo I dependem do que só o ambiente nacional tem (o convênio, o CNC, o cadastro CNPJ/CPF, o Simples Nacional, a calculadora do IBS e da CBS, os valores que ele calcula). Ficam com a Sefin. A lista abaixo pega o erro comum que o schema não vê e quase não muda:
 

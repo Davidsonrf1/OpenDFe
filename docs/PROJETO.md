@@ -298,31 +298,27 @@ O desenho da NFS-e (seção 18.5), decidido na etapa 9.0, com a API pública apr
 
 **Decidido em 2026-11-19, com o plano da fase aprovado no mesmo dia:** a NFS-e entra na lib, num pacote próprio, como a Fase 9. O primeiro consumidor é o ErpCore, que a pôs no MVP (o módulo de serviços e o aditivo da NFS-e do fiscal). Vale tudo o que vale para a NF-e: a seção 1.1 (a lib cuida do documento, não calcula o ISS nem os tributos), a 2.3 (sem estado global), a 2.4 (problema não é exceção), a 2.9 (o schema e só as regras necessárias, listadas e aprovadas) e os nomes sem preposição.
 
-**Etapa 9.0 (2026-11-19):** as fontes conferidas mudam parte do que está abaixo (o DANFSe, a substituição, a manifestação, o município na configuração). O desenho proposto está em `docs/NFSE.md` e, aprovado, é incorporado aqui.
+**Etapa 9.0 (2026-11-19):** as fontes conferidas (`docs/NTS.md` 12) mudaram parte do que o plano supunha. O desenho foi **aprovado pelo usuário em 2026-11-19**, com a D2 pela recomendação, e está em `docs/NFSE.md`; os itens abaixo já estão com ele.
 
 18.1. **Só o padrão nacional** (o Sistema Nacional da NFS-e, gov.br/nfse). Sem provedores municipais (ABRASF, Betha, ISS.net e afins). A adesão do município ao convênio não garante que ele use o emissor nacional: há os que mantêm sistema próprio e só compartilham os dados com o ambiente nacional. A lib não decide isso por quem usa; oferece a consulta da parametrização do município (18.4), e quem usa decide se emite.
 
-18.2. **O que muda em relação à NF-e** (a conferir na fonte, na etapa 9.0, e registrar em `docs/NTS.md`):
+18.2. **O que muda em relação à NF-e** (conferido na 9.0, `docs/NTS.md` 12):
 - **Transporte:** API REST com JSON, e não SOAP; o XML vai compactado (GZip) e em Base64 dentro do JSON. O TLS mútuo com o certificado ICP-Brasil continua.
-- **Documento:** quem emite assina e envia a **DPS** (Declaração de Prestação de Serviço); a NFS-e é **gerada e assinada pelo ambiente nacional** e volta na resposta, síncrona. A chave de acesso e o identificador da DPS têm formatos próprios.
-- **Destino:** não há autorizador por UF. Há o emissor nacional (a Sefin Nacional) e o Ambiente de Dados Nacional (ADN), com a parametrização dos municípios, a distribuição e o DANFSe. A configuração aponta o **município**, e não a UF.
-- **Ambientes:** produção e produção restrita (a homologação).
+- **Documento:** quem emite assina e envia a **DPS** (Declaração de Prestação de Serviço); a NFS-e é **gerada e assinada pelo ambiente nacional** e volta na resposta, síncrona. A chave de acesso (50 dígitos) e o identificador da DPS (45) têm formatos próprios. A Sefin Nacional só aceita a DPS do prestador (`tpEmit` = 1).
+- **Destino:** não há autorizador por UF. Há o emissor nacional (a Sefin Nacional) e o Ambiente de Dados Nacional (ADN), com a parametrização dos municípios e a distribuição. O município vai **no documento** (`cLocEmi`) e no parâmetro das consultas, e não na configuração: um núcleo atende um prestador em vários municípios.
+- **Ambientes:** produção e produção restrita (a homologação). Hoje com schemas diferentes sob a mesma versão `1.01` (a produção restrita roda a NT 009 antes da produção); a lib embute **o pacote que estiver em produção** no dia da etapa (decisão D2).
+- **Assinatura:** a da NF-e (RSA-SHA1, C14N, enveloped), pelo Manual Integrado 1.00.02.
+- **DANFSe:** gerado por quem emite, pela NT 008/2026; a API do ADN foi suspensa em 03/08/2026.
 - **Reforma tributária:** os grupos do IBS e da CBS na DPS, com o cronograma das notas técnicas da NFS-e.
 
-18.3. **Pacotes** (proposta; a 9.0 confirma os nomes): `OpenDFe.NFSe.Modelo` e `OpenDFe.Leiaute.NFSe.v<versão>`, no pacote `OpenDFe.NFSe`, como o par da NF-e (3.4). O núcleo ganha o transporte REST ao lado do SOAP, sem conhecer o documento (3.1). O modelo de impressão do DANFSe fica no leiaute, e o PDF no `OpenDFe.Impressao.Pdf` (seção 10).
+18.3. **Pacotes:** `OpenDFe.NFSe.Modelo` e `OpenDFe.Leiaute.NFSe.v101` (`LeiauteNFSe101`), no pacote `OpenDFe.NFSe`, como o par da NF-e (3.4); escreve a `1.01` e lê a `1.00` e a `1.01`. O núcleo ganha o transporte REST ao lado do SOAP, sem conhecer o documento (3.1): o `IOperacaoRest`, o `PedidoRest` e a `RespostaRest` (`docs/NFSE.md` 3.1). A NFS-e entra pelo mesmo `DFe.Criar`, com `Documento.NFSe` (99, nunca escrito no XML) e a `ConfiguracaoDFe` como está. O modelo de impressão do DANFSe fica no leiaute, e o PDF no `OpenDFe.Impressao.Pdf` (seção 10).
 
-18.4. **Operações** (o escopo; os nomes saem da 9.0): emitir (a DPS → a NFS-e), consultar a NFS-e pela chave, consultar pela DPS (a recuperação depois da queda no meio, como a 8.6), os eventos (cancelamento e cancelamento por substituição, no mínimo; os outros que a 9.0 achar no leiaute), consultar os eventos, consultar a parametrização do município (convênio, emissor, alíquotas, regimes especiais, retenções e benefícios) e baixar o DANFSe. A distribuição pelo ADN (as NFS-e tomadas) fica para depois.
+18.4. **Operações:** a emissão (a DPS → a NFS-e; com o grupo `subst`, a substituição, em que a Sefin gera o evento 105102), a consulta da NFS-e pela chave, a consulta pela DPS (`GET`, a chave; `HEAD`, só se foi gerada), a recuperação depois da queda no meio (como a 8.6), o cancelamento (101101) e a solicitação de análise fiscal para cancelamento (101103), a consulta dos eventos (que também lê os do município e do fisco), a parametrização do município (convênio, alíquotas, regimes especiais, retenções e benefícios) e o DANFSe gerado. Ficam para depois a distribuição pelo ADN (as NFS-e tomadas) e a manifestação (confirmação e rejeição, que vão ao ADN).
 
-18.5. **Para a etapa 9.0 decidir, com o usuário:**
-- se a NFS-e entra pelo `DFe.Criar` com um `ILeiaute` (3.2), ou por uma entrada própria, porque o destino é o município e a operação é REST;
-- como o transporte REST entra no núcleo (a fábrica do handler e o pool, 8.5, são os mesmos);
-- a configuração (`ConfiguracaoDFe` ou uma própria: o município, o ambiente, as URLs trocadas);
-- o detector (3.3) lendo a DPS, a NFS-e e os eventos;
-- a assinatura (o algoritmo que o leiaute pede);
-- a lista das regras fora do schema (2.9), para aprovar.
+18.5. **Decidido na 9.0** (`docs/NFSE.md` 2, decisões D1 a D13): a entrada pelo `DFe.Criar`; o REST no núcleo pelo mesmo `ConexoesSefaz`; a resposta e a falha de transmissão no REST (D5); a configuração sem parte própria; o detector com a `FormaLeitura` de documento fixo; a assinatura da NF-e; o rastro com o XML assinado e o `StatusHttp`; a parametrização com o JSON inteiro ao lado dos campos confirmados. As seis regras fora do schema (2.9) aprovadas estão em `docs/NFSE.md` 4.
 
 18.6. **Emulador** (13.5, decidido em 2026-11-19): o mesmo servidor, a mesma AC, o mesmo TLS mútuo, o mesmo painel e a mesma persistência, com as rotas do Sistema Nacional ao lado das da SEFAZ. A nota é a mesma de lá: é a nossa leitura do leiaute, não o ambiente nacional. O que é próprio da NFS-e:
 - **Municípios configuráveis** pelo `/_controle` e pelo painel: o código do IBGE, o convênio (ativo, inativo, não conveniado), o emissor (o nacional ou o próprio, que recusa a emissão como o ambiente nacional recusa), as alíquotas do ISS por código de tributação nacional e a padrão, os regimes especiais, as retenções, os benefícios e a paralisação. A parametrização que a lib consulta (18.4) responde com essa configuração.
-- **As falhas comandadas** que já existem (atraso, tempo esgotado, conexão derrubada antes ou depois, resposta ilegível) valem também para as rotas da NFS-e, e a queda depois de emitir é o caso da consulta pela DPS. A marca `EMULADA:` vai num campo de texto livre da DPS (a 9.0 aponta qual).
+- **As falhas comandadas** que já existem (atraso, tempo esgotado, conexão derrubada antes ou depois, resposta ilegível) valem também para as rotas da NFS-e, e a queda depois de emitir é o caso da consulta pela DPS. A marca `EMULADA:` vai no `infDPS/serv/infoCompl/xInfComp`. Sem rota do DANFSe (suspensa no ADN).
 - **O que confere:** o JSON, a compactação, o schema da DPS, a assinatura e o titular, a duplicidade da DPS, o município (convênio e emissor) e a situação da nota para o evento. O emulador gera a NFS-e e a assina com um certificado da AC de teste, no papel do ambiente nacional.
 - **O município que não foi configurado** (decidido em 2026-11-19): atende como conveniado, com o emissor nacional e uma alíquota padrão, para o teste rápido não exigir preparação; a E.7 fixa a alíquota e a documenta.
