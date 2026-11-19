@@ -972,3 +972,119 @@ public sealed class EventoNFSeRetornado
 
 - **A produção restrita** (o PFX, `PROJETO.md` 17): os eventos lá; o nome do campo da resposta e a forma da consulta, pelo Swagger.
 - **A manifestação** (ao ADN, com a distribuição; D9) e o bloqueio e o desbloqueio por ofício, que a lib só lê.
+
+## 11. A parametrização municipal (etapa 9.4): para aprovação
+
+Apresentado na abertura da 9.4 (2026-11-19), antes do código, porque cria API pública. **O esboço da seção 3.3 não vale como está:** ele previa quatro consultas (convênio, parâmetros do serviço, retenções e benefícios, pelo código do serviço ou pelo CPF/CNPJ), e as rotas que uma implementação aberta usa de verdade no ADN (`NTS.md` 12.4, a nfse4j, que o emulador segue desde a E.8) são seis, com a competência e o número do benefício, e as retenções sem o CPF/CNPJ. As rotas `/parametros_municipais/...` do manual continuam sem bater com a base (D13).
+
+### 11.1. Decisões
+
+| # | Questão | Recomendação |
+|---|---|---|
+| P1 | Quais rotas | **As seis da nfse4j**, uma operação REST por rota, no destino `ADN`, serviço `"Parametrizacao"`, com as bases `https://adn.nfse.gov.br/parametrizacao` e `https://adn.producaorestrita.nfse.gov.br/parametrizacao` (`NTS.md` 12.4). A alíquota e o histórico são uma operação só (a competência nula é o histórico). Ficam **cinco parâmetros**. |
+| P2 | O retorno (D13) | **Os campos que se conseguiu confirmar, tipados, e o JSON inteiro ao lado** (`Json`, um `JsonElement` clonado), em todos. A leitura não distingue maiúsculas e aceita os tipos misturados que a nfse4j mostra (`true`, `"1"`, `"S"`, `"Sim"`; o número em texto). O que não se lê **não** é resposta ilegível: o campo fica nulo e sai um aviso (`NFSE-PARAMETRO`), porque o JSON está ao lado. Só o corpo que não é JSON é ilegível. |
+| P3 | O código do serviço | **O `cTribNac` (6 dígitos) e o complemento municipal opcional (3 dígitos, padrão `000`)**, que a lib formata como `XX.XX.XX.XXX`. Fora da forma, `ArgumentException` no construtor. |
+| P4 | A competência | **`DateOnly`**, formatada `MM-DD-AAAA` no caminho (a forma da nfse4j). Obrigatória nas rotas que a têm; o dia vai como está. |
+| P5 | O município | **`int`, o código IBGE** (7 dígitos, `ArgumentOutOfRangeException` fora disso), como o `Dps.MunicipioEmissor`. A UF dos dois primeiros não é conferida (a tabela é do núcleo da NF-e, e o ADN responde). |
+| P6 | Encontrado e erro | **`Encontrado`** = 2xx; o 404 (município sem convênio, benefício que não há) e o 400 trazem a **`Mensagem`** (o campo `mensagem`). O `CStat` é o status HTTP, e o `Motivo`, a mensagem ou o texto do sucesso, como na 9.2. |
+| P7 | As enumerações | **As do modelo da DPS**: o regime pelo `RegimeEspecialTributacao`, o tipo do benefício pelo `TipoBeneficio`, os tipos de retenção pelo `RetencaoIssqn`. O valor que a enumeração não tem fica nulo, com o aviso, e o JSON ao lado. |
+
+### 11.2. Tipos e assinaturas (no leiaute, `OpenDFe.NFSe`)
+
+```csharp
+// GET /{municipio}/convenio
+public sealed class ConsultaConvenio : ParametroWS<RetornoConvenio>
+{
+    public ConsultaConvenio(int municipio);
+    public int Municipio { get; }
+}
+public sealed class RetornoConvenio
+{
+    public bool Encontrado { get; }
+    public bool? AderenteAmbienteNacional { get; }
+    public bool? AderenteEmissorNacional { get; }
+    public string? Mensagem { get; }
+    public JsonElement? Json { get; }
+}
+
+// GET /{municipio}/{servico}/{competencia}/aliquota, ou /{municipio}/{servico}/historicoaliquotas sem a competência
+public sealed class ConsultaAliquota : ParametroWS<RetornoAliquota>
+{
+    public ConsultaAliquota(int municipio, string tributacaoNacional, string complemento = "000");
+    public int Municipio { get; }
+    public string Servico { get; }                       // "XX.XX.XX.XXX"
+    public DateOnly? Competencia { get; init; }          // nula: o histórico
+}
+public sealed class RetornoAliquota
+{
+    public bool Encontrado { get; }
+    public IReadOnlyList<VigenciaAliquota> Aliquotas { get; }   // as do serviço consultado, na ordem
+    public string? Mensagem { get; }
+    public JsonElement? Json { get; }
+}
+public sealed class VigenciaAliquota { public decimal? Aliquota { get; } public DateTime? Inicio { get; } public DateTime? Fim { get; } }
+
+// GET /{municipio}/{servico}/{competencia}/regimes_especiais
+public sealed class ConsultaRegimesEspeciais : ParametroWS<RetornoRegimesEspeciais>
+{
+    public ConsultaRegimesEspeciais(int municipio, string tributacaoNacional, DateOnly competencia, string complemento = "000");
+}
+public sealed class RetornoRegimesEspeciais
+{
+    public bool Encontrado { get; }
+    public IReadOnlyList<RegimeEspecialMunicipal> Regimes { get; }
+    public string? Mensagem { get; }
+    public JsonElement? Json { get; }
+}
+public sealed class RegimeEspecialMunicipal
+{
+    public RegimeEspecialTributacao? Regime { get; }
+    public int? Situacao { get; }                        // "sit"; o significado não tem fonte (o emulador manda 1, permitido)
+    public DateTime? Inicio { get; }
+    public DateTime? Fim { get; }
+}
+
+// GET /{municipio}/{competencia}/retencoes
+public sealed class ConsultaRetencoes : ParametroWS<RetornoRetencoes>
+{
+    public ConsultaRetencoes(int municipio, DateOnly competencia);
+}
+public sealed class RetornoRetencoes
+{
+    public bool Encontrado { get; }
+    public bool? Artigo6Habilitado { get; }              // "art6.habilitado": a retenção da LC 116, art. 6º
+    public IReadOnlyList<RetencaoMunicipal> Retencoes { get; }   // "retMun"
+    public string? Mensagem { get; }
+    public JsonElement? Json { get; }
+}
+public sealed class RetencaoMunicipal
+{
+    public string? Descricao { get; }
+    public IReadOnlyList<RetencaoIssqn> Tipos { get; }   // "tpRet"
+    public IReadOnlyList<string> Responsaveis { get; }   // "respTrib[].insc": o CPF ou o CNPJ
+}
+
+// GET /{municipio}/{beneficio}/{competencia}/beneficio
+public sealed class ConsultaBeneficio : ParametroWS<RetornoBeneficio>
+{
+    public ConsultaBeneficio(int municipio, string numero, DateOnly competencia);   // numero: 14 dígitos
+}
+public sealed class RetornoBeneficio
+{
+    public bool Encontrado { get; }
+    public string? Numero { get; }
+    public string? Descricao { get; }
+    public TipoBeneficio? Tipo { get; }                  // "tpoBenef"
+    public decimal? AliquotaDiferenciada { get; }        // "aliqDiferenc", no tipo 4
+    public DateTime? Inicio { get; }
+    public DateTime? Fim { get; }
+    public string? Mensagem { get; }
+    public JsonElement? Json { get; }
+}
+```
+
+As datas vêm sem fuso (`2022-07-01T00:00:00`): `DateTime` com `Kind` `Unspecified`, e não `DateTimeOffset`. Os membros de cada parâmetro repetem os argumentos do construtor (`Municipio`, `Servico`, `Competencia`, `Numero`), como a `ConsultaNFSe.Chave`. Os construtores dos retornos e dos itens são internos.
+
+### 11.3. O que a 9.4 faz depois da aprovação
+
+O desenho acima no leiaute (o núcleo não muda: o `Destino.ADN` existe desde a 9.2); as bases do ADN declaradas; a leitura tolerante (P2) com o código `NFSE-PARAMETRO` no `REGRAS.md` 20; os testes sem rede (a montagem de cada caminho, a leitura com os tipos misturados, o que não se lê) e contra o ADN emulado (as seis rotas com a configuração dos municípios, o 404 do convênio inexistente e do benefício, o 400, a paralisação). Pendente até o PFX: as rotas, os nomes e os tipos pelo Swagger.
