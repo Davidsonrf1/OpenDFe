@@ -10,9 +10,17 @@
     <ProjectReference Include="../../src/OpenDFe.NFSe.Modelo/OpenDFe.NFSe.Modelo.csproj" />
   </ItemGroup>
 
-  <!-- O gerador do certificado de teste (PROJETO.md 13.1): a NFS-e e o evento registrado exigem a Signature no schema. -->
+  <!-- O gerador do certificado de teste (PROJETO.md 13.1): a NFS-e e o evento registrado exigem a Signature no schema.
+       A fábrica de conexão de teste: a AC do emulador entra pela fábrica do handler (9.2). -->
   <ItemGroup>
-    <Compile Include="../Compartilhado/CertificadoTeste.cs" Link="Compartilhado/CertificadoTeste.cs" />
+    <Compile Include="../Compartilhado/**/*.cs" LinkBase="Compartilhado" />
+  </ItemGroup>
+
+  <!-- As operações pela lib contra a Sefin emulada (9.2 em diante; PROJETO.md 13.5): o leiaute de verdade com a base do
+       emulador trocada e a AC dele pela fábrica de teste. -->
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <ProjectReference Include="../OpenDFe.SefazEmulada/OpenDFe.SefazEmulada.csproj" />
   </ItemGroup>
 
   <!-- O catálogo das regras (REGRAS.md 20), que o teste cruza com as regras do leiaute. -->

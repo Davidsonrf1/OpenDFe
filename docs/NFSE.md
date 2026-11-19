@@ -872,3 +872,34 @@ O modelo da seção 7, como aprovado, mais o que a seção 3 deixou para a 9.1. 
 - A NT 009 (D2), quando entrar em produção: a especificação do gerador muda, e o modelo com ela.
 - A `NFSE-CHAVE` e o DV da `ChaveNFSe`, quando houver chaves reais para conferir (o PFX, `PROJETO.md` 17).
 - As operações: a emissão e as consultas (9.2), os eventos (9.3), a parametrização (9.4); o DANFSe (9.5). O `DFe.Criar` com `Documento.NFSe` ainda recusa (o atendimento por UF e o `Emissao`, D3): entra na 9.2.
+
+## 9. Transporte e emissão (etapa 9.2, 2026-11-19)
+
+O que as seções 2 e 3 desenharam para o REST, a emissão e as consultas, implementado e testado contra a Sefin emulada (E.7). A situação da etapa, com os testes e o que foi conferido, está no `PLANO.md`. O caminho do `ExecutarAsync` no REST está no `CONTRATOS.md` 3.
+
+### 9.1. O que entrou
+
+- **No núcleo:** `Destino.SefinNacional = 120` (sigla `SEFIN`) e `Destino.ADN = 121`; `MetodoRest`; `IOperacaoRest<,>`, `PedidoRest`, `RespostaRest` e a sobrecarga `DeclaracaoLeiaute.RegistrarOperacao(IOperacaoRest<,>)`; `RastroWS.StatusHttp`. Por dentro: o caminho REST do `ExecutarAsync`, o corpo em JSON com o XML em GZip e Base64 (`CorpoRest`), e o transporte REST no mesmo pool do SOAP (`TransporteSoap.EnviarRestAsync`, com a leitura da D5). O `DFe.Criar` aceita o leiaute sem atendimento declarado (a UF da configuração não é conferida contra ele), recusa a NFS-e com o tipo de emissão diferente de `Normal`, e não pede o envelope SOAP das URLs da `SefinNacional` e do `ADN`.
+- **No leiaute:** a `EmissaoNFSe` (`POST /nfse`, com o `RetornoEmissaoNFSe`), a `ConsultaNFSe` (`GET /nfse/{chave}`, com o `RetornoConsultaNFSe`), a `ConsultaDps` (`GET` ou `HEAD /dps/{id}`, com o `RetornoConsultaDps`), a `MensagemSefin` (os itens de `erros` e `alertas`) e a `RecuperacaoEmissao`, com o `RecuperacaoNFSe`. As bases da Sefin nos dois ambientes (`https://sefin.nfse.gov.br/SefinNacional` e `https://sefin.producaorestrita.nfse.gov.br/SefinNacional`). A substituição é a `EmissaoNFSe` com a `Dps.Substituicao`, sem nada a mais.
+
+### 9.2. Ajustes ao desenho (a conferir pelo usuário)
+
+1. **A `RecuperacaoEmissao` devolve o `RecuperacaoNFSe`, e não um `ResultadoWS<RetornoConsultaNFSe>`.** São duas chamadas, e a segunda só acontece se a DPS gerou a NFS-e; quando não gerou, não há consulta da NFS-e para devolver (e o `ResultadoWS` só o núcleo cria). O `RecuperacaoNFSe` traz os dois resultados (`Dps` e `Nota`, nulo sem a NFS-e) e o que eles dizem: `Gerada` (guardar a NFS-e) e `NaoGerada` (a Sefin respondeu 404: reenviar a mesma DPS).
+2. **O `CStat` do REST é o status HTTP** (201 gerada, 200 encontrada, 400 rejeitada, 404 não encontrada), e o `Motivo` é o primeiro erro (`"E0014: ... (complemento)"`), ou o texto do sucesso, ou `"HTTP <status>"`. O desenho não dizia o que ia no `LeituraWS`, que exige um número.
+3. **Membros a mais:** `ConsultaNFSe.Chave`, `ConsultaDps.Id`, `EmissaoNFSe.Dps` (o desenho só mostrava o deste) e `MensagemSefin.ToString()`. O `RetornoConsultaNFSe` e o `RetornoConsultaDps`, que a seção 3.3 só nomeava: `Encontrada`, `Chave`, `Xml`, `Nota`, `Erros` e `Alertas`; `Existe`, `Chave` e `Erros`. A `Nota` dos retornos é a `NotaFiscalServico` (a `NFSe` da seção 3.3 virou esse nome na 9.1).
+4. **A base da produção restrita é a sem `/API/`** (a das implementações que emitem lá); a outra entra pela `ConfiguracaoDFe.Urls`. A seção 6, item 1, pedia que a 9.2 "registrasse as duas": a tabela de URLs tem uma por ambiente e serviço, e a escolha fica para o PFX.
+5. **O pedido sem corpo (GET, HEAD) nunca "pode ter sido processado"**: a consulta não muda nada na Sefin. O 5xx com JSON também é falha (D5 fala de 5xx sem distinguir o corpo): é a Sefin fora do ar, e o leiaute não o lê.
+6. **A leitura do JSON não distingue maiúsculas e ignora o que não conhece**, porque os nomes vêm de uma implementação aberta e não do Swagger (seção 6, item 1); o `codigo` numérico é lido como texto. O sucesso (2xx) sem a chave ou sem a NFS-e, a chave inválida, o Base64 ou o GZip que não abrem e o campo com o tipo errado são `FormatException` (a resposta ilegível, com `PodeTerSidoProcessado` no POST).
+7. **A sobrecarga do `RegistrarOperacao`** torna ambígua a chamada com o literal `null` (`RegistrarOperacao<P, R>(null!)`): quem fizer isso precisa do cast. Nenhum leiaute faz; só um teste do núcleo fazia, e ganhou o cast.
+
+### 9.3. Decisões tomadas sem perguntar
+
+- O REST no mesmo `TransporteSoap` (o nome ficou, por ser interno): o pool, os tempos e a classificação das falhas de rede são os mesmos; um certificado tem um handler só para o SOAP e o REST.
+- O `Accept: application/json` em todo pedido REST; o `Content-Type: application/json; charset=utf-8` no POST.
+- O caminho do `PedidoRest` recusa a barra no começo, o esquema, a consulta (`?`) e o fragmento (`#`): os valores vão no caminho, como as rotas da Sefin.
+- A `NFSE-*` das regras e o schema da DPS rodam antes de transmitir, como na NF-e; a recusa local leva o XML assinado no rastro, sem a URL.
+
+### 9.4. O que fica para depois
+
+- **A produção restrita** (o PFX, `PROJETO.md` 17): a base com ou sem `/API/`, os nomes do JSON e os status de verdade (o Swagger só abre com o ICP-Brasil), a DPS da lib aceita lá.
+- **O `dotnet test`** não acha os testes nesta máquina desde a E.7 (código 5, "Zero testes executados", em todos os projetos; o SDK é o 10.0.401, e o `xunit.v3` é o 4.0.2 desde a 0.1). A suíte foi conferida pelos executáveis de teste. Fora do escopo da etapa.

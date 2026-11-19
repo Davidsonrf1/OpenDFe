@@ -336,7 +336,7 @@ A fonte é o portal da NFS-e (`https://www.gov.br/nfse/pt-br/biblioteca/document
 | Parâmetros municipais | `https://adn.producaorestrita.nfse.gov.br/parametrizacao` | `https://adn.nfse.gov.br/parametrizacao` |
 | DANFSe (suspensa) | `https://adn.producaorestrita.nfse.gov.br/danfse` | `https://adn.nfse.gov.br/danfse` |
 
-O Swagger de cada uma (`/docs/index.html`; `/docs/index` na Sefin) **só abre com o certificado ICP-Brasil no TLS mútuo**: em 2026-11-19 a Sefin respondeu 403 e o ADN recusou o handshake. Os nomes dos campos do JSON vieram de uma implementação aberta que emite na produção restrita (`pynfse-nacional` 0.9.5, PyPI): `dpsXmlGZipB64` e `pedidoRegistroEventoXmlGZipB64` no pedido; `chaveAcesso`, `nfseXmlGZipB64`, `alertas` e `erros` (`codigo`, `descricao`, `complemento`) na resposta. A conferir no Swagger quando houver o PFX.
+O Swagger de cada uma (`/docs/index.html`; `/docs/index` na Sefin) **só abre com o certificado ICP-Brasil no TLS mútuo**: em 2026-11-19 a Sefin respondeu 403 e o ADN recusou o handshake. Os nomes dos campos do JSON vieram de uma implementação aberta que emite na produção restrita (`pynfse-nacional` 0.9.5, PyPI): `dpsXmlGZipB64` e `pedidoRegistroEventoXmlGZipB64` no pedido; `chaveAcesso`, `nfseXmlGZipB64`, `alertas` e `erros` (`codigo`, `descricao`, `complemento`) na resposta. A conferir no Swagger quando houver o PFX. **A lib (9.2)** declara a base da produção restrita sem o `/API/` e lê o JSON sem distinguir maiúsculas (`docs/NFSE.md` 9.2).
 
 ### 12.5. A chave da NFS-e e o dígito verificador (etapa 9.1, 2026-11-19)
 

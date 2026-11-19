@@ -2,7 +2,7 @@ namespace OpenDFe;
 
 /// <summary>
 /// O handler de uma operação, no leiaute: monta o pedido e lê o retorno. Registrado por
-/// <see cref="DeclaracaoLeiaute.RegistrarOperacao{TParametro, TRetorno}"/>.
+/// <see cref="DeclaracaoLeiaute.RegistrarOperacao{TParametro, TRetorno}(IOperacao{TParametro, TRetorno})"/>.
 /// </summary>
 /// <typeparam name="TParametro">O parâmetro da operação (o tipo exato, selado).</typeparam>
 /// <typeparam name="TRetorno">O retorno da operação.</typeparam>

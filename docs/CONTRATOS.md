@@ -444,6 +444,8 @@ Quem chama os callbacks e em que ponto do caminho (depois do schema e das regras
 
 Na 1.6 os passos 1 a 4, 7, 9 e 10 são implementados; o 8 é uma costura interna do `ConexoesSefaz` (o teste injeta um transporte falso) até a 4.1. Os passos 5 e 6 entram na 3.1, e a numeração antiga (de 5 a 8) passou a ser de 7 a 10.
 
+**O REST (9.2, a NFS-e; `docs/NFSE.md` 3.1 e 9):** o handler registrado por `RegistrarOperacao(IOperacaoRest<,>)` passa pelo mesmo caminho. No 2, `Montar` → `PedidoRest`, conferido (o POST com o `Xml`, o `Schema` e o `CampoXml`; o GET e o HEAD sem; o destino obrigatório; senão, `InvalidOperationException`). Os passos 3 a 6 valem sobre o `Xml` do pedido; sem ele, são pulados. No 7, o destino é `parametro.Destino` ?? `pedido.Destino` (sem cair na UF), e a URL é a base do destino × ambiente × serviço mais o `Caminho`. No 8, o JSON `{"<CampoXml>": "<o XML assinado em GZip e Base64>"}` (`application/json`), pelo mesmo pool; o 2xx, o 4xx com JSON e o 404 do HEAD vão ao `Ler` (`RespostaRest`, com o status no `CStat`); o resto é `FalhaTransmissaoException` (D5). No 9, a `JsonException` também é resposta ilegível, e só o POST pode ter sido processado. O rastro leva o XML assinado, o corpo da resposta como veio e o `StatusHttp` (D12).
+
 ## 4. Exemplo de uso
 
 ```csharp

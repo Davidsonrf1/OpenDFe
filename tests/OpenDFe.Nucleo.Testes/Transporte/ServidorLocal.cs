@@ -76,6 +76,16 @@ internal sealed class ServidorLocal : IAsyncDisposable
             servidor!.Pedidos.Enqueue(new PedidoRecebido(contexto.Request.Path, contexto.Request.ContentType, corpo, cliente?.Thumbprint));
             await servidor.Responder(contexto);
         });
+        // O REST (a 9.2): qualquer caminho sob /rest, nos três métodos.
+        app.MapMethods("/rest/{**caminho}", [HttpMethods.Get, HttpMethods.Post, HttpMethods.Head], async (HttpContext contexto) =>
+        {
+            using var leitor = new StreamReader(contexto.Request.Body);
+            var corpo = await leitor.ReadToEndAsync(contexto.RequestAborted);
+            var cliente = await contexto.Connection.GetClientCertificateAsync(contexto.RequestAborted);
+            servidor!.Pedidos.Enqueue(new PedidoRecebido(contexto.Request.Path, contexto.Request.ContentType, corpo, cliente?.Thumbprint,
+                contexto.Request.Method, contexto.Request.Headers.Accept.ToString()));
+            await servidor.Responder(contexto);
+        });
         await app.StartAsync();
         var porta = new Uri(app.Urls.First()).Port;
         servidor = new ServidorLocal(app, pasta, autoridade, new Uri($"https://127.0.0.1:{porta}/"));
@@ -113,4 +123,4 @@ internal sealed class ServidorLocal : IAsyncDisposable
     }
 }
 
-internal sealed record PedidoRecebido(string Caminho, string? Tipo, string Corpo, string? Cliente);
+internal sealed record PedidoRecebido(string Caminho, string? Tipo, string Corpo, string? Cliente, string Metodo = "POST", string? Aceita = null);

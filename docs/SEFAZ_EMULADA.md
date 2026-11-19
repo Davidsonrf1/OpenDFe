@@ -538,7 +538,7 @@ O resto do texto fica como está (`Pedido 123 EMULADA:paralisacao:109`). Uma mar
 
 ## NFS-e: a Sefin Nacional (E.7)
 
-O mesmo servidor responde também como a **Sefin Nacional** da NFS-e (`PROJETO.md` 18.6; o desenho em `docs/NFSE.md` 5), com a mesma porta, o mesmo TLS mútuo, a mesma AC e o mesmo `/_controle`. As rotas têm o caminho da real sob o prefixo `/SefinNacional` (a base de produção é `https://sefin.nfse.gov.br/SefinNacional`, `NTS.md` 12.4); o `GET /` e o `GET /_controle/emulador` mostram a base em `nfse.sefinNacional`. Para a lib, a base troca pela `Urls` da configuração (9.2).
+O mesmo servidor responde também como a **Sefin Nacional** da NFS-e (`PROJETO.md` 18.6; o desenho em `docs/NFSE.md` 5), com a mesma porta, o mesmo TLS mútuo, a mesma AC e o mesmo `/_controle`. As rotas têm o caminho da real sob o prefixo `/SefinNacional` (a base de produção é `https://sefin.nfse.gov.br/SefinNacional`, `NTS.md` 12.4); o `GET /` e o `GET /_controle/emulador` mostram a base em `nfse.sefinNacional`. Para a lib, a base troca pela `Urls` da configuração (9.2): `new EnderecoServico(Destino.SefinNacional, Ambiente.Homologacao, "SefinNacional", emulador.SefinNacional)`, com a AC do emulador pela fábrica do handler, como na NF-e (os testes em `tests/OpenDFe.NFSe.Testes/EmissaoEmuladaTestes.cs`).
 
 Fontes: o Anexo I da NFS-e (`ANEXO_I-SEFIN_ADN-DPS_NFSe-SNNFSe-v1.01-20260209`, `NTS.md` 12.1), abas `RN_RECEPCAO_DPS` e `RN DPS_NFS-e`; o manual dos contribuintes da API do emissor público (as rotas); os nomes do JSON de uma implementação aberta (`NTS.md` 12.4), **a conferir no Swagger quando houver o PFX**. Os códigos `EMULADA-*` não estão no anexo: são a nossa leitura.
 

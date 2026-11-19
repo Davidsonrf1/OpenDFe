@@ -302,6 +302,8 @@ O desenho da NFS-e (seção 18.5), decidido na etapa 9.0, com a API pública apr
 
 **Etapa 9.1 (2026-11-19):** o modelo (`docs/NFSE.md` 7, aprovado tudo pela recomendação) e o leiaute sem as operações (`NFSE.md` 8). A NFS-e lida é a `NotaFiscalServico` (não `NFSe`, o nome do namespace); o pacote embutido é o de produção (NT 004/007), com o `xmldsig` sem o `DOCTYPE`; a `ChaveNFSe` não confere o dígito verificador, e a regra `NFSE-CHAVE` caiu, porque a documentação não fecha o cálculo; o detector aceita a 1.00 pela `FormaLeitura.OutrasVersoes`.
 
+**Etapa 9.2 (2026-11-19):** o REST no núcleo (`IOperacaoRest`, `PedidoRest`, `RespostaRest`, os destinos `SefinNacional` e `ADN`, o `StatusHttp` no rastro) e, no leiaute, a emissão, a consulta pela chave e pela DPS e a recuperação depois da queda no meio (`NFSE.md` 9), contra a Sefin emulada. A recuperação devolve o `RecuperacaoNFSe` (as duas consultas), e não um `ResultadoWS`; o `CStat` do REST é o status HTTP.
+
 18.1. **Só o padrão nacional** (o Sistema Nacional da NFS-e, gov.br/nfse). Sem provedores municipais (ABRASF, Betha, ISS.net e afins). A adesão do município ao convênio não garante que ele use o emissor nacional: há os que mantêm sistema próprio e só compartilham os dados com o ambiente nacional. A lib não decide isso por quem usa; oferece a consulta da parametrização do município (18.4), e quem usa decide se emite.
 
 18.2. **O que muda em relação à NF-e** (conferido na 9.0, `docs/NTS.md` 12):

@@ -28,8 +28,8 @@ public static class Destinos
     }
 
     /// <summary>
-    /// A sigla do destino: a da UF (<c>"MG"</c>), <c>"AN"</c>, <c>"SVRS"</c>, <c>"SVAN"</c>, <c>"SVC-AN"</c>
-    /// ou <c>"SVC-RS"</c>.
+    /// A sigla do destino: a da UF (<c>"MG"</c>), <c>"AN"</c>, <c>"SVRS"</c>, <c>"SVAN"</c>, <c>"SVC-AN"</c>,
+    /// <c>"SVC-RS"</c>, <c>"SEFIN"</c> ou <c>"ADN"</c>.
     /// </summary>
     /// <param name="destino">O destino.</param>
     /// <returns>A sigla, em maiúsculas.</returns>
@@ -38,6 +38,7 @@ public static class Destinos
     {
         Destino.SvcAN => "SVC-AN",
         Destino.SvcRS => "SVC-RS",
+        Destino.SefinNacional => "SEFIN",
         _ when Enum.IsDefined(destino) => destino.ToString(),
         _ => throw new ArgumentOutOfRangeException(nameof(destino), destino, "O valor não é um destino."),
     };
@@ -59,7 +60,10 @@ public static class Destinos
             case "SVC-RS":
                 destino = Destino.SvcRS;
                 return true;
-            case "AN" or "SVRS" or "SVAN":
+            case "SEFIN":
+                destino = Destino.SefinNacional;
+                return true;
+            case "AN" or "SVRS" or "SVAN" or "ADN":
                 destino = Enum.Parse<Destino>(sigla);
                 return true;
         }

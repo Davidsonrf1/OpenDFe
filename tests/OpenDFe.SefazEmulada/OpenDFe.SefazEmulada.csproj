@@ -12,6 +12,8 @@
     <!-- O encontro com a lib (4.1): o transporte contra o emulador, com as falhas comandadas pelo Controle. -->
     <InternalsVisibleTo Include="OpenDFe.Nucleo.Testes" />
     <InternalsVisibleTo Include="OpenDFe.NFe.Testes" />
+    <!-- A NFS-e pela lib contra a Sefin emulada (9.2 em diante). -->
+    <InternalsVisibleTo Include="OpenDFe.NFSe.Testes" />
   </ItemGroup>
 
   <!-- A página do painel (E.6), embutida como está, sem build: Painel/<arquivo>. -->

@@ -106,4 +106,16 @@ public enum Destino
 
     /// <summary>SEFAZ Virtual de Contingência do Rio Grande do Sul, SVC-RS (sem código oficial).</summary>
     SvcRS = 104,
+
+    /// <summary>
+    /// A Sefin Nacional da NFS-e (sem código oficial; sigla <c>"SEFIN"</c>): a emissão, as consultas da NFS-e e da DPS e os
+    /// eventos. Atende em REST (docs/NFSE.md, D4).
+    /// </summary>
+    SefinNacional = 120,
+
+    /// <summary>
+    /// O Ambiente de Dados Nacional da NFS-e (sem código oficial; sigla <c>"ADN"</c>): a parametrização municipal e a
+    /// distribuição. Atende em REST.
+    /// </summary>
+    ADN = 121,
 }

@@ -575,3 +575,37 @@ OpenDFe.FormaLeitura.Documento.get -> OpenDFe.Documento?
 OpenDFe.FormaLeitura.FormaLeitura(string! espacoNomes, string! raiz, string! caminhoVersao, OpenDFe.Documento documento) -> void
 OpenDFe.FormaLeitura.OutrasVersoes.get -> System.Collections.Generic.IReadOnlyList<string!>!
 OpenDFe.FormaLeitura.OutrasVersoes.init -> void
+OpenDFe.Destino.ADN = 121 -> OpenDFe.Destino
+OpenDFe.Destino.SefinNacional = 120 -> OpenDFe.Destino
+OpenDFe.MetodoRest
+OpenDFe.MetodoRest.Get = 1 -> OpenDFe.MetodoRest
+OpenDFe.MetodoRest.Head = 3 -> OpenDFe.MetodoRest
+OpenDFe.MetodoRest.Post = 2 -> OpenDFe.MetodoRest
+OpenDFe.IOperacaoRest<TParametro, TRetorno>
+OpenDFe.IOperacaoRest<TParametro, TRetorno>.Ler(TParametro! parametro, string? xmlPedido, OpenDFe.RespostaRest! resposta, OpenDFe.ContextoOperacao! contexto) -> OpenDFe.LeituraWS<TRetorno!>!
+OpenDFe.IOperacaoRest<TParametro, TRetorno>.Montar(TParametro! parametro, OpenDFe.ContextoOperacao! contexto) -> OpenDFe.PedidoRest!
+OpenDFe.PedidoRest
+OpenDFe.PedidoRest.CampoXml.get -> string?
+OpenDFe.PedidoRest.CampoXml.init -> void
+OpenDFe.PedidoRest.Caminho.get -> string!
+OpenDFe.PedidoRest.Destino.get -> OpenDFe.Destino?
+OpenDFe.PedidoRest.Destino.init -> void
+OpenDFe.PedidoRest.Documentos.get -> System.Collections.Generic.IReadOnlyList<OpenDFe.DocumentoPedido!>!
+OpenDFe.PedidoRest.Documentos.init -> void
+OpenDFe.PedidoRest.IdsAssinatura.get -> System.Collections.Generic.IReadOnlyList<string!>!
+OpenDFe.PedidoRest.IdsAssinatura.init -> void
+OpenDFe.PedidoRest.Metodo.get -> OpenDFe.MetodoRest
+OpenDFe.PedidoRest.PedidoRest(string! servico, OpenDFe.MetodoRest metodo, string! caminho) -> void
+OpenDFe.PedidoRest.Problemas.get -> System.Collections.Generic.IReadOnlyList<OpenDFe.Problema!>!
+OpenDFe.PedidoRest.Problemas.init -> void
+OpenDFe.PedidoRest.Schema.get -> OpenDFe.SchemaXml?
+OpenDFe.PedidoRest.Schema.init -> void
+OpenDFe.PedidoRest.Servico.get -> string!
+OpenDFe.PedidoRest.Xml.get -> string?
+OpenDFe.PedidoRest.Xml.init -> void
+OpenDFe.RespostaRest
+OpenDFe.RespostaRest.Corpo.get -> string?
+OpenDFe.RespostaRest.RespostaRest(int status, string? corpo) -> void
+OpenDFe.RespostaRest.Status.get -> int
+OpenDFe.DeclaracaoLeiaute.RegistrarOperacao<TParametro, TRetorno>(OpenDFe.IOperacaoRest<TParametro!, TRetorno!>! operacao) -> void
+OpenDFe.RastroWS.StatusHttp.get -> int?

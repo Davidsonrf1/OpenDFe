@@ -47,11 +47,14 @@ public sealed class DFe
     /// <exception cref="ArgumentException">
     /// O leiaute não atende o documento; um membro obrigatório da configuração é nulo ou tem valor desconhecido;
     /// a configuração do documento falta (quando o leiaute a declara obrigatória), é de outro tipo ou não é
-    /// declarada pelo leiaute; a UF não tem atendimento no tipo de emissão; o tipo de emissão é diferente de
-    /// <see cref="TipoEmissao.Normal"/> sem a <see cref="ConfiguracaoDFe.Contingencia"/>, ou é
-    /// <see cref="TipoEmissao.Normal"/> com ela; uma URL trocada é nula ou repetida; a lista das regras rebaixadas a
-    /// aviso é nula ou tem um código nulo ou vazio; uma URL, do leiaute ou trocada, é de um serviço sem o envelope SOAP
-    /// declarado (<see cref="DeclaracaoLeiaute.DeclararServico"/>).
+    /// declarada pelo leiaute; a UF não tem atendimento no tipo de emissão (quando o leiaute declara algum atendimento;
+    /// o da NFS-e não declara); o tipo de emissão é diferente de <see cref="TipoEmissao.Normal"/> sem a
+    /// <see cref="ConfiguracaoDFe.Contingencia"/>, ou é <see cref="TipoEmissao.Normal"/> com ela; com
+    /// <see cref="Documento.NFSe"/>, o tipo de emissão é diferente de <see cref="TipoEmissao.Normal"/> (a NFS-e nacional
+    /// não tem contingência); uma URL trocada é nula ou repetida; a lista das regras rebaixadas a aviso é nula ou tem um
+    /// código nulo ou vazio; uma URL, do leiaute ou trocada, é de um serviço sem o envelope SOAP declarado
+    /// (<see cref="DeclaracaoLeiaute.DeclararServico"/>), exceto as da <see cref="Destino.SefinNacional"/> e do
+    /// <see cref="Destino.ADN"/>, que atendem em REST.
     /// </exception>
     /// <exception cref="CryptographicException">O certificado não tem a chave privada, ou ela não é RSA.</exception>
     /// <exception cref="ObjectDisposedException">As conexões já foram descartadas.</exception>
@@ -63,11 +66,13 @@ public sealed class DFe
     {
         ArgumentNullException.ThrowIfNull(leiaute);
         ArgumentNullException.ThrowIfNull(configuracao);
+        if (documento == Documento.NFSe && configuracao.Emissao != TipoEmissao.Normal)
+            throw new ArgumentException("A NFS-e nacional não tem contingência: o tipo de emissão é sempre Normal.", nameof(configuracao));
         ConferirConfiguracao(configuracao);
         var declaracao = DeclaracaoLeiaute.Criar(leiaute, documento);
 
         ConferirDocumento(declaracao, configuracao);
-        if (!declaracao.TentarAtendimento(configuracao.UF, configuracao.Emissao, out _))
+        if (declaracao.Atendimentos.Count > 0 && !declaracao.TentarAtendimento(configuracao.UF, configuracao.Emissao, out _))
         {
             throw new ArgumentException(
                 $"O leiaute não declara quem atende a UF {configuracao.UF} no tipo de emissão {configuracao.Emissao}.",
@@ -76,7 +81,7 @@ public sealed class DFe
         var enderecos = Sobrepor(declaracao.Enderecos, configuracao);
         foreach (var endereco in enderecos)
         {
-            if (!declaracao.TentarServico(endereco.Servico, out _))
+            if (!Rest(endereco.Autorizador) && !declaracao.TentarServico(endereco.Servico, out _))
             {
                 throw new ArgumentException(
                     $"O leiaute não declara o envelope SOAP do serviço {endereco.Servico} (a URL de {endereco.Autorizador.Sigla()}, {endereco.Ambiente}).",
@@ -280,7 +285,10 @@ public sealed class DFe
     {
         ArgumentNullException.ThrowIfNull(parametro);
         var tipo = parametro.GetType();
-        if (!_declaracao.TentarExecutor(tipo, out var encontrado) || encontrado is not ExecutorOperacao<TRetorno> executor)
+        _declaracao.TentarExecutor(tipo, out var encontrado);
+        if (encontrado is ExecutorRest<TRetorno> rest)
+            return await ExecutarRestAsync(parametro, rest, cancellationToken).ConfigureAwait(false);
+        if (encontrado is not ExecutorOperacao<TRetorno> executor)
             throw new NotSupportedException($"O leiaute {Leiaute.Versao} não registrou a operação {tipo.Name} para {Documento}.");
         cancellationToken.ThrowIfCancellationRequested();
 
@@ -365,6 +373,121 @@ public sealed class DFe
         RastroWS Rastro(string? xmlPedido, string? retorno, Destino? autorizadorEscolhido, Uri? urlEscolhida, TimeSpan? transmissao) =>
             new(xmlPedido, retorno, autorizadorEscolhido, urlEscolhida, inicio, relogio.GetElapsedTime(marca), transmissao);
     }
+
+    // O caminho REST (docs/NFSE.md, D4, D5 e D12): os passos 2 a 6 sobre o XML do pedido (sem XML, sem assinatura nem
+    // schema); a URL é a base do destino × ambiente × serviço mais o caminho; o corpo é o JSON com o XML compactado; o Ler
+    // recebe o status e o corpo.
+    private async Task<ResultadoWS<TRetorno>> ExecutarRestAsync<TRetorno>(
+        ParametroWS<TRetorno> parametro, ExecutorRest<TRetorno> executor, CancellationToken cancellationToken)
+        where TRetorno : class
+    {
+        var tipo = parametro.GetType();
+        cancellationToken.ThrowIfCancellationRequested();
+        var relogio = Configuracao.Relogio;
+        var inicio = relogio.GetUtcNow();
+        var marca = relogio.GetTimestamp();
+
+        // 2. Montar; a coerência do pedido; a recusa da montagem.
+        var pedido = executor.Montar(parametro, _contexto)
+            ?? throw new InvalidOperationException($"A operação {tipo.Name} montou um pedido nulo.");
+        ConferirPedido(pedido, parametro, tipo);
+        var problemas = new List<Problema>(pedido.Problemas);
+        if (TemErro(pedido.Problemas))
+            return Recusado(string.IsNullOrEmpty(pedido.Xml) ? null : pedido.Xml);
+
+        // 3 a 6, sobre o XML.
+        var xml = pedido.Xml;
+        if (xml is not null)
+        {
+            foreach (var id in pedido.IdsAssinatura)
+                xml = AssinaturaDigital.Assinar(xml, id, Configuracao.Certificado);
+            if (!Validar(xml, pedido.Schema!, pedido.Documentos, schemasDocumentos: true, problemas))
+                return Recusado(xml);
+        }
+
+        // 7. A URL; 8. transmitir.
+        var (autorizador, baseUrl) = EscolherUrl(parametro.Destino ?? pedido.Destino, null, pedido.Servico);
+        var url = new Uri(baseUrl.AbsoluteUri.TrimEnd('/') + "/" + pedido.Caminho);
+        cancellationToken.ThrowIfCancellationRequested();
+        var transporte = Configuracao.Conexoes.Transporte();
+        var corpo = xml is null ? null : CorpoRest.Montar(pedido.CampoXml!, xml);
+        var envio = new EnvioRest(Configuracao.Certificado, autorizador, url, pedido.Servico, pedido.Metodo, corpo, _declaracao.CifrasAutorizador(autorizador));
+        var marcaTransmissao = relogio.GetTimestamp();
+        RespostaRest resposta;
+        try
+        {
+            resposta = await transporte.EnviarRestAsync(envio, cancellationToken).ConfigureAwait(false)
+                ?? throw new InvalidDataException("O transporte não devolveu a resposta.");
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
+        }
+        catch (FalhaTransporte e)
+        {
+            throw new FalhaTransmissaoException(
+                $"A transmissão de {pedido.Servico} ({pedido.Metodo.ToString().ToUpperInvariant()} {pedido.Caminho}) a {autorizador.Sigla()} falhou: {e.Message}",
+                Rastro(xml, e.Resposta, autorizador, url, relogio.GetElapsedTime(marcaTransmissao), e.StatusHttp), e.Tipo,
+                e.PodeTerSidoProcessado, e.InnerException ?? e);
+        }
+        catch (Exception e)
+        {
+            // Um transporte sem a classificação (o falso dos testes).
+            var tipoFalha = e switch
+            {
+                OperationCanceledException => TipoFalhaTransmissao.TempoEsgotado,
+                InvalidDataException => TipoFalhaTransmissao.RespostaIlegivel,
+                _ => TipoFalhaTransmissao.Conexao,
+            };
+            throw new FalhaTransmissaoException(
+                $"A transmissão de {pedido.Servico} a {autorizador.Sigla()} falhou: {e.Message}",
+                Rastro(xml, null, autorizador, url, relogio.GetElapsedTime(marcaTransmissao), null), tipoFalha, envio.Enviado, e);
+        }
+        var duracaoTransmissao = relogio.GetElapsedTime(marcaTransmissao);
+
+        // 9. Ler; 10. o resultado. A consulta (GET, HEAD) não processa nada: a resposta ilegível dela não pode ter sido.
+        LeituraWS<TRetorno> leitura;
+        try
+        {
+            leitura = executor.Ler(parametro, xml, resposta, _contexto)
+                ?? throw new InvalidOperationException($"A operação {tipo.Name} leu um retorno nulo.");
+        }
+        catch (Exception e) when (e is XmlException or FormatException or System.Text.Json.JsonException)
+        {
+            throw new FalhaTransmissaoException(
+                $"A resposta de {pedido.Servico} de {autorizador.Sigla()} não pôde ser lida: {e.Message}",
+                Rastro(xml, resposta.Corpo, autorizador, url, duracaoTransmissao, resposta.Status), TipoFalhaTransmissao.RespostaIlegivel,
+                podeTerSidoProcessado: pedido.Metodo == MetodoRest.Post, e);
+        }
+        problemas.AddRange(leitura.Problemas);
+        return ResultadoWS<TRetorno>.CriarProcessado(leitura, problemas.ToArray(),
+            Rastro(xml, resposta.Corpo, autorizador, url, duracaoTransmissao, resposta.Status));
+
+        ResultadoWS<TRetorno> Recusado(string? xmlPedido) =>
+            ResultadoWS<TRetorno>.CriarRecusado(problemas.ToArray(), Rastro(xmlPedido, null, null, null, null, null));
+
+        RastroWS Rastro(string? xmlPedido, string? retorno, Destino? autorizadorEscolhido, Uri? urlEscolhida, TimeSpan? transmissao, int? status) =>
+            new(xmlPedido, retorno, autorizadorEscolhido, urlEscolhida, inicio, relogio.GetElapsedTime(marca), transmissao, status);
+    }
+
+    // A coerência do pedido REST: o POST com o XML, o schema e o campo; o GET e o HEAD sem o XML; o destino.
+    private static void ConferirPedido(PedidoRest pedido, ParametroWS parametro, Type tipo)
+    {
+        string? erro = null;
+        if (pedido.Metodo == MetodoRest.Post && pedido.Xml is null)
+            erro = "o POST sem o XML";
+        else if (pedido.Metodo != MetodoRest.Post && pedido.Xml is not null)
+            erro = $"o {pedido.Metodo.ToString().ToUpperInvariant()} com o XML";
+        else if (pedido.Xml is not null && (pedido.Schema is null || pedido.CampoXml is null))
+            erro = "o XML sem o schema ou sem o campo do JSON";
+        else if (parametro.Destino is null && pedido.Destino is null)
+            erro = "sem o destino";
+        if (erro is not null)
+            throw new InvalidOperationException($"A operação {tipo.Name} montou um pedido REST incoerente: {erro}.");
+    }
+
+    // Os destinos que atendem em REST: as URLs deles não têm o envelope SOAP.
+    private static bool Rest(Destino destino) => destino is Destino.SefinNacional or Destino.ADN;
 
     /// <summary>
     /// Prepara um documento sem transmitir (PROJETO.md 8.3; a NFC-e offline, 9.2): o caminho do

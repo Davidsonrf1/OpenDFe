@@ -12,10 +12,11 @@ namespace OpenDFe.NFSe;
 /// produção embutido (docs/NTS.md 12.1), carregados na primeira vez que são usados.
 /// </para>
 /// <para>
-/// Nesta etapa (9.1), declara as formas de XML que lê (a <c>DPS</c>, a <c>NFSe</c>, o <c>pedRegEvento</c> e o
-/// <c>evento</c>, nas versões 1.00 e 1.01) para o <see cref="DFe.Detectar"/>, e as regras fora do schema da DPS; escreve a
-/// DPS (<see cref="Escrever"/>) e lê a NFS-e, a DPS e os eventos (<see cref="Ler"/>, <see cref="LerEvento"/>) sem núcleo.
-/// As operações (a emissão, as consultas, os eventos, a parametrização) chegam nas etapas 9.2 a 9.4.
+/// Declara as formas de XML que lê (a <c>DPS</c>, a <c>NFSe</c>, o <c>pedRegEvento</c> e o <c>evento</c>, nas versões 1.00
+/// e 1.01) para o <see cref="DFe.Detectar"/>, e as regras fora do schema da DPS; escreve a DPS (<see cref="Escrever"/>) e lê
+/// a NFS-e, a DPS e os eventos (<see cref="Ler"/>, <see cref="LerEvento"/>) sem núcleo. Desde a 9.2, as operações na Sefin
+/// Nacional: a emissão, a consulta pela chave e pela DPS e a <see cref="RecuperacaoEmissao"/>. Os eventos e a
+/// parametrização chegam na 9.3 e na 9.4.
 /// </para>
 /// </remarks>
 public sealed class LeiauteNFSe101 : ILeiaute
@@ -46,14 +47,20 @@ public sealed class LeiauteNFSe101 : ILeiaute
     public IReadOnlyList<Documento> Documentos => Atendidos;
 
     /// <summary>
-    /// Declara o que o leiaute tem para a NFS-e: as quatro formas de XML que ele lê (D7), com a versão 1.00 além da 1.01, e
-    /// as regras fora do schema da DPS (docs/NFSE.md 4).
+    /// Declara o que o leiaute tem para a NFS-e: as operações REST na Sefin Nacional (a <see cref="EmissaoNFSe"/>, a
+    /// <see cref="ConsultaNFSe"/> e a <see cref="ConsultaDps"/>; D4), as bases da Sefin nos dois ambientes, as quatro formas de
+    /// XML que ele lê (D7), com a versão 1.00 além da 1.01, e as regras fora do schema da DPS (docs/NFSE.md 4). Sem
+    /// atendimento por UF: o destino é sempre a Sefin (D3).
     /// </summary>
     /// <param name="declaracao">Onde declarar.</param>
     /// <exception cref="ArgumentNullException">A declaração é nula.</exception>
     public void Declarar(DeclaracaoLeiaute declaracao)
     {
         ArgumentNullException.ThrowIfNull(declaracao);
+        declaracao.RegistrarOperacao(new OperacaoEmissaoNFSe());
+        declaracao.RegistrarOperacao(new OperacaoConsultaNFSe());
+        declaracao.RegistrarOperacao(new OperacaoConsultaDps());
+        SefinNacional.Declarar(declaracao);
         foreach (var forma in Formas)
             declaracao.DeclararLeitura(forma);
         declaracao.DeclararRegras(RegrasNFSe101.Conferir);

@@ -12,8 +12,9 @@ public sealed class RastroWS
 {
     internal RastroWS(
         string? xmlPedido, string? xmlRetorno, Destino? autorizador, Uri? url,
-        DateTimeOffset inicio, TimeSpan duracao, TimeSpan? duracaoTransmissao)
+        DateTimeOffset inicio, TimeSpan duracao, TimeSpan? duracaoTransmissao, int? statusHttp = null)
     {
+        StatusHttp = statusHttp;
         XmlPedido = xmlPedido;
         XmlRetorno = xmlRetorno;
         Autorizador = autorizador;
@@ -25,12 +26,19 @@ public sealed class RastroWS
 
     /// <summary>
     /// A mensagem (o conteúdo do <c>nfeDadosMsg</c>) como foi, ou seria, enviada, assinada; na recusa da
-    /// montagem, como o leiaute a montou; <see langword="null"/> se a montagem não a produziu.
+    /// montagem, como o leiaute a montou; <see langword="null"/> se a montagem não a produziu. No REST, o XML assinado e
+    /// legível (a DPS), e não o JSON compactado; <see langword="null"/> no pedido sem corpo (docs/NFSE.md, D12).
     /// </summary>
     public string? XmlPedido { get; }
 
-    /// <summary>A resposta (o conteúdo do <c>nfeResultMsg</c>); <see langword="null"/> se não houve resposta.</summary>
+    /// <summary>
+    /// A resposta (o conteúdo do <c>nfeResultMsg</c>); <see langword="null"/> se não houve resposta. No REST, o corpo como
+    /// veio (o JSON), com o documento ainda compactado; <see langword="null"/> no HEAD.
+    /// </summary>
     public string? XmlRetorno { get; }
+
+    /// <summary>O status HTTP da resposta REST; <see langword="null"/> no SOAP e sem resposta (docs/NFSE.md, D12).</summary>
+    public int? StatusHttp { get; }
 
     /// <summary>O autorizador escolhido; <see langword="null"/> se a operação parou antes da escolha.</summary>
     public Destino? Autorizador { get; }

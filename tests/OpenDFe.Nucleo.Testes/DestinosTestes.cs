@@ -14,7 +14,7 @@ public class DestinosTestes
             Assert.Equal(uf, lida);
         }
         Assert.Equal(27, Enum.GetValues<UF>().Length);
-        Assert.Equal(27 + 5, Enum.GetValues<Destino>().Length);
+        Assert.Equal(27 + 7, Enum.GetValues<Destino>().Length);
     }
 
     [Theory]
@@ -23,6 +23,8 @@ public class DestinosTestes
     [InlineData(Destino.SVAN, 102, "SVAN")]
     [InlineData(Destino.SvcAN, 103, "SVC-AN")]
     [InlineData(Destino.SvcRS, 104, "SVC-RS")]
+    [InlineData(Destino.SefinNacional, 120, "SEFIN")]
+    [InlineData(Destino.ADN, 121, "ADN")]
     public void OsAutorizadoresNaoSaoUF(Destino destino, int valor, string sigla)
     {
         Assert.Equal(valor, (int)destino);
@@ -48,6 +50,8 @@ public class DestinosTestes
     [InlineData("svrs")]
     [InlineData("SVCAN")]
     [InlineData("SvcAN")]
+    [InlineData("SefinNacional")]
+    [InlineData("sefin")]
     [InlineData("XX")]
     [InlineData(" MG")]
     public void RecusaASiglaQueNaoEDeDestino(string? sigla)

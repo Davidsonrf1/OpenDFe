@@ -40,3 +40,34 @@ internal sealed class ExecutorOperacao<TParametro, TRetorno> : ExecutorOperacao<
     public override LeituraWS<TRetorno> Ler(ParametroWS<TRetorno> parametro, string xmlPedido, string xmlRetorno, ContextoOperacao contexto) =>
         _operacao.Ler((TParametro)parametro, xmlPedido, xmlRetorno, contexto);
 }
+
+/// <summary>O handler REST registrado, sem o tipo do parâmetro (docs/NFSE.md, D4).</summary>
+internal abstract class ExecutorRest<TRetorno> : ExecutorOperacao
+    where TRetorno : class
+{
+    public abstract PedidoRest Montar(ParametroWS<TRetorno> parametro, ContextoOperacao contexto);
+
+    public abstract LeituraWS<TRetorno> Ler(ParametroWS<TRetorno> parametro, string? xmlPedido, RespostaRest resposta, ContextoOperacao contexto);
+}
+
+/// <inheritdoc cref="ExecutorRest{TRetorno}"/>
+internal sealed class ExecutorRest<TParametro, TRetorno> : ExecutorRest<TRetorno>
+    where TParametro : ParametroWS<TRetorno>
+    where TRetorno : class
+{
+    private readonly IOperacaoRest<TParametro, TRetorno> _operacao;
+
+    public ExecutorRest(IOperacaoRest<TParametro, TRetorno> operacao)
+    {
+        _operacao = operacao;
+        Operacao = new OperacaoSuportada(typeof(TParametro), typeof(TRetorno));
+    }
+
+    public override OperacaoSuportada Operacao { get; }
+
+    public override PedidoRest Montar(ParametroWS<TRetorno> parametro, ContextoOperacao contexto) =>
+        _operacao.Montar((TParametro)parametro, contexto);
+
+    public override LeituraWS<TRetorno> Ler(ParametroWS<TRetorno> parametro, string? xmlPedido, RespostaRest resposta, ContextoOperacao contexto) =>
+        _operacao.Ler((TParametro)parametro, xmlPedido, resposta, contexto);
+}

@@ -26,3 +26,44 @@ OpenDFe.NFSe.NFSeLida.Problemas.get -> System.Collections.Generic.IReadOnlyList<
 OpenDFe.NFSe.NFSeLida.Versao.get -> string?
 OpenDFe.NFSe.NFSeLida.Xml.get -> string!
 static OpenDFe.NFSe.LeiauteNFSe101.Instancia.get -> OpenDFe.NFSe.LeiauteNFSe101!
+OpenDFe.NFSe.ConsultaDps
+OpenDFe.NFSe.ConsultaDps.ApenasExistencia.get -> bool
+OpenDFe.NFSe.ConsultaDps.ApenasExistencia.init -> void
+OpenDFe.NFSe.ConsultaDps.ConsultaDps(OpenDFe.NFSe.IdentificadorDps id) -> void
+OpenDFe.NFSe.ConsultaDps.Id.get -> OpenDFe.NFSe.IdentificadorDps
+OpenDFe.NFSe.ConsultaNFSe
+OpenDFe.NFSe.ConsultaNFSe.Chave.get -> OpenDFe.NFSe.ChaveNFSe
+OpenDFe.NFSe.ConsultaNFSe.ConsultaNFSe(OpenDFe.NFSe.ChaveNFSe chave) -> void
+OpenDFe.NFSe.EmissaoNFSe
+OpenDFe.NFSe.EmissaoNFSe.Dps.get -> OpenDFe.NFSe.Dps!
+OpenDFe.NFSe.EmissaoNFSe.EmissaoNFSe(OpenDFe.NFSe.Dps! dps) -> void
+OpenDFe.NFSe.MensagemSefin
+OpenDFe.NFSe.MensagemSefin.Codigo.get -> string!
+OpenDFe.NFSe.MensagemSefin.Complemento.get -> string?
+OpenDFe.NFSe.MensagemSefin.Descricao.get -> string!
+override OpenDFe.NFSe.MensagemSefin.ToString() -> string!
+OpenDFe.NFSe.RecuperacaoEmissao
+OpenDFe.NFSe.RecuperacaoNFSe
+OpenDFe.NFSe.RecuperacaoNFSe.Dps.get -> OpenDFe.ResultadoWS<OpenDFe.NFSe.RetornoConsultaDps!>!
+OpenDFe.NFSe.RecuperacaoNFSe.Gerada.get -> bool
+OpenDFe.NFSe.RecuperacaoNFSe.NaoGerada.get -> bool
+OpenDFe.NFSe.RecuperacaoNFSe.Nota.get -> OpenDFe.ResultadoWS<OpenDFe.NFSe.RetornoConsultaNFSe!>?
+OpenDFe.NFSe.RetornoConsultaDps
+OpenDFe.NFSe.RetornoConsultaDps.Chave.get -> OpenDFe.NFSe.ChaveNFSe?
+OpenDFe.NFSe.RetornoConsultaDps.Erros.get -> System.Collections.Generic.IReadOnlyList<OpenDFe.NFSe.MensagemSefin!>!
+OpenDFe.NFSe.RetornoConsultaDps.Existe.get -> bool
+OpenDFe.NFSe.RetornoConsultaNFSe
+OpenDFe.NFSe.RetornoConsultaNFSe.Alertas.get -> System.Collections.Generic.IReadOnlyList<OpenDFe.NFSe.MensagemSefin!>!
+OpenDFe.NFSe.RetornoConsultaNFSe.Chave.get -> OpenDFe.NFSe.ChaveNFSe?
+OpenDFe.NFSe.RetornoConsultaNFSe.Encontrada.get -> bool
+OpenDFe.NFSe.RetornoConsultaNFSe.Erros.get -> System.Collections.Generic.IReadOnlyList<OpenDFe.NFSe.MensagemSefin!>!
+OpenDFe.NFSe.RetornoConsultaNFSe.Nota.get -> OpenDFe.NFSe.NotaFiscalServico?
+OpenDFe.NFSe.RetornoConsultaNFSe.Xml.get -> string?
+OpenDFe.NFSe.RetornoEmissaoNFSe
+OpenDFe.NFSe.RetornoEmissaoNFSe.Alertas.get -> System.Collections.Generic.IReadOnlyList<OpenDFe.NFSe.MensagemSefin!>!
+OpenDFe.NFSe.RetornoEmissaoNFSe.Chave.get -> OpenDFe.NFSe.ChaveNFSe?
+OpenDFe.NFSe.RetornoEmissaoNFSe.Emitida.get -> bool
+OpenDFe.NFSe.RetornoEmissaoNFSe.Erros.get -> System.Collections.Generic.IReadOnlyList<OpenDFe.NFSe.MensagemSefin!>!
+OpenDFe.NFSe.RetornoEmissaoNFSe.Nota.get -> OpenDFe.NFSe.NotaFiscalServico?
+OpenDFe.NFSe.RetornoEmissaoNFSe.Xml.get -> string?
+static OpenDFe.NFSe.RecuperacaoEmissao.ExecutarAsync(OpenDFe.DFe! dfe, OpenDFe.NFSe.IdentificadorDps id, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<OpenDFe.NFSe.RecuperacaoNFSe!>!

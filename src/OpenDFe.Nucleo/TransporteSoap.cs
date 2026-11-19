@@ -4,6 +4,7 @@ using System.Net.Security;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using System.Text.Json;
 using System.Xml;
 
 namespace OpenDFe;
@@ -11,7 +12,7 @@ namespace OpenDFe;
 /// <summary>
 /// O transporte real do <see cref="ConexoesSefaz"/> (PROJETO.md 8.2 e 8.5): o pool de handlers por certificado e
 /// política de cifras, o POST do envelope SOAP 1.2 e a leitura da resposta, com cada falha classificada
-/// (<see cref="FalhaTransporte"/>).
+/// (<see cref="FalhaTransporte"/>). Desde a 9.2, também o REST da NFS-e (docs/NFSE.md, D4 e D5), pelo mesmo pool.
 /// </summary>
 internal sealed class TransporteSoap : ITransporteSefaz, IDisposable
 {
@@ -41,25 +42,54 @@ internal sealed class TransporteSoap : ITransporteSefaz, IDisposable
 
     public async Task<string> EnviarAsync(EnvioSefaz envio, CancellationToken cancellationToken)
     {
+        var (status, corpo) = await TransmitirAsync(envio, () => new HttpRequestMessage(HttpMethod.Post, envio.Url)
+        {
+            Version = HttpVersion.Version11,
+            VersionPolicy = HttpVersionPolicy.RequestVersionOrLower,
+            Content = new ConteudoSoap(envio),
+        }, cancellationToken).ConfigureAwait(false);
+        return Interpretar(status, corpo, envio);
+    }
+
+    public async Task<RespostaRest> EnviarRestAsync(EnvioRest envio, CancellationToken cancellationToken)
+    {
+        var (status, corpo) = await TransmitirAsync(envio, () =>
+        {
+            var metodo = envio.Metodo switch
+            {
+                MetodoRest.Post => HttpMethod.Post,
+                MetodoRest.Head => HttpMethod.Head,
+                _ => HttpMethod.Get,
+            };
+            var pedido = new HttpRequestMessage(metodo, envio.Url)
+            {
+                Version = HttpVersion.Version11,
+                VersionPolicy = HttpVersionPolicy.RequestVersionOrLower,
+            };
+            pedido.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            if (envio.Corpo is not null)
+                pedido.Content = new ConteudoRest(envio);
+            return pedido;
+        }, cancellationToken).ConfigureAwait(false);
+        return InterpretarRest(status, corpo, envio);
+    }
+
+    // O pool, os tempos e a classificação das falhas de rede, comuns ao SOAP e ao REST: o status e o corpo como vieram.
+    private async Task<(HttpStatusCode Status, string Corpo)> TransmitirAsync(
+        EnvioTransporte envio, Func<HttpRequestMessage> criar, CancellationToken cancellationToken)
+    {
         var entrada = Pegar(envio.Certificado, envio.Cifras);
         try
         {
             using var tempo = new CancellationTokenSource(_dono.TempoResposta, _relogio);
             using var ligado = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, tempo.Token);
-            using var pedido = new HttpRequestMessage(HttpMethod.Post, envio.Url)
-            {
-                Version = HttpVersion.Version11,
-                VersionPolicy = HttpVersionPolicy.RequestVersionOrLower,
-                Content = new ConteudoSoap(envio),
-            };
-
-            HttpStatusCode status;
-            string corpo;
+            using var pedido = criar();
             try
             {
                 using var resposta = await entrada.Invocador.SendAsync(pedido, ligado.Token).ConfigureAwait(false);
-                status = resposta.StatusCode;
-                corpo = await resposta.Content.ReadAsStringAsync(ligado.Token).ConfigureAwait(false);
+                var status = resposta.StatusCode;
+                var corpo = await resposta.Content.ReadAsStringAsync(ligado.Token).ConfigureAwait(false);
+                return (status, corpo);
             }
             catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
             {
@@ -83,7 +113,6 @@ internal sealed class TransporteSoap : ITransporteSefaz, IDisposable
             {
                 throw new FalhaTransporte(TipoFalhaTransmissao.Conexao, envio.Enviado, e.Message, e);
             }
-            return Interpretar(status, corpo, envio);
         }
         finally
         {
@@ -148,7 +177,52 @@ internal sealed class TransporteSoap : ITransporteSefaz, IDisposable
         throw new FalhaTransporte(TipoFalhaTransmissao.Http, processado, $"HTTP {codigo} ({status}) sem o envelope SOAP", causa, corpo);
     }
 
-    private static FalhaTransporte Classificar(HttpRequestException e, EnvioSefaz envio)
+    // A resposta REST pela D5 (docs/NFSE.md): o 2xx, o 4xx com JSON e o 404 do HEAD vão ao leiaute; o 2xx que não é JSON é
+    // ilegível; o 403 sem JSON é o certificado recusado; o 4xx sem JSON não foi processado; o 5xx pode ter sido.
+    internal static RespostaRest InterpretarRest(HttpStatusCode status, string corpo, EnvioRest envio)
+    {
+        var codigo = (int)status;
+        var vazio = string.IsNullOrWhiteSpace(corpo);
+        var json = !vazio && EhJson(corpo);
+        if (codigo is >= 200 and <= 299)
+        {
+            if (vazio || json)
+                return new RespostaRest(codigo, vazio ? null : corpo);
+            throw new FalhaTransporte(TipoFalhaTransmissao.RespostaIlegivel, envio.Enviado,
+                $"HTTP {codigo}: a resposta não é JSON", new InvalidDataException("A resposta não é JSON."), corpo, codigo);
+        }
+        if (codigo is >= 400 and <= 499)
+        {
+            if (json)
+                return new RespostaRest(codigo, corpo);
+            if (vazio && envio.Metodo == MetodoRest.Head && status == HttpStatusCode.NotFound)
+                return new RespostaRest(codigo, null);
+        }
+
+        var causa = new HttpRequestException($"HTTP {codigo} ({status}).", null, status);
+        if (status == HttpStatusCode.Forbidden)
+        {
+            throw new FalhaTransporte(TipoFalhaTransmissao.CertificadoRecusado, false,
+                "HTTP 403: o autorizador recusou o certificado do cliente", causa, vazio ? null : corpo, codigo);
+        }
+        var processado = codigo is < 400 or > 499 && envio.Enviado;
+        throw new FalhaTransporte(TipoFalhaTransmissao.Http, processado, $"HTTP {codigo} ({status}) sem a resposta em JSON", causa, vazio ? null : corpo, codigo);
+    }
+
+    private static bool EhJson(string corpo)
+    {
+        try
+        {
+            using var documento = JsonDocument.Parse(corpo);
+            return true;
+        }
+        catch (JsonException)
+        {
+            return false;
+        }
+    }
+
+    private static FalhaTransporte Classificar(HttpRequestException e, EnvioTransporte envio)
     {
         if (e.InnerException is TimeoutException)
             return new FalhaTransporte(TipoFalhaTransmissao.TempoEsgotado, envio.Enviado, e.Message, e);
@@ -273,6 +347,35 @@ internal sealed class TransporteSoap : ITransporteSefaz, IDisposable
             return true;
         }
     }
+
+    // O JSON do REST em UTF-8; marca o envio quando o corpo foi escrito inteiro.
+    private sealed class ConteudoRest : HttpContent
+    {
+        private readonly EnvioRest _envio;
+        private readonly byte[] _bytes;
+
+        public ConteudoRest(EnvioRest envio)
+        {
+            _envio = envio;
+            _bytes = Encoding.UTF8.GetBytes(envio.Corpo!);
+            Headers.ContentType = new MediaTypeHeaderValue("application/json") { CharSet = "utf-8" };
+        }
+
+        protected override Task SerializeToStreamAsync(Stream stream, TransportContext? context) =>
+            SerializeToStreamAsync(stream, context, CancellationToken.None);
+
+        protected override async Task SerializeToStreamAsync(Stream stream, TransportContext? context, CancellationToken cancellationToken)
+        {
+            await stream.WriteAsync(_bytes, cancellationToken).ConfigureAwait(false);
+            _envio.MarcarEnviado();
+        }
+
+        protected override bool TryComputeLength(out long length)
+        {
+            length = _bytes.Length;
+            return true;
+        }
+    }
 }
 
 /// <summary>
@@ -280,10 +383,13 @@ internal sealed class TransporteSoap : ITransporteSefaz, IDisposable
 /// <see cref="FalhaTransmissaoException"/>, com o corpo recebido no rastro.
 /// </summary>
 internal sealed class FalhaTransporte(
-    TipoFalhaTransmissao tipo, bool podeTerSidoProcessado, string mensagem, Exception causa, string? resposta = null)
+    TipoFalhaTransmissao tipo, bool podeTerSidoProcessado, string mensagem, Exception causa, string? resposta = null, int? statusHttp = null)
     : Exception(mensagem, causa)
 {
     public TipoFalhaTransmissao Tipo { get; } = tipo;
+
+    /// <summary>O status HTTP da resposta REST que não é resposta (D5); nulo no SOAP e sem resposta.</summary>
+    public int? StatusHttp { get; } = statusHttp;
 
     public bool PodeTerSidoProcessado { get; } = podeTerSidoProcessado;
 

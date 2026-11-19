@@ -273,7 +273,7 @@ public class DFeTestes
         [
             d => d.RegistrarOperacao(new OperacaoStatusFalsa()),
             d => d.RegistrarOperacao(new OperacaoAbstrataFalsa()),
-            d => d.RegistrarOperacao<StatusFalso, RetornoStatusFalso>(null!),
+            d => d.RegistrarOperacao((IOperacao<StatusFalso, RetornoStatusFalso>)null!),
             d => d.DeclararAtendimento(UF.MG, TipoEmissao.Normal, Destino.SVRS),
             d => d.DeclararAtendimento((UF)99, TipoEmissao.Normal, Destino.SVRS),
             d => d.DeclararAtendimento(UF.SP, (TipoEmissao)3, Destino.SVRS),

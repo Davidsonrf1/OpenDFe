@@ -34,6 +34,24 @@ internal sealed class TransporteFalso : ITransporteSefaz, IDisposable
         return Responder(envio, cancellationToken);
     }
 
+    /// <summary>Os pedidos REST (a 9.2), na ordem.</summary>
+    public ConcurrentQueue<EnvioRest> EnviosRest { get; } = new();
+
+    /// <summary>A resposta REST; o padrão marca o envio e responde 200 com <c>{"eco": "&lt;o caminho&gt;"}</c>.</summary>
+    public Func<EnvioRest, CancellationToken, Task<RespostaRest>> ResponderRest { get; set; } = (envio, _) =>
+    {
+        if (envio.Corpo is not null)
+            envio.MarcarEnviado();
+        return Task.FromResult(new RespostaRest(200, $"{{\"eco\": \"{envio.Url.AbsolutePath}\"}}"));
+    };
+
+    public Task<RespostaRest> EnviarRestAsync(EnvioRest envio, CancellationToken cancellationToken)
+    {
+        EnviosRest.Enqueue(envio);
+        Relogio?.Avancar(Demora);
+        return ResponderRest(envio, cancellationToken);
+    }
+
     public void Dispose() => Descartado = true;
 }
 

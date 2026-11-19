@@ -102,7 +102,9 @@ public sealed class DeclaracaoLeiaute
     /// <typeparam name="TRetorno">O retorno da operação.</typeparam>
     /// <param name="operacao">O handler.</param>
     /// <exception cref="ArgumentNullException">O handler é nulo.</exception>
-    /// <exception cref="ArgumentException">Já há handler para <typeparamref name="TParametro"/>, ou ele é abstrato.</exception>
+    /// <exception cref="ArgumentException">
+    /// Já há handler (SOAP ou REST) para <typeparamref name="TParametro"/>, ou ele é abstrato.
+    /// </exception>
     /// <exception cref="InvalidOperationException">Fora de <see cref="ILeiaute.Declarar"/>.</exception>
     public void RegistrarOperacao<TParametro, TRetorno>(IOperacao<TParametro, TRetorno> operacao)
         where TParametro : ParametroWS<TRetorno>
@@ -110,14 +112,44 @@ public sealed class DeclaracaoLeiaute
     {
         ConferirAberta();
         ArgumentNullException.ThrowIfNull(operacao);
-        if (typeof(TParametro).IsAbstract)
-            throw new ArgumentException($"O parâmetro {typeof(TParametro).Name} é abstrato; a operação é registrada pelo tipo concreto.", nameof(operacao));
-        if (_executoresTipo.ContainsKey(typeof(TParametro)))
-            throw new ArgumentException($"Já há uma operação registrada para {typeof(TParametro).Name}.", nameof(operacao));
+        if (Conflito(typeof(TParametro)) is { } erro)
+            throw new ArgumentException(erro, nameof(operacao));
+        Registrar(typeof(TParametro), new ExecutorOperacao<TParametro, TRetorno>(operacao));
+    }
 
-        var executor = new ExecutorOperacao<TParametro, TRetorno>(operacao);
+    /// <summary>
+    /// Registra o handler de uma operação REST (a NFS-e nacional; docs/NFSE.md, D4), pelo tipo do parâmetro. O núcleo a
+    /// executa pelo mesmo <see cref="DFe.ExecutarAsync{TRetorno}"/>.
+    /// </summary>
+    /// <typeparam name="TParametro">O parâmetro da operação: um tipo concreto.</typeparam>
+    /// <typeparam name="TRetorno">O retorno da operação.</typeparam>
+    /// <param name="operacao">O handler.</param>
+    /// <exception cref="ArgumentNullException">O handler é nulo.</exception>
+    /// <exception cref="ArgumentException">
+    /// Já há handler (SOAP ou REST) para <typeparamref name="TParametro"/>, ou ele é abstrato.
+    /// </exception>
+    /// <exception cref="InvalidOperationException">Fora de <see cref="ILeiaute.Declarar"/>.</exception>
+    public void RegistrarOperacao<TParametro, TRetorno>(IOperacaoRest<TParametro, TRetorno> operacao)
+        where TParametro : ParametroWS<TRetorno>
+        where TRetorno : class
+    {
+        ConferirAberta();
+        ArgumentNullException.ThrowIfNull(operacao);
+        if (Conflito(typeof(TParametro)) is { } erro)
+            throw new ArgumentException(erro, nameof(operacao));
+        Registrar(typeof(TParametro), new ExecutorRest<TParametro, TRetorno>(operacao));
+    }
+
+    // Por que o tipo de parâmetro não pode ser registrado; null = pode. O SOAP e o REST no mesmo dicionário.
+    private string? Conflito(Type parametro) =>
+        parametro.IsAbstract ? $"O parâmetro {parametro.Name} é abstrato; a operação é registrada pelo tipo concreto."
+        : _executoresTipo.ContainsKey(parametro) ? $"Já há uma operação registrada para {parametro.Name}."
+        : null;
+
+    private void Registrar(Type parametro, ExecutorOperacao executor)
+    {
         _executores.Add(executor);
-        _executoresTipo.Add(typeof(TParametro), executor);
+        _executoresTipo.Add(parametro, executor);
     }
 
     /// <summary>
