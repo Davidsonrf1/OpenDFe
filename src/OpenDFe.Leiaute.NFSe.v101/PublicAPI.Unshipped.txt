@@ -93,3 +93,71 @@ OpenDFe.NFSe.RetornoEventosNFSe.Alertas.get -> System.Collections.Generic.IReadO
 OpenDFe.NFSe.RetornoEventosNFSe.Encontrada.get -> bool
 OpenDFe.NFSe.RetornoEventosNFSe.Erros.get -> System.Collections.Generic.IReadOnlyList<OpenDFe.NFSe.MensagemSefin!>!
 OpenDFe.NFSe.RetornoEventosNFSe.Eventos.get -> System.Collections.Generic.IReadOnlyList<OpenDFe.NFSe.EventoNFSeRetornado!>!
+OpenDFe.NFSe.ConsultaAliquota
+OpenDFe.NFSe.ConsultaAliquota.Competencia.get -> System.DateOnly?
+OpenDFe.NFSe.ConsultaAliquota.Competencia.init -> void
+OpenDFe.NFSe.ConsultaAliquota.ConsultaAliquota(int municipio, string! tributacaoNacional, string! complemento = "000") -> void
+OpenDFe.NFSe.ConsultaAliquota.Municipio.get -> int
+OpenDFe.NFSe.ConsultaAliquota.Servico.get -> string!
+OpenDFe.NFSe.ConsultaBeneficio
+OpenDFe.NFSe.ConsultaBeneficio.Competencia.get -> System.DateOnly
+OpenDFe.NFSe.ConsultaBeneficio.ConsultaBeneficio(int municipio, string! numero, System.DateOnly competencia) -> void
+OpenDFe.NFSe.ConsultaBeneficio.Municipio.get -> int
+OpenDFe.NFSe.ConsultaBeneficio.Numero.get -> string!
+OpenDFe.NFSe.ConsultaConvenio
+OpenDFe.NFSe.ConsultaConvenio.ConsultaConvenio(int municipio) -> void
+OpenDFe.NFSe.ConsultaConvenio.Municipio.get -> int
+OpenDFe.NFSe.ConsultaRegimesEspeciais
+OpenDFe.NFSe.ConsultaRegimesEspeciais.Competencia.get -> System.DateOnly
+OpenDFe.NFSe.ConsultaRegimesEspeciais.ConsultaRegimesEspeciais(int municipio, string! tributacaoNacional, System.DateOnly competencia, string! complemento = "000") -> void
+OpenDFe.NFSe.ConsultaRegimesEspeciais.Municipio.get -> int
+OpenDFe.NFSe.ConsultaRegimesEspeciais.Servico.get -> string!
+OpenDFe.NFSe.ConsultaRetencoes
+OpenDFe.NFSe.ConsultaRetencoes.Competencia.get -> System.DateOnly
+OpenDFe.NFSe.ConsultaRetencoes.ConsultaRetencoes(int municipio, System.DateOnly competencia) -> void
+OpenDFe.NFSe.ConsultaRetencoes.Municipio.get -> int
+OpenDFe.NFSe.RegimeEspecialMunicipal
+OpenDFe.NFSe.RegimeEspecialMunicipal.Fim.get -> System.DateTime?
+OpenDFe.NFSe.RegimeEspecialMunicipal.Inicio.get -> System.DateTime?
+OpenDFe.NFSe.RegimeEspecialMunicipal.Regime.get -> OpenDFe.NFSe.RegimeEspecialTributacao?
+OpenDFe.NFSe.RegimeEspecialMunicipal.Situacao.get -> int?
+OpenDFe.NFSe.RetencaoMunicipal
+OpenDFe.NFSe.RetencaoMunicipal.Descricao.get -> string?
+OpenDFe.NFSe.RetencaoMunicipal.Responsaveis.get -> System.Collections.Generic.IReadOnlyList<string!>!
+OpenDFe.NFSe.RetencaoMunicipal.Tipos.get -> System.Collections.Generic.IReadOnlyList<OpenDFe.NFSe.RetencaoIssqn>!
+OpenDFe.NFSe.RetornoAliquota
+OpenDFe.NFSe.RetornoAliquota.Aliquotas.get -> System.Collections.Generic.IReadOnlyList<OpenDFe.NFSe.VigenciaAliquota!>!
+OpenDFe.NFSe.RetornoAliquota.Encontrado.get -> bool
+OpenDFe.NFSe.RetornoAliquota.Json.get -> System.Text.Json.JsonElement?
+OpenDFe.NFSe.RetornoAliquota.Mensagem.get -> string?
+OpenDFe.NFSe.RetornoBeneficio
+OpenDFe.NFSe.RetornoBeneficio.AliquotaDiferenciada.get -> decimal?
+OpenDFe.NFSe.RetornoBeneficio.Descricao.get -> string?
+OpenDFe.NFSe.RetornoBeneficio.Encontrado.get -> bool
+OpenDFe.NFSe.RetornoBeneficio.Fim.get -> System.DateTime?
+OpenDFe.NFSe.RetornoBeneficio.Inicio.get -> System.DateTime?
+OpenDFe.NFSe.RetornoBeneficio.Json.get -> System.Text.Json.JsonElement?
+OpenDFe.NFSe.RetornoBeneficio.Mensagem.get -> string?
+OpenDFe.NFSe.RetornoBeneficio.Numero.get -> string?
+OpenDFe.NFSe.RetornoBeneficio.Tipo.get -> OpenDFe.NFSe.TipoBeneficio?
+OpenDFe.NFSe.RetornoConvenio
+OpenDFe.NFSe.RetornoConvenio.AderenteAmbienteNacional.get -> bool?
+OpenDFe.NFSe.RetornoConvenio.AderenteEmissorNacional.get -> bool?
+OpenDFe.NFSe.RetornoConvenio.Encontrado.get -> bool
+OpenDFe.NFSe.RetornoConvenio.Json.get -> System.Text.Json.JsonElement?
+OpenDFe.NFSe.RetornoConvenio.Mensagem.get -> string?
+OpenDFe.NFSe.RetornoRegimesEspeciais
+OpenDFe.NFSe.RetornoRegimesEspeciais.Encontrado.get -> bool
+OpenDFe.NFSe.RetornoRegimesEspeciais.Json.get -> System.Text.Json.JsonElement?
+OpenDFe.NFSe.RetornoRegimesEspeciais.Mensagem.get -> string?
+OpenDFe.NFSe.RetornoRegimesEspeciais.Regimes.get -> System.Collections.Generic.IReadOnlyList<OpenDFe.NFSe.RegimeEspecialMunicipal!>!
+OpenDFe.NFSe.RetornoRetencoes
+OpenDFe.NFSe.RetornoRetencoes.Artigo6Habilitado.get -> bool?
+OpenDFe.NFSe.RetornoRetencoes.Encontrado.get -> bool
+OpenDFe.NFSe.RetornoRetencoes.Json.get -> System.Text.Json.JsonElement?
+OpenDFe.NFSe.RetornoRetencoes.Mensagem.get -> string?
+OpenDFe.NFSe.RetornoRetencoes.Retencoes.get -> System.Collections.Generic.IReadOnlyList<OpenDFe.NFSe.RetencaoMunicipal!>!
+OpenDFe.NFSe.VigenciaAliquota
+OpenDFe.NFSe.VigenciaAliquota.Aliquota.get -> decimal?
+OpenDFe.NFSe.VigenciaAliquota.Fim.get -> System.DateTime?
+OpenDFe.NFSe.VigenciaAliquota.Inicio.get -> System.DateTime?

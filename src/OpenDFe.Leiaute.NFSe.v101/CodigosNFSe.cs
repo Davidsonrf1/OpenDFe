@@ -47,4 +47,7 @@ internal static class CodigosNFSe
 
     /// <summary>Evento de tipo desconhecido ou com o texto fixo de outro tipo.</summary>
     internal const string Evento = "NFSE-EVENTO";
+
+    /// <summary>Campo da resposta da parametrização municipal que não se lê (docs/NFSE.md 11, P2): fica nulo, com o JSON ao lado.</summary>
+    internal const string Parametro = "NFSE-PARAMETRO";
 }

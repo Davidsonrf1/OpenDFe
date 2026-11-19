@@ -973,9 +973,9 @@ public sealed class EventoNFSeRetornado
 - **A produção restrita** (o PFX, `PROJETO.md` 17): os eventos lá; o nome do campo da resposta e a forma da consulta, pelo Swagger.
 - **A manifestação** (ao ADN, com a distribuição; D9) e o bloqueio e o desbloqueio por ofício, que a lib só lê.
 
-## 11. A parametrização municipal (etapa 9.4): para aprovação
+## 11. A parametrização municipal (etapa 9.4)
 
-Apresentado na abertura da 9.4 (2026-11-19), antes do código, porque cria API pública. **O esboço da seção 3.3 não vale como está:** ele previa quatro consultas (convênio, parâmetros do serviço, retenções e benefícios, pelo código do serviço ou pelo CPF/CNPJ), e as rotas que uma implementação aberta usa de verdade no ADN (`NTS.md` 12.4, a nfse4j, que o emulador segue desde a E.8) são seis, com a competência e o número do benefício, e as retenções sem o CPF/CNPJ. As rotas `/parametros_municipais/...` do manual continuam sem bater com a base (D13).
+Apresentado na abertura da 9.4 (2026-11-19), antes do código, porque cria API pública. **Aprovado pelo usuário em 2026-11-19, tudo pela recomendação** ("aprovado, tudo pela recomendação"); o que mudou na implementação está em 11.4. **O esboço da seção 3.3 não vale como está:** ele previa quatro consultas (convênio, parâmetros do serviço, retenções e benefícios, pelo código do serviço ou pelo CPF/CNPJ), e as rotas que uma implementação aberta usa de verdade no ADN (`NTS.md` 12.4, a nfse4j, que o emulador segue desde a E.8) são seis, com a competência e o número do benefício, e as retenções sem o CPF/CNPJ. As rotas `/parametros_municipais/...` do manual continuam sem bater com a base (D13).
 
 ### 11.1. Decisões
 
@@ -1088,3 +1088,14 @@ As datas vêm sem fuso (`2022-07-01T00:00:00`): `DateTime` com `Kind` `Unspecifi
 ### 11.3. O que a 9.4 faz depois da aprovação
 
 O desenho acima no leiaute (o núcleo não muda: o `Destino.ADN` existe desde a 9.2); as bases do ADN declaradas; a leitura tolerante (P2) com o código `NFSE-PARAMETRO` no `REGRAS.md` 20; os testes sem rede (a montagem de cada caminho, a leitura com os tipos misturados, o que não se lê) e contra o ADN emulado (as seis rotas com a configuração dos municípios, o 404 do convênio inexistente e do benefício, o 400, a paralisação). Pendente até o PFX: as rotas, os nomes e os tipos pelo Swagger.
+
+### 11.4. Implementação (2026-11-19)
+
+O desenho de 11.2 como aprovado, nos arquivos `ConsultasParametrizacao.cs` (os parâmetros, os retornos e os handlers) e `LeituraParametro.cs` (as bases, a forma dos argumentos e a leitura tolerante). A situação, com os testes, está no `PLANO.md`. Sem mudança de assinatura; o que o desenho não dizia:
+
+1. **O serviço que a resposta não traz pela chave consultada:** as alíquotas e os regimes vêm num objeto por serviço (`{"01.01.01.000": [...]}`). Se a chave consultada não está lá e há uma só, ela é lida, com o aviso; com várias, nenhuma, com o aviso.
+2. **O 2xx sem o grupo** (`parametrosConvenio`, `aliquotas`...) é o aviso, com o `Encontrado` verdadeiro e os campos nulos; o corpo vazio no erro deixa o `Json` nulo e o `Motivo` em `"HTTP <status>"`.
+3. **Os regimes:** um item por vigência de cada regime; o código da chave que não é número, ou que a enumeração não tem, fica com o `Regime` nulo e o aviso.
+4. **As retenções:** o tipo fora do `RetencaoIssqn` sai da lista, com o aviso; o responsável sem o `insc` não entra.
+5. **As datas com fuso**, se vierem, valem a hora local do fuso (`DateTimeOffset.DateTime`); as sem fuso, `Kind` `Unspecified`.
+6. **O número em texto** aceita a vírgula decimal (`"3,00"`); o lógico aceita `true`/`false`, `1`/`0` e, em texto, `1`, `S`, `Sim`, `true`, `verdadeiro` e os contrários, sem distinguir maiúsculas.

@@ -26,13 +26,15 @@ public class OperacoesNFSeTestes
     // A declaração
 
     [Fact]
-    public void DeclaraAsCincoOperacoesEAsBasesDaSefinSemAtendimento()
+    public void DeclaraAsDezOperacoesEAsBasesDaSefinEDoAdnSemAtendimento()
     {
         var declaracao = DeclaracaoLeiaute.Criar(LeiauteNFSe101.Instancia, Documento.NFSe);
 
-        Assert.Equal([typeof(EmissaoNFSe), typeof(ConsultaNFSe), typeof(ConsultaDps), typeof(EnvioEventoNFSe), typeof(ConsultaEventosNFSe)],
+        Assert.Equal([typeof(EmissaoNFSe), typeof(ConsultaNFSe), typeof(ConsultaDps), typeof(EnvioEventoNFSe), typeof(ConsultaEventosNFSe),
+            typeof(ConsultaConvenio), typeof(ConsultaAliquota), typeof(ConsultaRegimesEspeciais), typeof(ConsultaRetencoes), typeof(ConsultaBeneficio)],
             declaracao.Operacoes.Select(o => o.Parametro));
-        Assert.Equal([typeof(RetornoEmissaoNFSe), typeof(RetornoConsultaNFSe), typeof(RetornoConsultaDps), typeof(RetornoEventoNFSe), typeof(RetornoEventosNFSe)],
+        Assert.Equal([typeof(RetornoEmissaoNFSe), typeof(RetornoConsultaNFSe), typeof(RetornoConsultaDps), typeof(RetornoEventoNFSe), typeof(RetornoEventosNFSe),
+            typeof(RetornoConvenio), typeof(RetornoAliquota), typeof(RetornoRegimesEspeciais), typeof(RetornoRetencoes), typeof(RetornoBeneficio)],
             declaracao.Operacoes.Select(o => o.Retorno));
         Assert.Empty(declaracao.Atendimentos);
         Assert.Empty(declaracao.Servicos);
@@ -46,6 +48,16 @@ public class OperacoesNFSeTestes
             {
                 Assert.Equal((Destino.SefinNacional, Ambiente.Homologacao, "SefinNacional"), (e.Autorizador, e.Ambiente, e.Servico));
                 Assert.Equal(new Uri("https://sefin.producaorestrita.nfse.gov.br/SefinNacional"), e.Url);
+            },
+            e =>
+            {
+                Assert.Equal((Destino.ADN, Ambiente.Producao, "Parametrizacao"), (e.Autorizador, e.Ambiente, e.Servico));
+                Assert.Equal(new Uri("https://adn.nfse.gov.br/parametrizacao"), e.Url);
+            },
+            e =>
+            {
+                Assert.Equal((Destino.ADN, Ambiente.Homologacao, "Parametrizacao"), (e.Autorizador, e.Ambiente, e.Servico));
+                Assert.Equal(new Uri("https://adn.producaorestrita.nfse.gov.br/parametrizacao"), e.Url);
             });
     }
 

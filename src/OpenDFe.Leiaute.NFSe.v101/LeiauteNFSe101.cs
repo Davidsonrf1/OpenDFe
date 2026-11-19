@@ -16,8 +16,9 @@ namespace OpenDFe.NFSe;
 /// e 1.01) para o <see cref="DFe.Detectar"/>, e as regras fora do schema da DPS; escreve a DPS (<see cref="Escrever"/>) e lê
 /// a NFS-e, a DPS e os eventos (<see cref="Ler"/>, <see cref="LerEvento"/>) sem núcleo. Desde a 9.2, as operações na Sefin
 /// Nacional: a emissão, a consulta pela chave e pela DPS e a <see cref="RecuperacaoEmissao"/>; desde a 9.3, o registro dos
-/// eventos de quem emite (<see cref="EnvioEventoNFSe"/>) e a consulta dos eventos (<see cref="ConsultaEventosNFSe"/>). A
-/// parametrização chega na 9.4.
+/// eventos de quem emite (<see cref="EnvioEventoNFSe"/>) e a consulta dos eventos (<see cref="ConsultaEventosNFSe"/>); desde a
+/// 9.4, a parametrização municipal no ADN (<see cref="ConsultaConvenio"/>, <see cref="ConsultaAliquota"/>,
+/// <see cref="ConsultaRegimesEspeciais"/>, <see cref="ConsultaRetencoes"/> e <see cref="ConsultaBeneficio"/>).
 /// </para>
 /// </remarks>
 public sealed class LeiauteNFSe101 : ILeiaute
@@ -50,7 +51,7 @@ public sealed class LeiauteNFSe101 : ILeiaute
     /// <summary>
     /// Declara o que o leiaute tem para a NFS-e: as operações REST na Sefin Nacional (a <see cref="EmissaoNFSe"/>, a
     /// <see cref="ConsultaNFSe"/>, a <see cref="ConsultaDps"/>, o <see cref="EnvioEventoNFSe"/> e a
-    /// <see cref="ConsultaEventosNFSe"/>; D4), as bases da Sefin nos dois ambientes, as quatro formas de
+    /// <see cref="ConsultaEventosNFSe"/>; D4), as cinco da parametrização municipal no ADN (docs/NFSE.md 11), as bases da Sefin e do ADN nos dois ambientes, as quatro formas de
     /// XML que ele lê (D7), com a versão 1.00 além da 1.01, e as regras fora do schema da DPS (docs/NFSE.md 4). Sem
     /// atendimento por UF: o destino é sempre a Sefin (D3).
     /// </summary>
@@ -64,7 +65,13 @@ public sealed class LeiauteNFSe101 : ILeiaute
         declaracao.RegistrarOperacao(new OperacaoConsultaDps());
         declaracao.RegistrarOperacao(new OperacaoEnvioEventoNFSe());
         declaracao.RegistrarOperacao(new OperacaoConsultaEventosNFSe());
+        declaracao.RegistrarOperacao(new OperacaoConsultaConvenio());
+        declaracao.RegistrarOperacao(new OperacaoConsultaAliquota());
+        declaracao.RegistrarOperacao(new OperacaoConsultaRegimesEspeciais());
+        declaracao.RegistrarOperacao(new OperacaoConsultaRetencoes());
+        declaracao.RegistrarOperacao(new OperacaoConsultaBeneficio());
         SefinNacional.Declarar(declaracao);
+        Parametrizacao.Declarar(declaracao);
         foreach (var forma in Formas)
             declaracao.DeclararLeitura(forma);
         declaracao.DeclararRegras(RegrasNFSe101.Conferir);
