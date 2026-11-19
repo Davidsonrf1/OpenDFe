@@ -331,3 +331,517 @@ Não entram: o titular do certificado contra o prestador (E0718: é de quem usa,
 2. **A NT 009** (D2) e o cronograma de produção dela; a nota técnica específica do DANFSe para os novos fatos geradores do IBS e da CBS (anunciada na NT 008, não publicada).
 3. **As fontes do DANFSe:** a NT 008 pede Arial e Microsoft Sans Serif; a lib usa a Lato (a mesma pendência do DANFE, `PLANO.md`, pendência 7).
 4. **A homologação real** (a produção restrita) de tudo, quando houver o PFX (`PROJETO.md` 17).
+
+## 7. O modelo da DPS, da NFS-e e dos eventos (etapa 9.1): para aprovação
+
+Apresentado na abertura da 9.1 (2026-11-19), antes do código, pela D10. **Aguardando a aprovação do usuário.**
+
+### 7.1. O pacote (D2), conferido na abertura
+
+Em 2026-11-19 a página "Documentação atual" (atualizada em 04/11/2026) segue com o `NFSe-ESQUEMAS_XSD-v1.01-20260209` (NT 004 v2.00 e NT 007), baixado de novo com o **mesmo SHA-256** da 9.0 (`e7935cbd...a8072`); a NT 009 não entrou em produção. Pela D2, **a 9.1 embute esse pacote** (pastas `1.00` e `1.01`), e a NT 009 fica como pendência. O Anexo I foi baixado de novo, também com o mesmo SHA-256 (`de5bc492...7eb428e`).
+
+A árvore abaixo saiu do XSD por script (`TCDPS`, `TCNFSe`, `TCPedRegEvt`, `TCEvento`), comparada com a aba "LEIAUTE DPS_NFS-e" do Anexo I.
+
+### 7.2. Decisões do modelo
+
+Todas seguem as regras de forma do `MODELO.md` 3 (classe selada mutável, todo campo anulável, grupo obrigatório inicializado, listas `IList<T>` só leitura, sem conferência no modelo). O que é próprio da NFS-e:
+
+| # | Questão | Recomendação |
+|---|---|---|
+| M1 | O `[Tag]` | **Só a tag (`[Tag("cTribNac")]`), sem identificador.** O Anexo I não tem identificador de campo como o MOC (B01, C02): numera as linhas da planilha (1, 2, 3...), e a numeração muda a cada versão. O construtor de um parâmetro já existe (`MODELO.md`, decisão 12). |
+| M2 | A raiz da DPS | **`Dps` achatada (o `DPS` e o `infDPS` juntos); `@Id`, `@versao` e a `Signature` ficam fora.** O Id sai de `IdentificadorDps.Montar` na escrita e vai para o resultado (`DpsEscrita`), como a chave da NF-e (`MODELO.md`, decisões 2 e 20). |
+| M3 | O nome da NFS-e lida | **`NotaFiscalServico`, e não `NFSe`.** Uma classe `NFSe` no namespace `OpenDFe.NFSe` quebra o CA1724 e deixa o nome ambíguo para quem escreve `using OpenDFe.NFSe;`. Paralelo a `NotaFiscal`. Achatada (o `NFSe` e o `infNFSe`), com a DPS de dentro em `.Dps`; a chave fica no resultado da leitura (`NFSeLida.Chave`). Corrige o `NFSe` dos itens 3.2 e 3.3 deste documento (`RetornoEmissaoNFSe.Nota`, `DanfseNFSe.Montar`). |
+| M4 | Os campos que o núcleo sabe | **`Ambiente` nulo = o da configuração; preenchido e diferente = `Erro`** (`MODELO.md`, decisão 6). **`VersaoAplicativo` nulo = "OpenDFe " + a versão do pacote**, o mesmo padrão dos eventos da NF-e (`CancelamentoSubstituicao`). Vale para a `Dps` e o `EventoNFSe`. |
+| M5 | Os tipos | Os do `MODELO.md`, decisão 7: `decimal?` nos valores e percentuais; `DateTimeOffset?` nos `dh*`; `DateOnly?` em `dCompet`, `dtIni`, `dtFim`, `dtEmiDoc`, `dtCompDoc`; `long?` em `nDPS`, `nNFSe`, `nDFSe`; `int?` nos códigos IBGE, no `nSeqEvento` e nas contagens; `string?` onde o zero à esquerda ou a letra importam (CNPJ, CPF, NIF, CAEPF, IM, CEP, telefone, `cTribNac`, `cTribMun`, `cNBS`, `cPais`, `tpMoeda`, o CST e o `cClassTrib` do IBS/CBS como na NF-e, `cIndOp`, `cCredPres`, as chaves). **A `Serie` fica `string?`**, como a 9.0 aprovou (o XSD aceita `1` e `00001`). |
+| M6 | Enumerações | **`enum` com o valor do XML, também nos 0/1 e nos de um valor só** (`finNFSe` = 0, `indTotTrib` = 0, que as NTs vão ampliar: a NT 009 já põe o 1 e o 2 no `finNFSe`). Os códigos com zero à esquerda (`01` a `99`) são o número, e o leiaute escreve os zeros. **O modelo da NFS-e não depende do da NF-e:** o CST do PIS/COFINS ganha enum próprio (`CstPisCofinsServico`). |
+| M7 | Escolhas do XSD | **Propriedades exclusivas em todas as da DPS e da NFS-e** (CNPJ/CPF/NIF/`cNaoNIF`; `endNac`/`endExt`; `pDR`/`vDR`/`documentos`; os seis do `docDedRed`; os três do `gReeRepRes`; os quatro do `totTrib`; `vRedBCBM`/`pRedBCBM`; `cLocPrestacao`/`cPaisPrestacao`; `cObra`/`cCIB`/`end`): todas dividem o pai com outros campos (`MODELO.md`, decisão 10). As subclasses ficam só nos eventos (a 9.0, 3.2). Mais de uma preenchida = `Erro` na montagem. |
+| M8 | O mesmo tipo do XSD em vários lugares | **Uma classe por tipo do XSD** (`MODELO.md`, decisão 12 (b)): `TCInfoPessoa` → `Pessoa` (tomador, intermediário, fornecedor da dedução); `TCEndereco` → `Endereco` (as quatro pessoas e o destinatário); `TCEnderObraEvento` → `EnderecoObra` (a obra e o imóvel). Tipos diferentes com o mesmo conteúdo ficam em classes diferentes, como os endereços da NF-e (`TCEnderecoSimples` → `EnderecoEvento`; `TCRTCInfoDest` → `Destinatario`; os três grupos de alíquota do IBS/CBS). |
+| M9 | Grupo que só tem uma lista (`gItemPed`, `gRefNFSe`, `documentos` da dedução, `gReeRepRes`) | **Uma classe com a lista**, como o `gPagAntecipado` da NF-e (`PagamentoAntecipado.Chaves`): o caminho do problema (2.6) tem um passo para cada elemento. |
+| M10 | A versão 1.00 (D8) | **O modelo é a união das duas.** Os grupos que só a 1.00 tem (`explRod`, pedágio; `lsadppu`, locação de faixa, postes e dutos; o `tpBM` dentro do `BM`) entram como propriedades marcadas "só na 1.00": a leitura preenche, a escrita da 1.01 não escreve (aviso de campo não suportado, `PROJETO.md` 4.4). O que mudou de nome ou de lugar vai para a mesma propriedade (`atvEvento/desc` da 1.00 → `AtividadeEvento.Nome`; `valores/xOutInf` da 1.00 → `NotaFiscalServico.InformacoesFisco`). O `valores/tpBM` da NFS-e 1.00 é texto livre (até 40) e na 1.01 é código (1 a 4): a leitura da 1.00 aproveita o código quando o texto for 1 a 4 e, senão, deixa nulo com aviso (o XML original fica preservado). |
+| M11 | Os eventos | **As 16 subclasses do XSD 1.01 no modelo** (a leitura precisa de todas: D9 lê os do município e do fisco); o envio da 9.3 aceita só as duas de quem emite. O `xDesc` (texto fixo por tipo) fica fora: o leiaute escreve e a leitura confere. **Correção da 9.0:** o Id do pedido é `PRE` + chave (50) + tipo (6), 56 dígitos, **sem** número de sequência (`TSIdPedRegEvt`); o do evento registrado é `EVT` + chave + tipo + `nSeqEvento` (3). O evento registrado (o `evento` que a Sefin devolve) é `EventoNFSeRegistrado`, com o pedido dentro. |
+| M12 | O `tribISSQN` muda de texto entre as versões | **Achado:** o XSD 1.00 documenta 1 Tributável, 2 Exportação, 3 Não incidência, 4 Imunidade; o 1.01 e o Anexo I 1.01 (linha 300 do leiaute e as regras E1301 e E1321), 1 Tributável, 2 Imunidade, 3 Exportação, 4 Não incidência. Não há como saber, pelas fontes baixadas, se a 1.00 usava mesmo outros códigos ou se o texto dela estava errado. **Recomendação:** o enum segue a 1.01, e a leitura da 1.00 guarda o número como veio, sem traduzir. A dúvida fica como pendência; quem lê NFS-e 1.00 é avisado no membro. |
+
+### 7.3. A DPS (`OpenDFe.NFSe.Modelo`)
+
+```csharp
+/// DPS + infDPS (M2). O Id, a versao e a Signature ficam fora.
+public sealed class Dps
+{
+    [Tag("tpAmb")]         public Ambiente? Ambiente { get; set; }                 // nulo = o da configuração (M4)
+    [Tag("dhEmi")]         public DateTimeOffset? Emissao { get; set; }
+    [Tag("verAplic")]      public string? VersaoAplicativo { get; set; }           // nulo = "OpenDFe x.y.z" (M4)
+    [Tag("serie")]         public string? Serie { get; set; }
+    [Tag("nDPS")]          public long? Numero { get; set; }
+    [Tag("dCompet")]       public DateOnly? Competencia { get; set; }
+    [Tag("tpEmit")]        public EmitenteDps? Emitente { get; set; }              // 1 Prestador, 2 Tomador, 3 Intermediario
+    [Tag("cMotivoEmisTI")] public MotivoEmissaoTerceiro? MotivoEmissaoTerceiro { get; set; } // 1 a 4
+    [Tag("chNFSeRej")]     public string? ChaveRejeitada { get; set; }
+    [Tag("cLocEmi")]       public int? MunicipioEmissor { get; set; }
+    [Tag("subst")]         public Substituicao? Substituicao { get; set; }
+    [Tag("prest")]         public Prestador Prestador { get; set; } = new();
+    [Tag("toma")]          public Pessoa? Tomador { get; set; }
+    [Tag("interm")]        public Pessoa? Intermediario { get; set; }
+    [Tag("serv")]          public Servico Servico { get; set; } = new();
+    [Tag("valores")]       public ValoresDps Valores { get; set; } = new();
+    [Tag("IBSCBS")]        public IbsCbsDps? IbsCbs { get; set; }
+}
+
+public sealed class Substituicao                         // subst (como na 9.0)
+{
+    [Tag("chSubstda")] public string? Chave { get; set; }
+    [Tag("cMotivo")]   public MotivoSubstituicao? Motivo { get; set; }      // 01 a 05, 99
+    [Tag("xMotivo")]   public string? Descricao { get; set; }
+}
+
+public sealed class Prestador                            // TCInfoPrestador
+{
+    [Tag("CNPJ")]    public string? Cnpj { get; set; }                        // um dos quatro (M7)
+    [Tag("CPF")]     public string? Cpf { get; set; }
+    [Tag("NIF")]     public string? Nif { get; set; }
+    [Tag("cNaoNIF")] public MotivoAusenciaNif? MotivoAusenciaNif { get; set; } // 0 a 2
+    [Tag("CAEPF")]   public string? Caepf { get; set; }
+    [Tag("IM")]      public string? InscricaoMunicipal { get; set; }
+    [Tag("xNome")]   public string? Nome { get; set; }                       // com tpEmit 1, ausente (NFSE-PRESTADOR)
+    [Tag("end")]     public Endereco? Endereco { get; set; }                 // idem
+    [Tag("fone")]    public string? Telefone { get; set; }
+    [Tag("email")]   public string? Email { get; set; }
+    [Tag("regTrib")] public RegimeTributacao RegimeTributacao { get; set; } = new();
+}
+
+public sealed class RegimeTributacao                     // TCRegTrib
+{
+    [Tag("opSimpNac")]   public SituacaoSimplesNacional? SimplesNacional { get; set; }   // 1 NaoOptante, 2 Mei, 3 MeEpp
+    [Tag("regApTribSN")] public RegimeApuracaoSimples? ApuracaoSimples { get; set; }     // 1 a 3
+    [Tag("regEspTrib")]  public RegimeEspecialTributacao? RegimeEspecial { get; set; }   // 0 Nenhum a 6, 9
+}
+
+/// TCInfoPessoa: o tomador, o intermediário e o fornecedor da dedução (M8).
+public sealed class Pessoa
+{
+    // Cnpj, Cpf, Nif, MotivoAusenciaNif, Caepf, InscricaoMunicipal, Nome, Endereco, Telefone, Email: as tags e os
+    // nomes do Prestador, sem o regTrib.
+}
+
+/// TCEndereco (M8). Nacional ou Exterior (M7).
+public sealed class Endereco
+{
+    [Tag("endNac")]  public EnderecoNacional? Nacional { get; set; }
+    [Tag("endExt")]  public EnderecoExterior? Exterior { get; set; }
+    [Tag("xLgr")]    public string? Logradouro { get; set; }
+    [Tag("nro")]     public string? Numero { get; set; }
+    [Tag("xCpl")]    public string? Complemento { get; set; }
+    [Tag("xBairro")] public string? Bairro { get; set; }
+}
+public sealed class EnderecoNacional  { [Tag("cMun")] int? Municipio; [Tag("CEP")] string? Cep; }
+public sealed class EnderecoExterior  { [Tag("cPais")] string? Pais; [Tag("cEndPost")] string? CodigoPostal;
+                                        [Tag("xCidade")] string? Cidade; [Tag("xEstProvReg")] string? EstadoProvincia; }
+/// TCEnderObraEvento (a obra e o imóvel) e TCEnderecoSimples (o evento): o mesmo conteúdo, tipos diferentes (M8).
+public sealed class EnderecoObra   { [Tag("CEP")] string? Cep; [Tag("endExt")] EnderecoExteriorSimples? Exterior;
+                                     Logradouro, Numero, Complemento, Bairro (as tags do Endereco) }
+public sealed class EnderecoEvento { /* o mesmo conteúdo do EnderecoObra */ }
+public sealed class EnderecoExteriorSimples { CodigoPostal, Cidade, EstadoProvincia (as tags do EnderecoExterior) }
+```
+
+O serviço:
+
+```csharp
+public sealed class Servico                              // serv
+{
+    [Tag("locPrest")]  public LocalPrestacao Local { get; set; } = new();
+    [Tag("cServ")]     public CodigoServico Codigo { get; set; } = new();
+    [Tag("comExt")]    public ComercioExterior? ComercioExterior { get; set; }
+    [Tag("lsadppu")]   public LocacaoSublocacao? Locacao { get; set; }               // só na 1.00 (M10)
+    [Tag("obra")]      public Obra? Obra { get; set; }
+    [Tag("atvEvento")] public AtividadeEvento? Evento { get; set; }
+    [Tag("explRod")]   public ExploracaoRodoviaria? ExploracaoRodoviaria { get; set; } // só na 1.00 (M10)
+    [Tag("infoCompl")] public InformacoesComplementares? InformacoesComplementares { get; set; }
+}
+
+public sealed class LocalPrestacao   { [Tag("cLocPrestacao")] int? Municipio; [Tag("cPaisPrestacao")] string? Pais; } // M7
+
+public sealed class CodigoServico                        // cServ
+{
+    [Tag("cTribNac")]    public string? TributacaoNacional { get; set; }    // 6 dígitos
+    [Tag("cTribMun")]    public string? TributacaoMunicipal { get; set; }   // 3 dígitos
+    [Tag("xDescServ")]   public string? Descricao { get; set; }
+    [Tag("cNBS")]        public string? Nbs { get; set; }
+    [Tag("cIntContrib")] public string? CodigoInterno { get; set; }
+}
+
+public sealed class ComercioExterior                     // comExt
+{
+    [Tag("mdPrestacao")] public ModoPrestacao? ModoPrestacao { get; set; }               // 0 a 4
+    [Tag("vincPrest")]   public VinculoPartes? Vinculo { get; set; }                     // 0 a 6, 9
+    [Tag("tpMoeda")]     public string? Moeda { get; set; }
+    [Tag("vServMoeda")]  public decimal? ValorMoeda { get; set; }
+    [Tag("mecAFComexP")] public MecanismoFomentoPrestador? MecanismoPrestador { get; set; } // 00 a 08
+    [Tag("mecAFComexT")] public MecanismoFomentoTomador? MecanismoTomador { get; set; }     // 00 a 26
+    [Tag("movTempBens")] public MovimentacaoTemporariaBens? MovimentacaoBens { get; set; }  // 0 a 3
+    [Tag("nDI")]         public string? DeclaracaoImportacao { get; set; }
+    [Tag("nRE")]         public string? RegistroExportacao { get; set; }
+    [Tag("mdic")]        public CompartilhamentoMdic? CompartilharMdic { get; set; }        // 0 Nao, 1 Sim
+}
+
+public sealed class LocacaoSublocacao                    // lsadppu, só na 1.00
+{
+    [Tag("categ")]    public CategoriaLocacao? Categoria { get; set; }     // 1 a 5
+    [Tag("objeto")]   public ObjetoLocacao? Objeto { get; set; }           // 1 a 6
+    [Tag("extensao")] public int? Extensao { get; set; }
+    [Tag("nPostes")]  public int? Postes { get; set; }
+}
+
+public sealed class Obra                                 // obra
+{
+    [Tag("inscImobFisc")] public string? InscricaoImobiliaria { get; set; }
+    [Tag("cObra")]        public string? Codigo { get; set; }               // um dos três (M7)
+    [Tag("cCIB")]         public string? Cib { get; set; }
+    [Tag("end")]          public EnderecoObra? Endereco { get; set; }
+}
+
+public sealed class AtividadeEvento                      // atvEvento
+{
+    [Tag("xNome")]    public string? Nome { get; set; }                     // desc na 1.00 (M10)
+    [Tag("dtIni")]    public DateOnly? Inicio { get; set; }
+    [Tag("dtFim")]    public DateOnly? Fim { get; set; }
+    [Tag("idAtvEvt")] public string? Identificacao { get; set; }            // ou o Endereco (M7)
+    [Tag("end")]      public EnderecoEvento? Endereco { get; set; }
+}
+
+public sealed class ExploracaoRodoviaria                 // explRod, só na 1.00
+{
+    [Tag("categVeic")]    public CategoriaVeiculo? Categoria { get; set; }  // 00 a 10
+    [Tag("nEixos")]       public int? Eixos { get; set; }
+    [Tag("rodagem")]      public TipoRodagem? Rodagem { get; set; }         // 1 Simples, 2 Dupla
+    [Tag("sentido")]      public int? Sentido { get; set; }
+    [Tag("placa")]        public string? Placa { get; set; }
+    [Tag("codAcessoPed")] public string? CodigoAcesso { get; set; }
+    [Tag("codContrato")]  public string? CodigoContrato { get; set; }
+}
+
+public sealed class InformacoesComplementares            // infoCompl
+{
+    [Tag("idDocTec")] public string? ResponsabilidadeTecnica { get; set; }  // ART, RRT, DRT
+    [Tag("docRef")]   public string? DocumentoReferencia { get; set; }
+    [Tag("xPed")]     public string? Pedido { get; set; }
+    [Tag("gItemPed")] public ItensPedido? ItensPedido { get; set; }         // M9
+    [Tag("xInfComp")] public string? Texto { get; set; }                    // a marca EMULADA: do emulador (5)
+}
+public sealed class ItensPedido { [Tag("xItemPed")] IList<string> Itens; }  // 1 a 99
+```
+
+Os valores e os tributos da DPS:
+
+```csharp
+public sealed class ValoresDps                           // valores (TCInfoValores)
+{
+    [Tag("vServPrest")]      public ValorServico Servico { get; set; } = new();
+    [Tag("vDescCondIncond")] public Descontos? Descontos { get; set; }
+    [Tag("vDedRed")]         public DeducaoReducao? DeducaoReducao { get; set; }
+    [Tag("trib")]            public Tributacao Tributacao { get; set; } = new();
+}
+public sealed class ValorServico { [Tag("vReceb")] decimal? ValorRecebido; [Tag("vServ")] decimal? Valor; }
+public sealed class Descontos    { [Tag("vDescIncond")] decimal? Incondicionado; [Tag("vDescCond")] decimal? Condicionado; }
+
+public sealed class DeducaoReducao                       // vDedRed: um dos três (M7)
+{
+    [Tag("pDR")]        public decimal? Percentual { get; set; }
+    [Tag("vDR")]        public decimal? Valor { get; set; }
+    [Tag("documentos")] public DocumentosDeducao? Documentos { get; set; }
+}
+public sealed class DocumentosDeducao { [Tag("docDedRed")] IList<DocumentoDeducao> Itens; } // 1 a 1000 (M9)
+
+public sealed class DocumentoDeducao                     // docDedRed
+{
+    [Tag("chNFSe")]   public string? ChaveNFSe { get; set; }                // um dos seis (M7)
+    [Tag("chNFe")]    public string? ChaveNFe { get; set; }
+    [Tag("NFSeMun")]  public NFSeMunicipal? NFSeMunicipal { get; set; }
+    [Tag("NFNFS")]    public NotaPapel? NotaPapel { get; set; }
+    [Tag("nDocFisc")] public string? NumeroDocumentoFiscal { get; set; }
+    [Tag("nDoc")]     public string? NumeroDocumento { get; set; }
+    [Tag("tpDedRed")] public TipoDeducao? Tipo { get; set; }                // 1 a 9, 99
+    [Tag("xDescOutDed")]         public string? DescricaoOutra { get; set; }
+    [Tag("dtEmiDoc")]            public DateOnly? Emissao { get; set; }
+    [Tag("vDedutivelRedutivel")] public decimal? ValorDedutivel { get; set; }
+    [Tag("vDeducaoReducao")]     public decimal? ValorUtilizado { get; set; }
+    [Tag("fornec")]              public Pessoa? Fornecedor { get; set; }
+}
+public sealed class NFSeMunicipal { [Tag("cMunNFSeMun")] int? Municipio; [Tag("nNFSeMun")] string? Numero;
+                                    [Tag("cVerifNFSeMun")] string? CodigoVerificacao; }
+public sealed class NotaPapel     { [Tag("nNFS")] string? Numero; [Tag("modNFS")] string? Modelo; [Tag("serieNFS")] string? Serie; }
+
+public sealed class Tributacao                           // trib
+{
+    [Tag("tribMun")] public TributacaoMunicipal Municipal { get; set; } = new();
+    [Tag("tribFed")] public TributacaoFederal? Federal { get; set; }
+    [Tag("totTrib")] public TotalTributos Total { get; set; } = new();
+}
+
+public sealed class TributacaoMunicipal                  // tribMun (o ISSQN)
+{
+    [Tag("tribISSQN")]   public TributacaoIssqn? Tributacao { get; set; }       // 1 Tributavel, 2 Imunidade, 3 Exportacao, 4 NaoIncidencia (M12)
+    [Tag("cPaisResult")] public string? PaisResultado { get; set; }
+    [Tag("tpImunidade")] public TipoImunidade? Imunidade { get; set; }          // 0 a 5
+    [Tag("exigSusp")]    public ExigibilidadeSuspensa? ExigibilidadeSuspensa { get; set; }
+    [Tag("BM")]          public BeneficioMunicipal? Beneficio { get; set; }
+    [Tag("tpRetISSQN")]  public RetencaoIssqn? Retencao { get; set; }           // 1 NaoRetido, 2 Tomador, 3 Intermediario
+    [Tag("pAliq")]       public decimal? Aliquota { get; set; }
+}
+public sealed class ExigibilidadeSuspensa { [Tag("tpSusp")] TipoSuspensao? Tipo; [Tag("nProcesso")] string? Processo; } // 1 Judicial, 2 Administrativa
+public sealed class BeneficioMunicipal
+{
+    [Tag("tpBM")]     public TipoBeneficioLei? Tipo { get; set; }               // só na 1.00 (M10)
+    [Tag("nBM")]      public string? Identificador { get; set; }
+    [Tag("vRedBCBM")] public decimal? ValorReducao { get; set; }                // um dos dois (M7)
+    [Tag("pRedBCBM")] public decimal? PercentualReducao { get; set; }
+}
+
+public sealed class TributacaoFederal                    // tribFed
+{
+    [Tag("piscofins")] public PisCofins? PisCofins { get; set; }
+    [Tag("vRetCP")]    public decimal? RetencaoCp { get; set; }
+    [Tag("vRetIRRF")]  public decimal? RetencaoIrrf { get; set; }
+    [Tag("vRetCSLL")]  public decimal? RetencaoCsll { get; set; }
+}
+public sealed class PisCofins
+{
+    [Tag("CST")]            public CstPisCofinsServico? Cst { get; set; }       // 00 a 09, 49 a 56, 60 a 67, 70 a 75, 98, 99
+    [Tag("vBCPisCofins")]   public decimal? BaseCalculo { get; set; }
+    [Tag("pAliqPis")]       public decimal? AliquotaPis { get; set; }
+    [Tag("pAliqCofins")]    public decimal? AliquotaCofins { get; set; }
+    [Tag("vPis")]           public decimal? ValorPis { get; set; }
+    [Tag("vCofins")]        public decimal? ValorCofins { get; set; }
+    [Tag("tpRetPisCofins")] public RetencaoPisCofins? Retencao { get; set; }    // 0 a 9 (NT 007)
+}
+
+public sealed class TotalTributos                        // totTrib: um dos quatro (M7)
+{
+    [Tag("vTotTrib")]   public TotalTributosValor? Valores { get; set; }
+    [Tag("pTotTrib")]   public TotalTributosPercentual? Percentuais { get; set; }
+    [Tag("indTotTrib")] public IndicadorTotalTributos? Indicador { get; set; }  // 0 NaoInformado (M6)
+    [Tag("pTotTribSN")] public decimal? PercentualSimples { get; set; }
+}
+public sealed class TotalTributosValor      { [Tag("vTotTribFed")] decimal? Federal; [Tag("vTotTribEst")] decimal? Estadual; [Tag("vTotTribMun")] decimal? Municipal; }
+public sealed class TotalTributosPercentual { [Tag("pTotTribFed")] decimal? Federal; [Tag("pTotTribEst")] decimal? Estadual; [Tag("pTotTribMun")] decimal? Municipal; }
+```
+
+O IBS e a CBS declarados na DPS:
+
+```csharp
+public sealed class IbsCbsDps                            // IBSCBS (TCRTCInfoIBSCBS)
+{
+    [Tag("finNFSe")]   public FinalidadeNFSe? Finalidade { get; set; }          // 0 Regular (M6)
+    [Tag("indFinal")]  public ConsumoPessoal? ConsumoPessoal { get; set; }      // 0 Nao, 1 Sim
+    [Tag("cIndOp")]    public string? CodigoOperacao { get; set; }              // 6 dígitos, Anexo C
+    [Tag("tpOper")]    public TipoOperacaoGoverno? TipoOperacao { get; set; }   // 1 a 5
+    [Tag("gRefNFSe")]  public NFSeReferenciadas? Referencias { get; set; }      // M9
+    [Tag("tpEnteGov")] public EnteGovernamental? EnteGovernamental { get; set; }// 1 Uniao, 2 Estado, 3 DistritoFederal, 4 Municipio
+    [Tag("indDest")]   public IndicadorDestinatario? IndicadorDestinatario { get; set; } // 0 Tomador, 1 Outro
+    [Tag("dest")]      public Destinatario? Destinatario { get; set; }
+    [Tag("imovel")]    public Imovel? Imovel { get; set; }
+    [Tag("valores")]   public ValoresIbsCbs Valores { get; set; } = new();
+}
+public sealed class NFSeReferenciadas { [Tag("refNFSe")] IList<string> Chaves; }   // 1 a 99
+/// TCRTCInfoDest: o conteúdo da Pessoa, com xNome de 150 e sem CAEPF e IM (M8).
+public sealed class Destinatario { Cnpj, Cpf, Nif, MotivoAusenciaNif, Nome, Endereco (Endereco), Telefone, Email }
+public sealed class Imovel { [Tag("inscImobFisc")] string? InscricaoImobiliaria; [Tag("cCIB")] string? Cib; [Tag("end")] EnderecoObra? Endereco; } // Cib ou Endereco
+
+public sealed class ValoresIbsCbs                        // IBSCBS/valores
+{
+    [Tag("gReeRepRes")] public ReembolsoRepasse? ReembolsoRepasse { get; set; } // M9
+    [Tag("trib")]       public TributosIbsCbs Tributos { get; set; } = new();
+}
+public sealed class ReembolsoRepasse { [Tag("documentos")] IList<DocumentoReembolso> Documentos; } // 1 a 1000
+
+public sealed class DocumentoReembolso                   // gReeRepRes/documentos
+{
+    [Tag("dFeNacional")]    public DFeNacional? DFeNacional { get; set; }        // um dos três (M7)
+    [Tag("docFiscalOutro")] public DocumentoFiscalOutro? DocumentoFiscal { get; set; }
+    [Tag("docOutro")]       public DocumentoOutro? DocumentoNaoFiscal { get; set; }
+    [Tag("fornec")]         public FornecedorDocumento? Fornecedor { get; set; }
+    [Tag("dtEmiDoc")]       public DateOnly? Emissao { get; set; }
+    [Tag("dtCompDoc")]      public DateOnly? Competencia { get; set; }
+    [Tag("tpReeRepRes")]    public TipoReembolso? Tipo { get; set; }             // 01 a 04, 99
+    [Tag("xTpReeRepRes")]   public string? DescricaoTipo { get; set; }
+    [Tag("vlrReeRepRes")]   public decimal? Valor { get; set; }
+}
+public sealed class DFeNacional          { [Tag("tipoChaveDFe")] TipoDFe? Tipo; [Tag("xTipoChaveDFe")] string? DescricaoTipo; [Tag("chaveDFe")] string? Chave; } // 1 NFSe, 2 NFe, 3 CTe, 9 Outro
+public sealed class DocumentoFiscalOutro { [Tag("cMunDocFiscal")] int? Municipio; [Tag("nDocFiscal")] string? Numero; [Tag("xDocFiscal")] string? Descricao; }
+public sealed class DocumentoOutro       { [Tag("nDoc")] string? Numero; [Tag("xDoc")] string? Descricao; }
+public sealed class FornecedorDocumento  { Cnpj, Cpf, Nif, MotivoAusenciaNif, [Tag("xNome")] Nome }
+
+public sealed class TributosIbsCbs { [Tag("gIBSCBS")] public ClassificacaoIbsCbs Classificacao { get; set; } = new(); }
+public sealed class ClassificacaoIbsCbs                  // gIBSCBS
+{
+    [Tag("CST")]          public string? Cst { get; set; }
+    [Tag("cClassTrib")]   public string? ClassificacaoTributaria { get; set; }
+    [Tag("cCredPres")]    public string? CreditoPresumido { get; set; }
+    [Tag("gTribRegular")] public TributacaoRegularIbsCbs? TributacaoRegular { get; set; }
+    [Tag("gDif")]         public DiferimentoIbsCbs? Diferimento { get; set; }
+}
+public sealed class TributacaoRegularIbsCbs { [Tag("CSTReg")] string? Cst; [Tag("cClassTribReg")] string? ClassificacaoTributaria; }
+public sealed class DiferimentoIbsCbs       { [Tag("pDifUF")] decimal? PercentualUF; [Tag("pDifMun")] decimal? PercentualMunicipio; [Tag("pDifCBS")] decimal? PercentualCbs; }
+```
+
+### 7.4. A NFS-e lida
+
+```csharp
+/// NFSe + infNFSe (M3). O Id (a chave), a versao e as duas Signature ficam fora; a chave está no NFSeLida.
+public sealed class NotaFiscalServico
+{
+    [Tag("xLocEmi")]       public string? NomeMunicipioEmissor { get; set; }
+    [Tag("xLocPrestacao")] public string? NomeLocalPrestacao { get; set; }
+    [Tag("nNFSe")]         public long? Numero { get; set; }
+    [Tag("cLocIncid")]     public int? MunicipioIncidencia { get; set; }
+    [Tag("xLocIncid")]     public string? NomeMunicipioIncidencia { get; set; }
+    [Tag("xTribNac")]      public string? DescricaoTributacaoNacional { get; set; }
+    [Tag("xTribMun")]      public string? DescricaoTributacaoMunicipal { get; set; }
+    [Tag("xNBS")]          public string? DescricaoNbs { get; set; }
+    [Tag("verAplic")]      public string? VersaoAplicativo { get; set; }
+    [Tag("ambGer")]        public AmbienteGerador? AmbienteGerador { get; set; }      // 1 Prefeitura, 2 SistemaNacional
+    [Tag("tpEmis")]        public TipoEmissaoNFSe? TipoEmissao { get; set; }         // 1 Normal, 2 Transcricao
+    [Tag("procEmi")]       public ProcessoEmissao? ProcessoEmissao { get; set; }     // 1 Contribuinte, 2 FiscoWeb, 3 FiscoApp
+    [Tag("cStat")]         public SituacaoNFSe? Situacao { get; set; }               // 100 Gerada, 102 DecisaoJudicial, 103 Avulsa, 107 Mei
+    [Tag("dhProc")]        public DateTimeOffset? Processamento { get; set; }
+    [Tag("nDFSe")]         public long? NumeroDfse { get; set; }
+    [Tag("emit")]          public EmitenteNFSe Emitente { get; set; } = new();
+    [Tag("valores")]       public ValoresNFSe Valores { get; set; } = new();
+    [Tag("xOutInf")]       public string? InformacoesFisco { get; set; }             // valores/xOutInf na 1.00 (M10)
+    [Tag("IBSCBS")]        public IbsCbsNFSe? IbsCbs { get; set; }
+    [Tag("DPS")]           public Dps Dps { get; set; } = new();
+}
+
+public sealed class EmitenteNFSe                         // emit (TCEmitente)
+{
+    [Tag("CNPJ")]     public string? Cnpj { get; set; }
+    [Tag("CPF")]      public string? Cpf { get; set; }
+    [Tag("IM")]       public string? InscricaoMunicipal { get; set; }
+    [Tag("xNome")]    public string? Nome { get; set; }
+    [Tag("xFant")]    public string? NomeFantasia { get; set; }
+    [Tag("enderNac")] public EnderecoEmitente Endereco { get; set; } = new();
+    [Tag("fone")]     public string? Telefone { get; set; }
+    [Tag("email")]    public string? Email { get; set; }
+}
+public sealed class EnderecoEmitente { Logradouro, Numero, Complemento, Bairro, [Tag("cMun")] int? Municipio, [Tag("UF")] UF? UF, [Tag("CEP")] string? Cep }
+
+public sealed class ValoresNFSe                          // valores (TCValoresNFSe): o que a Sefin calculou
+{
+    [Tag("vCalcDR")]    public decimal? DeducaoReducao { get; set; }
+    [Tag("tpBM")]       public TipoBeneficio? TipoBeneficio { get; set; }      // 1 Isencao, 2 ReducaoPercentual, 3 ReducaoValor, 4 AliquotaDiferenciada (M10)
+    [Tag("vCalcBM")]    public decimal? ReducaoBeneficio { get; set; }
+    [Tag("vBC")]        public decimal? BaseCalculo { get; set; }
+    [Tag("pAliqAplic")] public decimal? AliquotaAplicada { get; set; }
+    [Tag("vISSQN")]     public decimal? Issqn { get; set; }
+    [Tag("vTotalRet")]  public decimal? TotalRetencoes { get; set; }
+    [Tag("vLiq")]       public decimal? Liquido { get; set; }
+}
+
+public sealed class IbsCbsNFSe                           // IBSCBS (TCRTCIBSCBS): o que a Sefin calculou
+{
+    [Tag("cLocalidadeIncid")] public int? MunicipioIncidencia { get; set; }
+    [Tag("xLocalidadeIncid")] public string? NomeMunicipioIncidencia { get; set; }
+    [Tag("pRedutor")]         public decimal? PercentualRedutor { get; set; }
+    [Tag("valores")]          public ValoresIbsCbsNFSe Valores { get; set; } = new();
+    [Tag("totCIBS")]          public TotaisIbsCbs Totais { get; set; } = new();
+}
+public sealed class ValoresIbsCbsNFSe
+{
+    [Tag("vBC")]            public decimal? BaseCalculo { get; set; }
+    [Tag("vCalcReeRepRes")] public decimal? ReembolsoRepasse { get; set; }
+    [Tag("uf")]             public AliquotaIbsUF UF { get; set; } = new();
+    [Tag("mun")]            public AliquotaIbsMunicipio Municipio { get; set; } = new();
+    [Tag("fed")]            public AliquotaCbs Cbs { get; set; } = new();
+}
+public sealed class AliquotaIbsUF        { [Tag("pIBSUF")] decimal? Aliquota;  [Tag("pRedAliqUF")] decimal? Reducao;  [Tag("pAliqEfetUF")] decimal? Efetiva; }
+public sealed class AliquotaIbsMunicipio { [Tag("pIBSMun")] decimal? Aliquota; [Tag("pRedAliqMun")] decimal? Reducao; [Tag("pAliqEfetMun")] decimal? Efetiva; }
+public sealed class AliquotaCbs          { [Tag("pCBS")] decimal? Aliquota;    [Tag("pRedAliqCBS")] decimal? Reducao; [Tag("pAliqEfetCBS")] decimal? Efetiva; }
+
+public sealed class TotaisIbsCbs                         // totCIBS
+{
+    [Tag("vTotNF")]         public decimal? TotalNota { get; set; }
+    [Tag("gIBS")]           public TotalIbs Ibs { get; set; } = new();
+    [Tag("gCBS")]           public TotalCbs Cbs { get; set; } = new();
+    [Tag("gTribRegular")]   public TotalTributacaoRegular? TributacaoRegular { get; set; }
+    [Tag("gTribCompraGov")] public TotalCompraGovernamental? CompraGovernamental { get; set; }
+}
+public sealed class TotalIbs
+{
+    [Tag("vIBSTot")]      public decimal? Total { get; set; }
+    [Tag("gIBSCredPres")] public CreditoPresumidoIbs? CreditoPresumido { get; set; }
+    [Tag("gIBSUFTot")]    public TotalIbsUF UF { get; set; } = new();
+    [Tag("gIBSMunTot")]   public TotalIbsMunicipio Municipio { get; set; } = new();
+}
+public sealed class CreditoPresumidoIbs { [Tag("pCredPresIBS")] decimal? Aliquota; [Tag("vCredPresIBS")] decimal? Valor; }
+public sealed class TotalIbsUF          { [Tag("vDifUF")] decimal? Diferimento;  [Tag("vIBSUF")] decimal? Valor; }
+public sealed class TotalIbsMunicipio   { [Tag("vDifMun")] decimal? Diferimento; [Tag("vIBSMun")] decimal? Valor; }
+public sealed class TotalCbs
+{
+    [Tag("gCBSCredPres")] public CreditoPresumidoCbs? CreditoPresumido { get; set; }
+    [Tag("vDifCBS")]      public decimal? Diferimento { get; set; }
+    [Tag("vCBS")]         public decimal? Valor { get; set; }
+}
+public sealed class CreditoPresumidoCbs { [Tag("pCredPresCBS")] decimal? Aliquota; [Tag("vCredPresCBS")] decimal? Valor; }
+public sealed class TotalTributacaoRegular
+{
+    [Tag("pAliqEfeRegIBSUF")]  decimal? AliquotaIbsUF;        [Tag("vTribRegIBSUF")]  decimal? ValorIbsUF;
+    [Tag("pAliqEfeRegIBSMun")] decimal? AliquotaIbsMunicipio; [Tag("vTribRegIBSMun")] decimal? ValorIbsMunicipio;
+    [Tag("pAliqEfeRegCBS")]    decimal? AliquotaCbs;          [Tag("vTribRegCBS")]    decimal? ValorCbs;
+}
+public sealed class TotalCompraGovernamental
+{
+    [Tag("pIBSUF")] decimal? AliquotaIbsUF; [Tag("vIBSUF")] decimal? ValorIbsUF; [Tag("pIBSMun")] decimal? AliquotaIbsMunicipio;
+    [Tag("vIBSMun")] decimal? ValorIbsMunicipio; [Tag("pCBS")] decimal? AliquotaCbs; [Tag("vCBS")] decimal? ValorCbs;
+}
+```
+
+### 7.5. Os eventos (M11)
+
+```csharp
+/// O infPedReg. A base da 9.0, com o ambiente e a versão do aplicativo (M4). O Id (PRE + chave + tipo) e o xDesc ficam fora.
+public abstract class EventoNFSe
+{
+    private protected EventoNFSe();
+    [Tag("tpAmb")]     public Ambiente? Ambiente { get; set; }               // nulo = o da configuração
+    [Tag("verAplic")]  public string? VersaoAplicativo { get; set; }         // nulo = "OpenDFe x.y.z"
+    [Tag("dhEvento")]  public DateTimeOffset? Data { get; set; }
+    [Tag("CNPJAutor")] public string? CnpjAutor { get; set; }                // um dos dois (M7)
+    [Tag("CPFAutor")]  public string? CpfAutor { get; set; }
+    [Tag("chNFSe")]    public string? Chave { get; set; }
+    public abstract string Tipo { get; }                                     // "101101"
+}
+
+// Os de quem emite (enviados na 9.3):
+[Tag("e101101")] CancelamentoNFSe            { MotivoCancelamento? Motivo (1 ErroEmissao, 2 ServicoNaoPrestado, 9 Outros); string? Descricao }
+[Tag("e101103")] AnaliseFiscalCancelamento   { MotivoAnaliseFiscal? Motivo (1, 2, 9); string? Descricao }
+// Os que a lib só lê (D9):
+[Tag("e105102")] CancelamentoSubstituicao    { MotivoSubstituicao? Motivo; string? Descricao; string? ChaveSubstituta }
+[Tag("e105104")] CancelamentoDeferido        { string? CpfAgente; string? ProcessoAdministrativo; MotivoDeferimento? Motivo (1); string? Descricao }
+[Tag("e105105")] CancelamentoIndeferido      { string? CpfAgente; string? ProcessoAdministrativo; MotivoIndeferimento? Motivo (1, 2); string? Descricao }
+[Tag("e202201")] ConfirmacaoPrestador        { }
+[Tag("e203202")] ConfirmacaoTomador          { }
+[Tag("e204203")] ConfirmacaoIntermediario    { }
+[Tag("e205204")] ConfirmacaoTacita           { }
+[Tag("e202205")] RejeicaoPrestador           { MotivoRejeicao? Motivo (1 a 5, 9); string? Descricao }
+[Tag("e203206")] RejeicaoTomador             { idem }
+[Tag("e204207")] RejeicaoIntermediario       { idem }
+[Tag("e205208")] AnulacaoRejeicao            { string? CpfAgente; string? EventoRejeicao (idEvManifRej); string? Descricao }
+[Tag("e305101")] CancelamentoOficio          { string? CpfAgente; string? ProcessoAdministrativo; string? DescricaoProcesso }
+[Tag("e305102")] BloqueioOficio              { string? CpfAgente; EventoBloqueado? Evento (codEvento: e101101, e105102, e105104, e105105, e305101); string? Descricao }
+[Tag("e305103")] DesbloqueioOficio           { string? CpfAgente; string? Bloqueio (idBloqOfic) }
+
+/// O evento que a Sefin (ou o município, ou o ADN) registrou: o infEvento com o pedido dentro. O Id (EVT ...) e a Signature ficam fora.
+public sealed class EventoNFSeRegistrado
+{
+    [Tag("verAplic")]     public string? VersaoAplicativo { get; set; }
+    [Tag("ambGer")]       public AmbienteGeradorEvento? AmbienteGerador { get; set; } // 1 Municipio, 2 SefinNacional, 3 Adn
+    [Tag("nSeqEvento")]   public int? Sequencia { get; set; }
+    [Tag("dhProc")]       public DateTimeOffset? Processamento { get; set; }
+    [Tag("nDFSe")]        public long? NumeroDfse { get; set; }
+    [Tag("pedRegEvento")] public EventoNFSe? Pedido { get; set; }
+}
+```
+
+As enumerações não listadas à parte têm o nome no comentário de cada campo; os membros seguem o texto do XSD (`MODELO.md`, decisão 8: sem "Sem" no nome, `Nenhum` onde o XSD diz "nenhum").
+
+### 7.6. O que a 9.1 faz depois da aprovação
+
+O modelo acima; o leiaute (`OpenDFe.Leiaute.NFSe.v101`) com os schemas 1.00 e 1.01 embutidos, a escrita da DPS (com o Id) e a leitura da NFS-e, da DPS, do pedido de evento e do evento, nas duas versões; as quatro formas do detector (D7) e o `Documento.NFSe` (D11); a `ChaveNFSe` e o `IdentificadorDps`; as seis regras da seção 4 (a `NFSE-CHAVE` só se o DV for confirmado com chaves reais da documentação ou de NFS-e publicadas; senão cai, como a 9.0 previu). Pronto quando: DPS de teste válidas no XSD e lidas de volta iguais; NFS-e de exemplo lidas.

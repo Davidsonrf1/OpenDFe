@@ -313,6 +313,8 @@ A fonte é o portal da NFS-e (`https://www.gov.br/nfse/pt-br/biblioteca/document
 - **Manual dos contribuintes, APIs do ADN** (`manual-contribuintes-apis-adn-sistema-nacional-nfse.pdf`, v1.0 de 12/02/2026), SHA-256 `9ffc97d8b1be4c80a440b3569b0027df61265b9e75ef69437f21f9481a9a1d6d`: `GET /DFe/{NSU}` e `GET /NFSe/{ChaveAcesso}/Eventos` (a distribuição, fora da Fase 9).
 - **Manual Integrado do Sistema Nacional NFS-e 1.00.02** (setembro de 2022, 114 páginas, `leiaute-e-esquemas-atuais/manualintegradosnnfse_v1-00-02-producao.pdf`), SHA-256 `82096b7f8023d8a775e8d013a63cbe6782b24f13d953fb721a59211f7c2e6818`: o XML em UTF-8 sem prefixo de namespace nem formatação (6.1.1); TLS com autenticação mútua, REST e JSON, o XML em GZip e Base64 (6.1.1 c, 6.1.2); **a assinatura em RSA-SHA1, SHA-1, C14N 2001-03-15 e enveloped** (6.1.4); o DANFSe pelo ADN (15.3, 17.3), suspenso depois pela NT 008.
 
+**Conferido de novo na abertura da 9.1 (2026-11-19):** a página continua com o mesmo pacote de esquemas e o mesmo Anexo I, baixados de novo com os mesmos SHA-256; a NT 009 ainda não está em produção (D2).
+
 ### 12.2. Produção restrita (homologação), página atualizada em 20/10/2026
 
 - **Esquemas:** `NFSe-ESQUEMAS_XSD-PRODREST-v1.01-20261020` (`producao-restrita/esquemas_prod_restrita_20261020.zip`), SHA-256 `25fdcecc651a67a216496ab10d7566631e6ed10f721e37d62c7845dadb0ea267`. Os mesmos arquivos, **com a mesma versão `1.01`**, mas a NT 009 release 1: 45 nomes de elemento diferentes dos da produção (o `vDedRed` e o `gReeRepRes` dão lugar ao `vAjusteBC`, `vCalcDR` vira `vCalcAjusteBCISSQN`, entram `bensMoveis`, `gLocacao`, `docAjusteBC` e outros). Ver a decisão D2 de `NFSE.md`.

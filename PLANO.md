@@ -170,7 +170,7 @@ Pré-lançamentos (`0.x`) no NuGet.org a partir do fim da fase 5, quando o PDV p
 
 ### Estado do plano (2026-10-24)
 
-**Fase 9 (NFS-e nacional) e etapas E.7 a E.9 do emulador: plano aprovado em 2026-11-19** (`PROJETO.md` 18). **A 9.0 está feita e aprovada** (2026-11-19; `docs/NFSE.md`: as 13 decisões e as 6 regras fora do schema; as fontes em `docs/NTS.md` 12). A próxima é a 9.1, numa sessão nova, na branch `fase-9-nfse`. Ver a situação da Fase 9 abaixo.
+**Fase 9 (NFS-e nacional) e etapas E.7 a E.9 do emulador: plano aprovado em 2026-11-19** (`PROJETO.md` 18). **A 9.0 está feita e aprovada** (2026-11-19; `docs/NFSE.md`: as 13 decisões e as 6 regras fora do schema; as fontes em `docs/NTS.md` 12). **A 9.1 está aberta**, com o modelo da DPS e da NFS-e aguardando a aprovação (`docs/NFSE.md` 7). Ver a situação da Fase 9 abaixo.
 
 **As fases 0 a 8 estão feitas e fechadas no emulador.** As fases 1 a 4 (e a 1.7, a prova de risco) e as 5 a 8 têm a homologação real **pendente do PFX A1 ICP-Brasil** (`PROJETO.md` 17): o "pronto quando" de cada uma vale contra a SEFAZ emulada, e cada etapa deixou o seu teste de homologação (`OpenDFe.Homologacao.Testes`) escrito e pulado sem o PFX. Nada foi publicado no NuGet.org; nenhum `push` foi feito. A suíte fecha com 2.653 testes (29 pulados: os de homologação e da prova de risco, que falam com a SEFAZ), no Windows e no Linux (Nucleo 639, NFe 1.334, SefazEmulada 509 e Impressao.Pdf 138 pelo WSL).
 
@@ -803,7 +803,12 @@ Criada a partir da `fase-7-impressao` (no commit da 7.4, `5718fc7`). `git log HE
 - **D2, decidida:** a produção (NT 004/007) e a produção restrita (NT 009 release 1) têm schemas diferentes com a mesma versão `1.01`, e a NT 009 deve entrar em produção até 01/12/2026. **A 9.1 embute o pacote que estiver em produção no dia dela**, conferido no portal na abertura; enquanto a produção restrita estiver à frente, a recusa lá fica como pendência.
 - **As 13 decisões** (D1 a D13) e **as 6 regras fora do schema** (`NFSE-DOCUMENTO`, `NFSE-COMPETENCIA`, `NFSE-EMISSAO`, `NFSE-EMITENTE`, `NFSE-PRESTADOR`, `NFSE-CHAVE`) estão em `NFSE.md` 2 e 4. A 9.3, a 9.5 e a E.9 deste plano foram ajustadas (sem download do DANFSe; a substituição pela emissão; a manifestação fora).
 - **Pendente:** o Swagger da Sefin e do ADN só abre com o PFX ICP-Brasil (os nomes do JSON vieram de uma implementação aberta); a base da Sefin na produção restrita, com ou sem `/API/`; as rotas da parametrização, que o manual escreve de um jeito e a página de APIs de outro (D13); as fontes do DANFSe (Arial e Microsoft Sans Serif × Lato).
-- **Próxima:** a 9.1 (modelo e leiaute), numa sessão nova. Ler antes: este bloco, `docs/NFSE.md`, `docs/NTS.md` 12, `docs/MODELO.md` e `docs/LEITURA.md`. Ela abre conferindo o pacote em produção (D2) e **para para apresentar a lista de campos da DPS e da NFS-e para aprovação** (D10), antes do código.
+
+**9.1, modelo e leiaute: aberta em 2026-11-19, aguardando a aprovação do modelo** (D10). Sem código ainda.
+
+- **O pacote (D2):** a produção segue no `NFSe-ESQUEMAS_XSD-v1.01-20260209` (NT 004/007), com o mesmo SHA-256 da 9.0; a NT 009 não entrou. A 9.1 embute esse pacote.
+- **O modelo proposto** está em `NFSE.md` 7: 12 decisões (M1 a M12) e a lista de campos da DPS, da NFS-e e dos eventos, tirada do XSD por script e conferida com o Anexo I. Os achados: o Anexo I não tem identificador de campo (`[Tag]` só com a tag); a classe da NFS-e se chama `NotaFiscalServico` (não `NFSe`, que é o nome do namespace); o Id do pedido de evento não tem número de sequência (corrige o `NFSE.md` 3.2); a 1.00 tem grupos que a 1.01 tirou (pedágio, locação de faixa); o `tribISSQN` da 1.00 traz outro texto para os códigos 2 a 4 (M12, pendente).
+- **Próxima:** a aprovação do `NFSE.md` 7 e, depois dela, o código da 9.1 (`NFSE.md` 7.6).
 
 ### Trilha paralela: SEFAZ emulada (branch `sefaz-emulada`, worktree `../OpenDFe-sefaz-emulada`)
 
