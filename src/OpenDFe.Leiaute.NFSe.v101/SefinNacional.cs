@@ -17,6 +17,9 @@ internal static class SefinNacional
     /// <summary>O campo do JSON da emissão que leva a DPS assinada, em GZip e Base64.</summary>
     internal const string CampoDps = "dpsXmlGZipB64";
 
+    /// <summary>O campo do JSON do registro de evento que leva o pedido assinado, em GZip e Base64 (9.3).</summary>
+    internal const string CampoEvento = "pedidoRegistroEventoXmlGZipB64";
+
     internal static readonly Uri Producao = new("https://sefin.nfse.gov.br/SefinNacional");
 
     internal static readonly Uri ProducaoRestrita = new("https://sefin.producaorestrita.nfse.gov.br/SefinNacional");

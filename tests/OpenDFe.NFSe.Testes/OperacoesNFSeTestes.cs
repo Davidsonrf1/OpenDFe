@@ -26,12 +26,14 @@ public class OperacoesNFSeTestes
     // A declaração
 
     [Fact]
-    public void DeclaraAsTresOperacoesEAsBasesDaSefinSemAtendimento()
+    public void DeclaraAsCincoOperacoesEAsBasesDaSefinSemAtendimento()
     {
         var declaracao = DeclaracaoLeiaute.Criar(LeiauteNFSe101.Instancia, Documento.NFSe);
 
-        Assert.Equal([typeof(EmissaoNFSe), typeof(ConsultaNFSe), typeof(ConsultaDps)], declaracao.Operacoes.Select(o => o.Parametro));
-        Assert.Equal([typeof(RetornoEmissaoNFSe), typeof(RetornoConsultaNFSe), typeof(RetornoConsultaDps)], declaracao.Operacoes.Select(o => o.Retorno));
+        Assert.Equal([typeof(EmissaoNFSe), typeof(ConsultaNFSe), typeof(ConsultaDps), typeof(EnvioEventoNFSe), typeof(ConsultaEventosNFSe)],
+            declaracao.Operacoes.Select(o => o.Parametro));
+        Assert.Equal([typeof(RetornoEmissaoNFSe), typeof(RetornoConsultaNFSe), typeof(RetornoConsultaDps), typeof(RetornoEventoNFSe), typeof(RetornoEventosNFSe)],
+            declaracao.Operacoes.Select(o => o.Retorno));
         Assert.Empty(declaracao.Atendimentos);
         Assert.Empty(declaracao.Servicos);
         Assert.Collection(declaracao.Enderecos,

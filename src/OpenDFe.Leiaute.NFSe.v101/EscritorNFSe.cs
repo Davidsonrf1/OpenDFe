@@ -62,8 +62,12 @@ internal static class EscritorNFSe
         return new DpsEscrita(texto.ToString(), id, e.Problemas.ToArray());
     }
 
-    /// <summary>Escreve o pedido de registro do evento (<c>pedRegEvento</c>), com o Id e o texto fixo do tipo.</summary>
-    internal static PedidoEscrito EscreverPedido(EventoNFSe evento, Ambiente? ambienteNucleo)
+    /// <summary>
+    /// Escreve o pedido de registro do evento (<c>pedRegEvento</c>), com o Id e o texto fixo do tipo.
+    /// <paramref name="dataPadrao"/>: o <c>dhEvento</c> quando o evento não traz a data (o envio, 9.3, passa o relógio da
+    /// configuração, como o evento da NF-e); nulo, a data nula não sai.
+    /// </summary>
+    internal static PedidoEscrito EscreverPedido(EventoNFSe evento, Ambiente? ambienteNucleo, DateTimeOffset? dataPadrao = null)
     {
         ArgumentNullException.ThrowIfNull(evento);
         var tipo = MapasNFSe.Eventos.First(t => t.Classe == evento.GetType());
@@ -86,7 +90,15 @@ internal static class EscritorNFSe
                 e.Registrar(CodigosNFSe.Id, Severidade.Erro,
                     "A chave da NFS-e do evento não é válida (50 dígitos). Sem ela, o Id do pedido não é montado.", "chNFSe", "Chave");
             }
-            EscritaMapa.Escrever(e, MapasNFSe.MapaEventoNFSe, evento, c => Nucleo(e, c, evento.Ambiente, evento.VersaoAplicativo, ambienteNucleo));
+            EscritaMapa.Escrever(e, MapasNFSe.MapaEventoNFSe, evento, c =>
+            {
+                if (c.Tag == "dhEvento" && evento.Data is null && dataPadrao is { } data)
+                {
+                    e.Valor("dhEvento", FormatadorInvariavel.DataHora(data));
+                    return true;
+                }
+                return Nucleo(e, c, evento.Ambiente, evento.VersaoAplicativo, ambienteNucleo);
+            });
             e.Abrir(tipo.Tag, null);
             e.Valor("xDesc", tipo.Descricao101);
             EscritaMapa.Escrever(e, tipo.Mapa(), evento);

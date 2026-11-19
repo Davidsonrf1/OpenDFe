@@ -36,6 +36,12 @@ internal sealed class RespostaSefin
 
     public IReadOnlyList<MensagemSefin> Alertas { get; private init; } = [];
 
+    /// <summary>O evento do registro (<c>tipoEvento</c>, <c>numSeqEvento</c>, <c>eventoXmlGZipB64</c>; 9.3).</summary>
+    public EventoSefin? Evento { get; private init; }
+
+    /// <summary>A lista <c>eventos</c> da consulta dos eventos; <see langword="null"/> quando a resposta não a traz (9.3).</summary>
+    public IReadOnlyList<EventoSefin>? Eventos { get; private init; }
+
     /// <summary>O status é 2xx.</summary>
     public bool Sucesso => Status is >= 200 and <= 299;
 
@@ -59,7 +65,47 @@ internal sealed class RespostaSefin
             Xml = xml is null ? null : Descompactar(xml),
             Erros = Mensagens(raiz, "erros"),
             Alertas = Mensagens(raiz, "alertas"),
+            Evento = LerEvento(raiz),
+            Eventos = ListaEventos(raiz),
         };
+    }
+
+    // O evento no próprio objeto (o 201 do registro): só quando há o XML ou o tipo.
+    private static EventoSefin? LerEvento(JsonElement objeto)
+    {
+        var xml = Texto(objeto, "eventoXmlGZipB64");
+        var tipo = Texto(objeto, "tipoEvento");
+        if (xml is null && tipo is null)
+            return null;
+        return new EventoSefin(Texto(objeto, "chaveAcesso"), tipo, Sequencia(objeto), Texto(objeto, "dataHoraProcessamento"),
+            xml is null ? null : Descompactar(xml));
+    }
+
+    private static EventoSefin[]? ListaEventos(JsonElement objeto)
+    {
+        if (Campo(objeto, "eventos") is not { } lista)
+            return null;
+        if (lista.ValueKind != JsonValueKind.Array)
+            throw new FormatException("O campo eventos da resposta da Sefin não é uma lista.");
+        var eventos = new List<EventoSefin>();
+        foreach (var item in lista.EnumerateArray())
+        {
+            if (item.ValueKind != JsonValueKind.Object)
+                throw new FormatException("Um item de eventos da resposta da Sefin não é um objeto.");
+            var xml = Texto(item, "eventoXmlGZipB64");
+            eventos.Add(new EventoSefin(Texto(item, "chaveAcesso"), Texto(item, "tipoEvento"), Sequencia(item),
+                Texto(item, "dataHoraProcessamento"), xml is null ? null : Descompactar(xml)));
+        }
+        return [.. eventos];
+    }
+
+    private static int? Sequencia(JsonElement objeto)
+    {
+        if (Texto(objeto, "numSeqEvento") is not { } texto)
+            return null;
+        if (!int.TryParse(texto, System.Globalization.NumberStyles.None, System.Globalization.CultureInfo.InvariantCulture, out var valor))
+            throw new FormatException($"O campo numSeqEvento da resposta da Sefin não é um número: {texto}.");
+        return valor;
     }
 
     /// <summary>O Base64 em GZip, de volta ao texto UTF-8.</summary>
@@ -113,3 +159,6 @@ internal sealed class RespostaSefin
         return [.. mensagens];
     }
 }
+
+/// <summary>Um evento na resposta da Sefin: a chave, o tipo, o número sequencial, o processamento e o XML descompactado.</summary>
+internal sealed record EventoSefin(string? ChaveAcesso, string? Tipo, int? Sequencia, string? Processamento, string? Xml);

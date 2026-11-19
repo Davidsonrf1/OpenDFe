@@ -67,3 +67,29 @@ OpenDFe.NFSe.RetornoEmissaoNFSe.Erros.get -> System.Collections.Generic.IReadOnl
 OpenDFe.NFSe.RetornoEmissaoNFSe.Nota.get -> OpenDFe.NFSe.NotaFiscalServico?
 OpenDFe.NFSe.RetornoEmissaoNFSe.Xml.get -> string?
 static OpenDFe.NFSe.RecuperacaoEmissao.ExecutarAsync(OpenDFe.DFe! dfe, OpenDFe.NFSe.IdentificadorDps id, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<OpenDFe.NFSe.RecuperacaoNFSe!>!
+OpenDFe.NFSe.ConsultaEventosNFSe
+OpenDFe.NFSe.ConsultaEventosNFSe.Chave.get -> OpenDFe.NFSe.ChaveNFSe
+OpenDFe.NFSe.ConsultaEventosNFSe.ConsultaEventosNFSe(OpenDFe.NFSe.ChaveNFSe chave) -> void
+OpenDFe.NFSe.ConsultaEventosNFSe.Sequencia.get -> int?
+OpenDFe.NFSe.ConsultaEventosNFSe.Sequencia.init -> void
+OpenDFe.NFSe.ConsultaEventosNFSe.Tipo.get -> string?
+OpenDFe.NFSe.ConsultaEventosNFSe.Tipo.init -> void
+OpenDFe.NFSe.EnvioEventoNFSe
+OpenDFe.NFSe.EnvioEventoNFSe.EnvioEventoNFSe(OpenDFe.NFSe.EventoNFSe! evento) -> void
+OpenDFe.NFSe.EnvioEventoNFSe.Evento.get -> OpenDFe.NFSe.EventoNFSe!
+OpenDFe.NFSe.EventoNFSeRetornado
+OpenDFe.NFSe.EventoNFSeRetornado.Processamento.get -> System.DateTimeOffset?
+OpenDFe.NFSe.EventoNFSeRetornado.Registrado.get -> OpenDFe.NFSe.EventoNFSeRegistrado?
+OpenDFe.NFSe.EventoNFSeRetornado.Sequencia.get -> int?
+OpenDFe.NFSe.EventoNFSeRetornado.Tipo.get -> string!
+OpenDFe.NFSe.EventoNFSeRetornado.Xml.get -> string!
+OpenDFe.NFSe.RetornoEventoNFSe
+OpenDFe.NFSe.RetornoEventoNFSe.Alertas.get -> System.Collections.Generic.IReadOnlyList<OpenDFe.NFSe.MensagemSefin!>!
+OpenDFe.NFSe.RetornoEventoNFSe.Erros.get -> System.Collections.Generic.IReadOnlyList<OpenDFe.NFSe.MensagemSefin!>!
+OpenDFe.NFSe.RetornoEventoNFSe.Evento.get -> OpenDFe.NFSe.EventoNFSeRetornado?
+OpenDFe.NFSe.RetornoEventoNFSe.Registrado.get -> bool
+OpenDFe.NFSe.RetornoEventosNFSe
+OpenDFe.NFSe.RetornoEventosNFSe.Alertas.get -> System.Collections.Generic.IReadOnlyList<OpenDFe.NFSe.MensagemSefin!>!
+OpenDFe.NFSe.RetornoEventosNFSe.Encontrada.get -> bool
+OpenDFe.NFSe.RetornoEventosNFSe.Erros.get -> System.Collections.Generic.IReadOnlyList<OpenDFe.NFSe.MensagemSefin!>!
+OpenDFe.NFSe.RetornoEventosNFSe.Eventos.get -> System.Collections.Generic.IReadOnlyList<OpenDFe.NFSe.EventoNFSeRetornado!>!

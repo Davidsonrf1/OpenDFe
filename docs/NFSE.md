@@ -903,3 +903,72 @@ O que as seções 2 e 3 desenharam para o REST, a emissão e as consultas, imple
 
 - **A produção restrita** (o PFX, `PROJETO.md` 17): a base com ou sem `/API/`, os nomes do JSON e os status de verdade (o Swagger só abre com o ICP-Brasil), a DPS da lib aceita lá.
 - **O `dotnet test`** não acha os testes nesta máquina desde a E.7 (código 5, "Zero testes executados", em todos os projetos; o SDK é o 10.0.401, e o `xunit.v3` é o 4.0.2 desde a 0.1). A suíte foi conferida pelos executáveis de teste. Fora do escopo da etapa.
+
+## 10. Eventos (etapa 9.3, 2026-11-19)
+
+O registro dos eventos de quem emite e a consulta dos eventos, que as seções 2 (D9) e 3.3 desenharam, implementados e testados contra a Sefin emulada (E.8). A situação da etapa, com os testes e o que foi conferido, está no `PLANO.md`.
+
+### 10.1. O que entrou
+
+- **No leiaute** (o núcleo não mudou):
+
+```csharp
+public sealed class EnvioEventoNFSe : ParametroWS<RetornoEventoNFSe>       // POST /nfse/{chave}/eventos
+{
+    public EnvioEventoNFSe(EventoNFSe evento);   // ArgumentException: o evento não é de quem emite (101101, 101103)
+    public EventoNFSe Evento { get; }
+}
+public sealed class RetornoEventoNFSe
+{
+    public bool Registrado { get; }                                          // há o Evento
+    public EventoNFSeRetornado? Evento { get; }
+    public IReadOnlyList<MensagemSefin> Erros { get; }
+    public IReadOnlyList<MensagemSefin> Alertas { get; }
+}
+public sealed class ConsultaEventosNFSe : ParametroWS<RetornoEventosNFSe>  // GET /nfse/{chave}/eventos[/{tipo}[/{seq}]]
+{
+    public ConsultaEventosNFSe(ChaveNFSe chave);
+    public ChaveNFSe Chave { get; }
+    public string? Tipo { get; init; }           // 6 dígitos (ArgumentException)
+    public int? Sequencia { get; init; }         // 1 a 999 (ArgumentOutOfRangeException); só com o Tipo
+}
+public sealed class RetornoEventosNFSe
+{
+    public bool Encontrada { get; }                                          // 2xx, mesmo com a lista vazia
+    public IReadOnlyList<EventoNFSeRetornado> Eventos { get; }
+    public IReadOnlyList<MensagemSefin> Erros { get; }
+    public IReadOnlyList<MensagemSefin> Alertas { get; }
+}
+/// O evento que a Sefin devolve, no registro e na consulta, de qualquer autor.
+public sealed class EventoNFSeRetornado
+{
+    public string Tipo { get; }
+    public int? Sequencia { get; }
+    public DateTimeOffset? Processamento { get; }
+    public string Xml { get; }                                               // o evento, descompactado: o que se guarda
+    public EventoNFSeRegistrado? Registrado { get; }                         // lido, com o pedido na subclasse do tipo
+}
+```
+
+- **O JSON:** o pedido vai no campo `pedidoRegistroEventoXmlGZipB64` (de implementações abertas, `NTS.md` 12.4); a resposta é lida em `tipoEvento`, `numSeqEvento`, `dataHoraProcessamento`, `eventoXmlGZipB64` e, na consulta, na lista `eventos` com os mesmos campos (a leitura do emulador, E.8). Como na 9.2, sem distinguir maiúsculas e ignorando o que não conhece; o 2xx sem o evento, ou um item da lista sem o XML, é `FormatException` (a resposta ilegível).
+- **A substituição** continua sendo a `EmissaoNFSe` com a `Dps.Substituicao`; o 105102 que a Sefin gera sobre a substituída se lê na `ConsultaEventosNFSe` dela, com a `CancelamentoSubstituicao.ChaveSubstituta`.
+
+### 10.2. Ajustes ao desenho (a conferir pelo usuário)
+
+1. **O `EventoNFSeRetornado`**, um tipo só para o evento que volta do registro e de cada item da consulta. A seção 3.3 só nomeava os retornos.
+2. **O `EnvioEventoNFSe` recusa no construtor** o evento que não é de quem emite (`ArgumentException`), em vez de deixar para a montagem: o tipo já se sabe ali, e mandar o 105102 ou a manifestação à Sefin é erro de programa, não de dado.
+3. **O `dhEvento` nulo vale o relógio da configuração**, no horário de Brasília, como no evento da NF-e (`OperacaoEvento`). A 7.5 só dizia o que o `tpAmb` e o `verAplic` nulos valem.
+4. **A `Sequencia` sem o `Tipo`** é `ArgumentException` no `ExecutarAsync` (a montagem confere: a ordem dos `init` não é fixa); o tipo e o número fora da forma são recusados no `init`.
+5. **O `CStat` é o status HTTP** (201 registrado, 200 encontrada, 400 rejeitado, 404 não encontrada) e o `Motivo`, o primeiro erro, como na 9.2 (9.2, item 2).
+
+### 10.3. Decisões tomadas sem perguntar
+
+- O tipo, o número e o processamento saem do XML lido (o que a Sefin assinou), e do JSON só sem ele; os problemas da leitura do XML vão nos problemas do resultado.
+- A consulta pelo número sequencial aceita também o evento único no próprio objeto, fora da lista: nenhuma fonte dá a forma dessa resposta.
+- O autor (`CnpjAutor`, `CpfAutor`) não é tirado do certificado: é de quem usa, como na DPS, e o schema aponta a falta.
+- Sem uma `RecuperacaoEvento`: depois da queda no meio, a `ConsultaEventosNFSe` com o tipo diz se o evento foi registrado, e o reenvio do mesmo evento é recusado pela matriz (E0840 no cancelamento). Uma chamada só, que quem usa já tem.
+
+### 10.4. O que fica para depois
+
+- **A produção restrita** (o PFX, `PROJETO.md` 17): os eventos lá; o nome do campo da resposta e a forma da consulta, pelo Swagger.
+- **A manifestação** (ao ADN, com a distribuição; D9) e o bloqueio e o desbloqueio por ofício, que a lib só lê.
