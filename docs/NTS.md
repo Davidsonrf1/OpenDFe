@@ -315,6 +315,8 @@ A fonte é o portal da NFS-e (`https://www.gov.br/nfse/pt-br/biblioteca/document
 
 **Conferido de novo na abertura da 9.1 (2026-11-19):** a página continua com o mesmo pacote de esquemas e o mesmo Anexo I, baixados de novo com os mesmos SHA-256; a NT 009 ainda não está em produção (D2).
 
+**Embutido na 9.1** em `src/OpenDFe.Leiaute.NFSe.v101/Schemas/NFSe-ESQUEMAS_XSD-v1.01-20260209/` (pastas `1.00` e `1.01`), com os bytes do ZIP, salvo o `1.01/xmldsig-core-schema.xsd`: o do pacote (SHA-256 `49848f732663aecb618d72ad6130c5c3240f0a10f3a1a8544b7d48a6c726046f`) traz o `DOCTYPE` do W3C, com entidades que o arquivo não usa, e o núcleo proíbe DTD na carga (etapa 1.5); o embutido é o mesmo arquivo sem esse bloco (SHA-256 `6fa2eb631350cc5ba24d931b22469ecdda668ab466f9e38f2844077fc8303bec`). O SHA-256 de cada arquivo embutido está no `LeiauteNFSe101Testes`.
+
 ### 12.2. Produção restrita (homologação), página atualizada em 20/10/2026
 
 - **Esquemas:** `NFSe-ESQUEMAS_XSD-PRODREST-v1.01-20261020` (`producao-restrita/esquemas_prod_restrita_20261020.zip`), SHA-256 `25fdcecc651a67a216496ab10d7566631e6ed10f721e37d62c7845dadb0ea267`. Os mesmos arquivos, **com a mesma versão `1.01`**, mas a NT 009 release 1: 45 nomes de elemento diferentes dos da produção (o `vDedRed` e o `gReeRepRes` dão lugar ao `vAjusteBC`, `vCalcDR` vira `vCalcAjusteBCISSQN`, entram `bensMoveis`, `gLocacao`, `docAjusteBC` e outros). Ver a decisão D2 de `NFSE.md`.
@@ -335,3 +337,9 @@ A fonte é o portal da NFS-e (`https://www.gov.br/nfse/pt-br/biblioteca/document
 | DANFSe (suspensa) | `https://adn.producaorestrita.nfse.gov.br/danfse` | `https://adn.nfse.gov.br/danfse` |
 
 O Swagger de cada uma (`/docs/index.html`; `/docs/index` na Sefin) **só abre com o certificado ICP-Brasil no TLS mútuo**: em 2026-11-19 a Sefin respondeu 403 e o ADN recusou o handshake. Os nomes dos campos do JSON vieram de uma implementação aberta que emite na produção restrita (`pynfse-nacional` 0.9.5, PyPI): `dpsXmlGZipB64` e `pedidoRegistroEventoXmlGZipB64` no pedido; `chaveAcesso`, `nfseXmlGZipB64`, `alertas` e `erros` (`codigo`, `descricao`, `complemento`) na resposta. A conferir no Swagger quando houver o PFX.
+
+### 12.5. A chave da NFS-e e o dígito verificador (etapa 9.1, 2026-11-19)
+
+- **Guia do emissor público nacional web 1.2.1** (produção restrita, `producao-restrita/guia_emissor_publico_nacional_web_snnfse-ern_versao_1-2-1.pdf`), SHA-256 `f24c78595f3e87539b4eb8e17e48b636d148aeb18f57a6ac4ac2a841a78f1588`, seção 9.1: a composição da chave (o município, o ambiente gerador, o tipo e o número da inscrição, o número da NFS-e, o ano e o mês, o código numérico de 9 posições e o "dígito verificador do código numérico") e uma chave de exemplo, `31062001251235800000112230000000173023019580208160`. O cálculo não é dado.
+- **Anexo I** (`ANEXO_I-...-20260209.xlsx`, o mesmo SHA-256 de 12.1): a linha 4 do leiaute dá a composição do Id da NFS-e (`NFS` + 50); a regra E0042 diz "verificar DV da chave", sem o cálculo; a E1235 é a falha de schema (aba `RN_RECEPCAO_DPS`).
+- **Conferência:** o módulo 11 da NF-e (pesos 2 a 9 da direita) sobre as 49 primeiras posições dá 7 na chave do guia (o DV é 0); sobre o código numérico, 1. A chave de exemplo da `nfelib` (MIT, `nfelib/nfse/samples/v1_0/nfse-ibscbs.xml`, com código numérico `123456789`) bate com o módulo 11 da NF-e. As duas não concordam, e a 9.1 não confere o DV (`NFSE.md` 8.2, item 1).

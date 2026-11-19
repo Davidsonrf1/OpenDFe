@@ -81,6 +81,55 @@ public class DetectorTestes
         Assert.Equal(Documento.NFe, DFe.Detectar(xml, leiaute)?.Documento);
     }
 
+    // A forma do documento sem modelo no XML (a NFS-e, docs/NFSE.md D7): o documento é o da forma.
+    [Fact]
+    public void AFormaComODocumentoFixoAchaODocumentoSemModeloNoXml()
+    {
+        var forma = new FormaLeitura(LeiauteFalso.Namespace, "eco", "@versao", Documento.NFSe);
+        var leiaute = new LeiauteFalso { Documentos = [Documento.NFSe], Acrescimo = d => d.DeclararLeitura(forma) };
+
+        var deteccao = DFe.Detectar($"<eco xmlns=\"{LeiauteFalso.Namespace}\" versao=\"1.00\" />", leiaute);
+
+        Assert.Equal((Documento.NFSe, "eco", "1.00"), (deteccao?.Documento, deteccao?.Raiz, deteccao?.Versao));
+        Assert.Null(forma.CaminhoModelo);
+        Assert.Equal(Documento.NFSe, forma.Documento);
+        Assert.Null(Eco.Documento);
+    }
+
+    [Fact]
+    public void AFormaComODocumentoFixoSoValeParaAqueleDocumento()
+    {
+        var leiaute = new LeiauteFalso { Acrescimo = d => d.DeclararLeitura(new FormaLeitura(LeiauteFalso.Namespace, "eco", "@versao", Documento.NFCe)) };
+
+        Assert.Equal(Documento.NFCe, DFe.Detectar($"<eco xmlns=\"{LeiauteFalso.Namespace}\" versao=\"1.00\" />", leiaute)?.Documento);
+    }
+
+    // As outras versões que o leiaute lê (o 1.01 da NFS-e lê a 1.00, D8): a detecção devolve a versão do XML.
+    [Theory]
+    [InlineData("1.00", true)]
+    [InlineData("0.90", true)]
+    [InlineData("0.80", false)]
+    public void AsOutrasVersoesDaFormaSaoDetectadas(string versao, bool detecta)
+    {
+        var forma = new FormaLeitura(LeiauteFalso.Namespace, "eco", "@versao", "doc/@modelo") { OutrasVersoes = ["0.90"] };
+        var leiaute = new LeiauteFalso { Acrescimo = d => d.DeclararLeitura(forma) };
+
+        var deteccao = DFe.Detectar(Xml(versao: versao), leiaute);
+
+        Assert.Equal(detecta ? versao : null, deteccao?.Versao);
+        Assert.Empty(Eco.OutrasVersoes);
+    }
+
+    [Theory]
+    [InlineData("", "eco", "@versao")]
+    [InlineData(LeiauteFalso.Namespace, " ", "@versao")]
+    [InlineData(LeiauteFalso.Namespace, "eco", "versao")]
+    [InlineData(LeiauteFalso.Namespace, "eco", "@versao/doc")]
+    public void AFormaComODocumentoFixoRecusaCaminhoInvalido(string espacoNomes, string raiz, string versao)
+    {
+        Assert.Throws<ArgumentException>(() => new FormaLeitura(espacoNomes, raiz, versao, Documento.NFSe));
+    }
+
     [Fact]
     public void RecusaOsArgumentosNulos()
     {

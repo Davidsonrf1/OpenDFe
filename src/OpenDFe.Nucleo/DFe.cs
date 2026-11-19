@@ -129,8 +129,12 @@ public sealed class DFe
                     if (raiz.LocalName != forma.Raiz || raiz.NamespaceURI != forma.EspacoNomes)
                         continue;
                     var versao = Valor(raiz, forma.CaminhoVersao);
-                    var modelo = Valor(raiz, forma.CaminhoModelo);
-                    if (versao == leiaute.Versao && modelo == ((int)tipo).ToString(System.Globalization.CultureInfo.InvariantCulture))
+                    if (versao is null || (versao != leiaute.Versao && !forma.OutrasVersoes.Contains(versao)))
+                        continue;
+                    var documentoForma = forma.Documento is { } fixo
+                        ? fixo == tipo
+                        : Valor(raiz, forma.CaminhoModelo!) == ((int)tipo).ToString(System.Globalization.CultureInfo.InvariantCulture);
+                    if (documentoForma)
                         return new DeteccaoDFe(leiaute, tipo, forma.Raiz, versao);
                 }
             }

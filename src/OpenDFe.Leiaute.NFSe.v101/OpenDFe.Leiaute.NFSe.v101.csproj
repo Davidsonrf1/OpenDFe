@@ -1,0 +1,40 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Sai no pacote OpenDFe.NFSe, com o modelo dentro (PROJETO.md 3.4): o leiaute nunca roda
+       contra um modelo de outra versão. O núcleo continua dependência de pacote. -->
+  <PropertyGroup>
+    <!-- Um namespace por pacote, como o núcleo: o leiaute e o modelo ficam em OpenDFe.NFSe. -->
+    <RootNamespace>OpenDFe.NFSe</RootNamespace>
+    <PackageId>OpenDFe.NFSe</PackageId>
+    <Description>NFS-e do padrão nacional para a OpenDFe: o modelo de dados (a DPS, a NFS-e e os eventos) e o leiaute 1.01, com XML, schemas e as regras fora do schema; lê também a versão 1.00.</Description>
+    <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);IncluirModeloPacote</TargetsForTfmSpecificBuildOutput>
+    <!-- O alvo abaixo resolve as referências; no pack com no-build, sem recompilar o modelo e o núcleo. -->
+    <BuildProjectReferences Condition="'$(NoBuild)' == 'true'">false</BuildProjectReferences>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../OpenDFe.Nucleo/OpenDFe.Nucleo.csproj" />
+    <ProjectReference Include="../OpenDFe.NFSe.Modelo/OpenDFe.NFSe.Modelo.csproj" PrivateAssets="all" />
+  </ItemGroup>
+
+  <!-- Os XSDs do pacote de liberação (docs/NTS.md 12), embutidos com o caminho como nome do recurso
+       (SchemaXml.Carregar): Schemas/<pacote>/<arquivo>. -->
+  <ItemGroup>
+    <EmbeddedResource Include="Schemas/**/*.xsd" LogicalName="Schemas/%(RecursiveDir)%(Filename)%(Extension)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="OpenDFe.NFSe.Testes" />
+  </ItemGroup>
+
+  <!-- A DLL do modelo, com a documentação XML, em lib/; o PDB vai para o .snupkg. -->
+  <Target Name="IncluirModeloPacote" DependsOnTargets="ResolveReferences">
+    <ItemGroup>
+      <_ModeloPacote Include="@(ReferenceCopyLocalPaths)" Condition="'%(ReferenceCopyLocalPaths.ReferenceSourceTarget)' == 'ProjectReference' And '%(ReferenceCopyLocalPaths.Filename)%(ReferenceCopyLocalPaths.Extension)' == 'OpenDFe.NFSe.Modelo.dll'" />
+      <BuildOutputInPackage Include="@(_ModeloPacote)" />
+      <BuildOutputInPackage Include="@(_ModeloPacote->'%(RootDir)%(Directory)%(Filename).xml')" />
+      <BuildOutputInPackage Include="@(_ModeloPacote->'%(RootDir)%(Directory)%(Filename).pdb')" />
+    </ItemGroup>
+  </Target>
+
+</Project>

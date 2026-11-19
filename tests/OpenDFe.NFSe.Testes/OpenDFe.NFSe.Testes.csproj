@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>OpenDFe.Testes</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../../src/OpenDFe.Leiaute.NFSe.v101/OpenDFe.Leiaute.NFSe.v101.csproj" />
+    <!-- O leiaute leva o modelo como referência privada (sai no mesmo pacote); o teste o usa direto. -->
+    <ProjectReference Include="../../src/OpenDFe.NFSe.Modelo/OpenDFe.NFSe.Modelo.csproj" />
+  </ItemGroup>
+
+  <!-- O gerador do certificado de teste (PROJETO.md 13.1): a NFS-e e o evento registrado exigem a Signature no schema. -->
+  <ItemGroup>
+    <Compile Include="../Compartilhado/CertificadoTeste.cs" Link="Compartilhado/CertificadoTeste.cs" />
+  </ItemGroup>
+
+  <!-- O catálogo das regras (REGRAS.md 20), que o teste cruza com as regras do leiaute. -->
+  <ItemGroup>
+    <None Include="../../docs/REGRAS.md" Link="docs/REGRAS.md" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>

@@ -334,7 +334,7 @@ Não entram: o titular do certificado contra o prestador (E0718: é de quem usa,
 
 ## 7. O modelo da DPS, da NFS-e e dos eventos (etapa 9.1): para aprovação
 
-Apresentado na abertura da 9.1 (2026-11-19), antes do código, pela D10. **Aguardando a aprovação do usuário.**
+Apresentado na abertura da 9.1 (2026-11-19), antes do código, pela D10. **Aprovado pelo usuário em 2026-11-19, tudo pela recomendação** ("aprovado, tudo pela recomendação"). O que mudou na implementação está em 8.
 
 ### 7.1. O pacote (D2), conferido na abertura
 
@@ -845,3 +845,30 @@ As enumerações não listadas à parte têm o nome no comentário de cada campo
 ### 7.6. O que a 9.1 faz depois da aprovação
 
 O modelo acima; o leiaute (`OpenDFe.Leiaute.NFSe.v101`) com os schemas 1.00 e 1.01 embutidos, a escrita da DPS (com o Id) e a leitura da NFS-e, da DPS, do pedido de evento e do evento, nas duas versões; as quatro formas do detector (D7) e o `Documento.NFSe` (D11); a `ChaveNFSe` e o `IdentificadorDps`; as seis regras da seção 4 (a `NFSE-CHAVE` só se o DV for confirmado com chaves reais da documentação ou de NFS-e publicadas; senão cai, como a 9.0 previu). Pronto quando: DPS de teste válidas no XSD e lidas de volta iguais; NFS-e de exemplo lidas.
+
+## 8. Implementação (etapa 9.1, 2026-11-19)
+
+O modelo da seção 7, como aprovado, mais o que a seção 3 deixou para a 9.1. A situação da etapa, com os testes e o que foi conferido, está no `PLANO.md`.
+
+### 8.1. O que entrou
+
+- **No núcleo:** `Documento.NFSe = 99` (D11); a `FormaLeitura` com o documento fixo (D7: o construtor novo, `CaminhoModelo` anulável e `Documento`); e a `FormaLeitura.OutrasVersoes` (8.2); o `DFe.Detectar` com as duas.
+- **No modelo** (`OpenDFe.NFSe.Modelo`): as 71 classes e as 44 enumerações da seção 7, a base `EventoNFSe` com as 16 subclasses, o `EventoNFSeRegistrado`, a `ChaveNFSe` e o `IdentificadorDps`.
+- **No leiaute** (`OpenDFe.Leiaute.NFSe.v101`, pacote `OpenDFe.NFSe`): o `LeiauteNFSe101` (`Instancia`, `Versao`, `Documentos`, `Declarar`, `Escrever`, `Ler`, `LerEvento`), a `DpsEscrita`, a `NFSeLida` e o `EventoLido`; os schemas 1.00 e 1.01 do pacote de produção (D2), com o código E1235; as regras da seção 4 (5 de 6, 8.2); e, por dentro, a escrita do pedido de evento (para a 9.3 e os testes).
+- **Um mapa por classe** (`MapasNFSe`): os campos na ordem do XSD, com a tag, a propriedade, o tipo e as escolhas. A escrita, a leitura das duas versões e o caminho do problema até a propriedade andam pelo mesmo mapa, em vez de um método escrito à mão por grupo, como na NF-e. O mapa e as classes do modelo saem de uma especificação só, pelo gerador em `eng/GerarModeloNFSe` (Python, `python eng/GerarModeloNFSe/gerar.py .`); o `LeiauteNFSe101Testes` confere que o modelo e o mapa têm as mesmas tags. Trocar o pacote de schemas (a NT 009) é editar a especificação e gerar de novo.
+
+### 8.2. Ajustes ao desenho (a conferir pelo usuário)
+
+1. **A `NFSE-CHAVE` caiu, e a `ChaveNFSe` não confere o DV.** A documentação só diz "dígito verificador do código numérico" (guia do emissor público nacional web 1.2.1, 9.1, `NTS.md` 12.5). A chave de exemplo do guia (`3106200125123580000011223000000017302301958020816` + `0`) não bate com o módulo 11 da NF-e sobre as 49 posições (dá 7), nem sobre o código numérico (dá 1); a chave de exemplo de uma implementação aberta (a `nfelib`) bate com o da NF-e. Sem duas fontes que concordem, a leitura confere o tamanho, os dígitos, o ambiente gerador, o tipo de inscrição, os zeros do CPF, o mês e o número, e não o DV. A seção 3.2 dizia "`FormatException`: tamanho, caracteres ou DV".
+2. **O `xmldsig-core-schema.xsd` da 1.01 vai embutido sem o bloco `DOCTYPE`.** O arquivo do pacote traz o DOCTYPE do W3C, com entidades que ele não usa, e o núcleo proíbe DTD na carga dos schemas (etapa 1.5, `SchemaXmlTestes.DtdNoSchemaEhProibido`). O resto do arquivo é byte a byte o do pacote; os dois SHA-256 estão no `NTS.md` 12.5. O da 1.00 não tem DTD e vai como está.
+3. **`FormaLeitura.OutrasVersoes`** (membro novo do núcleo, não previsto na 3.1): o detector compara a versão do XML com a do leiaute, e o 1.01 lê também a 1.00 (D8). Sem isso, a NFS-e 1.00 não seria detectada.
+4. **Achados da versão 1.00** (a comparação da abertura pulava os filhos das escolhas do XSD): na 1.00, o evento da atividade usa `id` onde a 1.01 usa `idAtvEvt` (vai para a mesma propriedade, como o `desc`); a rejeição e a anulação da rejeição (202205, 203206, 204207, 205208) têm os campos dentro de um grupo `infRej` / `infAnRej`, que a leitura atravessa; a obra põe a `inscImobFisc` dentro da escolha; o `cStat` aceita o 101, que a 1.01 tirou (entra como número, com aviso). Também o texto fixo `xDesc` dos eventos muda entre as versões (sem acento e sem o "Manifestação de NFS-e -" na 1.00); a leitura confere o da versão do XML.
+5. **O `EventoNFSe` da seção 3.2** ganhou o `Ambiente`, a `VersaoAplicativo` e o `CnpjAutor`/`CpfAutor` no lugar de `Autor`, como a 7.5 aprovou; o Id do pedido é `PRE` + chave + tipo, sem número (M11).
+6. **Os resultados:** `DpsEscrita` (`Xml`, `Id`, `Problemas`); `NFSeLida` (`Nota`, `Dps`, `Chave`, `IdentificadorDps`, `Versao`, `Xml`, `Problemas`), que lê também a DPS sozinha; `EventoLido` (`Evento`, `Registrado`, `Id`, `Versao`, `Xml`, `Problemas`). A seção 3.3 só dava os nomes.
+7. **Os códigos dos problemas** da escrita e da leitura: `NFSE-EXCLUSIVO`, `NFSE-NUCLEO`, `NFSE-ID`, `NFSE-CARACTERE`, `NFSE-NAO-SUPORTADO`, `NFSE-XML`, `NFSE-RAIZ`, `NFSE-VERSAO`, `NFSE-CHAVE-ID`, `NFSE-VALOR`, `NFSE-ENUMERACAO`, `NFSE-DESCONHECIDO`, `NFSE-REPETIDO` e `NFSE-EVENTO` (`REGRAS.md` 20). O `NFSE-CHAVE-ID` (o Id ausente ou inválido na leitura) tem outro nome para não se confundir com a regra que caiu.
+
+### 8.3. O que fica para depois
+
+- A NT 009 (D2), quando entrar em produção: a especificação do gerador muda, e o modelo com ela.
+- A `NFSE-CHAVE` e o DV da `ChaveNFSe`, quando houver chaves reais para conferir (o PFX, `PROJETO.md` 17).
+- As operações: a emissão e as consultas (9.2), os eventos (9.3), a parametrização (9.4); o DANFSe (9.5). O `DFe.Criar` com `Documento.NFSe` ainda recusa (o atendimento por UF e o `Emissao`, D3): entra na 9.2.

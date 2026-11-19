@@ -1661,3 +1661,20 @@ Também na montagem, sem regra do catálogo: o `detEvento` conferido pelo schema
 **Ficam com a SEFAZ**, sem regra na lib (NT 2020.001 v1.60, 6.3.7 e 6.3.8): o destinatário (575), a sequência (594), o prazo de 10 dias da ciência e de 90 das conclusivas (596), a ciência e o desconhecimento da nota cancelada (650, 651), a ciência depois de conclusiva (655) e o tipo de emissão da chave (496). A linha 2P21-10 (575) do catálogo passa de "outra operação (6)" a "SEFAZ". As regras K01 a K09 da consulta cadastro (257 a 265) também ficam com a SEFAZ; o DV do CNPJ e do CPF e o formato da inscrição são recusados pelo construtor.
 
 **Testes:** `AutorizacaoTestes.Manifestacao` e `AutorizacaoTestes.Cadastro` (um caso por recusa e por condição), contra o emulador `ManifestacaoEmuladaTestes` e `CadastroEmuladoTestes`.
+
+## 20. As regras fora do schema da DPS da NFS-e, etapa 9.1 (2026-11-19)
+
+**Aprovadas pelo usuário em 2026-11-19** (`docs/NFSE.md` 4, na etapa 9.0). As regras do leiaute 1.01 da NFS-e (`RegrasNFSe101`), declaradas ao núcleo e conferidas na DPS antes de transmitir (a emissão chega na 9.2). O código é o local (`NFSE-...`), com a rejeição da Sefin Nacional na mensagem; o catálogo do Anexo I (aba `RN DPS_NFS-e`, 655 linhas) não é levantado linha a linha como o do MOC: quase todas dependem do que só o ambiente nacional tem (`NFSE.md` 4). O `RegrasNFSe101Testes` cruza esta tabela com o código.
+
+| Código | Rejeição | Severidade | O que confere | Situação |
+|---|---|---|---|---|
+| `NFSE-DOCUMENTO` | E0082, E0098, E0190, E0207, E0250 | Erro | o DV do CPF e do CNPJ (o alfanumérico também) do prestador, do tomador e do intermediário | lib |
+| `NFSE-COMPETENCIA` | E0015 | Erro | `dCompet` não é posterior à data do `dhEmi` (no deslocamento do próprio valor) | lib |
+| `NFSE-EMISSAO` | E0008 | Erro | `dhEmi` não é posterior ao relógio da configuração, com a tolerância de 5 minutos da regra de datas da NF-e (B09-10) | lib |
+| `NFSE-EMITENTE` | E9996 | Erro | `tpEmit` = 1: a Sefin Nacional só aceita a DPS do prestador | lib |
+| `NFSE-PRESTADOR` | E0121, E0128, E0112, E0114 | Erro | com `tpEmit` = 1, o prestador sem `xNome`, sem `end`, sem `NIF` e sem `cNaoNIF` (o ambiente nacional os tira do cadastro) | lib |
+| `NFSE-CHAVE` | E0042 | Erro | o DV da chave da NFS-e substituída e da chave do evento | **caiu** |
+
+**A `NFSE-CHAVE` caiu**, como a 9.0 previu: a documentação só diz "dígito verificador do código numérico" (guia do emissor público nacional web 1.2.1, 9.1), e nenhum cálculo do módulo 11 bate ao mesmo tempo com a chave de exemplo do guia (DV 0; o módulo 11 da NF-e sobre as 49 posições dá 7) e com a chave de exemplo de uma implementação aberta (a `nfelib`, que bate com o da NF-e). A `ChaveNFSe` confere o resto da chave, sem o DV. Volta quando houver chaves reais de NFS-e emitidas para conferir.
+
+**Os problemas da escrita e da leitura** (não são regras): `NFSE-EXCLUSIVO`, `NFSE-NUCLEO`, `NFSE-ID`, `NFSE-CARACTERE` e `NFSE-NAO-SUPORTADO` na escrita; `NFSE-XML`, `NFSE-RAIZ`, `NFSE-VERSAO`, `NFSE-CHAVE-ID`, `NFSE-VALOR`, `NFSE-ENUMERACAO`, `NFSE-DESCONHECIDO`, `NFSE-REPETIDO` e `NFSE-EVENTO` na leitura. A falha de schema é **E1235** ("Falha no esquema XML do DF-e", Anexo I, aba `RN_RECEPCAO_DPS`), com a propriedade do modelo.

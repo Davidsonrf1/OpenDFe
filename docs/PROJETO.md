@@ -300,6 +300,8 @@ O desenho da NFS-e (seção 18.5), decidido na etapa 9.0, com a API pública apr
 
 **Etapa 9.0 (2026-11-19):** as fontes conferidas (`docs/NTS.md` 12) mudaram parte do que o plano supunha. O desenho foi **aprovado pelo usuário em 2026-11-19**, com a D2 pela recomendação, e está em `docs/NFSE.md`; os itens abaixo já estão com ele.
 
+**Etapa 9.1 (2026-11-19):** o modelo (`docs/NFSE.md` 7, aprovado tudo pela recomendação) e o leiaute sem as operações (`NFSE.md` 8). A NFS-e lida é a `NotaFiscalServico` (não `NFSe`, o nome do namespace); o pacote embutido é o de produção (NT 004/007), com o `xmldsig` sem o `DOCTYPE`; a `ChaveNFSe` não confere o dígito verificador, e a regra `NFSE-CHAVE` caiu, porque a documentação não fecha o cálculo; o detector aceita a 1.00 pela `FormaLeitura.OutrasVersoes`.
+
 18.1. **Só o padrão nacional** (o Sistema Nacional da NFS-e, gov.br/nfse). Sem provedores municipais (ABRASF, Betha, ISS.net e afins). A adesão do município ao convênio não garante que ele use o emissor nacional: há os que mantêm sistema próprio e só compartilham os dados com o ambiente nacional. A lib não decide isso por quem usa; oferece a consulta da parametrização do município (18.4), e quem usa decide se emite.
 
 18.2. **O que muda em relação à NF-e** (conferido na 9.0, `docs/NTS.md` 12):

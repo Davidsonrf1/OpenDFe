@@ -27,7 +27,6 @@ OpenDFe.Documento
 OpenDFe.Documento.NFCe = 65 -> OpenDFe.Documento
 OpenDFe.Documento.NFe = 55 -> OpenDFe.Documento
 OpenDFe.FormaLeitura
-OpenDFe.FormaLeitura.CaminhoModelo.get -> string!
 OpenDFe.FormaLeitura.CaminhoVersao.get -> string!
 OpenDFe.FormaLeitura.EspacoNomes.get -> string!
 OpenDFe.FormaLeitura.FormaLeitura(string! espacoNomes, string! raiz, string! caminhoVersao, string! caminhoModelo) -> void
@@ -570,3 +569,9 @@ const OpenDFe.Impressao.TextoPaginado.Paginas = "{paginas}" -> string!
 static OpenDFe.Impressao.TextoPaginado.Resolver(string! texto, int pagina, int paginas) -> string!
 OpenDFe.ServicoSoap.Operacao.get -> string?
 OpenDFe.ServicoSoap.Operacao.init -> void
+OpenDFe.Documento.NFSe = 99 -> OpenDFe.Documento
+OpenDFe.FormaLeitura.CaminhoModelo.get -> string?
+OpenDFe.FormaLeitura.Documento.get -> OpenDFe.Documento?
+OpenDFe.FormaLeitura.FormaLeitura(string! espacoNomes, string! raiz, string! caminhoVersao, OpenDFe.Documento documento) -> void
+OpenDFe.FormaLeitura.OutrasVersoes.get -> System.Collections.Generic.IReadOnlyList<string!>!
+OpenDFe.FormaLeitura.OutrasVersoes.init -> void

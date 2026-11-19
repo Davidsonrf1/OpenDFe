@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Não tem pacote próprio: sai dentro do OpenDFe.NFSe, com o leiaute (PROJETO.md 3.4). -->
+  <PropertyGroup>
+    <RootNamespace>OpenDFe.NFSe</RootNamespace>
+    <Description>Modelo de dados da NFS-e do padrão nacional (a DPS, a NFS-e e os eventos) da OpenDFe, com nomes descritivos e válido para as versões 1.00 e 1.01 do leiaute.</Description>
+    <IsPackable>false</IsPackable>
+    <EnablePackageValidation>false</EnablePackageValidation>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../OpenDFe.Nucleo/OpenDFe.Nucleo.csproj" />
+  </ItemGroup>
+
+</Project>

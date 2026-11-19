@@ -7,6 +7,9 @@ tests/Exemplos/** -text
 # Schemas da SEFAZ: os bytes do pacote de liberação, conferíveis pelo SHA-256 registrado em docs/NTS.md.
 src/OpenDFe.Leiaute.NFe.v400/Schemas/** -text
 
+# Schemas da NFS-e nacional: os bytes do pacote do gov.br/nfse, conferíveis pelo SHA-256 registrado em docs/NTS.md 12.
+src/OpenDFe.Leiaute.NFSe.v101/Schemas/** -text
+
 *.pfx binary
 *.p12 binary
 *.cer binary

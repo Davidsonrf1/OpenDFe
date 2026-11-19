@@ -1,0 +1,28 @@
+#nullable enable
+OpenDFe.NFSe.DpsEscrita
+OpenDFe.NFSe.DpsEscrita.Id.get -> OpenDFe.NFSe.IdentificadorDps?
+OpenDFe.NFSe.DpsEscrita.Problemas.get -> System.Collections.Generic.IReadOnlyList<OpenDFe.Problema!>!
+OpenDFe.NFSe.DpsEscrita.Xml.get -> string!
+OpenDFe.NFSe.EventoLido
+OpenDFe.NFSe.EventoLido.Evento.get -> OpenDFe.NFSe.EventoNFSe?
+OpenDFe.NFSe.EventoLido.Id.get -> string?
+OpenDFe.NFSe.EventoLido.Problemas.get -> System.Collections.Generic.IReadOnlyList<OpenDFe.Problema!>!
+OpenDFe.NFSe.EventoLido.Registrado.get -> OpenDFe.NFSe.EventoNFSeRegistrado?
+OpenDFe.NFSe.EventoLido.Versao.get -> string?
+OpenDFe.NFSe.EventoLido.Xml.get -> string!
+OpenDFe.NFSe.LeiauteNFSe101
+OpenDFe.NFSe.LeiauteNFSe101.Declarar(OpenDFe.DeclaracaoLeiaute! declaracao) -> void
+OpenDFe.NFSe.LeiauteNFSe101.Documentos.get -> System.Collections.Generic.IReadOnlyList<OpenDFe.Documento>!
+OpenDFe.NFSe.LeiauteNFSe101.Escrever(OpenDFe.NFSe.Dps! dps) -> OpenDFe.NFSe.DpsEscrita!
+OpenDFe.NFSe.LeiauteNFSe101.Ler(string! xml) -> OpenDFe.NFSe.NFSeLida!
+OpenDFe.NFSe.LeiauteNFSe101.LerEvento(string! xml) -> OpenDFe.NFSe.EventoLido!
+OpenDFe.NFSe.LeiauteNFSe101.Versao.get -> string!
+OpenDFe.NFSe.NFSeLida
+OpenDFe.NFSe.NFSeLida.Chave.get -> OpenDFe.NFSe.ChaveNFSe?
+OpenDFe.NFSe.NFSeLida.Dps.get -> OpenDFe.NFSe.Dps?
+OpenDFe.NFSe.NFSeLida.IdentificadorDps.get -> OpenDFe.NFSe.IdentificadorDps?
+OpenDFe.NFSe.NFSeLida.Nota.get -> OpenDFe.NFSe.NotaFiscalServico?
+OpenDFe.NFSe.NFSeLida.Problemas.get -> System.Collections.Generic.IReadOnlyList<OpenDFe.Problema!>!
+OpenDFe.NFSe.NFSeLida.Versao.get -> string?
+OpenDFe.NFSe.NFSeLida.Xml.get -> string!
+static OpenDFe.NFSe.LeiauteNFSe101.Instancia.get -> OpenDFe.NFSe.LeiauteNFSe101!

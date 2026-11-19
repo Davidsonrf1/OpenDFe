@@ -17,3 +17,6 @@ TestResults/
 
 # A AC de teste da SEFAZ emulada no Docker (tests/OpenDFe.SefazEmulada/compose.yaml).
 tests/OpenDFe.SefazEmulada/dados/
+
+# O cache do Python do gerador do modelo da NFS-e (eng/GerarModeloNFSe).
+__pycache__/
