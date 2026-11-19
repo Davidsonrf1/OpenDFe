@@ -18,6 +18,7 @@ internal sealed class Contexto
         Documento = documento;
         Folha = documento.Papel.Tipo == TipoPapel.Folha;
         LarguraUtilMm = documento.Papel.LarguraMm - 2 * documento.Papel.MargemMm;
+        AlturaUtilMm = documento.Papel.AlturaMm is { } altura ? altura - 2 * documento.Papel.MargemMm : double.PositiveInfinity;
         // A família pedida, se o aplicativo a registrou (ou o sistema a tem); senão a Lato, a embutida: a emissão não quebra
         // porque a fonte não está instalada (o QuestPDF lança no texto de uma família que não existe).
         _familias = string.IsNullOrWhiteSpace(opcoes.Fonte) || !FamiliaDisponivel(opcoes.Fonte) ? null : [opcoes.Fonte];
@@ -37,6 +38,9 @@ internal sealed class Contexto
 
     /// <summary>A largura da área impressa, em milímetros (o papel menos as duas margens).</summary>
     public double LarguraUtilMm { get; }
+
+    /// <summary>A altura da área impressa da folha, em milímetros (o papel menos as duas margens); infinita na bobina.</summary>
+    public double AlturaUtilMm { get; }
 
     /// <summary>O tamanho da fonte do texto do modelo, em pontos (docs/CONTRATOS.md 22.3).</summary>
     public float Tamanho(TamanhoTexto tamanho) => (Folha, tamanho) switch

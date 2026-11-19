@@ -280,7 +280,7 @@ Cancelamento (110111), cancelamento por substituição (110112, NFC-e), carta de
 | 8 | Distribuição DF-e e manifestação | notas destinadas baixadas em homologação | feita no emulador; homologação pendente do PFX |
 | paralela | SEFAZ emulada (13.5): status, autorização, consulta e NFC-e, eventos, distribuição, com as falhas comandadas | cada serviço das fases 4 a 8 respondido pelo emulador | feita (E.1 a E.6) |
 | depois | CT-e, MDF-e, A3 no Linux, carregamento de leiaute por DLL (3.2) | — | — |
-| 9 | NFS-e nacional (seção 18): fontes e desenho, modelo e leiaute da DPS e da NFS-e, transporte REST, emissão e consulta, eventos, parametrização municipal, DANFSe | emitida, consultada e cancelada contra o emulador (13.5), nos dois sistemas | plano aprovado (2026-11-19); a próxima é a 9.0 |
+| 9 | NFS-e nacional (seção 18): fontes e desenho, modelo e leiaute da DPS e da NFS-e, transporte REST, emissão e consulta, eventos, parametrização municipal, DANFSe | emitida, consultada e cancelada contra o emulador (13.5), nos dois sistemas | feita no emulador (9.0 a 9.5, 2026-11-19); a produção restrita pendente do PFX |
 | paralela | Emulador da NFS-e (13.5, 18.6): municípios configuráveis, emissão, consulta, eventos, parametrização, painel | cada serviço da fase 9 respondido pelo emulador | E.7 a E.9 feitas (2026-11-19) |
 
 As fases 1 a 5 atendem o PDV; a 8, a caixa de entrada do ErpCore.

@@ -161,3 +161,12 @@ OpenDFe.NFSe.VigenciaAliquota
 OpenDFe.NFSe.VigenciaAliquota.Aliquota.get -> decimal?
 OpenDFe.NFSe.VigenciaAliquota.Fim.get -> System.DateTime?
 OpenDFe.NFSe.VigenciaAliquota.Inicio.get -> System.DateTime?
+OpenDFe.NFSe.LeiauteNFSe101.Danfse(OpenDFe.NFSe.NFSeLida! nota, OpenDFe.NFSe.OpcoesDanfse? opcoes = null) -> OpenDFe.Impressao.DocumentoImpressao!
+OpenDFe.NFSe.OpcoesDanfse
+OpenDFe.NFSe.OpcoesDanfse.Cancelada.get -> bool
+OpenDFe.NFSe.OpcoesDanfse.Cancelada.init -> void
+OpenDFe.NFSe.OpcoesDanfse.Canhoto.get -> bool
+OpenDFe.NFSe.OpcoesDanfse.Canhoto.init -> void
+OpenDFe.NFSe.OpcoesDanfse.OpcoesDanfse() -> void
+OpenDFe.NFSe.OpcoesDanfse.Substituida.get -> bool
+OpenDFe.NFSe.OpcoesDanfse.Substituida.init -> void

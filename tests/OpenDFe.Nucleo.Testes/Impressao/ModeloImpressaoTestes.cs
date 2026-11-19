@@ -181,7 +181,7 @@ public sealed class ModeloImpressaoTestes
         // Todos os derivados são da biblioteca, selados.
         var derivados = tipo.Assembly.GetTypes().Where(t => t.IsSubclassOf(tipo)).ToArray();
         string[] esperados =
-            ["EspacoImpressao", "ImagemImpressao", "CodigoBarrasImpressao", "LinhaImpressao", "QrCodeImpressao", "QuebraPaginaImpressao", "SecaoImpressao", "SeparadorImpressao", "TabelaImpressao", "TextoImpressao"];
+            ["EspacoImpressao", "ImagemImpressao", "CodigoBarrasImpressao", "LinhaImpressao", "QrCodeImpressao", "QuebraPaginaImpressao", "SecaoImpressao", "SeparadorImpressao", "TabelaImpressao", "TextoImpressao", "FormularioImpressao"];
         Assert.Equal(esperados.Order(StringComparer.Ordinal), derivados.Select(t => t.Name).Order(StringComparer.Ordinal));
         Assert.All(derivados, t => Assert.True(t.IsSealed && t.IsPublic));
     }

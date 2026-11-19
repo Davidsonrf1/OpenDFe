@@ -23,6 +23,11 @@
     <EmbeddedResource Include="Schemas/**/*.xsd" LogicalName="Schemas/%(RecursiveDir)%(Filename)%(Extension)" />
   </ItemGroup>
 
+  <!-- O DANFSe (docs/NFSE.md 12): a logomarca oficial da NFS-e e a tabela dos municípios do IBGE (docs/NTS.md 12.3). -->
+  <ItemGroup>
+    <EmbeddedResource Include="Recursos/*" LogicalName="Recursos/%(Filename)%(Extension)" />
+  </ItemGroup>
+
   <ItemGroup>
     <InternalsVisibleTo Include="OpenDFe.NFSe.Testes" />
   </ItemGroup>

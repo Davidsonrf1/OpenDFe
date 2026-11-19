@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using OpenDFe.Impressao;
 
 namespace OpenDFe.NFSe;
 
@@ -116,4 +117,24 @@ public sealed class LeiauteNFSe101 : ILeiaute
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static",
         Justification = "A leitura é do leiaute, que quem usa recebe do DFe.Detectar (docs/LEITURA.md, decisão 1).")]
     public EventoLido LerEvento(string xml) => LeitorNFSe.LerEvento(xml);
+
+    /// <summary>
+    /// Monta o DANFSe da NFS-e lida (a NT SE/CGNFS-e 008/2026 v1.02): um <see cref="DocumentoImpressao"/> de uma folha A4, com
+    /// um <see cref="FormularioImpressao"/> nas posições do Anexo I, que o <c>OpenDFe.Impressao.Pdf</c> desenha (docs/NFSE.md 12).
+    /// </summary>
+    /// <param name="nota">A NFS-e lida (<see cref="Ler"/>), da versão 1.00 ou 1.01.</param>
+    /// <param name="opcoes">O canhoto e a situação (cancelada, substituída); <see langword="null"/> usa o padrão.</param>
+    /// <returns>O documento de impressão.</returns>
+    /// <exception cref="ArgumentNullException">A leitura é nula.</exception>
+    /// <exception cref="ArgumentException">
+    /// A leitura não achou a NFS-e (a DPS sozinha não tem DANFSe) ou a chave; ou as opções pedem a cancelada e a substituída juntas.
+    /// </exception>
+    /// <remarks>
+    /// Só lê a nota: não confere o schema nem as regras, e não imprime o que o XML não tem. A situação (cancelada,
+    /// substituída) vem de quem usa, pela <see cref="ConsultaEventosNFSe"/>. Na produção restrita (<c>tpAmb</c> 2), o
+    /// cabeçalho leva "NFS-e SEM VALIDADE JURÍDICA" em vermelho. Sem estado e seguro em paralelo.
+    /// </remarks>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static",
+        Justification = "A impressão é do leiaute, como o Danfe da NF-e (docs/NFSE.md 12, decisão G1).")]
+    public DocumentoImpressao Danfse(NFSeLida nota, OpcoesDanfse? opcoes = null) => MontagemDanfse.Montar(nota, opcoes);
 }

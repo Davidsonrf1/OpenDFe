@@ -60,6 +60,9 @@ public static partial class RenderizadorPdf
             case TabelaImpressao tabela:
                 Tabela(item, tabela, contexto);
                 break;
+            case FormularioImpressao formulario:
+                Formulario(item, formulario, contexto);
+                break;
             case QuebraPaginaImpressao:
                 // Na folha, a quebra de página; na bobina, o corte já separou os trechos (Contexto.Trechos).
                 item.PageBreak();

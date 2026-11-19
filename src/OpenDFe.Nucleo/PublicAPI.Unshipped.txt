@@ -609,3 +609,52 @@ OpenDFe.RespostaRest.RespostaRest(int status, string? corpo) -> void
 OpenDFe.RespostaRest.Status.get -> int
 OpenDFe.DeclaracaoLeiaute.RegistrarOperacao<TParametro, TRetorno>(OpenDFe.IOperacaoRest<TParametro!, TRetorno!>! operacao) -> void
 OpenDFe.RastroWS.StatusHttp.get -> int?
+OpenDFe.Impressao.BordaQuadro
+OpenDFe.Impressao.BordaQuadro.Baixo = 2 -> OpenDFe.Impressao.BordaQuadro
+OpenDFe.Impressao.BordaQuadro.Cima = 1 -> OpenDFe.Impressao.BordaQuadro
+OpenDFe.Impressao.BordaQuadro.Direita = 8 -> OpenDFe.Impressao.BordaQuadro
+OpenDFe.Impressao.BordaQuadro.Esquerda = 4 -> OpenDFe.Impressao.BordaQuadro
+OpenDFe.Impressao.BordaQuadro.Nenhuma = 0 -> OpenDFe.Impressao.BordaQuadro
+OpenDFe.Impressao.BordaQuadro.Todas = OpenDFe.Impressao.BordaQuadro.Cima | OpenDFe.Impressao.BordaQuadro.Baixo | OpenDFe.Impressao.BordaQuadro.Esquerda | OpenDFe.Impressao.BordaQuadro.Direita -> OpenDFe.Impressao.BordaQuadro
+OpenDFe.Impressao.CorImpressao
+OpenDFe.Impressao.CorImpressao.Preto = 0 -> OpenDFe.Impressao.CorImpressao
+OpenDFe.Impressao.CorImpressao.Vermelho = 1 -> OpenDFe.Impressao.CorImpressao
+OpenDFe.Impressao.FormularioImpressao
+OpenDFe.Impressao.FormularioImpressao.BordaPt.get -> double
+OpenDFe.Impressao.FormularioImpressao.BordaPt.init -> void
+OpenDFe.Impressao.FormularioImpressao.FormularioImpressao(System.Collections.Generic.IReadOnlyList<OpenDFe.Impressao.QuadroFormulario!>! quadros) -> void
+OpenDFe.Impressao.FormularioImpressao.MarcaAgua.get -> string?
+OpenDFe.Impressao.FormularioImpressao.MarcaAgua.init -> void
+OpenDFe.Impressao.FormularioImpressao.Quadros.get -> System.Collections.Generic.IReadOnlyList<OpenDFe.Impressao.QuadroFormulario!>!
+OpenDFe.Impressao.ImagemFormulario
+OpenDFe.Impressao.ImagemFormulario.ImagemFormulario(double xMm, double yMm, double larguraMm, double alturaMm, System.ReadOnlyMemory<byte> png) -> void
+OpenDFe.Impressao.ImagemFormulario.Png.get -> System.ReadOnlyMemory<byte>
+OpenDFe.Impressao.QrCodeFormulario
+OpenDFe.Impressao.QrCodeFormulario.QrCodeFormulario(double xMm, double yMm, double ladoMm, string! texto) -> void
+OpenDFe.Impressao.QrCodeFormulario.Texto.get -> string!
+OpenDFe.Impressao.QuadroFormulario
+OpenDFe.Impressao.QuadroFormulario.AlturaMm.get -> double
+OpenDFe.Impressao.QuadroFormulario.Bordas.get -> OpenDFe.Impressao.BordaQuadro
+OpenDFe.Impressao.QuadroFormulario.Bordas.init -> void
+OpenDFe.Impressao.QuadroFormulario.LarguraMm.get -> double
+OpenDFe.Impressao.QuadroFormulario.Sombreado.get -> bool
+OpenDFe.Impressao.QuadroFormulario.Sombreado.init -> void
+OpenDFe.Impressao.QuadroFormulario.XMm.get -> double
+OpenDFe.Impressao.QuadroFormulario.YMm.get -> double
+OpenDFe.Impressao.TextoFormulario
+OpenDFe.Impressao.TextoFormulario.Alinhamento.get -> OpenDFe.Impressao.AlinhamentoImpressao
+OpenDFe.Impressao.TextoFormulario.Alinhamento.init -> void
+OpenDFe.Impressao.TextoFormulario.Cor.get -> OpenDFe.Impressao.CorImpressao
+OpenDFe.Impressao.TextoFormulario.Cor.init -> void
+OpenDFe.Impressao.TextoFormulario.Rotulo.get -> string?
+OpenDFe.Impressao.TextoFormulario.RotuloNegrito.get -> bool
+OpenDFe.Impressao.TextoFormulario.RotuloNegrito.init -> void
+OpenDFe.Impressao.TextoFormulario.TamanhoRotuloPt.get -> double
+OpenDFe.Impressao.TextoFormulario.TamanhoRotuloPt.init -> void
+OpenDFe.Impressao.TextoFormulario.TamanhoValorPt.get -> double
+OpenDFe.Impressao.TextoFormulario.TamanhoValorPt.init -> void
+OpenDFe.Impressao.TextoFormulario.TextoFormulario(double xMm, double yMm, double larguraMm, double alturaMm, string? rotulo, string? valor) -> void
+OpenDFe.Impressao.TextoFormulario.Valor.get -> string?
+OpenDFe.Impressao.TextoFormulario.ValorNegrito.get -> bool
+OpenDFe.Impressao.TextoFormulario.ValorNegrito.init -> void
+static OpenDFe.Impressao.PapelImpressao.A4RetratoEstreito.get -> OpenDFe.Impressao.PapelImpressao!

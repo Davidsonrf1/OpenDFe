@@ -23,6 +23,18 @@
     <ProjectReference Include="../OpenDFe.SefazEmulada/OpenDFe.SefazEmulada.csproj" />
   </ItemGroup>
 
+  <!-- O DANFSe (etapa 9.5): o PDF lido de volta pelo PdfPig, a matriz de referência do QR Code pelo QRCoder, e o leitor, as
+       matrizes, a licença do QuestPDF e as amostras de inspeção, os mesmos dos testes da NF-e (um arquivo só). -->
+  <ItemGroup>
+    <ProjectReference Include="../../src/OpenDFe.Impressao.Pdf/OpenDFe.Impressao.Pdf.csproj" />
+    <PackageReference Include="PdfPig" />
+    <PackageReference Include="QRCoder" />
+    <Compile Include="../OpenDFe.Impressao.Pdf.Testes/PdfLeitor.cs" Link="Impressao/PdfLeitor.cs" />
+    <Compile Include="../OpenDFe.Impressao.Pdf.Testes/PdfVetores.cs" Link="Impressao/PdfVetores.cs" />
+    <Compile Include="../OpenDFe.NFe.Testes/Impressao/LicencaPdf.cs" Link="Impressao/LicencaPdf.cs" />
+    <Compile Include="../OpenDFe.NFe.Testes/Impressao/AmostrasPdf.cs" Link="Impressao/AmostrasPdf.cs" />
+  </ItemGroup>
+
   <!-- O catálogo das regras (REGRAS.md 20), que o teste cruza com as regras do leiaute. -->
   <ItemGroup>
     <None Include="../../docs/REGRAS.md" Link="docs/REGRAS.md" CopyToOutputDirectory="PreserveNewest" />

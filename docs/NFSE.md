@@ -280,7 +280,7 @@ public sealed class ConsultaEventosNFSe : ParametroWS<RetornoEventosNFSe> // GET
 // com o município e o código de tributação nacional ou o CPF/CNPJ; o retorno pela D13.
 
 // O DANFSe (9.5): o modelo de impressão do leiaute pela NT 008/2026, como o DANFE da 7.3.
-public static class DanfseNFSe { public static DocumentoImpressao Montar(NFSe nota, OpcoesDanfse? opcoes = null); }
+// Substituído na 9.5 (seção 12): LeiauteNFSe101.Danfse(NFSeLida nota, OpcoesDanfse? opcoes = null), com o FormularioImpressao no núcleo.
 ```
 
 ### 3.4. Exemplo de uso
@@ -1102,7 +1102,7 @@ O desenho de 11.2 como aprovado, nos arquivos `ConsultasParametrizacao.cs` (os p
 
 ## 12. O DANFSe (etapa 9.5): para aprovação
 
-Apresentado na abertura da 9.5 (2026-11-19), antes do código, porque cria API pública no núcleo, no leiaute e no PDF. **Aguardando a aprovação do usuário.** A fonte é a NT SE/CGNFS-e 008/2026 v1.02 (14/07/2026), **conferida de novo na cópia do gov.br** (`NTS.md` 12.3): é a versão vigente, com o mesmo texto da cópia da Fenacon lida na 9.0.
+Apresentado na abertura da 9.5 (2026-11-19), antes do código, porque cria API pública no núcleo, no leiaute e no PDF. **Aprovado pelo usuário em 2026-11-19, tudo pela recomendação** ("aprovado pela recomendação"); o que mudou na implementação está em 12.5. A fonte é a NT SE/CGNFS-e 008/2026 v1.02 (14/07/2026), **conferida de novo na cópia do gov.br** (`NTS.md` 12.3): é a versão vigente, com o mesmo texto da cópia da Fenacon lida na 9.0.
 
 **O esboço da seção 3.3 não vale como está:** ele previa `DanfseNFSe.Montar(NFSe nota, ...)`, mas não há tipo `NFSe` (a nota é a `NotaFiscalServico`, e a chave e o XML estão na `NFSeLida`), e o DANFE da 7.3 é um método do leiaute (`LeiauteNFe400.Danfe(NotaLida, ...)`). E a NT pede o que o modelo de impressão da 7.2 não expressa (12.1).
 
@@ -1213,3 +1213,18 @@ public sealed class LeiauteNFSe101
 ### 12.4. O que a 9.5 faz depois da aprovação
 
 O formulário no núcleo, com os testes (as validações, a cópia das listas, o conjunto fechado); o DANFSe no leiaute, quadro a quadro com as coordenadas do 2.4.5, a tabela dos municípios e a logomarca embutidas (G3, G4); o formulário no PDF. A conformidade item a item contra a NT, como o `IMPRESSAO.md` 2 e 3 fizeram com o Anexo II, numa seção nova do `IMPRESSAO.md`. Os testes: os golden de texto (`TextoPlano`) de um catálogo de NFS-e (a completa, a mínima sem tomador, a com destinatário igual ao tomador, o intermediário, a não sujeita ao ISSQN, a substituta, a com IBS/CBS, a 1.00, a produção restrita, a cancelada, a substituída, os textos no limite); o PDF lido de volta pelo PdfPig (a página única, a posição e o tamanho de cada quadro contra a NT, as fontes em pontos, o sombreamento, a borda, o vermelho, o QR Code na posição com a matriz do QRCoder e a URL `https://www.nfse.gov.br/ConsultaPublica/?tpc=1&chave=<chave>`, a marca d'água); a ponta a ponta com a NFS-e emitida pela Sefin emulada; e a inspeção visual dos PDFs. Fecha a fase: o README, o guia em `docs/guia/` e a situação.
+
+### 12.5. Implementação (2026-11-19)
+
+O desenho de 12.3 como aprovado, sem mudança de assinatura: no núcleo, `FormularioImpressao.cs` e o papel novo em `PapelImpressao.cs`; no PDF, `RenderizadorPdf.Formulario.cs` e as medidas em `Medidas.cs`; no leiaute, a pasta `Impressao/` (`MontagemDanfse`, `OpcoesDanfse`, `FormatadorDanfse`, `TextosDanfse`, `MunicipiosIbge`) e a pasta `Recursos/` (a logomarca e a tabela dos municípios, embutidas). A conformidade item a item está em `IMPRESSAO.md` 5; a situação, com os testes, no `PLANO.md`. O que o desenho não dizia:
+
+1. **As coordenadas.** A tabela do 2.4.5 mede a partir da borda do papel: os campos começam a 0,30 cm e vão até 20,70 cm, com a borda de 1 pt na margem de 0,15 cm (a folga de 0,15 cm dos dois lados). O papel é o A4 com margem de 1,5 mm, e os quadros saem em mm a partir da área útil (o cm da NT menos 0,15, vezes 10).
+2. **As linhas.** Os blocos andam 0,6465 cm por linha, o passo médio da tabela (13 linhas de 4,34 a 12,74; 10 de 14,43 a 20,90), com 0,63 cm de quadro; o valor total, 0,69 com 0,67; a descrição tem no mínimo 0,64 (de 13,79 a 14,43). Cada posição da tabela sai com até 0,02 cm de diferença.
+3. **O Anexo I vence a tabela onde diverge** (2.2.4): o regime de apuração do SN na coluna 2, e não em 10,51; o tipo de tributação do ISSQN na coluna 2 e o município da incidência nas colunas 3 e 4 (a tabela os põe em 0,30 e 5,41, a posição do título do bloco).
+4. **A altura que sobra** (os blocos suprimidos, o canhoto ausente) vai à descrição do serviço e às informações complementares pela necessidade estimada de cada uma (150 caracteres por linha de 20,40 cm a 7 pt); sem caber as duas, na proporção da necessidade. A linha dos totais aproximados dos tributos é um quadro à parte, no pé, e nunca se corta (nota 10).
+5. **O prestador** usa o documento da DPS quando ela tem algum (CNPJ, CPF ou NIF), e o nome, o endereço, o telefone, o e-mail e a inscrição do `emit` da NFS-e quando a DPS não os traz e o emitente é o prestador (NFSE-PRESTADOR: a Sefin os tira do cadastro). A inspeção visual achou o caso: a DPS mínima, de prestador CPF, saía com o CNPJ do `emit`.
+6. **As supressões:** a linha do endereço e do e-mail (nota 1) some quando os dois estão vazios; a linha da nota 5 do regime especial some sem regime (o "Nenhum", 0, não conta como dado), imunidade e suspensão; a do benefício, sem o tipo, o cálculo, as deduções e o desconto. A não incidência do ISSQN (nota 4) é o `tribISSQN` 4. O destinatário igual ao tomador (2.3.2) é o `indDest` 0 com o tomador.
+7. **O 101 da versão 1.00** ("NFS-e de Substituição Gerada", que a 1.01 tirou do `TStat`) sai com o texto dele, e não com o código.
+8. **O PDF não encolhe a fonte** no quadro justo: o respiro vertical encolhe antes; a redução ao caber só age se nem a primeira linha couber (o quadro pequeno demais de quem monta). Achado no teste: o texto de 9 pt num quadro de 4 mm saía com 8,62 pt.
+9. **A linha divisória** é um quadro de 1 mm com a borda de cima, desenhado depois do bloco (o sombreado do título a cobriria); o conteúdo do quadro ocupa o quadro inteiro (`Extend`), porque a borda do QuestPDF acompanha o tamanho do conteúdo, e o quadro vazio não mostrava a linha.
+10. **O título do documento** é `DANFSe NFS-e <número>`.

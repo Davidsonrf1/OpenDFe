@@ -1,8 +1,8 @@
 # OpenDFe
 
-Biblioteca .NET aberta para **documentos fiscais eletrônicos brasileiros** (NF-e e NFC-e da SEFAZ; CT-e e MDF-e depois): geração do XML, validação pelas regras da SEFAZ, assinatura, transmissão, leitura e eventos. Não tem relação com outros projetos chamados "DFe".
+Biblioteca .NET aberta para **documentos fiscais eletrônicos brasileiros** (NF-e e NFC-e da SEFAZ e a NFS-e do padrão nacional; CT-e e MDF-e depois): geração do XML, validação pelas regras da SEFAZ, assinatura, transmissão, leitura e eventos. Não tem relação com outros projetos chamados "DFe".
 
-**Estado (2026-10-24):** as fases 0 a 8 do [`PLANO.md`](PLANO.md) estão implementadas e conferidas **contra a SEFAZ emulada** (`tests/OpenDFe.SefazEmulada`), no Windows e no Linux. A homologação real está **pendente do certificado A1 ICP-Brasil**: os testes dela estão escritos e são pulados sem o PFX. **Nenhum pacote foi publicado ainda.** A arquitetura está em [`docs/PROJETO.md`](docs/PROJETO.md).
+**Estado (2026-11-19):** as fases 0 a 9 do [`PLANO.md`](PLANO.md) estão implementadas e conferidas **contra a SEFAZ emulada** (`tests/OpenDFe.SefazEmulada`), no Windows e no Linux. A homologação real está **pendente do certificado A1 ICP-Brasil**: os testes dela estão escritos e são pulados sem o PFX. **Nenhum pacote foi publicado ainda.** A arquitetura está em [`docs/PROJETO.md`](docs/PROJETO.md).
 
 ## O que a biblioteca faz
 
@@ -15,7 +15,8 @@ NF-e (modelo 55) e NFC-e (modelo 65), no leiaute 4.00:
 - eventos (cancelamento, cancelamento por substituição, carta de correção) e inutilização;
 - DANFCE e DANFE em modelo de impressão neutro e em PDF;
 - distribuição DF-e (as notas destinadas), manifestação do destinatário (ciência, confirmação, desconhecimento, operação não realizada) e consulta cadastro;
-- uma SEFAZ emulada para testar tudo isso sem certificado real.
+- NFS-e do padrão nacional (leiaute 1.01; lê também a 1.00): a DPS, a emissão na Sefin Nacional, as consultas pela chave e pela DPS, a recuperação depois de uma queda, o cancelamento, a análise fiscal, a substituição, a consulta dos eventos, a parametrização municipal do ADN e o DANFSe da NT 008/2026 em PDF;
+- uma SEFAZ emulada (com a Sefin Nacional e o ADN) para testar tudo isso sem certificado real.
 
 A lib não grava nada, não reenvia sozinha e não calcula tributo: quem usa guarda o XML e decide o imposto.
 
@@ -91,11 +92,18 @@ A documentação completa começa em [docs/index.md](docs/index.md). Comece pelo
 - [Contingência offline](docs/guia/nfce/contingencia-offline.md)
 - [Cancelamento por substituição](docs/guia/nfce/cancelamento-substituicao.md)
 
+**NFS-e nacional**
+
+- [Emitir e consultar a NFS-e](docs/guia/nfse/emissao.md)
+- [Cancelar e substituir a NFS-e](docs/guia/nfse/eventos.md)
+- [Consultar a parametrização do município](docs/guia/nfse/parametrizacao.md)
+
 **Impressão**
 
 - [Modelo de impressão: DANFE e DANFCE](docs/guia/impressao/modelo-impressao.md)
 - [Gerar o PDF](docs/guia/impressao/pdf.md)
 - [Imprimir em impressora térmica (ESC/POS)](docs/guia/impressao/escpos.md)
+- [Imprimir o DANFSe da NFS-e](docs/guia/impressao/danfse.md)
 
 **Da homologação à produção**
 
@@ -114,9 +122,10 @@ A documentação completa começa em [docs/index.md](docs/index.md). Comece pelo
 
 | Pacote | Conteúdo |
 |---|---|
-| `OpenDFe.Nucleo` | contratos, certificado, assinatura XMLDSig, SOAP, TLS ICP-Brasil, validação pelo XSD |
+| `OpenDFe.Nucleo` | contratos, certificado, assinatura XMLDSig, SOAP e REST, TLS ICP-Brasil, validação pelo XSD, o modelo de impressão |
 | `OpenDFe.NFe` | modelo da NF-e e da NFC-e e o leiaute 4.00 |
-| `OpenDFe.Impressao.Pdf` | DANFE e DANFCE em PDF |
+| `OpenDFe.NFSe` | modelo da NFS-e nacional (a DPS, a NFS-e e os eventos) e o leiaute 1.01, com o REST da Sefin Nacional e do ADN |
+| `OpenDFe.Impressao.Pdf` | DANFE, DANFCE e DANFSe em PDF |
 
 > **Licença do PDF:** o `OpenDFe.Impressao.Pdf` usa o **QuestPDF**, que **não** é MIT (licença própria, com uma versão gratuita Community e licenças pagas). A escolha e a obrigação são de quem usa esse pacote; leia o [README do pacote](src/OpenDFe.Impressao.Pdf/README.md) antes de usar. O resto da OpenDFe é MIT e não depende dele.
 

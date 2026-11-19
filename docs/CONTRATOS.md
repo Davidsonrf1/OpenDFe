@@ -1568,6 +1568,7 @@ Determinístico, um arquivo por família (`RenderizadorPdf.Texto.cs`, `.Quadros.
 | `SecaoImpressao` | o título do bloco (5 pt, negrito) e, por `LinhaCamposImpressao`, uma **tabela de uma fileira** de quadros de borda fina com o rótulo pequeno em cima e o valor embaixo; os quadros de uma fileira têm **a mesma altura** (o que quebra em linhas estica os vizinhos); o quadro maior que a página continua na seguinte |
 | `TabelaImpressao` | o título do bloco e a tabela do QuestPDF com as colunas na proporção dos pesos, o **cabeçalho repetido** a cada página, a linha com o texto das células (quebra de linha da célula = linha), e, com `LinhasIndivisiveis`, a linha que **não se divide** entre duas páginas; `DivisorLinhas` escurece a linha entre os itens |
 | `QuebraPaginaImpressao` | na folha, uma quebra de página; na bobina, o **corte**: cada trecho é um bilhete (uma página de altura contínua) |
+| `FormularioImpressao` (9.5, seção 25) | só na folha: uma caixa do tamanho da área útil com a borda (`BordaPt`) e uma camada por quadro, na posição e no tamanho pedidos (`Layers` com o deslocamento); o texto no tamanho em pontos do quadro, cortado por linhas com reticências, com o respiro vertical encolhendo antes da fonte; o QR Code no lado inteiro do quadro; o PNG encaixado e centrado; a marca d'água do formulário (sem negrito, `#A6A6A6`, de 50 a 80 pt) atrás. O quadro fora da área útil e o formulário na bobina são `ArgumentException` |
 | `DocumentoImpressao.CabecalhoContinuacao` | no topo de cada página **depois da primeira** (`ShowIf(PageNumber > 1)`); a primeira não reserva o espaço dele |
 | `DocumentoImpressao.MarcaAgua` | texto em negrito, cinza `#E6E6E6`, a 45 graus, centrado, atrás do conteúdo, **em todas as páginas**; o tamanho (até 64 pt) é o que põe o texto na largura útil |
 | fichas `{pagina}` e `{paginas}` | o número da página e o total do QuestPDF (`CurrentPageNumber` e `TotalPages`), em qualquer texto, valor de campo ou célula, inclusive no cabeçalho de continuação (`FOLHA 2/3`) |
@@ -1835,3 +1836,46 @@ public enum CredenciamentoDFe { NaoCredenciado = 0, Credenciado = 1, Obrigatorio
 - A justificativa vazia da operação não realizada é `ArgumentException` (como o cancelamento); o tamanho é do schema (493).
 - O `infCad` com `IE` ou `xNome` ausentes (obrigatórios no schema) **não é descartado**: o contribuinte sai com o campo vazio e um aviso, para não perder o resultado de uma consulta já feita.
 - A lista de UFs do `NFE-CADASTRO` não foi reconferida no Portal (fora do alcance): vale a de `NTS.md` 3.2.
+
+## 25. O formulário de posição fixa e o DANFSe (etapa 9.5)
+
+**Aprovado em 2026-11-19, tudo pela recomendação** (o desenho, as decisões G1 a G12 e a implementação estão em `docs/NFSE.md` 12; a conformidade contra a NT 008/2026, em `docs/IMPRESSAO.md` 5). O DANFSe é um formulário de posição fixa, e o modelo estrutural da 7.2 não o expressa: o núcleo ganhou o `FormularioImpressao`, o único elemento com coordenada e fonte (contra a decisão 3 da 7.2, só nele).
+
+### 25.1 No núcleo (`OpenDFe.Impressao`)
+
+```csharp
+public sealed class FormularioImpressao : ElementoImpressao   // ocupa a página inteira, nunca se divide
+{
+    public FormularioImpressao(IReadOnlyList<QuadroFormulario> quadros);   // a lista é copiada; o de depois por cima
+    public IReadOnlyList<QuadroFormulario> Quadros { get; }
+    public double BordaPt { get; init; }       // a borda da área útil (1 pt no DANFSe); 0 sem borda
+    public string? MarcaAgua { get; init; }    // diagonal, sem negrito, 50 pt no mínimo, cinza K35 (NT 008/2026 2.5)
+}
+[Flags] public enum BordaQuadro { Nenhuma = 0, Cima = 1, Baixo = 2, Esquerda = 4, Direita = 8, Todas = 15 }
+public enum CorImpressao { Preto, Vermelho }
+public abstract class QuadroFormulario                        // conjunto fechado (private protected)
+{
+    public double XMm { get; }  public double YMm { get; }  public double LarguraMm { get; }  public double AlturaMm { get; }
+    public bool Sombreado { get; init; }       // cinza claro (5%)
+    public BordaQuadro Bordas { get; init; }   // linhas de 0,5 pt
+}
+public sealed class TextoFormulario : QuadroFormulario         // rótulo em cima, valor embaixo
+{
+    public TextoFormulario(double xMm, double yMm, double larguraMm, double alturaMm, string? rotulo, string? valor);
+    // TamanhoRotuloPt = 6, RotuloNegrito = true, TamanhoValorPt = 7, ValorNegrito, Alinhamento, Cor
+}
+public sealed class QrCodeFormulario : QuadroFormulario { public QrCodeFormulario(double xMm, double yMm, double ladoMm, string texto); }
+public sealed class ImagemFormulario : QuadroFormulario { public ImagemFormulario(double xMm, double yMm, double larguraMm, double alturaMm, ReadOnlyMemory<byte> png); }
+public sealed class PapelImpressao { public static PapelImpressao A4RetratoEstreito { get; } }   // A4 em pé, margem de 1,5 mm
+```
+
+As posições são em milímetros a partir do canto da área útil do papel (o papel menos a margem). Os construtores recusam a posição negativa e a medida que não é maior que zero (`ArgumentOutOfRangeException`), o texto vazio do QR Code e os bytes sem a assinatura do PNG (`ArgumentException`); o quadro fora da área útil é conferido por quem renderiza, que conhece o papel. O renderizador de texto da 7.2 (`TextoImpressao.Quebrar`, o PDV) não trata o formulário: o DANFSe é só A4.
+
+### 25.2 No leiaute da NFS-e e no PDF
+
+```csharp
+public sealed class OpcoesDanfse { public bool Canhoto { get; init; } = true; public bool Cancelada { get; init; } public bool Substituida { get; init; } }
+public sealed class LeiauteNFSe101 { public DocumentoImpressao Danfse(NFSeLida nota, OpcoesDanfse? opcoes = null); }
+```
+
+O PDF não ganhou nada público: o formulário entrou no mapeamento da 22.2.

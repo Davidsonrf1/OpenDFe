@@ -40,6 +40,12 @@ public sealed class PapelImpressao
     /// <summary>A folha A4 deitada, 297 x 210 mm, com margem de 8 mm (o máximo que o Anexo II 3.6.2 permite ao DANFE; o mínimo é 2 mm).</summary>
     public static PapelImpressao A4Paisagem { get; } = new(TipoPapel.Folha, 297, 210, 0, 8);
 
+    /// <summary>
+    /// A folha A4 em pé com margem de 1,5 mm (o mínimo que a NT 008/2026 2.2.2 permite ao DANFSe; o máximo é 2 mm): o papel do
+    /// <see cref="FormularioImpressao"/> do DANFSe, com a borda da página na margem.
+    /// </summary>
+    public static PapelImpressao A4RetratoEstreito { get; } = new(TipoPapel.Folha, 210, 297, 0, 1.5);
+
     /// <summary>Se é bobina ou folha.</summary>
     public TipoPapel Tipo { get; }
 

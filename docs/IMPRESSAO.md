@@ -1,6 +1,6 @@
 # Impressão: o documento de conformidade da fase 7
 
-O que a lib imprime e **contra qual exigência**. A fase 7 começa pelo modelo de impressão neutro (núcleo, `OpenDFe.Impressao`, `docs/CONTRATOS.md` 20) e pelo DANFCE (etapa 7.2, seção 1); o DANFE da NF-e (etapa 7.3, `docs/CONTRATOS.md` 21) está na seção 2, e o PDF (7.4), com a coluna "PDF" das exigências de aparência, está na seção 3, e o guia do ESC/POS para o PDV, na 4.
+O que a lib imprime e **contra qual exigência**. A fase 7 começa pelo modelo de impressão neutro (núcleo, `OpenDFe.Impressao`, `docs/CONTRATOS.md` 20) e pelo DANFCE (etapa 7.2, seção 1); o DANFE da NF-e (etapa 7.3, `docs/CONTRATOS.md` 21) está na seção 2, e o PDF (7.4), com a coluna "PDF" das exigências de aparência, está na seção 3, e o guia do ESC/POS para o PDV, na 4. O DANFSe da NFS-e nacional (etapa 9.5, `docs/NFSE.md` 12) está na seção 5.
 
 Decisões e fontes:
 
@@ -320,3 +320,57 @@ impressora.Cortar();
 ```
 
 `impressora` e `Preencher` são do aplicativo: a primeira escreve os comandos no fluxo da porta serial, USB ou de rede da impressora; a segunda junta, numa linha de `papel.Colunas` caracteres, a linha `y` de cada célula, preenchida e alinhada na largura que `Larguras` deu.
+
+## 5. DANFSe da NFS-e nacional (etapa 9.5)
+
+O DANFSe é montado pelo leiaute da NFS-e (`LeiauteNFSe101.Danfse`, `src/OpenDFe.Leiaute.NFSe.v101/Impressao/`) como um `DocumentoImpressao` com um só **`FormularioImpressao`**: quadros em posição absoluta, com a fonte em pontos, o fundo, as bordas e a cor (o único elemento do modelo com coordenada, `docs/NFSE.md` 12, decisão G2), porque a NT o define como formulário de posição fixa. O PDF o desenha como está (`RenderizadorPdf.Formulario.cs`).
+
+### 5.1 Fontes e como se conferiu
+
+- **A fonte** é a **NT SE/CGNFS-e 008/2026, versão 1.02 (14/07/2026)**, "Especificações Técnicas do DANFSe", na cópia do gov.br (`biblioteca/documentacao-tecnica/rtc`), SHA-256 `1265f403...b0ff`, com o mesmo texto da cópia da Fenacon lida na 9.0 (`docs/NTS.md` 12.3). Lida inteira, com a tabela do item 2.4.5 (extraída página a página) e o Anexo I (o modelo, olhado em imagem).
+- **Onde a tabela do 2.4.5 e o Anexo I divergem, vale o Anexo I**, que a NT torna obrigatório ("a disposição de campos obrigatoriamente obedecer ao disposto no respectivo anexo", 2.2.4); a tabela é "sugestão de tamanho e posição". As divergências achadas estão na coluna "Onde e como" (o regime de apuração do SN, a tributação do ISSQN).
+- **Conferido** pelos golden de texto do formulário (`NFSe.Testes/Impressao/Esperado/Danfse*.txt`, 15 casos), pelas posições contra a tabela (`DanfseTestes.ACompletaTemOsCamposNasPosicoesDaTabelaDaNt`, 42 campos), pelo PDF lido de volta no PdfPig (`DanfsePdfTestes`: a página, os tamanhos de fonte, o QR Code, o vermelho, a marca d'água) e pela **inspeção visual** de cada caso (PyMuPDF, fora do repositório; `OPENDFE_AMOSTRAS`).
+
+### 5.2 O checklist, item a item
+
+| Item da NT | Exigência | Situação | Onde e como | Teste |
+|---|---|---|---|---|
+| 2 | Na produção restrita (`tpAmb` 2), "NFS-e SEM VALIDADE JURÍDICA" no cabeçalho, abaixo de "Documento Auxiliar da NFS-e" | Atende | em vermelho, 9 pt, negrito, centrado (2.4.3) | `AProducaoRestritaTemAFraseEmVermelhoEAProducaoNao`, `AFraseDaProducaoRestritaSaiEmVermelhoNoCabecalho` |
+| 2 | Os totais aproximados dos tributos (Lei 12.741/2012) nas informações complementares | Atende | a linha fixa no pé do quadro, por valor ou por percentual (`totTrib`); sem nenhum dos dois, com o traço | `AsInformacoesComplementaresSeguemAOrdemDaNtComPipesEATabelaDosTributos` |
+| 2.1 | Só o que consta do XML da NFS-e | Atende | cada campo sai de uma tag do XML; os textos fixos são os da NT; os nomes dos municípios do endereço vêm da tabela do IBGE pelo código (a NT manda "utilizar a descrição destes códigos") | os golden |
+| 2.1 e 2.4.5 | O texto maior que o campo, com reticências | Atende | o "Tam. do Campo" da NT na montagem (37 e "...", 77 e "...", 167, 1.297, 1.997); e o PDF corta com reticências o que ainda passar da altura do quadro (a Lato não é de largura fixa) | `OsTextosLongosSaoCortadosNoTamanhoDaNtComReticenciasEOsTributosNao`, `OTextoQueNaoCabeNoQuadroSaiCortadoComReticenciasDentroDele` |
+| 2.1.1 | A chave em um bloco de 50 dígitos | Atende | o `Id` sem o `NFS` | os golden |
+| 2.1.2 a 2.1.12 | Os campos mínimos de cada bloco | Atende | todos, nas linhas do Anexo I | `ACompletaTemOsCamposNasPosicoesDaTabelaDaNt` |
+| 2.1.3 | Os dados do prestador | Atende | os da DPS; o nome, o endereço, o telefone, o e-mail e a inscrição do `emit` da NFS-e quando a DPS não os traz e o emitente é o prestador (o ambiente nacional os tira do cadastro) | `OPrestadorUsaOsDadosDaDpsEOEmitDaNFSeNaFalta` |
+| 2.1.13 | O canhoto (opcional) | Atende | `OpcoesDanfse.Canhoto`, verdadeiro por padrão; sem ele, as informações complementares vão até o fim (2.3.3) | `AAlturaDosBlocosSuprimidosVaiADescricaoEAsInformacoes` |
+| 2.2 | Página única | Atende | o formulário ocupa uma folha e nunca cresce | `ODanfseSaiNumaPaginaA4ComOTextoDosQuadros` (15 casos, inclusive os textos no limite) |
+| 2.2.1 | A4 retrato | Atende | `PapelImpressao.A4RetratoEstreito`, 210 x 297 mm | o mesmo |
+| 2.2.2 | Margem de 0,15 a 0,20 cm | Atende | 1,5 mm; a borda da página na margem e os campos a 0,30 cm da borda do papel, como a tabela | `OPapelDoDanfseEOA4EmPeComAMargemMinimaDaNt008`, `ABordaDoFormularioEASDoQuadroSaoLinhas` |
+| 2.2.3 | Linhas divisórias de 0,5 pt e a borda da página de 1 pt | Atende | a linha em cima de cada bloco (0,5 pt) e a borda da área útil (1 pt) | `ABordaDoFormularioEASDoQuadroSaoLinhas` |
+| 2.2.3 | Cinza claro (5%) no cabeçalho, nos títulos dos blocos, em "Emitente da NFS-e" e em "Valor Líquido da NFS-e + IBS/CBS" | Atende | `#F2F2F2`, nos 13 quadros | `OSombreadoEstaNoCabecalhoNosTitulosENosDoisCamposDaNt`, `OQuadroSombreadoTemOFundoCinzaClaroNaPosicaoDele` |
+| 2.2.4 | A disposição do Anexo I | Atende | as linhas e as colunas do Anexo I; onde a tabela diverge, o Anexo: o "Regime de Apuração Tributária pelo SN" na coluna 2 (a tabela diz 10,51), o "Tipo de Tributação do ISSQN" na coluna 2 e o município da incidência nas colunas 3 e 4 (a tabela diz 0,30 e 5,41, que é a posição do título do bloco) | os golden e as posições |
+| 2.3.1 | O bloco sem dados com a frase da NT e 0,32 cm, e a altura que sobra à descrição e às informações complementares | Atende | o tomador, o destinatário e o intermediário ausentes; o ISSQN com a não incidência (`tribISSQN` 4); a altura vai à descrição e às informações complementares pela necessidade estimada de cada uma | `OsBlocosSemDadosSaemComAsFrasesDaNtEmUmaLinha` |
+| 2.3.2 | O destinatário que é o próprio tomador | Atende | `indDest` 0, com o tomador: a frase da NT | o mesmo |
+| 2.4 | Arial nos títulos e Microsoft Sans Serif nos conteúdos, preto sólido | **Parcial** | a Lato por padrão; uma família só pelo `OpcoesPdf.Fonte` (decisão G11, a mesma lacuna do DANFE, 3.4) | `AFonteDasOpcoesEAFamiliaPedidaComALatoDeReserva` (7.4) |
+| 2.4.1 | Título de bloco: 7 pt, negrito, caixa alta | Atende | | `OSombreadoEstaNoCabecalhoNosTitulosENosDoisCamposDaNt`, `AsFontesTemOsTamanhosDaNtENenhumaEncolhe` |
+| 2.4.2 | Rótulo do campo: 6 pt, negrito, iniciais maiúsculas; os da identificação, 7 pt em caixa alta | Atende | os textos do Anexo I; os três valores destacados do total (o da operação, o líquido e o líquido com o IBS/CBS) em 7 pt e caixa alta, como o Anexo I | o mesmo |
+| 2.4.3 | Cabeçalho: a logomarca à esquerda; "DANFSe v2.0" e "Documento Auxiliar da NFS-e" ao centro, 9 pt, negrito; o município (8 pt), o ambiente gerador e o tipo de ambiente (6 pt) à direita | Atende | a logomarca oficial embutida (PNG do gov.br, decisão G3); o município não sai com o item 99 do código de tributação nacional | `OQrCodeALogomarcaEOCabecalhoTemAsMedidasEOTextoDaNt`, `OMunicipioDoCabecalhoNaoSaiComOItem99EAVersao100TemAsDescricoesDela` |
+| 2.4.3 | O QR Code com `https://www.nfse.gov.br/ConsultaPublica/?tpc=1&chave=` e a chave, de 1,52 cm no mínimo, em X 17,48 e Y 1,67 | Atende | 1,52 cm de lado, nível M, UTF-8, vetor | `OQrCodeEstaNaPosicaoDaNtComAMatrizDaUrlDaConsulta`, `ANFSeEmitidaPelaSefinEmuladaViraODanfseComOQrCodeDaChave` |
+| 2.4.3 | O texto de 3 linhas abaixo do QR Code, 6 pt | Atende | | `OQrCodeALogomarcaEOCabecalhoTemAsMedidasEOTextoDaNt` |
+| 2.4.4 | Conteúdo dos campos: 7 pt | Atende | e a fonte nunca encolhe: no quadro justo, o PDF encolhe o respiro, e não a letra | `AsFontesTemOsTamanhosDaNtENenhumaEncolhe` (15 casos) |
+| 2.4.5 | O tamanho e a posição de cada campo (sugestão) | Atende | as posições da tabela até 0,02 cm (as linhas de 0,63 cm a cada 0,6465 cm, o passo médio da tabela) | `ACompletaTemOsCamposNasPosicoesDaTabelaDaNt` |
+| 2.4.5, nota 1 | A linha do endereço e do e-mail pode ser suprimida | Atende | some quando os dois estão vazios | os golden (`CompletaA`) |
+| 2.4.5, nota 5 | A linha sem dado nenhum pode ser suprimida | Atende | a do regime especial (o "Nenhum" não é dado) e a do benefício | `ALinhaDaNota5SomeSemDadoEADaNota6SoAteACompetenciaDe2026` |
+| 2.4.5, nota 6 | A linha do PIS e da COFINS até a competência de 2026 | Atende | | o mesmo |
+| 2.4.5 | As contribuições sociais retidas somam o PIS e a COFINS com o `tpRetPisCofins` 1; o PIS e a COFINS de apuração própria saem 0,00 nesse caso | Atende | | `AsContribuicoesRetidasSomamOPisEACofinsSoComOTipo1` |
+| 2.4.5, notas 7 a 10 | As informações complementares na ordem da NT, com pipes, e os rótulos "NFS-e Subst.:", "Cod. Obra:", "Insc. Imob.:", "Cod. Evt.:" | Atende | | `AsInformacoesComplementaresSeguemAOrdemDaNtComPipesEATabelaDosTributos` |
+| 2.4.5, nota 12 | O campo sem informação no XML com um traço | Atende | | `OMunicipioDoCabecalhoNaoSaiComOItem99EAVersao100TemAsDescricoesDela` |
+| 2.5.1 e 2.5.2 | A marca d'água "CANCELADA" e "SUBSTITUÍDA" na diagonal, normal, 50 pt no mínimo, Arial, cinza K35 | Atende (a fonte, Parcial) | `OpcoesDanfse.Cancelada` e `Substituida` (a situação vem de quem usa, pela consulta dos eventos); `#A6A6A6`, sem negrito, de 50 a 80 pt | `AMarcaDAguaDoFormularioEDiagonalSemNegritoCinzaK35ComNoMinimo50Pontos`, `ACanceladaPelaConsultaDosEventosSaiComAMarcaDAgua` |
+| 2.5.3 | Margem maior por limitação da impressora, só nas informações complementares | Fora | não há limitação num PDF | n/a |
+
+### 5.3 Lacunas e pendências
+
+- **As fontes** (2.4): Arial e Microsoft Sans Serif não se embutem; a Lato é a padrão (a pendência 3 de `docs/NFSE.md` 6).
+- **A nota técnica do DANFSe dos novos fatos geradores do IBS e da CBS**, anunciada na NT 008, não foi publicada: quando sair, as operações dela podem pedir outro leiaute.
+- **A NT 009** muda grupos do leiaute da NFS-e (o `vAjusteBC`, o `dest` no `infDPS`): quando entrar em produção, o DANFSe acompanha a troca do modelo (D2).
+- **A estimativa da altura do texto livre** usa 150 caracteres por linha de 20,40 cm; com textos muito longos nos dois quadros, os dois dividem a altura pela necessidade e o PDF corta o que passar (nada vai a uma segunda folha).

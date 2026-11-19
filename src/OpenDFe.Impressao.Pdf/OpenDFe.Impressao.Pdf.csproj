@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Description>Renderizador PDF do modelo de impressão da OpenDFe (DANFE e DANFCE). Usa o QuestPDF, que tem licença própria: leia o README antes de usar.</Description>
+    <Description>Renderizador PDF do modelo de impressão da OpenDFe (DANFE, DANFCE e DANFSe). Usa o QuestPDF, que tem licença própria: leia o README antes de usar.</Description>
   </PropertyGroup>
 
   <ItemGroup>
@@ -20,6 +20,8 @@
     <InternalsVisibleTo Include="OpenDFe.Impressao.Pdf.Testes" />
     <!-- Os testes dos documentos completos (DANFCE e DANFE) e da ponta a ponta com o emulador moram no NFe.Testes (CONTRATOS.md 22.7). -->
     <InternalsVisibleTo Include="OpenDFe.NFe.Testes" />
+    <!-- O DANFSe (9.5): os mesmos arquivos de teste do PDF (PdfVetores usa as larguras do Code 128). -->
+    <InternalsVisibleTo Include="OpenDFe.NFSe.Testes" />
   </ItemGroup>
 
 </Project>

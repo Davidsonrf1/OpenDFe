@@ -124,4 +124,34 @@ internal static class Medidas
 
     /// <summary>O cinza muito claro da marca d'água (não prejudica a leitura nem o código de barras).</summary>
     public const string MarcaCor = "#E6E6E6";
+
+    /// <summary>O cinza claro, 5% de densidade, do sombreamento do formulário (NT 008/2026 2.2.3).</summary>
+    public const string FormularioSombra = "#F2F2F2";
+
+    /// <summary>O vermelho sólido (M100/Y100) do texto do formulário (NT 008/2026 2.4.3).</summary>
+    public const string FormularioVermelho = "#FF0000";
+
+    /// <summary>O respiro horizontal do texto dentro do quadro do formulário, em milímetros.</summary>
+    public const float FormularioRespiroHorizontalMm = 0.5f;
+
+    /// <summary>O respiro vertical do texto dentro do quadro do formulário, em milímetros.</summary>
+    public const float FormularioRespiroVerticalMm = 0.25f;
+
+    /// <summary>As reticências do texto cortado no quadro do formulário (NT 008/2026 2.1: "acrescido de reticências (...)").</summary>
+    public const string FormularioReticencias = "...";
+
+    /// <summary>O menor tamanho da marca d'água do formulário, em pontos (NT 008/2026 2.5: "tamanho mínimo de cinquenta (50) pontos").</summary>
+    public const float FormularioMarcaMinimo = 50f;
+
+    /// <summary>O maior tamanho da marca d'água do formulário, em pontos.</summary>
+    public const float FormularioMarcaMaximo = 80f;
+
+    /// <summary>A largura de cada letra da marca d'água do formulário, em múltiplos do tamanho (maiúsculas da Lato sem negrito, com folga).</summary>
+    public const float FormularioMarcaLarguraLetra = 0.75f;
+
+    /// <summary>O cinza K35 (35% de preto) da marca d'água do formulário (NT 008/2026 2.5).</summary>
+    public const string FormularioMarcaCor = "#A6A6A6";
+
+    /// <summary>A folga, em pontos, que a conta das linhas do quadro deixa para o arredondamento da medida do texto no QuestPDF.</summary>
+    public const float FormularioFolgaPt = 0.2f;
 }

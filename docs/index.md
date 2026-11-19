@@ -1,6 +1,6 @@
 # Documentação da OpenDFe
 
-A OpenDFe é uma biblioteca .NET aberta para **documentos fiscais eletrônicos brasileiros**: a NF-e (modelo 55) e a NFC-e (modelo 65), no leiaute 4.00. Ela gera o XML, valida pelo schema e pelas regras da SEFAZ, assina, transmite, lê o retorno, trata os eventos e imprime o DANFE e o DANFCE. A OpenDFe não tem relação com outros projetos chamados "DFe".
+A OpenDFe é uma biblioteca .NET aberta para **documentos fiscais eletrônicos brasileiros**: a NF-e (modelo 55) e a NFC-e (modelo 65), no leiaute 4.00, e a NFS-e do padrão nacional, no leiaute 1.01. Ela gera o XML, valida pelo schema e pelas regras da SEFAZ, assina, transmite, lê o retorno, trata os eventos e imprime o DANFE e o DANFCE. A OpenDFe não tem relação com outros projetos chamados "DFe".
 
 Junto com a biblioteca vem a **SEFAZ emulada**: um servidor local que responde como os autorizadores da SEFAZ em homologação. Com ela, você desenvolve e testa a emissão inteira (autorização, contingência, eventos, distribuição) sem certificado ICP-Brasil e sem depender da homologação real. Também dá para provocar as falhas que a SEFAZ real não deixa: serviço paralisado, tempo esgotado, conexão derrubada depois de autorizar.
 
@@ -77,11 +77,18 @@ Um servidor HTTPS local, com TLS mútuo, que implementa os Web Services da NF-e 
 - [Contingência offline](guia/nfce/contingencia-offline.md)
 - [Cancelamento por substituição](guia/nfce/cancelamento-substituicao.md)
 
+## NFS-e nacional
+
+- [Emitir e consultar a NFS-e](guia/nfse/emissao.md)
+- [Cancelar e substituir a NFS-e](guia/nfse/eventos.md)
+- [Consultar a parametrização do município](guia/nfse/parametrizacao.md)
+
 ## Impressão
 
 - [Modelo de impressão: DANFE e DANFCE](guia/impressao/modelo-impressao.md)
 - [Gerar o PDF](guia/impressao/pdf.md)
 - [Imprimir em impressora térmica (ESC/POS)](guia/impressao/escpos.md)
+- [Imprimir o DANFSe da NFS-e](guia/impressao/danfse.md)
 
 ## Da homologação à produção
 
@@ -107,7 +114,7 @@ Os documentos abaixo registram o desenho e as decisões da biblioteca. São úte
 | [MODELO.md](MODELO.md) | O desenho do modelo da NF-e |
 | [LEITURA.md](LEITURA.md) | A leitura do XML e o detector |
 | [NFSE.md](NFSE.md) | A NFS-e nacional: as fontes e o desenho da Fase 9 |
-| [IMPRESSAO.md](IMPRESSAO.md) | A conformidade do DANFE e do DANFCE com os manuais |
+| [IMPRESSAO.md](IMPRESSAO.md) | A conformidade do DANFE, do DANFCE e do DANFSe com os manuais e a NT 008/2026 |
 | [SEFAZ_EMULADA.md](SEFAZ_EMULADA.md) | A especificação completa da SEFAZ emulada |
 
 ## Licença
