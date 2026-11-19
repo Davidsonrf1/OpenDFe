@@ -1099,3 +1099,117 @@ O desenho de 11.2 como aprovado, nos arquivos `ConsultasParametrizacao.cs` (os p
 4. **As retenções:** o tipo fora do `RetencaoIssqn` sai da lista, com o aviso; o responsável sem o `insc` não entra.
 5. **As datas com fuso**, se vierem, valem a hora local do fuso (`DateTimeOffset.DateTime`); as sem fuso, `Kind` `Unspecified`.
 6. **O número em texto** aceita a vírgula decimal (`"3,00"`); o lógico aceita `true`/`false`, `1`/`0` e, em texto, `1`, `S`, `Sim`, `true`, `verdadeiro` e os contrários, sem distinguir maiúsculas.
+
+## 12. O DANFSe (etapa 9.5): para aprovação
+
+Apresentado na abertura da 9.5 (2026-11-19), antes do código, porque cria API pública no núcleo, no leiaute e no PDF. **Aguardando a aprovação do usuário.** A fonte é a NT SE/CGNFS-e 008/2026 v1.02 (14/07/2026), **conferida de novo na cópia do gov.br** (`NTS.md` 12.3): é a versão vigente, com o mesmo texto da cópia da Fenacon lida na 9.0.
+
+**O esboço da seção 3.3 não vale como está:** ele previa `DanfseNFSe.Montar(NFSe nota, ...)`, mas não há tipo `NFSe` (a nota é a `NotaFiscalServico`, e a chave e o XML estão na `NFSeLida`), e o DANFE da 7.3 é um método do leiaute (`LeiauteNFe400.Danfe(NotaLida, ...)`). E a NT pede o que o modelo de impressão da 7.2 não expressa (12.1).
+
+### 12.1. O que a NT pede e o modelo de impressão não tem
+
+A NT 008 não é uma lista de campos com ordem livre, como o Anexo II do DANFE: é um **formulário de posição fixa**. "Deverá ser utilizado o modelo de DANFSe conforme Anexo I, devendo a disposição de campos obrigatoriamente obedecer ao disposto no respectivo anexo" (2.2.4), e o item 2.4.5 dá a posição e o tamanho de cada campo em centímetros. E ainda:
+
+- **página única obrigatória** (2.2), A4 retrato, margem de 0,15 a 0,20 cm (2.2.2) e os campos a partir de 0,30 cm da borda;
+- **fonte em pontos por papel**: título de bloco de 7 pt negrito em caixa alta, rótulo de 6 pt negrito, conteúdo de 7 pt, os rótulos da identificação de 7 pt, o "DANFSe v2.0" de 9 pt, o município de 8 pt (2.4); o DANFE da 7.4 dá 10 pt ao conteúdo;
+- **sombreamento** cinza de 5% no cabeçalho, nos títulos dos blocos e em dois campos ("Emitente da NFS-e" e "Valor Líquido da NFS-e + IBS/CBS"), linhas de 0,5 pt e **borda da página de 1 pt** (2.2.3);
+- **o título do bloco na primeira célula da primeira linha**, ao lado dos campos (Anexo I), e não numa linha própria como o `SecaoImpressao`;
+- **o QR Code à direita dos campos de identificação**, em X 17,48 cm e Y 1,67 cm, com 1,52 cm no mínimo, e o texto de 3 linhas embaixo (2.4.3); o modelo empilha e não põe nada lado a lado (a lacuna que a 7.4 já registrou no DANFE, `IMPRESSAO.md` 3.4);
+- **"NFS-e SEM VALIDADE JURÍDICA" em vermelho** sólido, 9 pt negrito, abaixo do título, na produção restrita (2.4.3); o modelo não tem cor;
+- **a logomarca da NFS-e** colorida no canto esquerdo do cabeçalho (2.4.3); o modelo só tem a imagem de 1 bit;
+- **a marca d'água** "CANCELADA" ou "SUBSTITUÍDA" em diagonal, normal (sem negrito), 50 pt no mínimo, cinza K35 (2.5.1 e 2.5.2); a do renderizador é negrito, `#E6E6E6`, até 64 pt.
+
+### 12.2. Decisões
+
+| # | Questão | Recomendação |
+|---|---|---|
+| G1 | A porta de entrada | **`LeiauteNFSe101.Danfse(NFSeLida nota, OpcoesDanfse? opcoes = null)`**, que devolve o `DocumentoImpressao`, como o `Danfe` da NF-e: lê a NFS-e lida (a 1.00 e a 1.01), não confere o schema nem as regras, sem estado e seguro em paralelo. O PDF sai do `RenderizadorPdf.Gerar`, como o DANFE. |
+| G2 | Como cumprir o formulário de posição fixa | **Um elemento novo no núcleo, `FormularioImpressao`: quadros em posição absoluta (em mm) com o tamanho da fonte em pontos, o sombreamento, as bordas e a cor**, e o QR Code e a imagem também em posição. O DANFSe monta um documento com um só formulário, com as coordenadas do 2.4.5 da NT; o PDF o desenha como está. Cumpre o Anexo I à risca e a página única por construção. **Custo:** o elemento contraria a decisão 3 da 7.2 ("estrutural, sem fonte nem coordenada"), só nele; o ESC/POS não o imprime (o DANFSe é só A4). **Alternativa:** estender o modelo estrutural (título na célula, sombreamento no campo, cor no texto, uma linha de blocos lado a lado, tamanhos de fonte por documento) e o PDF empilhar, como no DANFE: mais tipos novos, posição aproximada ("Parcial", como o 3.8 do DANFE) e a página única só por corte de texto. |
+| G3 | A logomarca da NFS-e | **Embutida no leiaute**, como recurso: o PNG oficial do gov.br (`Logo - NFS-e - Horizontal.png`, 1920 x 389, RGBA, 99 KB; SHA-256 em `NTS.md` 12.3), porque a NT a manda imprimir em todo DANFSe e a publica para isso. O formulário ganha a imagem em PNG (`ImagemFormulario`, os bytes como estão), que o PDF desenha colorida. **Alternativa:** quem usa passa o PNG nas opções e, sem ele, o quadro fica vazio (se o usuário preferir não redistribuir a marca do governo num repositório MIT). |
+| G4 | O nome do município do prestador, do tomador, do destinatário e do intermediário | O XML só traz o código IBGE (`cMun`) no endereço nacional, e a NT manda "utilizar a descrição destes códigos". **Uma tabela interna dos municípios do IBGE no leiaute** (os 5.571, código e nome, de `servicodados.ibge.gov.br/api/v1/localidades/municipios`, com a data e o SHA-256 em `NTS.md`), sem API pública; o código fora da tabela sai como o código. A UF sai dos dois primeiros dígitos. O município do emitente, da prestação e da incidência vêm do próprio XML (`xLocEmi`, `xLocPrestacao`, `xLocIncid`). **Alternativa:** um `Func<int, string?>` nas opções, por conta de quem usa. |
+| G5 | Cancelada e substituída | **`OpcoesDanfse.Cancelada` e `OpcoesDanfse.Substituida`**, como o `OpcoesDanfe.Cancelada`: a situação vem de quem usa (a `ConsultaEventosNFSe` traz o 101101 e o 105102); as duas juntas são `ArgumentException`. A marca d'água fica dentro do formulário, com o estilo da NT (G2), e não mexe na do DANFE. |
+| G6 | A produção restrita | **"NFS-e SEM VALIDADE JURÍDICA" em vermelho, abaixo do título**, pelo `tpAmb` 2, e **sem marca d'água** (a NT não pede; o DANFE põe "SEM VALOR FISCAL" porque o Anexo II pede). |
+| G7 | O canhoto | **`OpcoesDanfse.Canhoto`, verdadeiro por padrão** (o Anexo I o traz; "caso o emitente opte por não utilizar", 2.3.3), como o do DANFE. Sem ele, a altura vai às informações complementares. |
+| G8 | As supressões (2.3 e as notas 1 a 5) | **Sempre que se aplicam, sem opção:** o bloco sem dados sai com a frase da NT ("TOMADOR/ADQUIRENTE DA OPERAÇÃO NÃO IDENTIFICADO NA NFS-e" e as outras três), com 0,32 cm; o destinatário igual ao tomador (`indDest`), com "O DESTINATÁRIO É O PRÓPRIO TOMADOR/ADQUIRENTE DA OPERAÇÃO"; as linhas da nota 5 (regime especial, benefício) somem quando todos os campos delas estão vazios; as da nota 1 (endereço e e-mail) ficam quando há dado. Os blocos de baixo sobem, e a altura que sobra vai à descrição do serviço e às informações complementares, na proporção das alturas do Anexo I. A linha do PIS e da COFINS (nota 6) só sai com a competência até 31/12/2026. |
+| G9 | O texto que não cabe | **O limite de caracteres da NT, com reticências** (37, 77, 167, 1.297 e 1.997, o "Tam. do Campo" do 2.4.5; a linha dos totais aproximados dos tributos nunca se corta, nota 10), aplicado na montagem; e o PDF corta com reticências o que ainda passar da altura do quadro (a Lato não é de largura fixa). Nada passa para uma segunda página. |
+| G10 | Os textos das enumerações | **As descrições do `xs:documentation` do XSD 1.01** (o `tpEmit`, o `cStat`, o `finNFSe`, o `opSimpNac`, o `regApTribSN`, o `tribISSQN`, o `regEspTrib`, o `tpImunidade`, o `tpSusp`, o `tpBM`, o `tpRetISSQN`, o `tpRetPisCofins`, o `ambGer` e o `tpAmb`), fixas no leiaute e cortadas pelo G9; o valor fora da lista sai como o código. O campo sem dado no XML sai com um traço (nota 12). |
+| G11 | As fontes | **Como no DANFE:** a Lato por padrão, e uma família só pelo `OpcoesPdf.Fonte`. A NT pede a Arial nos rótulos e a Microsoft Sans Serif nos conteúdos, que não se embutem (licença); segue como a pendência 3 da seção 6, a mesma do DANFE. |
+| G12 | O formato | Dinheiro `1.234,56` (o "1-15V2"), percentual com 2 casas, data `DD/MM/AAAA` e data e hora `DD/MM/AAAA hh:mm:ss` como o XML traz, sem converter o fuso; CNPJ, CPF, CEP, `cTribNac` `nn.nn.nn`, NBS `n.nnnn.nn.nn`: o `FormatadorImpressao` da NF-e, copiado para o leiaute da NFS-e (os leiautes não se referenciam). |
+
+### 12.3. Tipos e assinaturas
+
+**No núcleo** (`OpenDFe.Impressao`, versão menor: tipos novos, nada muda de assinatura):
+
+```csharp
+/// Um formulário de posição fixa: quadros com posição e tamanho em milímetros, a partir do canto superior esquerdo da
+/// área útil do papel, e a fonte em pontos (o DANFSe, NT 008/2026). O único elemento do modelo com coordenada e fonte;
+/// ocupa uma página inteira e nunca se divide.
+public sealed class FormularioImpressao : ElementoImpressao
+{
+    public FormularioImpressao(IReadOnlyList<QuadroFormulario> quadros);   // a lista é copiada
+    public IReadOnlyList<QuadroFormulario> Quadros { get; }
+    public double BordaPt { get; init; }          // a borda da área útil (1 pt no DANFSe); 0 sem borda
+    public string? MarcaAgua { get; init; }       // em diagonal, normal, 50 pt no mínimo, cinza K35, atrás dos quadros
+}
+
+[Flags] public enum BordaQuadro { Nenhuma = 0, Cima = 1, Baixo = 2, Esquerda = 4, Direita = 8, Todas = 15 }
+public enum CorImpressao { Preto, Vermelho }
+
+/// A base dos quadros: posição e tamanho em mm; o conjunto é fechado (private protected).
+public abstract class QuadroFormulario
+{
+    public double XMm { get; }  public double YMm { get; }  public double LarguraMm { get; }  public double AlturaMm { get; }
+    public bool Sombreado { get; init; }          // fundo cinza claro (5%)
+    public BordaQuadro Bordas { get; init; }      // as linhas de 0,5 pt
+}
+public sealed class TextoFormulario : QuadroFormulario       // o rótulo em cima e o valor embaixo, ou só um dos dois
+{
+    public TextoFormulario(double xMm, double yMm, double larguraMm, double alturaMm, string? rotulo, string? valor);
+    public string? Rotulo { get; }  public string? Valor { get; }
+    public double TamanhoRotuloPt { get; init; } = 6;   public bool RotuloNegrito { get; init; } = true;
+    public double TamanhoValorPt { get; init; } = 7;    public bool ValorNegrito { get; init; }
+    public AlinhamentoImpressao Alinhamento { get; init; }
+    public CorImpressao Cor { get; init; }
+}
+public sealed class QrCodeFormulario : QuadroFormulario      // o texto do QR Code (nível M, UTF-8), no lado menor do quadro
+{
+    public QrCodeFormulario(double xMm, double yMm, double ladoMm, string texto);
+    public string Texto { get; }
+}
+public sealed class ImagemFormulario : QuadroFormulario      // PNG, encaixado no quadro sem distorcer
+{
+    public ImagemFormulario(double xMm, double yMm, double larguraMm, double alturaMm, ReadOnlyMemory<byte> png);
+    public ReadOnlyMemory<byte> Png { get; }
+}
+
+public sealed class PapelImpressao
+{
+    public static PapelImpressao A4RetratoEstreito { get; }  // A4 em pé com margem de 1,5 mm (o mínimo do 2.2.2 da NT 008)
+}
+```
+
+Os construtores recusam as medidas negativas ou zero, o quadro fora da área útil do papel não é conferido no núcleo (o formulário não conhece o papel) e sim no PDF, que lança `ArgumentException`. O renderizador de texto de teste (`TextoPlano`) e o PDF passam a desenhar o formulário; o PDF o põe na página com o QuestPDF (`Layers` e o deslocamento de cada quadro), com o texto cortado por linhas com reticências (G9).
+
+**No leiaute** (`OpenDFe.NFSe`):
+
+```csharp
+public sealed class OpcoesDanfse
+{
+    public bool Canhoto { get; init; } = true;    // G7
+    public bool Cancelada { get; init; }          // marca d'água "CANCELADA" (G5)
+    public bool Substituida { get; init; }        // marca d'água "SUBSTITUÍDA" (G5)
+}
+
+public sealed class LeiauteNFSe101
+{
+    public DocumentoImpressao Danfse(NFSeLida nota, OpcoesDanfse? opcoes = null);
+}
+```
+
+`ArgumentException` (a mensagem cita o campo, nunca o valor): a leitura sem a NFS-e (a DPS sozinha não tem DANFSe) ou sem a chave; `Cancelada` e `Substituida` juntas. O documento leva o `Titulo` `DANFSe NFS-e <número>` e o papel `A4RetratoEstreito`.
+
+**No PDF** (`OpenDFe.Impressao.Pdf`): nada público novo; o `FormularioImpressao` entra no mapeamento do `CONTRATOS.md` 22.2.
+
+### 12.4. O que a 9.5 faz depois da aprovação
+
+O formulário no núcleo, com os testes (as validações, a cópia das listas, o conjunto fechado); o DANFSe no leiaute, quadro a quadro com as coordenadas do 2.4.5, a tabela dos municípios e a logomarca embutidas (G3, G4); o formulário no PDF. A conformidade item a item contra a NT, como o `IMPRESSAO.md` 2 e 3 fizeram com o Anexo II, numa seção nova do `IMPRESSAO.md`. Os testes: os golden de texto (`TextoPlano`) de um catálogo de NFS-e (a completa, a mínima sem tomador, a com destinatário igual ao tomador, o intermediário, a não sujeita ao ISSQN, a substituta, a com IBS/CBS, a 1.00, a produção restrita, a cancelada, a substituída, os textos no limite); o PDF lido de volta pelo PdfPig (a página única, a posição e o tamanho de cada quadro contra a NT, as fontes em pontos, o sombreamento, a borda, o vermelho, o QR Code na posição com a matriz do QRCoder e a URL `https://www.nfse.gov.br/ConsultaPublica/?tpc=1&chave=<chave>`, a marca d'água); a ponta a ponta com a NFS-e emitida pela Sefin emulada; e a inspeção visual dos PDFs. Fecha a fase: o README, o guia em `docs/guia/` e a situação.

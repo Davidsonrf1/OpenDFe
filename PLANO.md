@@ -855,7 +855,10 @@ Criada a partir da `fase-7-impressao` (no commit da 7.4, `5718fc7`). `git log HE
 
 **E.9 feita (2026-11-19)**, na `sefaz-emulada` (a situação está na da trilha, no fim). A `fase-9-nfse` traz a E.9 por fast-forward na abertura da 9.5.
 
-**Próxima: 9.5. DANFSe**, na `fase-9-nfse`, depois de trazer a `sefaz-emulada` por fast-forward. Numa sessão nova, só quando pedida. Fecha a fase.
+**9.5. DANFSe. Aberta (2026-11-19), com o desenho aguardando a aprovação** (`docs/NFSE.md` 12). Sem código. A `sefaz-emulada` (com a E.9) trazida por fast-forward.
+- **A fonte:** a NT 008/2026 v1.02 conferida na cópia do gov.br (a versão vigente, o mesmo texto da cópia da Fenacon da 9.0) e a logomarca da NFS-e baixada, com os SHA-256 em `NTS.md` 12.3.
+- **Por que para:** a NT é um formulário de posição fixa (as coordenadas em cm de cada campo, a página única obrigatória, o sombreamento, o vermelho da produção restrita, o QR Code ao lado dos campos, a logomarca colorida), que o modelo de impressão da 7.2 não expressa; e o esboço da 9.0 (`DanfseNFSe.Montar(NFSe ...)`) não bate com o DANFE nem com o modelo da 9.1. O desenho propõe 12 decisões (G1 a G12): a principal é o **`FormularioImpressao` no núcleo**, com quadros em posição absoluta (G2); as outras, a logomarca embutida (G3), a tabela dos municípios do IBGE no leiaute (G4), a cancelada e a substituída pelas opções (G5) e as supressões da NT (G8).
+- **Depois da aprovação:** o que diz o `NFSE.md` 12.4, e o fechamento da fase (o README, o guia e a situação).
 
 ### Trilha paralela: SEFAZ emulada (branch `sefaz-emulada`, worktree `../OpenDFe-sefaz-emulada`)
 
