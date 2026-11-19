@@ -10,7 +10,7 @@ namespace OpenDFe.SefazEmulada;
 //   GET    /_controle/ac.crt        o certificado da AC de teste, em PEM
 //   GET    /_controle/autorizadores os autorizadores: as UFs, os serviços, a consulta cadastro e a SVC de cada UF
 //   DELETE /_controle               zera tudo: as falhas, as notas e a distribuição, os CSCs, os irregulares, os
-//                                   contribuintes e os pedidos recentes
+//                                   contribuintes, os municípios, as NFS-e e os pedidos recentes
 //   GET    /_controle/pedidos       os pedidos recentes, sem o XML, do mais antigo ao mais novo (?depois=<id>)
 //   GET    /_controle/pedidos/{id}  um pedido, com o XML do pedido e da resposta; 404 se já saiu da fila
 //   GET    /_controle/pedidos/fluxo os avisos ao vivo (text/event-stream): pedido (com o resumo) e estado
@@ -38,6 +38,15 @@ namespace OpenDFe.SefazEmulada;
 //                                   ele, 400 com o motivo
 //   DELETE /_controle/cadastros/{uf}/{ie}   tira um; 404 se não está
 //   DELETE /_controle/cadastros     tira todos
+//   GET    /_controle/municipios    os municípios configurados da NFS-e (E.7)
+//   GET    /_controle/municipios/{codigo}   o município, configurado ou o padrão (com configurado falso)
+//   POST   /_controle/municipios    cadastra um (Municipio em JSON) ou troca o do mesmo código; 201 ou 200 com ele, 400
+//                                   com o motivo
+//   DELETE /_controle/municipios/{codigo}   tira um (volta ao padrão); 404 se não está
+//   DELETE /_controle/municipios    tira todos
+//   GET    /_controle/nfse          as NFS-e geradas, sem o XML, na ordem
+//   GET    /_controle/nfse/{chave}  a NFS-e, com o XML; 404 se não está
+//   DELETE /_controle/nfse          esquece as NFS-e (a numeração continua)
 internal static class RotasControle
 {
     public static void Mapear(WebApplication app)
@@ -60,6 +69,7 @@ internal static class RotasControle
             painel = situacao.Painel,
             pedidos = opcoes.Pedidos,
             urls = situacao.Urls,
+            nfse = new { sefinNacional = situacao.SefinNacional },
         });
         grupo.MapGet("/ac.crt", (SituacaoEmulador situacao) =>
             Results.File(situacao.ArquivoAutoridade, "application/x-pem-file", AutoridadeTeste.ArquivoCertificado));
@@ -76,13 +86,16 @@ internal static class RotasControle
                 .Select(c => new { uf = UnidadesFederativas.Sigla(c), svc = Autorizador.Todos.FirstOrDefault(s => s.TipoEmissao is not null && s.Atende(c))?.Sigla })
                 .Where(p => p.svc is not null),
         }));
-        grupo.MapDelete("", (Controle controle, Repositorio repositorio, CodigosSeguranca codigos, Irregulares irregulares, Cadastros cadastros, PedidosRecentes recentes) =>
+        grupo.MapDelete("", (Controle controle, Repositorio repositorio, CodigosSeguranca codigos, Irregulares irregulares, Cadastros cadastros,
+            Municipios municipios, RepositorioNFSe nfse, PedidosRecentes recentes) =>
         {
             controle.Limpar();
             repositorio.Limpar();
             codigos.Limpar();
             irregulares.Limpar();
             cadastros.Limpar();
+            municipios.Limpar();
+            nfse.Limpar();
             recentes.Limpar();
             return Results.NoContent();
         });
@@ -205,6 +218,44 @@ internal static class RotasControle
         grupo.MapDelete("/cadastros", (Cadastros cadastros) =>
         {
             cadastros.Limpar();
+            return Results.NoContent();
+        });
+
+        grupo.MapGet("/municipios", (Municipios municipios) => municipios.Listar());
+        grupo.MapGet("/municipios/{codigo:int}", (int codigo, Municipios municipios) =>
+        {
+            var (municipio, configurado) = municipios.Procurar(codigo);
+            return Results.Ok(new { configurado, municipio });
+        });
+        grupo.MapPost("/municipios", (Municipio municipio, Municipios municipios) =>
+        {
+            try
+            {
+                var novo = municipios.Cadastrar(municipio);
+                var gravado = municipios.Procurar(municipio.Codigo).Municipio;
+                return novo ? Results.Created($"/_controle/municipios/{gravado.Codigo}", gravado) : Results.Ok(gravado);
+            }
+            catch (ArgumentException erro)
+            {
+                return Results.BadRequest(new { erro = MensagemLimpa(erro) });
+            }
+        });
+        grupo.MapDelete("/municipios/{codigo:int}", (int codigo, Municipios municipios) =>
+            municipios.Remover(codigo) ? Results.NoContent() : Results.NotFound());
+        grupo.MapDelete("/municipios", (Municipios municipios) =>
+        {
+            municipios.Limpar();
+            return Results.NoContent();
+        });
+        grupo.MapGet("/nfse", (RepositorioNFSe nfse) => nfse.Listar().Select(n => new
+        {
+            n.Chave, n.IdDps, n.Numero, n.NumeroDfse, n.Municipio, n.Prestador, n.Processamento,
+        }));
+        grupo.MapGet("/nfse/{chave}", (string chave, RepositorioNFSe nfse) =>
+            nfse.Chave(chave) is { } nota ? Results.Ok(nota) : Results.NotFound());
+        grupo.MapDelete("/nfse", (RepositorioNFSe nfse) =>
+        {
+            nfse.Limpar();
             return Results.NoContent();
         });
     }

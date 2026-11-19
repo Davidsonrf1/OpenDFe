@@ -60,10 +60,22 @@ internal sealed class Controle
         ArgumentNullException.ThrowIfNull(pedido);
         if (!Enum.IsDefined(pedido.Tipo))
             throw new ArgumentException("Tipo de falha desconhecido.", nameof(pedido));
-        if (pedido.Destino is not null && Autorizador.Procurar(pedido.Destino) is null)
+        // A Sefin Nacional da NFS-e (E.7) é um destino como os autorizadores, com os serviços dela.
+        var sefin = string.Equals(pedido.Destino, SefinNacional.Destino, StringComparison.OrdinalIgnoreCase);
+        if (pedido.Destino is not null && !sefin && Autorizador.Procurar(pedido.Destino) is null)
             throw new ArgumentException($"Destino desconhecido: {pedido.Destino}.", nameof(pedido));
-        if (pedido.Servico is not null && !Autorizador.Todos.Any(a => a.Servicos.Contains(pedido.Servico, StringComparer.OrdinalIgnoreCase)))
+        if (pedido.Servico is not null && !Autorizador.Todos.Any(a => a.Servicos.Contains(pedido.Servico, StringComparer.OrdinalIgnoreCase))
+            && !SefinNacional.Servicos.Contains(pedido.Servico, StringComparer.OrdinalIgnoreCase))
             throw new ArgumentException($"Serviço desconhecido: {pedido.Servico}.", nameof(pedido));
+        if (pedido.Servico is not null && pedido.Destino is not null && !sefin
+            && SefinNacional.Servicos.Contains(pedido.Servico, StringComparer.OrdinalIgnoreCase))
+            throw new ArgumentException($"O serviço {pedido.Servico} é do destino {SefinNacional.Destino}.", nameof(pedido));
+        if (sefin && pedido.Servico is not null && !SefinNacional.Servicos.Contains(pedido.Servico, StringComparer.OrdinalIgnoreCase))
+            throw new ArgumentException($"O destino {SefinNacional.Destino} tem os serviços {string.Join(", ", SefinNacional.Servicos)}.", nameof(pedido));
+        if (sefin && pedido.Tipo == TipoFalha.LoteProcessando)
+            throw new ArgumentException("O lote em processamento não vale na Sefin Nacional.", nameof(pedido));
+        if (sefin && pedido.Tipo == TipoFalha.Paralisacao && pedido.Codigo is not null)
+            throw new ArgumentException("A paralisação da Sefin Nacional não tem código: responde 503.", nameof(pedido));
         if (pedido.Vezes is < 1)
             throw new ArgumentException("Vezes deve ser ao menos 1 (ou omitido, para valer até a remoção).", nameof(pedido));
         if (pedido.Tipo == TipoFalha.Atraso && pedido.Milissegundos is not > 0)

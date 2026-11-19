@@ -170,7 +170,7 @@ Pré-lançamentos (`0.x`) no NuGet.org a partir do fim da fase 5, quando o PDV p
 
 ### Estado do plano (2026-10-24)
 
-**Fase 9 (NFS-e nacional) e etapas E.7 a E.9 do emulador: plano aprovado em 2026-11-19** (`PROJETO.md` 18). **A 9.0 está feita e aprovada** (2026-11-19; `docs/NFSE.md`: as 13 decisões e as 6 regras fora do schema; as fontes em `docs/NTS.md` 12). **A 9.1 está feita** (2026-11-19; o modelo e o leiaute, sem as operações: `docs/NFSE.md` 7 e 8). A próxima é a E.7 do emulador, numa sessão nova. Ver a situação da Fase 9 abaixo.
+**Fase 9 (NFS-e nacional) e etapas E.7 a E.9 do emulador: plano aprovado em 2026-11-19** (`PROJETO.md` 18). **A 9.0 está feita e aprovada** (2026-11-19; `docs/NFSE.md`: as 13 decisões e as 6 regras fora do schema; as fontes em `docs/NTS.md` 12). **A 9.1 está feita** (2026-11-19; o modelo e o leiaute, sem as operações: `docs/NFSE.md` 7 e 8). **A E.7 do emulador está feita** (2026-11-19; a Sefin Nacional emulada, os municípios e a emissão; a situação no fim, na da trilha). A próxima é a 9.2, numa sessão nova. Ver a situação da Fase 9 abaixo.
 
 **As fases 0 a 8 estão feitas e fechadas no emulador.** As fases 1 a 4 (e a 1.7, a prova de risco) e as 5 a 8 têm a homologação real **pendente do PFX A1 ICP-Brasil** (`PROJETO.md` 17): o "pronto quando" de cada uma vale contra a SEFAZ emulada, e cada etapa deixou o seu teste de homologação (`OpenDFe.Homologacao.Testes`) escrito e pulado sem o PFX. Nada foi publicado no NuGet.org; nenhum `push` foi feito. A suíte fecha com 2.653 testes (29 pulados: os de homologação e da prova de risco, que falam com a SEFAZ), no Windows e no Linux (Nucleo 639, NFe 1.334, SefazEmulada 509 e Impressao.Pdf 138 pelo WSL).
 
@@ -817,7 +817,7 @@ Criada a partir da `fase-7-impressao` (no commit da 7.4, `5718fc7`). `git log HE
 - **Pendente até o PFX** (`PROJETO.md` 17): a DPS escrita pela lib contra a produção restrita; a `NFSE-CHAVE` e o DV da chave, com chaves reais.
 - **Pendências para o usuário:** a NT 009 (D2), quando entrar em produção (a especificação do gerador muda); a dúvida do `tribISSQN` da 1.00 (M12).
 
-**Próxima: E.7. Municípios e emissão no emulador** (o `/_controle/municipios`, as rotas da Sefin Nacional, a emissão com a NFS-e gerada e assinada pela AC de teste), numa sessão nova, só quando pedida. Depois, a 9.2.
+**E.7 feita (2026-11-19)**, na branch `sefaz-emulada` (a situação está na da trilha, no fim). **Próxima: 9.2. Transporte e emissão**, nesta branch, depois de trazer a `sefaz-emulada` por fast-forward; a lib contra a Sefin emulada (`docs/SEFAZ_EMULADA.md`, "NFS-e"). Numa sessão nova, só quando pedida. Depois, a E.8.
 
 ### Trilha paralela: SEFAZ emulada (branch `sefaz-emulada`, worktree `../OpenDFe-sefaz-emulada`)
 
@@ -979,3 +979,26 @@ Criada a partir da `fase-7-impressao` (no commit da 7.4, `5718fc7`). `git log HE
 **No Docker (2026-10-21, depois da E.6).** O `Dockerfile` e o `compose.yaml` em `tests/OpenDFe.SefazEmulada` (a imagem `opendfe/sefaz-emulada:dev`, com a raiz do repositório como contexto, a AC de teste no volume `/dados` e as portas 5443 e 5444 publicadas só no loopback; as variáveis `SEFAZ_EMULADA_PORTA`, `SEFAZ_EMULADA_PAINEL` e `SEFAZ_EMULADA_PASTA`, esta com o padrão `tests/OpenDFe.SefazEmulada/dados`, fora do git). A opção nova `--controle local|rede`: com `rede`, o `/_controle` e o painel aceitam a rede do Docker, e o painel escuta no `--endereco`; o `Host` do painel continua conferido. Conferido: os 504 testes do emulador; no contêiner, o painel, o `/_controle` e o 403 do `Host` de fora; e os testes de homologação com `OPENDFE_EMULADOR` contra ele (o TLS mútuo com o autoassinado, 107 em MG, SVRS e SP). Como rodar: `docs/SEFAZ_EMULADA.md`, "No Docker".
 
 **A trilha da SEFAZ emulada está completa** (E.1 a E.6, e o Docker), e a `sefaz-emulada` está na `main` (2026-10-21). O que vem dela são os "Encontros com as fases", na definição da trilha, acima: a 4.1 testa o transporte contra o emulador e fecha como a raiz dele entra pela fábrica do handler, e da 4.3 em diante cada operação ganha o teste contra ele.
+
+**E.7. Municípios e emissão da NFS-e. Feita (2026-11-19).**
+- **A 9.1 trazida para esta branch** por fast-forward da `fase-9-nfse` (a `sefaz-emulada` estava parada no Docker, e o emulador tinha seguido na `main`, com a persistência). O emulador passa a referenciar também o `OpenDFe.Leiaute.NFSe.v101`, só pelos XSDs da DPS e da NFS-e (achados pelo nome do arquivo, como os da NF-e), sem API pública nova.
+- **No emulador:**
+  - `SefinNacional` e `AtendimentoSefin`: as rotas com o caminho da real sob `/SefinNacional` (`POST /nfse`, `GET /nfse/{chave}`, `GET` e `HEAD /dps/{id}`), em JSON; as falhas comandadas pelo destino `SefinNacional` e os serviços `EmissaoNFSe`, `ConsultaNFSe` e `ConsultaDps` (o 500 no lugar da falha SOAP, o 503 na paralisação, sem código); a marca `EMULADA:` no `xInfComp` (`Marca.LerNFSe`); cada pedido nos pedidos recentes. A base em `GET /` e no `/_controle/emulador` (`nfse.sefinNacional`).
+  - `EmissaoNFSe`: a recepção (E1225, E1226, E1228, E1229, E1242, E1235 pelo XSD), as regras da DPS (E0717, E9996, E0004, E0080, E0096, E0714, E0718, E0006, E0001, E0008, E0015, os do município E0037 a E0039 e o 503, E0014, E0595, E0177, E0541, E0667, E0670), os valores pela parametrização (o ISS, os benefícios, as retenções, o líquido) e a NFS-e 1.01 gerada, com a DPS dentro e assinada pela AC de teste (`AssinanteNFSe`). `MotivosNFSe`, com os textos do Anexo I.
+  - `Municipios` e `RepositorioNFSe`: os municípios (o código, o nome, o convênio, o emissor, as alíquotas, os regimes especiais, as retenções, os benefícios e a paralisação) e as NFS-e geradas, com a numeração; em memória.
+  - Rotas de controle novas: `/_controle/municipios` (lista, `/{codigo}`, `POST`, `DELETE`) e `/_controle/nfse` (lista, `/{chave}`, `DELETE`); o `DELETE /_controle` esquece os dois.
+- **Testes:** 593 no emulador (84 novos), com a DPS escrita em texto e assinada pelo `SignedXml` do .NET (`DpsTeste`), sem a lib. `EmissaoNFSeTestes`: a NFS-e válida no XSD 1.01, a assinatura da AC conferida e a da DPS de dentro ainda valendo, a chave (com CPF), a numeração, os valores (a alíquota padrão, a do código, a informada, o retido, os três benefícios, o não tributável), cada código da recepção e das regras, a tolerância da emissão, a duplicidade com a chave. `SefinNacionalTestes`: as consultas (200, 404, 400, o `HEAD`), as falhas (503, 500, a resposta cortada, a conexão derrubada antes e depois, com a recuperação pela DPS), a falha da NF-e que não vale na Sefin, as falhas recusadas, a marca (e a que não serve), os pedidos recentes, a base no `GET /`, os municípios pelo controle (e os inválidos) e as NFS-e pelo controle.
+- **`docs/SEFAZ_EMULADA.md`:** a seção "NFS-e: a Sefin Nacional (E.7)", com as rotas, o JSON, os códigos, a NFS-e gerada, os municípios e as falhas.
+- **Decisões tomadas sem perguntar** (a conferir pelo usuário):
+  - **A branch:** a `sefaz-emulada` avançada por fast-forward até a `fase-9-nfse`; a 9.2 traz a E.7 de volta da mesma forma.
+  - **O prefixo `/SefinNacional`**, o da base de produção, e o município de incidência sempre o emissor (a regra geral da LC 116; as exceções não são emuladas).
+  - **A alíquota padrão de 2%** do município não configurado (o mínimo da LC 116).
+  - **Os códigos sem fonte**, com o prefixo `EMULADA-`: a DPS sem NFS-e na consulta (404), a consulta mal formada (400), a paralisação (503), o erro interno (500), a marca inválida (400) e a substituição (400, até a E.8). A consulta pela chave que não acha usa o E0044 ("NFS-e não existe na base de dados").
+  - **A ordem das regras**: a assinatura e o documento do prestador antes do Id (a recepção primeiro, como na NF-e); o anexo lista o Id primeiro.
+  - **A chave** com o DV pelo módulo 11 da NF-e e um código numérico aleatório; o ano e o mês do processamento.
+  - **O emitente da NFS-e** com um nome e um endereço fixos (o emulador não tem o cadastro CNPJ), e sem o grupo `IBSCBS`.
+  - **As retenções** como a lista de CPFs autorizados (E0667, E0670); os regimes como a lista dos admitidos (E0177).
+  - **O `dotnet test`** não achou nenhum teste nesta máquina hoje, em nenhum projeto (código 5, "Zero testes executados", também nos que não mudaram); a suíte foi conferida pelos executáveis de teste, como na E.6. A conferir na próxima sessão.
+- Conferido: build sem aviso (Debug e Release); os seis executáveis de teste com 2.907 testes (29 pulados, os de homologação): Nucleo 648, NFe 1.335, NFSe 161, SefazEmulada 593, Impressao.Pdf 138, Homologacao 32; **Linux conferido** (WSL, .NET 10.0.115, com `--artifacts-path` fora do repositório: os 593 do emulador). Sem dependência nova; a API pública não mudou. A regra de nomes não acusa nada nos arquivos novos.
+
+**Próxima: 9.2. Transporte e emissão** (na `fase-9-nfse`, depois de trazer a `sefaz-emulada` por fast-forward), numa sessão nova, só quando pedida. Depois, a E.8.

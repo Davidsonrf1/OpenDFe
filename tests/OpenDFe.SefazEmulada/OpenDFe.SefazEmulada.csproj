@@ -22,6 +22,8 @@
   <!-- Da lib, só o que é neutro (13.5): o SchemaXml com os XSDs do leiaute e a verificação da assinatura. -->
   <ItemGroup>
     <ProjectReference Include="../../src/OpenDFe.Leiaute.NFe.v400/OpenDFe.Leiaute.NFe.v400.csproj" />
+    <!-- A NFS-e (E.7): só os XSDs da DPS e da NFS-e, achados pelo nome do arquivo entre os recursos do leiaute. -->
+    <ProjectReference Include="../../src/OpenDFe.Leiaute.NFSe.v101/OpenDFe.Leiaute.NFSe.v101.csproj" />
   </ItemGroup>
 
   <!-- O estado em disco com a opção persistir (Armazenamento): os dados de controle num SQLite. -->

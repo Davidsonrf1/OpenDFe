@@ -15,6 +15,10 @@ internal static class SchemasLeiaute
     private static readonly Lazy<SchemaXml> SchemaDistribuicao = Preparar("distDFeInt_v1.01.xsd");
     private static readonly Lazy<SchemaXml> SchemaCadastro = Preparar("consCad_v2.00.xsd");
 
+    // A NFS-e (E.7), do pacote embutido no leiaute da NFS-e (docs/NTS.md 12.1), na pasta 1.01.
+    private static readonly Lazy<SchemaXml> SchemaDps = PrepararNFSe("DPS_v1.01.xsd");
+    private static readonly Lazy<SchemaXml> SchemaNFSe = PrepararNFSe("NFSe_v1.01.xsd");
+
     // O detEvento de cada tipo de evento (Anexo I, D06), pelo tpEvento.
     private static readonly Dictionary<string, Lazy<SchemaXml>> SchemasDetalhe = new(StringComparer.Ordinal)
     {
@@ -48,14 +52,23 @@ internal static class SchemasLeiaute
     // O ConsCad (CadConsultaCadastro4), na subpasta CadConsultaCadastro/ do pacote, com o tiposBasico_v1.03 dele.
     public static SchemaXml Cadastro => SchemaCadastro.Value;
 
+    // A DPS 1.01 (o POST /nfse da Sefin Nacional); o código é o E1235 do Anexo I da NFS-e.
+    public static SchemaXml Dps => SchemaDps.Value;
+
+    // A NFS-e 1.01, a que o emulador gera (para os testes conferirem).
+    public static SchemaXml NFSe => SchemaNFSe.Value;
+
     // O detEvento do tipo de evento (e110110, e110111, e110112 e os da manifestação, e210200 a e210240).
     public static SchemaXml Detalhe(string tipo) => SchemasDetalhe[tipo].Value;
 
-    private static Lazy<SchemaXml> Preparar(string arquivo) => new(() =>
+    private static Lazy<SchemaXml> Preparar(string arquivo) => new(() => Carregar(typeof(LeiauteNFe400).Assembly, arquivo, Motivos.FalhaSchema));
+
+    private static Lazy<SchemaXml> PrepararNFSe(string arquivo) =>
+        new(() => Carregar(typeof(OpenDFe.NFSe.LeiauteNFSe101).Assembly, "1.01/" + arquivo, MotivosNFSe.FalhaSchema));
+
+    private static SchemaXml Carregar(System.Reflection.Assembly assembly, string arquivo, string codigo)
     {
-        var assembly = typeof(LeiauteNFe400).Assembly;
-        var recurso = assembly.GetManifestResourceNames().Single(n => n.EndsWith("/" + arquivo, StringComparison.Ordinal)
-            || n.EndsWith("\\" + arquivo, StringComparison.Ordinal));
-        return SchemaXml.Carregar(assembly, recurso, Motivos.FalhaSchema);
-    });
+        var recurso = assembly.GetManifestResourceNames().Single(n => n.Replace('\\', '/').EndsWith("/" + arquivo, StringComparison.Ordinal));
+        return SchemaXml.Carregar(assembly, recurso, codigo);
+    }
 }

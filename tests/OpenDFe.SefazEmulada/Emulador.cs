@@ -35,11 +35,15 @@ internal sealed class Emulador : IAsyncDisposable
         Irregulares = app.Services.GetRequiredService<Irregulares>();
         Cadastros = app.Services.GetRequiredService<Cadastros>();
         Pedidos = app.Services.GetRequiredService<PedidosRecentes>();
+        Municipios = app.Services.GetRequiredService<Municipios>();
+        NFSe = app.Services.GetRequiredService<RepositorioNFSe>();
         Urls = [.. Listar(endereco)];
+        SefinNacional = Sefin(endereco);
         var situacao = app.Services.GetRequiredService<SituacaoEmulador>();
         situacao.Endereco = endereco;
         situacao.Painel = painel;
         situacao.Urls = Urls;
+        situacao.SefinNacional = SefinNacional;
     }
 
     // A raiz, como https://127.0.0.1:5443/.
@@ -73,6 +77,15 @@ internal sealed class Emulador : IAsyncDisposable
 
     public IReadOnlyList<UrlServico> Urls { get; }
 
+    // Os municípios da NFS-e (E.7).
+    public Municipios Municipios { get; }
+
+    // As NFS-e geradas.
+    public RepositorioNFSe NFSe { get; }
+
+    // A base da Sefin Nacional emulada, como https://127.0.0.1:5443/SefinNacional/.
+    public Uri SefinNacional { get; }
+
     public static async Task<Emulador> IniciarAsync(OpcoesEmulador opcoes, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(opcoes);
@@ -98,6 +111,11 @@ internal sealed class Emulador : IAsyncDisposable
         construtor.Services.AddSingleton<Irregulares>();
         construtor.Services.AddSingleton<Cadastros>();
         construtor.Services.AddSingleton<PedidosRecentes>();
+        construtor.Services.AddSingleton<Municipios>();
+        construtor.Services.AddSingleton<RepositorioNFSe>();
+        construtor.Services.AddSingleton(new AssinanteNFSe(autoridade));
+        construtor.Services.AddSingleton<EmissaoNFSe>();
+        construtor.Services.AddSingleton<AtendimentoSefin>();
         var arquivoAutoridade = Path.Combine(opcoes.Pasta, AutoridadeTeste.ArquivoCertificado);
         construtor.Services.AddSingleton(new SituacaoEmulador(arquivoAutoridade));
         construtor.Services.AddSingleton<Atendimento>();
@@ -139,9 +157,15 @@ internal sealed class Emulador : IAsyncDisposable
             atendimento.AtenderAsync(contexto, destino, servico));
         // A lista com o nome pelo qual o cliente chegou; na porta do painel, a página.
         app.MapGet("/", (HttpContext contexto) => contexto.Request.IsHttps
-            ? Results.Json(new { autoridade = arquivoAutoridade, urls = Listar(new Uri($"https://{contexto.Request.Host}/")) })
+            ? Results.Json(new
+            {
+                autoridade = arquivoAutoridade,
+                urls = Listar(new Uri($"https://{contexto.Request.Host}/")),
+                nfse = new { sefinNacional = Sefin(new Uri($"https://{contexto.Request.Host}/")) },
+            })
             : PaginaPainel.Pagina("painel.html"));
         PaginaPainel.Mapear(app);
+        OpenDFe.SefazEmulada.SefinNacional.Mapear(app);
         RotasControle.Mapear(app);
         await app.StartAsync(cancellationToken);
 
@@ -165,6 +189,9 @@ internal sealed class Emulador : IAsyncDisposable
         Autoridade.Dispose();
     }
 
+    // A base da Sefin Nacional (a NFS-e, E.7), com a barra no fim, para as rotas relativas.
+    private static Uri Sefin(Uri endereco) => new(endereco, OpenDFe.SefazEmulada.SefinNacional.Destino + "/");
+
     // As URLs prontas para trocar (PROJETO.md 8.4): cada serviço implementado, em cada autorizador que o tem.
     private static List<UrlServico> Listar(Uri endereco) =>
         [.. from autorizador in Autorizador.Todos
@@ -186,4 +213,6 @@ internal sealed class SituacaoEmulador(string arquivoAutoridade)
     public Uri? Painel { get; set; }
 
     public IReadOnlyList<UrlServico> Urls { get; set; } = [];
+
+    public Uri? SefinNacional { get; set; }
 }

@@ -535,3 +535,127 @@ Para provocar a falha a partir do PDV ou do ERP, sem a rota de controle: o texto
 | `EMULADA:irregular:emitente`, `EMULADA:irregular:destinatario` | Só a nota que a traz: o emitente irregular (781) ou, na NF-e, o destinatário irregular (302), como em "Irregulares". As outras notas do lote seguem normais. |
 
 O resto do texto fica como está (`Pedido 123 EMULADA:paralisacao:109`). Uma marca por espécie no lote (transporte, paralisação, lote em processamento); a do irregular é da nota. A marca que não serve (tipo desconhecido, valor que o tipo não aceita, duas da mesma espécie) responde HTTP 400 com a falha `soap:Sender` e a explicação, sem processar o lote: o erro de digitação não passa calado.
+
+## NFS-e: a Sefin Nacional (E.7)
+
+O mesmo servidor responde também como a **Sefin Nacional** da NFS-e (`PROJETO.md` 18.6; o desenho em `docs/NFSE.md` 5), com a mesma porta, o mesmo TLS mútuo, a mesma AC e o mesmo `/_controle`. As rotas têm o caminho da real sob o prefixo `/SefinNacional` (a base de produção é `https://sefin.nfse.gov.br/SefinNacional`, `NTS.md` 12.4); o `GET /` e o `GET /_controle/emulador` mostram a base em `nfse.sefinNacional`. Para a lib, a base troca pela `Urls` da configuração (9.2).
+
+Fontes: o Anexo I da NFS-e (`ANEXO_I-SEFIN_ADN-DPS_NFSe-SNNFSe-v1.01-20260209`, `NTS.md` 12.1), abas `RN_RECEPCAO_DPS` e `RN DPS_NFS-e`; o manual dos contribuintes da API do emissor público (as rotas); os nomes do JSON de uma implementação aberta (`NTS.md` 12.4), **a conferir no Swagger quando houver o PFX**. Os códigos `EMULADA-*` não estão no anexo: são a nossa leitura.
+
+| Rota | Serviço (falhas) | O que faz |
+|---|---|---|
+| `POST /SefinNacional/nfse` | `EmissaoNFSe` | A emissão: `{"dpsXmlGZipB64": "<a DPS em GZip e Base64>"}`, `Content-Type: application/json` (outro é 415). 201 com a NFS-e; 400 com os erros. |
+| `GET /SefinNacional/nfse/{chave}` | `ConsultaNFSe` | A NFS-e pela chave: 200; 404 (`E0044`) se não há; 400 (`EMULADA-CONSULTA`) se a chave não tem 50 dígitos. |
+| `GET /SefinNacional/dps/{id}` | `ConsultaDps` | A chave da NFS-e gerada pela DPS: 200; 404 (`EMULADA-DPS`) se não há; 400 se o Id não é `DPS` e 42 dígitos. É a consulta da recuperação depois da queda no meio. |
+| `HEAD /SefinNacional/dps/{id}` | `ConsultaDps` | 200 ou 404, sem corpo. |
+
+As respostas, em JSON (`application/json; charset=utf-8`), com `tipoAmbiente` 2, `versaoAplicativo` (`OpenDFe Emulada 1.0`) e `dataHoraProcessamento` (horário de Brasília):
+
+```json
+{ "tipoAmbiente": 2, "versaoAplicativo": "OpenDFe Emulada 1.0", "dataHoraProcessamento": "2026-11-19T10:30:00-03:00",
+  "idDps": "DPS310620021122233300018100001000000000000001", "chaveAcesso": "3106200211222333000181...", "nfseXmlGZipB64": "H4sI..." }
+{ "tipoAmbiente": 2, "versaoAplicativo": "OpenDFe Emulada 1.0", "dataHoraProcessamento": "...", "idDps": "DPS...",
+  "erros": [ { "codigo": "E0014", "descricao": "Conjunto de Série, Número, ...", "complemento": "A NFS-e gerada é a 3106..." } ] }
+```
+
+A consulta pela chave devolve `chaveAcesso` e `nfseXmlGZipB64`; a pela DPS, `idDps` e `chaveAcesso`. Um erro só por resposta (a primeira regra que falha); sem `alertas`.
+
+### A recepção (aba `RN_RECEPCAO_DPS`)
+
+| Código | Quando |
+|---|---|
+| `E1225` | O corpo não é JSON com o `dpsXmlGZipB64` em texto, ou o Base64 não decodifica. |
+| `E1226` | O conteúdo não é GZip, ou o XML é mal formado (também com DTD). |
+| `E1229` | O XML não é UTF-8 válido, ou a declaração diz outra codificação. |
+| `E1228` | Um elemento do namespace da NFS-e com prefixo. |
+| `E1242` | A raiz não é a `DPS` do namespace `http://www.sped.fazenda.gov.br/nfse`. |
+| `E1235` | A DPS falha no XSD 1.01 do pacote embutido no leiaute da NFS-e (`DPS_v1.01.xsd`); o complemento traz a mensagem do schema. |
+
+O certificado do TLS não é conferido (E1200 a E1209), como na NF-e.
+
+### As regras da DPS, na ordem
+
+| Código | Regra |
+|---|---|
+| `E0717` | A DPS sem a `Signature`. |
+| `E9996` | `tpEmit` diferente de 1 (a Sefin só aceita o prestador). |
+| `E0004` | O prestador sem CNPJ nem CPF. |
+| `E0080`, `E0096` | O DV do CNPJ (também o alfanumérico) ou do CPF do prestador. |
+| `E0714`, `E0718` | A assinatura que não confere (`E0714`) ou de outro titular (`E0718`: a raiz do CNPJ ou o CPF inteiro, pela verificação da lib, como o 213 e o 227 da NF-e). A cadeia do certificado não é conferida. |
+| `E0004` | O `Id` diferente de `DPS` + `cLocEmi` + o tipo da inscrição (1 CPF, 2 CNPJ) + a inscrição (14) + a série (5) + o número (15). |
+| `E0006` | `tpAmb` diferente de 2: o emulador é a produção restrita. |
+| `E0001` | A DPS na versão 1.00. |
+| `E0008` | `dhEmi` mais de 5 minutos depois do recebimento (a mesma tolerância do 703 da NF-e). |
+| `E0015` | `dCompet` depois da data do `dhEmi`. |
+| 503 | O município emissor (`cLocEmi`) paralisado (`EMULADA-PARALISACAO`). |
+| `E0037` | O município emissor sem UF válida nos dois primeiros dígitos, ou com o convênio `inexistente`. |
+| `E0038` | O convênio `inativo`. |
+| `E0039` | O emissor `proprio`. |
+| `EMULADA-SUBST` | A DPS com `subst`: a substituição entra na E.8. |
+| `E0014` | Já há NFS-e para o mesmo `Id` (a série, o número, o município e a inscrição); o complemento traz a chave dela. |
+| `E0595` | `pAliq` acima de 5. |
+| `E0177` | `regEspTrib` diferente de 0 e fora dos `regimesEspeciais` do município. |
+| `E0541` | O `nBM` que o município não tem. |
+| `E0667`, `E0670` | A retenção pelo tomador (`tpRetISSQN` 2) ou pelo intermediário (3) com um CPF fora das `retencoes` do município. O CNPJ não é conferido. |
+
+**O município de incidência é o emissor** (a regra geral da LC 116, art. 3º); as exceções do artigo não são emuladas. Não são conferidos: o cadastro CNPJ e CPF, o CNC, o Simples Nacional, a lista de serviços (o `cTribNac` só pelo XSD) e as regras do IBS e da CBS.
+
+### A NFS-e gerada
+
+- **A chave** (50): `cLocEmi` (7) + `2` (ambiente gerador: Sefin) + o tipo da inscrição (1 CPF, 2 CNPJ) + a inscrição (14) + o `nNFSe` (13) + o ano e o mês do processamento em Brasília (4) + um código numérico aleatório (9) + o DV pelo **módulo 11 da NF-e** sobre as 49 posições (o cálculo oficial não fecha nas fontes, `NTS.md` 12.5; a lib não confere o DV).
+- **A numeração:** o `nNFSe` em sequência por município e inscrição; o `nDFSe` em sequência no emulador. Esquecer as NFS-e não volta a numeração.
+- **O `infNFSe`:** `xLocEmi` e `xLocPrestacao` com o nome do município (o configurado, ou `Município <código>`; no exterior, `País <código>`), `cLocIncid` e `xLocIncid` só com o ISS calculado, `xTribNac` genérico (o emulador não tem a lista de serviços), `verAplic` `OpenDFe Emulada 1.0`, `ambGer` 2, `tpEmis` 1, `procEmi` 1, `cStat` 100, `dhProc`, o `emit` com o documento e a IM da DPS, o nome `CONTRIBUINTE EMULADO <documento>` e um endereço fixo no município emissor, os `valores` e a DPS recebida, com a assinatura dela intacta. Sem o grupo `IBSCBS`: o emulador não calcula o IBS e a CBS.
+- **Os valores**, simplificados: o ISS só no tributável (`tribISSQN` 1) e fora do MEI (`opSimpNac` 2). A alíquota é o `pAliq` da DPS ou a do município (a do `cTribNac` ou a padrão); a base é o serviço menos o desconto incondicionado, a dedução (`vDR` ou `pDR`; os documentos não entram) e a redução do benefício. O benefício do tipo 1 zera o ISS; o 2 reduz a base pelo `pRedBCBM`; o 3, pelo `vRedBCBM`; o 4 troca a alíquota. As retenções são o ISS retido (`tpRetISSQN` 2 ou 3) mais o `vRetCP`, o `vRetIRRF` e o `vRetCSLL`; o líquido é o serviço menos os descontos e as retenções. Valores com duas casas, arredondados para longe do zero.
+- **A assinatura** é a da NF-e (RSA-SHA1, C14N, enveloped, `#NFS<chave>`), com a **AC de teste** no papel da Sefin (`docs/NFSE.md` 5), pela `AssinaturaDigital.Assinar` da lib. Quem confere usa o `ac.crt`.
+
+### Os municípios
+
+O município **não configurado** é atendido como conveniado (`ativo`), com o emissor `nacional` e a alíquota padrão de **2%** (o mínimo da LC 116, art. 8º-A; decidido em 2026-11-19). A configuração fica em memória (a persistência é da E.9):
+
+| Rota | O que faz |
+|---|---|
+| `GET /_controle/municipios` | Os configurados, pelo código. |
+| `GET /_controle/municipios/{codigo}` | `{ "configurado": true/false, "municipio": {...} }`: o configurado ou o padrão. |
+| `POST /_controle/municipios` | Cadastra ou troca o do mesmo código (o pedido inteiro: o que falta volta ao padrão). 201 ou 200 com ele; 400 com `{ "erro": "..." }`. |
+| `DELETE /_controle/municipios/{codigo}` | Tira um (volta ao padrão): 204, ou 404. |
+| `DELETE /_controle/municipios` | Tira todos: 204. |
+
+```json
+{ "codigo": 3106200, "nome": "Belo Horizonte", "convenio": "ativo", "emissor": "nacional", "aliquotaPadrao": 5.00,
+  "aliquotas": { "010101": 2.50 }, "regimesEspeciais": [1, 6], "retencoes": ["52998224725"],
+  "beneficios": [ { "numero": "31062000000001", "tipo": 4, "aliquota": 2.00 } ], "paralisado": false }
+```
+
+| Campo | O que é |
+|---|---|
+| `codigo` | Obrigatório: o código IBGE, 7 dígitos, com a UF nos dois primeiros. |
+| `nome` | Até 150 caracteres; o padrão é `Município <código>`. |
+| `convenio` | `ativo` (padrão), `inativo` (E0038) ou `inexistente` (E0037). |
+| `emissor` | `nacional` (padrão) ou `proprio` (E0039). |
+| `aliquotaPadrao`, `aliquotas` | De 0 a 5, com até duas casas; `aliquotas` por código de tributação nacional (6 dígitos). |
+| `regimesEspeciais` | Os `regEspTrib` admitidos (1 a 6 e 9); o 0 sempre vale. |
+| `retencoes` | Os CPFs que o município autoriza como responsáveis pela retenção. |
+| `beneficios` | `numero` (14 dígitos, sem repetir), `tipo` (1 isenção, 2 redução em percentual, 3 redução em valor, 4 alíquota diferenciada) e `aliquota`, só no tipo 4. |
+| `paralisado` | A Sefin responde 503 às DPS do município. |
+
+A parametrização pelas rotas do ADN, com esta configuração, é da E.8.
+
+### As NFS-e geradas
+
+| Rota | O que faz |
+|---|---|
+| `GET /_controle/nfse` | As NFS-e, na ordem, sem o XML: a chave, o Id da DPS, o `nNFSe`, o `nDFSe`, o município, o prestador e o processamento. |
+| `GET /_controle/nfse/{chave}` | A NFS-e, com o XML; 404 se não está. |
+| `DELETE /_controle/nfse` | Esquece as NFS-e (a numeração continua): 204. |
+
+O `DELETE /_controle` (zerar tudo) esquece também os municípios e as NFS-e; o `DELETE /_controle/notas` não mexe na NFS-e.
+
+### Falhas e marca na Sefin
+
+As falhas comandadas valem com o `destino` `SefinNacional` e os `servico` `EmissaoNFSe`, `ConsultaNFSe` e `ConsultaDps` (a falha com o destino nulo vale também para eles; a de um autorizador da NF-e, não). O efeito é o da NF-e, com o HTTP no lugar do SOAP: a `respostaIlegivel` corta o JSON ao meio; a `falhaSoap` é o **HTTP 500** com `EMULADA-FALHA`; a `paralisacao` é o **HTTP 503** com `EMULADA-PARALISACAO`, sem código (o `codigo` é recusado); o `loteProcessando` é recusado. A `conexaoDerrubada` com `depois` na emissão é a queda no meio: a NFS-e fica gerada, a resposta não chega (ela fica nos pedidos recentes) e a `GET /dps/{id}` acha a chave.
+
+A recusa da recepção (E12xx) passa pelas falhas, como o resto; o 415 e a marca inválida, não.
+
+**A marca** vai no `infDPS/serv/infoCompl/xInfComp` da DPS e vale só para o pedido que a traz: `EMULADA:atraso:<ms>`, `EMULADA:tempoEsgotado`, `EMULADA:conexaoDerrubada[:depois]`, `EMULADA:respostaIlegivel`, `EMULADA:falhaSoap` e `EMULADA:paralisacao` (sem código). Uma por espécie na DPS. A que não serve (o `irregular`, o `loteProcessando`, o código na paralisação, tipo desconhecido, repetida) é o **HTTP 400** com `EMULADA-MARCA`, para o erro de digitação não passar calado.
+
+Cada pedido às rotas da Sefin fica nos pedidos recentes (o painel), com o destino `SefinNacional`, o serviço, o JSON do pedido (ou o método e o caminho, nas consultas) e o da resposta. A aba da NFS-e no painel e a persistência são da E.9.

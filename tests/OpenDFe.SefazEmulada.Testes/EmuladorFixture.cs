@@ -68,6 +68,14 @@ internal static class Clientes
     public static X509Certificate2 OutroCertificado { get; } =
         X509CertificateLoader.LoadPkcs12(new CertificadoTeste { Cnpj = "12345678000195", Nome = "OUTRA EMPRESA LTDA" }.GerarPfx("teste"), "teste");
 
+    // O e-CPF do prestador pessoa física da NFS-e (E.7).
+    public static X509Certificate2 CertificadoCpf { get; } =
+        X509CertificateLoader.LoadPkcs12(new CertificadoTeste { Cpf = "52998224725", Nome = "PRESTADOR DE TESTE" }.GerarPfx("teste"), "teste");
+
+    // O e-CNPJ de outro prestador da NFS-e, com a numeração própria.
+    public static X509Certificate2 CertificadoTomador { get; } =
+        X509CertificateLoader.LoadPkcs12(new CertificadoTeste { Cnpj = "11444777000161", Nome = "SEGUNDA EMPRESA LTDA" }.GerarPfx("teste"), "teste");
+
     // Autoridade nula: a confiança do sistema (que não conhece a AC de teste).
     public static HttpClient Criar(X509Certificate2? autoridade, X509Certificate2? certificado)
     {

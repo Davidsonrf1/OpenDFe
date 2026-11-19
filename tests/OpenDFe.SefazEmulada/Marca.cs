@@ -72,6 +72,42 @@ internal static partial class Marca
         return transporte is null && paralisacao is null && pendentes is null ? null : new MarcaFalha(transporte, paralisacao, pendentes ?? 0);
     }
 
+    // A marca na DPS da NFS-e (E.7), no infDPS/serv/infoCompl/xInfComp (docs/NFSE.md 5): as mesmas formas de transporte e a
+    // paralisação, sem o código (a Sefin responde 503). O lote em processamento e o irregular não valem na NFS-e. Marca que
+    // não serve é FalhaSoapException, que a Sefin emulada devolve como 400 com o erro EMULADA-MARCA.
+    public static MarcaFalha? LerNFSe(XElement dps)
+    {
+        ArgumentNullException.ThrowIfNull(dps);
+        const string Campo = "xInfComp";
+        FalhaComandada? transporte = null, paralisacao = null;
+        foreach (var texto in dps.Descendants(EmissaoNFSe.Namespace + Campo).Select(e => e.Value))
+        {
+            foreach (Match marca in Padrao().Matches(texto))
+            {
+                var tipo = marca.Groups["tipo"].Value;
+                var valor = marca.Groups["valor"].Success ? marca.Groups["valor"].Value : null;
+                switch (tipo)
+                {
+                    case "paralisacao":
+                        if (paralisacao is not null)
+                            throw Repetida(tipo, "na DPS");
+                        if (valor is not null)
+                            throw Invalida(marca.Value, "a paralisação da NFS-e não tem código", Campo);
+                        paralisacao = Falha(TipoFalha.Paralisacao);
+                        break;
+                    case "irregular" or "loteProcessando":
+                        throw Invalida(marca.Value, "não vale na NFS-e", Campo);
+                    default:
+                        if (transporte is not null)
+                            throw Repetida(tipo, "na DPS");
+                        transporte = Transporte(marca.Value, tipo, valor, Campo);
+                        break;
+                }
+            }
+        }
+        return transporte is null && paralisacao is null ? null : new MarcaFalha(transporte, paralisacao, 0);
+    }
+
     // Os papéis que a marca do irregular põe em situação irregular nesta nota (o Ler já conferiu o valor).
     public static (bool Emitente, bool Destinatario) Irregular(XElement nota)
     {
@@ -89,30 +125,30 @@ internal static partial class Marca
         return (emitente, destinatario);
     }
 
-    private static FalhaComandada Transporte(string marca, string tipo, string? valor) => tipo switch
+    private static FalhaComandada Transporte(string marca, string tipo, string? valor, string campo = "infCpl") => tipo switch
     {
-        "atraso" => Falha(TipoFalha.Atraso, milissegundos: valor is null ? throw Invalida(marca, "o atraso precisa dos milissegundos") : Numero(marca, valor)),
+        "atraso" => Falha(TipoFalha.Atraso, milissegundos: valor is null ? throw Invalida(marca, "o atraso precisa dos milissegundos", campo) : Numero(marca, valor, campo)),
         "tempoEsgotado" when valor is null => Falha(TipoFalha.TempoEsgotado),
         "conexaoDerrubada" when valor is null or "depois" => Falha(TipoFalha.ConexaoDerrubada, depois: valor is not null),
         "respostaIlegivel" when valor is null => Falha(TipoFalha.RespostaIlegivel),
         "falhaSoap" when valor is null => Falha(TipoFalha.FalhaSoap),
-        "tempoEsgotado" or "conexaoDerrubada" or "respostaIlegivel" or "falhaSoap" => throw Invalida(marca, "valor que o tipo não aceita"),
-        _ => throw Invalida(marca, "tipo desconhecido"),
+        "tempoEsgotado" or "conexaoDerrubada" or "respostaIlegivel" or "falhaSoap" => throw Invalida(marca, "valor que o tipo não aceita", campo),
+        _ => throw Invalida(marca, "tipo desconhecido", campo),
     };
 
     private static FalhaComandada Falha(TipoFalha tipo, int? milissegundos = null, string? codigo = null, bool depois = false) =>
         new(0, tipo, null, null, milissegundos, 1, codigo, null, depois);
 
-    private static int Numero(string marca, string valor) =>
+    private static int Numero(string marca, string valor, string campo = "infCpl") =>
         int.TryParse(valor, NumberStyles.None, CultureInfo.InvariantCulture, out var numero) && numero > 0
             ? numero
-            : throw Invalida(marca, "o valor é um número maior que zero");
+            : throw Invalida(marca, "o valor é um número maior que zero", campo);
 
-    private static FalhaSoapException Invalida(string marca, string motivo) =>
-        new(CodigoFalha.Remetente, $"Marca do emulador inválida no infCpl ({marca}): {motivo}.");
+    private static FalhaSoapException Invalida(string marca, string motivo, string campo = "infCpl") =>
+        new(CodigoFalha.Remetente, $"Marca do emulador inválida no {campo} ({marca}): {motivo}.");
 
-    private static FalhaSoapException Repetida(string tipo) =>
-        new(CodigoFalha.Remetente, $"Mais de uma marca do emulador da mesma espécie no lote ({tipo}).");
+    private static FalhaSoapException Repetida(string tipo, string onde = "no lote") =>
+        new(CodigoFalha.Remetente, $"Mais de uma marca do emulador da mesma espécie {onde} ({tipo}).");
 
     [GeneratedRegex("EMULADA:(?<tipo>[A-Za-z]+)(?::(?<valor>[0-9A-Za-z]+))?", RegexOptions.CultureInvariant)]
     private static partial Regex Padrao();
