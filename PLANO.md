@@ -59,6 +59,7 @@ Os dois são provados na **etapa 1.7**, com uma chamada de status do serviço em
 | 6 | Eventos e inutilização | cancelamento, substituição, CC-e e inutilização em homologação |
 | 7 | DANFCE, DANFE e PDF | PDFs conferidos contra o manual |
 | 8 | Distribuição DF-e, manifestação, consulta cadastro | notas destinadas baixadas em homologação |
+| 9 | NFS-e nacional (`PROJETO.md` 18) | NFS-e emitida, consultada e cancelada contra o emulador, em Windows e Linux |
 
 As fases 1 a 5 e a 7 atendem o PDV (fase 5 dele); a 8, a caixa de entrada do ErpCore.
 
@@ -125,6 +126,19 @@ As fases 1 a 5 e a 7 atendem o PDV (fase 5 dele); a 8, a caixa de entrada do Erp
 - **8.1. Distribuição.** `DistribuicaoDFe` por último NSU, NSU e chave, destino AN, os documentos compactados (resumo, nota, evento) devolvidos como XML.
 - **8.2. Manifestação e cadastro.** Os eventos de manifestação (210200, 210210, 210220, 210240) com destino AN, e a `ConsultaCadastro`.
 
+### Fase 9: NFS-e nacional
+
+*Aprovada em 2026-11-19* (`PROJETO.md` 18; os nomes dos pacotes podem mudar na 9.0). Branch `fase-9-nfse`, a partir da `main`. Uma etapa por sessão, como o resto; sem o PFX, cada etapa fecha no emulador (E.7 a E.9) e deixa a homologação real (a produção restrita) pendente.
+
+- **9.0. Fontes e desenho.** Sem código. Conferir no gov.br/nfse a documentação técnica vigente e registrar em `docs/NTS.md`: o leiaute e os XSDs da DPS, da NFS-e e dos eventos, a documentação da API da Sefin Nacional e do ADN (rotas, JSON, códigos de erro), a parametrização municipal, a assinatura, a chave de acesso e o identificador da DPS, o DANFSe e as notas técnicas da reforma. Escrever o desenho das questões do `PROJETO.md` 18.5 (tipos e assinaturas públicas) e a lista das regras fora do schema. **Para aqui para a aprovação do usuário**, porque cria API pública.
+- **9.1. Modelo e leiaute.** O modelo da DPS e da NFS-e (com o IBS e a CBS), a escrita da DPS, a leitura da NFS-e e dos eventos, os schemas embutidos, o detector; as regras aprovadas na 9.0. Pronto quando: DPS de teste válidas no XSD e lidas de volta iguais; NFS-e de exemplo lidas.
+- **9.2. Transporte e emissão.** O transporte REST no núcleo (JSON, GZip e Base64, o TLS mútuo e a fábrica do handler da 8.5), as URLs dos dois ambientes com as trocadas, a emissão, a consulta pela chave e pela DPS, e a recuperação depois da queda no meio. Testes com handler falso e contra o emulador (E.7).
+- **9.3. Eventos.** O cancelamento, o cancelamento por substituição e os outros que a 9.0 listar; a consulta dos eventos. Contra o emulador (E.8).
+- **9.4. Parametrização municipal.** A consulta do convênio, do emissor, das alíquotas, dos regimes especiais, das retenções e dos benefícios do município. Contra o emulador (E.8).
+- **9.5. DANFSe.** O download do DANFSe pelo ADN e o modelo de impressão no leiaute, com o PDF no `OpenDFe.Impressao.Pdf`, se a 9.0 confirmar que quem emite precisa gerá-lo. Fecha a fase: README, guia em `docs/guia/` e a situação.
+
+Ordem com a trilha: 9.0 → 9.1 → E.7 → 9.2 → E.8 → 9.3 → 9.4 → E.9 → 9.5.
+
 ### Trilha paralela: SEFAZ emulada
 
 *Aprovada em 2026-10-19* (`PROJETO.md` 13.5). A próxima etapa fica na situação da trilha, no fim. Corre ao lado das fases, numa **worktree com a branch `sefaz-emulada`** e sessões próprias, uma etapa por sessão, como o resto. Os arquivos que as duas trilhas tocam são o `OpenDFe.slnx`, o `Directory.Packages.props` e este plano. A situação da trilha fica numa seção só dela, no fim, para não conflitar com a das fases.
@@ -140,6 +154,12 @@ Cada etapa se testa sozinha, com mensagens SOAP montadas a partir dos exemplos d
 
 Os códigos de retorno citados acima são conferidos no MOC vigente em cada etapa.
 
+**NFS-e no mesmo emulador** (aprovadas em 2026-11-19; `PROJETO.md` 18.6). Mesmo servidor, AC, TLS, painel e persistência; as rotas do Sistema Nacional ao lado das da SEFAZ. Cada etapa se testa sozinha, com pedidos montados a partir dos exemplos da documentação e um `HttpClient` sem a lib.
+
+- **E.7. Municípios e emissão.** O `/_controle/municipios` (o código do IBGE, o convênio, o emissor nacional ou próprio, as alíquotas do ISS por código de tributação nacional e a padrão, os regimes especiais, as retenções, os benefícios e a paralisação), com o município não configurado atendido como conveniado, com o emissor nacional e uma alíquota padrão (decidido em 2026-11-19); as rotas da Sefin Nacional com o mesmo caminho da real sob um prefixo, listadas no `GET /`; a emissão (o JSON, a compactação, o schema da DPS, a assinatura e o titular, a duplicidade, o município) com a NFS-e gerada e assinada pela AC de teste; a consulta pela chave e pela DPS; as falhas comandadas nas rotas novas e a marca `EMULADA:` no campo de texto livre da DPS. **Depende da 9.1** (os XSDs no leiaute), como a E.2 dependeu da 2.1.
+- **E.8. Eventos e parametrização.** O cancelamento e o cancelamento por substituição (a nota emitida, já cancelada, o prazo que o leiaute der), a consulta dos eventos e as rotas de parametrização do ADN respondendo com a configuração da E.7.
+- **E.9. Painel, persistência e DANFSe.** No painel, uma aba **NFS-e**, com os municípios (cadastrar e editar, paralisar e liberar), as NFS-e emitidas com os eventos e o XML, e os pedidos das rotas novas na aba Pedidos; a NFS-e e os municípios no `controle.db` e nos XMLs, com o `--persistir sim`; o DANFSe, se a 9.5 o usar. `docs/SEFAZ_EMULADA.md` ganha a parte da NFS-e desde a E.7.
+
 **Encontros com as fases:** a 4.1 testa o transporte contra o emulador (o Kestrel local que ela já prevê pode ser o da E.1, se estiver pronto) e fecha o desenho de como a raiz dele entra pela fábrica do handler. Da 4.3 em diante, cada operação ganha o teste contra o emulador ao lado do de homologação real. Até haver o PFX, vale a decisão do `PROJETO.md` 17 sobre o "pronto quando".
 
 ## Publicação
@@ -149,6 +169,8 @@ Pré-lançamentos (`0.x`) no NuGet.org a partir do fim da fase 5, quando o PDV p
 ## Situação
 
 ### Estado do plano (2026-10-24)
+
+**Fase 9 (NFS-e nacional) e etapas E.7 a E.9 do emulador: plano aprovado em 2026-11-19** (`PROJETO.md` 18). A próxima é a 9.0 (fontes e desenho, sem código), numa sessão nova, na branch `fase-9-nfse` a partir da `main`; ela para para a aprovação da API pública e das regras fora do schema.
 
 **As fases 0 a 8 estão feitas e fechadas no emulador.** As fases 1 a 4 (e a 1.7, a prova de risco) e as 5 a 8 têm a homologação real **pendente do PFX A1 ICP-Brasil** (`PROJETO.md` 17): o "pronto quando" de cada uma vale contra a SEFAZ emulada, e cada etapa deixou o seu teste de homologação (`OpenDFe.Homologacao.Testes`) escrito e pulado sem o PFX. Nada foi publicado no NuGet.org; nenhum `push` foi feito. A suíte fecha com 2.653 testes (29 pulados: os de homologação e da prova de risco, que falam com a SEFAZ), no Windows e no Linux (Nucleo 639, NFe 1.334, SefazEmulada 509 e Impressao.Pdf 138 pelo WSL).
 
