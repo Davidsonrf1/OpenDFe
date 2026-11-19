@@ -298,6 +298,8 @@ O desenho da NFS-e (seção 18.5), decidido na etapa 9.0, com a API pública apr
 
 **Decidido em 2026-11-19, com o plano da fase aprovado no mesmo dia:** a NFS-e entra na lib, num pacote próprio, como a Fase 9. O primeiro consumidor é o ErpCore, que a pôs no MVP (o módulo de serviços e o aditivo da NFS-e do fiscal). Vale tudo o que vale para a NF-e: a seção 1.1 (a lib cuida do documento, não calcula o ISS nem os tributos), a 2.3 (sem estado global), a 2.4 (problema não é exceção), a 2.9 (o schema e só as regras necessárias, listadas e aprovadas) e os nomes sem preposição.
 
+**Etapa 9.0 (2026-11-19):** as fontes conferidas mudam parte do que está abaixo (o DANFSe, a substituição, a manifestação, o município na configuração). O desenho proposto está em `docs/NFSE.md` e, aprovado, é incorporado aqui.
+
 18.1. **Só o padrão nacional** (o Sistema Nacional da NFS-e, gov.br/nfse). Sem provedores municipais (ABRASF, Betha, ISS.net e afins). A adesão do município ao convênio não garante que ele use o emissor nacional: há os que mantêm sistema próprio e só compartilham os dados com o ambiente nacional. A lib não decide isso por quem usa; oferece a consulta da parametrização do município (18.4), e quem usa decide se emite.
 
 18.2. **O que muda em relação à NF-e** (a conferir na fonte, na etapa 9.0, e registrar em `docs/NTS.md`):
